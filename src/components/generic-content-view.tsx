@@ -76,7 +76,7 @@ const GenericContentHeader = ({
     }
   }, [getCsv])
 
-  return <CardHeader className="border-b py-3 min-h-[90px]">
+  return <CardHeader className="border-b py-3 min-h-[91px]">
     <CardTitle>
       {children}
     </CardTitle>

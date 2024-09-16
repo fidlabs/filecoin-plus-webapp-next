@@ -28,7 +28,7 @@
     "react-d3-tree": "^3.6.2",
     "react-dom": "^18",
     "react-markdown": "^9.0.1",
-    "recharts": "^2.12.7",
+    "recharts": "^2.13.0-alpha.5",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
     "usehooks-ts": "^3.1.0"

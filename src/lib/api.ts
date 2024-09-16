@@ -1,10 +1,10 @@
 import {IApiQuery} from "@/lib/interfaces/api.interface";
 import {
-  IAllocatorsResponse,
+  IAllocatorsResponse, IClientsResponse,
   IFilDCAllocationsWeekly,
   IFilDCAllocationsWeeklyByClient,
   IFilDCFLow,
-  IFilPlusStats
+  IFilPlusStats, IStorageProvidersResponse
 } from "@/lib/interfaces/dmob.interface";
 
 const revalidate = 12 * 60 * 60;
@@ -63,4 +63,14 @@ export const getAllocators = async (query?: IApiQuery) => {
 export const getDCFlow = async () => {
   const url = `${apiUrl}/get-dc-flow-graph-grouped-by-audit-status`
   return await fetchData(url) as IFilDCFLow;
+}
+
+export const getClients = async (query?: IApiQuery) => {
+  const url = `${apiUrl}/getVerifiedClients${parseQuery(query)}`
+  return await fetchData(url) as IClientsResponse;
+}
+
+export const getStorageProviders = async (query?: IApiQuery) => {
+  const url = `${apiUrl}/v2/getMiners${parseQuery(query)}`
+  return await fetchData(url) as IStorageProvidersResponse;
 }

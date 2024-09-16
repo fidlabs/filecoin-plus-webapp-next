@@ -1,4 +1,5 @@
 import {Metadata} from "next";
+import {StorageProvidersList} from "@/app/storage-providers/components/storage-providers-list";
 
 export const metadata: Metadata = {
   title: "Fil+ Dashboard | Storage Providers",
@@ -6,7 +7,7 @@ export const metadata: Metadata = {
 }
 
 const StorageProvidersPage = () => {
-  return <div>Storage Providers Page</div>
+  return <StorageProvidersList/>
 };
 
 export default StorageProvidersPage;

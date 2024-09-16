@@ -1,21 +1,21 @@
 import {useCallback, useEffect, useState} from "react";
 import {
-  IAllocatorsResponse,
+  IAllocatorsResponse, IClientsResponse,
   IFilDCAllocationsWeekly, IFilDCAllocationsWeeklyByClient,
   IFilDCFLow,
   IFilDCFLowActiveAllocators,
   IFilDCFLowAllocator,
   IFilDCFLowAllocators,
-  IFilPlusStats
+  IFilPlusStats, IStorageProvidersResponse
 } from "@/lib/interfaces/dmob.interface";
 import {groupBy} from "lodash";
 import {convertBytesToIEC} from "@/lib/utils";
 import {
-  getAllocators,
+  getAllocators, getClients,
   getDataCapAllocationsWeekly,
   getDataCapAllocationsWeeklyByClient,
   getDCFlow,
-  getStats
+  getStats, getStorageProviders
 } from "@/lib/api";
 import {IApiQuery} from "@/lib/interfaces/api.interface";
 
@@ -278,12 +278,57 @@ const useAllocators = (params?: IApiQuery) => {
   }
 }
 
+const useClients = (params?: IApiQuery) => {
+  const [data, setData] = useState<IClientsResponse | undefined>(undefined);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (!params) {
+      return;
+    }
+    setLoading(true);
+    setData(undefined)
+    getClients(params).then(data => {
+      setData(data);
+      setLoading(false);
+    });
+  }, [params]);
+
+  return {
+    data,
+    loading
+  }
+}
+
+const useStorageProviders = (params?: IApiQuery) => {
+  const [data, setData] = useState<IStorageProvidersResponse | undefined>(undefined);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (!params) {
+      return;
+    }
+    setLoading(true);
+    setData(undefined)
+    getStorageProviders(params).then(data => {
+      setData(data);
+      setLoading(false);
+    });
+  }, [params]);
+
+  return {
+    data,
+    loading
+  }
+}
 
 export {
   useDataCapFlow,
   useStats,
   useDataCapAllocationsWeekly,
   useDataCapAllocationsWeeklyByClient,
-  useAllocators
+  useAllocators,
+  useClients,
+  useStorageProviders,
 };
 

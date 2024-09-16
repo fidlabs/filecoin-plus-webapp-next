@@ -54,7 +54,7 @@ const DataCapOverTimeChart = () => {
       </CardHeader>
       <CardContent className="flex flex-col gap-2">
         {reversedWeekKeys.filter(key => weeksToDisplay.includes(key)).map((key, index) => {
-          if (!providerData[key]) return <></>;
+          if (!providerData[key]) return <div key={index}></div>;
           return <div
             key={index}
             className="flex flex-row items-center justify-start gap-1 text-sm text-muted-foreground"

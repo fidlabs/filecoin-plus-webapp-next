@@ -95,10 +95,11 @@ export interface IApiListResponse<T> {
   data: T[]
 }
 
-export interface IAllocatorsResponse extends IApiListResponse<IAllocator> {
-  count: string;
-  data: IAllocator[];
+export interface IApiListCountable {
+  count: string
 }
+
+export interface IAllocatorsResponse extends IApiListResponse<IAllocator>, IApiListCountable {}
 
 export interface IAllocator {
   id: number
@@ -123,6 +124,40 @@ export interface IAllocator {
   remainingDatacap: string
 }
 
+export interface IClientsResponse extends IApiListResponse<IClient>, IApiListCountable {
+  totalRemainingDatacap: string
+  clientsWithActiveDeals: string
+  countOfClientsWhoHaveDcAndDeals: string
+  numberOfClients: string
+}
+
+export interface IClient {
+  id: number
+  addressId: string
+  address: string
+  retries: number
+  auditTrail: string
+  name: string
+  orgName: string
+  initialAllowance: string
+  allowance: string
+  verifierAddressId: string
+  createdAtHeight: number
+  issueCreateTimestamp: any
+  createMessageTimestamp: number
+  verifierName: string
+  dealCount?: number
+  providerCount?: number
+  topProvider?: string
+  receivedDatacapChange: string
+  usedDatacapChange: string
+  allowanceArray: IAllowanceArray[]
+  region: string
+  website: string
+  industry: string
+  remainingDatacap: string
+}
+
 export interface IAllowanceArray {
   id: number
   error: string
@@ -135,4 +170,14 @@ export interface IAllowanceArray {
   verifierId: number
   issueCreateTimestamp?: number
   createMessageTimestamp: number
+}
+
+export interface IStorageProvidersResponse extends IApiListResponse<IStorageProvider>, IApiListCountable {}
+
+export interface IStorageProvider {
+  provider: string
+  noOfVerifiedDeals: number
+  verifiedDealsTotalSize: string
+  noOfClients: number
+  lastDealHeight: string
 }

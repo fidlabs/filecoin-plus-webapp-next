@@ -2,7 +2,7 @@ import {DataTableSort} from "@/components/ui/data-table";
 import Link from "next/link";
 import {HoverCard, HoverCardContent, HoverCardTrigger} from "@/components/ui/hover-card";
 import {calculateDateFromHeight, convertBytesToIEC} from "@/lib/utils";
-import {CopyIcon} from "lucide-react";
+import {CopyIcon, InfoIcon} from "lucide-react";
 import {ColumnDef} from "@tanstack/react-table";
 import {IAllocator} from "@/lib/interfaces/dmob.interface";
 
@@ -37,7 +37,7 @@ export const useAllocatorsColumns = (filterCallback: FilterCallback) => {
         const name = row.getValue('name') as string
         if (name?.length > 20) {
           return <HoverCard openDelay={100} closeDelay={50}>
-            <HoverCardTrigger>
+            <HoverCardTrigger asChild>
               <Link className="table-link" href={`allocators/${addressId}`}>{name.slice(0, 20)}...</Link>
             </HoverCardTrigger>
             <HoverCardContent className="w-80">
@@ -61,7 +61,7 @@ export const useAllocatorsColumns = (filterCallback: FilterCallback) => {
         const orgName = row.getValue('orgName') as string
         if (orgName?.length > 20) {
           return <HoverCard openDelay={100} closeDelay={50}>
-            <HoverCardTrigger>
+            <HoverCardTrigger asChild>
               <p className="cursor-help">{orgName.slice(0, 20)}...</p>
             </HoverCardTrigger>
             <HoverCardContent className="w-80">
@@ -69,7 +69,7 @@ export const useAllocatorsColumns = (filterCallback: FilterCallback) => {
             </HoverCardContent>
           </HoverCard>
         } else {
-          return <p className="cursor-help">{orgName}</p>
+          return <p>{orgName}</p>
         }
       }
     }, {
@@ -83,14 +83,52 @@ export const useAllocatorsColumns = (filterCallback: FilterCallback) => {
       },
       cell: ({row}) => {
         const verifiedClientsCount = row.getValue('verifiedClientsCount') as string
-        return <HoverCard openDelay={100} closeDelay={50}>
-          <HoverCardTrigger>
-            <p className="cursor-help">{verifiedClientsCount}</p>
-          </HoverCardTrigger>
-          <HoverCardContent className="w-80">
-            Number of SP this client uses
-          </HoverCardContent>
-        </HoverCard>
+        return <p className="whitespace-nowrap flex gap-1 items-center">
+          {verifiedClientsCount}
+        </p>
+      }
+    }, {
+      accessorKey: 'address',
+      header: () => {
+        return (
+          <DataTableSort property="address" setSorting={filterCallback}>
+            Address
+          </DataTableSort>
+        )
+      },
+      cell: ({row}) => {
+        const address = row.getValue('address') as string
+        const addressShort = `${address.slice(0, 4)}...${address.slice(-4)}`
+        return <div className="flex gap-2 items-center">
+          <p className="whitespace-nowrap">{addressShort}</p>
+          <button onClick={() => navigator.clipboard.writeText(address)}>
+            <CopyIcon size={15} className="text-muted-foreground"/>
+          </button>
+        </div>
+      }
+    }, {
+      accessorKey: 'createdAtHeight',
+      header: () => {
+        return (
+          <DataTableSort property="createdAtHeight" setSorting={filterCallback}>
+            Create date
+          </DataTableSort>
+        )
+      },
+      cell: ({row}) => {
+        const createdAtHeight = row.getValue('createdAtHeight') as string
+        return <div className="whitespace-nowrap flex gap-1 items-center">
+          {calculateDateFromHeight(+createdAtHeight)}
+          <HoverCard openDelay={100} closeDelay={50}>
+            <HoverCardTrigger>
+              <InfoIcon size={15} className="text-muted-foreground cursor-help"/>
+            </HoverCardTrigger>
+            <HoverCardContent className="w-32">
+              <p>Block height</p>
+              <p>{createdAtHeight}</p>
+            </HoverCardContent>
+          </HoverCard>
+        </div>
       }
     }, {
       accessorKey: 'allowance',
@@ -129,45 +167,24 @@ export const useAllocatorsColumns = (filterCallback: FilterCallback) => {
       },
       cell: ({row}) => {
         const initialAllowance = row.getValue('initialAllowance') as string
-        return convertBytesToIEC(initialAllowance)
-      }
-    }, {
-      accessorKey: 'createdAtHeight',
-      header: () => {
-        return (
-          <DataTableSort property="createdAtHeight" setSorting={filterCallback}>
-            Create date
-          </DataTableSort>
-        )
-      },
-      cell: ({row}) => {
-        const createdAtHeight = row.getValue('createdAtHeight') as string
-        return <HoverCard openDelay={100} closeDelay={50}>
-          <HoverCardTrigger>
-            <p className="cursor-help whitespace-nowrap">{calculateDateFromHeight(+createdAtHeight)}</p>
-          </HoverCardTrigger>
-          <HoverCardContent className="w-80">
-            {createdAtHeight}
-          </HoverCardContent>
-        </HoverCard>
-      }
-    }, {
-      accessorKey: 'address',
-      header: () => {
-        return (
-          <DataTableSort property="address" setSorting={filterCallback}>
-            Address
-          </DataTableSort>
-        )
-      },
-      cell: ({row}) => {
-        const address = row.getValue('address') as string
-        const addressShort = `${address.slice(0, 4)}...${address.slice(-4)}`
-        return <div className="flex gap-2 items-center">
-          <p className="whitespace-nowrap">{addressShort}</p>
-          <button onClick={() => navigator.clipboard.writeText(address)}>
-            <CopyIcon size={15} className="text-muted-foreground"/>
-          </button>
+        const allowanceArray =  row.original.allowanceArray;
+        return <div className="whitespace-nowrap flex gap-1 items-center">
+          {convertBytesToIEC(initialAllowance)}
+          {allowanceArray?.length && <HoverCard openDelay={100} closeDelay={50}>
+            <HoverCardTrigger>
+              <InfoIcon size={15} className="text-muted-foreground cursor-help"/>
+            </HoverCardTrigger>
+            <HoverCardContent className="w-64">
+              {
+                allowanceArray.map((allowance, index) => {
+                  return <div key={index} className="grid grid-cols-7 gap-2">
+                    <div className="col-span-2 text-right">{convertBytesToIEC(allowance.allowance)}</div>
+                    <div className="col-span-5 text-sm text-muted-foreground">({calculateDateFromHeight(+allowance.height)})</div>
+                  </div>
+                })
+              }
+            </HoverCardContent>
+          </HoverCard>}
         </div>
       }
     }

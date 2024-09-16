@@ -1,61 +1,27 @@
 "use client"
 import {DataTable} from "@/components/ui/data-table";
 import {useAllocators} from "@/lib/hooks/dmob.hooks";
-import {useCallback, useEffect, useState} from "react";
 import {Card, CardContent} from "@/components/ui/card";
-import {usePathname, useRouter, useSearchParams} from "next/navigation";
-import {IAllocatorsQuery, IApiQuery} from "@/lib/interfaces/api.interface";
-import {ColumnDef} from "@tanstack/react-table";
-import {IAllocator} from "@/lib/interfaces/dmob.interface";
+import {IAllocatorsQuery} from "@/lib/interfaces/api.interface";
 import {GenericContentFooter, GenericContentHeader} from "@/components/generic-content-view";
 import {Checkbox} from "@/components/ui/checkbox";
 import {LoaderCircle} from "lucide-react";
 import {useAllocatorsColumns} from "@/app/allocators/components/useAllocatorsColumns";
 import {getAllocators} from "@/lib/api";
+import {useParamsQuery} from "@/lib/hooks/useParamsQuery";
 
 const AllocatorsList = () => {
-  const pathName = usePathname()
-  const router = useRouter()
-  const query = useSearchParams()
-
-  const [params, setParams] = useState<IAllocatorsQuery | undefined>(undefined)
+  const {params, patchParams} = useParamsQuery<IAllocatorsQuery>({
+    page: 1,
+    showInactive: false,
+    limit: 10,
+    filter: '',
+    sort: ''
+  } as IAllocatorsQuery)
   const {
     data,
     loading
   } = useAllocators(params)
-
-  const patchParams = useCallback((newParams: IApiQuery) => {
-    setParams((oldParams) => ({
-      ...(oldParams ?? {}),
-      ...newParams
-    }) as IAllocatorsQuery)
-  }, []);
-
-  useEffect(() => {
-    if (!params) {
-      return
-    }
-    const searchParams = new URLSearchParams();
-    for (const [key, value] of Object.entries(params)) {
-      searchParams.set(key, value?.toString() ?? '')
-    }
-    const newPath = `${pathName}?${searchParams.toString()}`
-    router.replace(newPath)
-  }, [params, pathName, router]);
-
-  useEffect(() => {
-    if (params) {
-      return
-    }
-    const paramsEntries = Object.fromEntries(query);
-    setParams({
-      filter: paramsEntries.filter ?? '',
-      limit: +(paramsEntries.limit ?? 10),
-      page: +(paramsEntries.page ?? 1),
-      showInactive: !!paramsEntries.showInactive,
-      sort: paramsEntries.sort ?? '',
-    })
-  }, [query, params])
 
   const {columns, csvHeaders} = useAllocatorsColumns((key, direction) => patchParams({sort: `[["${key}",${direction}]]`}));
 
@@ -73,7 +39,7 @@ const AllocatorsList = () => {
                           }}
                           setQuery={(filter: string) => patchParams({filter, page: 1})}>
       <div className="flex flex-row gap-6 items-baseline">
-        <h1 className="text-3xl text-black leading-none font-semibold flex items-center gap-2">
+        <h1 className="text-2xl text-black leading-none font-semibold flex items-center gap-2">
           <p>
             {loading && <LoaderCircle className="animate-spin"/>}
             {data?.count}

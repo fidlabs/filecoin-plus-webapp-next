@@ -9,3 +9,17 @@ export interface IAllocatorsQuery extends IApiQuery {
   filter: string;
   sort?: string
 }
+
+export interface IClientsQuery extends IApiQuery {
+  page: number;
+  limit: number;
+  filter: string;
+  sort?: string
+}
+
+export interface IStorageProvidersQuery extends IApiQuery {
+  page: number;
+  limit: number;
+  filter: string;
+  sort?: string
+}

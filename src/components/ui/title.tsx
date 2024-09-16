@@ -8,7 +8,7 @@ const PageTitle = ({children}: PropsWithChildren) => {
 }
 
 const PageHeader = ({children}: PropsWithChildren) => {
-  return <div className="flex flex-col items-start">
+  return <div className="flex flex-col items-start h-[90px]">
     {children}
   </div>
 }
