@@ -6,7 +6,7 @@ import {Card, CardContent} from "@/components/ui/card";
 import {IStorageProvidersQuery} from "@/lib/interfaces/api.interface";
 import {GenericContentFooter, GenericContentHeader} from "@/components/generic-content-view";
 import {LoaderCircle} from "lucide-react";
-import {getAllocators} from "@/lib/api";
+import {getStorageProviders} from "@/lib/api";
 import {useParamsQuery} from "@/lib/hooks/useParamsQuery";
 import {useStorageProvidersColumns} from "@/app/storage-providers/components/useStorageProvidersColumns";
 
@@ -21,11 +21,11 @@ const StorageProvidersList = () => {
 
   const {columns, csvHeaders} = useStorageProvidersColumns((key, direction) => patchParams({sort: `[["${key}",${direction}]]`}));
 
-  return <Card>
+  return <Card className="mt-[50px]">
       <GenericContentHeader placeholder="Storage provider ID" query={params?.filter}
                             getCsv={{
                               method: async () => {
-                                const data = await getAllocators(params)
+                                const data = await getStorageProviders(params)
                                 return {
                                   data: data.data as never[]
                                 }
@@ -33,7 +33,7 @@ const StorageProvidersList = () => {
                               title: 'storage-providers.csv',
                               headers: csvHeaders
                             }}
-                            setQuery={(filter: string) => patchParams({filter, page: 1})}>
+                            setQuery={(filter: string) => patchParams({filter, page: '1'})}>
         <div className="flex flex-row gap-6 items-baseline">
           <h1 className="text-2xl text-black leading-none font-semibold flex items-center gap-2">
             <p>
@@ -52,7 +52,7 @@ const StorageProvidersList = () => {
         }
         {data && <DataTable columns={columns} data={data!.data}/>}
       </CardContent>
-      <GenericContentFooter page={params?.page} limit={params?.limit} total={+(data?.count ?? 0)}
+      <GenericContentFooter page={params?.page} limit={params?.limit} total={(data?.count ?? '0')}
                             patchParams={patchParams}/>
     </Card>
 }

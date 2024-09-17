@@ -12,12 +12,13 @@ import {useParamsQuery} from "@/lib/hooks/useParamsQuery";
 
 const AllocatorsList = () => {
   const {params, patchParams} = useParamsQuery<IAllocatorsQuery>({
-    page: 1,
-    showInactive: false,
-    limit: 10,
+    page: '1',
+    showInactive: 'false',
+    limit: '10',
     filter: '',
     sort: ''
   } as IAllocatorsQuery)
+
   const {
     data,
     loading
@@ -25,7 +26,7 @@ const AllocatorsList = () => {
 
   const {columns, csvHeaders} = useAllocatorsColumns((key, direction) => patchParams({sort: `[["${key}",${direction}]]`}));
 
-  return <Card>
+  return <Card className="mt-[50px]">
     <GenericContentHeader placeholder="Allocator ID / Address / Name" query={params?.filter}
                           getCsv={{
                             method: async () => {
@@ -37,7 +38,7 @@ const AllocatorsList = () => {
                             title: 'allocators.csv',
                             headers: csvHeaders
                           }}
-                          setQuery={(filter: string) => patchParams({filter, page: 1})}>
+                          setQuery={(filter: string) => patchParams({filter, page: '1'})}>
       <div className="flex flex-row gap-6 items-baseline">
         <h1 className="text-2xl text-black leading-none font-semibold flex items-center gap-2">
           <p>
@@ -53,9 +54,9 @@ const AllocatorsList = () => {
           >
             Show inactive
           </label>
-          <Checkbox id="terms" checked={params?.showInactive} onCheckedChange={(checked) => patchParams({
-            showInactive: !!checked,
-            page: 1
+          <Checkbox id="terms" checked={params?.showInactive === 'true'} onCheckedChange={(checked) => patchParams({
+            showInactive: !!checked ? 'true' : 'false',
+            page: '1'
           })}/>
         </div>
       </div>
@@ -68,7 +69,7 @@ const AllocatorsList = () => {
       }
       {data && <DataTable columns={columns} data={data!.data}/>}
     </CardContent>
-    <GenericContentFooter page={params?.page} limit={params?.limit} total={+(data?.count ?? 0)}
+    <GenericContentFooter page={params?.page} limit={params?.limit} total={(data?.count ?? '0')}
                           patchParams={patchParams}/>
   </Card>
 }

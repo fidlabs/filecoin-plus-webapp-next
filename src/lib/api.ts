@@ -1,5 +1,6 @@
 import {IApiQuery} from "@/lib/interfaces/api.interface";
 import {
+  IAllocatorResponse,
   IAllocatorsResponse, IClientsResponse,
   IFilDCAllocationsWeekly,
   IFilDCAllocationsWeeklyByClient,
@@ -58,6 +59,11 @@ export const getDataCapAllocationsWeeklyByClient = async () => {
 export const getAllocators = async (query?: IApiQuery) => {
   const url = `${apiUrl}/getVerifiers${parseQuery(query)}`
   return await fetchData(url) as IAllocatorsResponse;
+}
+
+export const getAllocatorById = async (id: string, query?: IApiQuery) => {
+  const url = `${apiUrl}/getVerifiedClients/${id}${parseQuery(query)}`
+  return await fetchData(url) as IAllocatorResponse;
 }
 
 export const getDCFlow = async () => {

@@ -1,14 +1,13 @@
 "use client"
 import {DataTable} from "@/components/ui/data-table";
 import {useClients} from "@/lib/hooks/dmob.hooks";
-import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
+import {Card, CardContent} from "@/components/ui/card";
 import {IClientsQuery} from "@/lib/interfaces/api.interface";
 import {GenericContentFooter, GenericContentHeader} from "@/components/generic-content-view";
 import {InfoIcon, LoaderCircle} from "lucide-react";
-import {getAllocators} from "@/lib/api";
+import {getClients} from "@/lib/api";
 import {useParamsQuery} from "@/lib/hooks/useParamsQuery";
 import {useClientsColumns} from "@/app/clients/components/useClientsColumns";
-import {convertBytesToIEC} from "@/lib/utils";
 import {PageHeader, PageTitle} from "@/components/ui/title";
 import {ClientsStats} from "@/app/clients/components/clients-stats";
 
@@ -32,7 +31,7 @@ const ClientsList = () => {
       <GenericContentHeader placeholder="Client ID / Address / Name" query={params?.filter}
                             getCsv={{
                               method: async () => {
-                                const data = await getAllocators(params)
+                                const data = await getClients(params)
                                 return {
                                   data: data.data as never[]
                                 }
@@ -40,7 +39,7 @@ const ClientsList = () => {
                               title: 'clients.csv',
                               headers: csvHeaders
                             }}
-                            setQuery={(filter: string) => patchParams({filter, page: 1})}>
+                            setQuery={(filter: string) => patchParams({filter, page: '1'})}>
         <div className="flex flex-row gap-6 items-baseline">
           <h1 className="text-2xl text-black leading-none font-semibold flex items-center gap-2">
             <p>
@@ -54,7 +53,7 @@ const ClientsList = () => {
       <CardContent className="p-0 m-0 border-b bg-[#F2F9FF]">
         <div className="flex items-center px-6 py-2 gap-3">
           <InfoIcon className="w-5 h-5 bg-[#475A6E] rounded-full text-white flex flex-col items-center justify-center"/>
-          <p>Note: Clients that receive automatic DataCap allocations from the verify.glif.io site maintained by the Infinite Scroll allocator are marked as &quot;Glif auto verified.&quot;</p>
+          <p className="text-sm">Note: Clients that receive automatic DataCap allocations from the verify.glif.io site maintained by the Infinite Scroll allocator are marked as &quot;Glif auto verified.&quot;</p>
         </div>
       </CardContent>
       <CardContent className="p-0">
@@ -65,7 +64,7 @@ const ClientsList = () => {
         }
         {data && <DataTable columns={columns} data={data!.data}/>}
       </CardContent>
-      <GenericContentFooter page={params?.page} limit={params?.limit} total={+(data?.count ?? 0)}
+      <GenericContentFooter page={params?.page} limit={params?.limit} total={(data?.count ?? '0')}
                             patchParams={patchParams}/>
     </Card>
   </div>

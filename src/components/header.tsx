@@ -13,7 +13,7 @@ const Header = () => {
   const [menuOpened, setMenuOpened] = useState(false)
 
   return <header
-    className="w-full h-[110px] after:absolute after:w-full after:content-[''] relative after:bg-header after:min-h-[200px] after:-z-[1] after:top-0">
+    className="w-full h-[110px] text-white after:absolute after:w-full after:content-[''] relative after:bg-header after:min-h-[250px] after:-z-[1] after:top-0">
     <div className="w-full h-full max-w-[1600px] mx-auto flex justify-between md:justify-start gap-6 pt-7 pb-10 px-4 text-white items-end">
       <Link href="/" className="flex gap-2 items-end mr-5">
         <LogoIcon className="w-[40px] h-[40px]"/>

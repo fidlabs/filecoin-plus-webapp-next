@@ -101,6 +101,13 @@ export interface IApiListCountable {
 
 export interface IAllocatorsResponse extends IApiListResponse<IAllocator>, IApiListCountable {}
 
+export interface IAllocatorResponse extends IApiListResponse<IClient>, IApiListCountable{
+  name: string
+  remainingDatacap: string
+  addressId: string
+  address: string
+}
+
 export interface IAllocator {
   id: number
   addressId: string

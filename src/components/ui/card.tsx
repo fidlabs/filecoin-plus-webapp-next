@@ -23,7 +23,7 @@ const CardHeader = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("flex space-y-1.5 p-6 w-full justify-between items-center", className)}
+    className={cn("flex p-6 w-full justify-between items-center", className)}
     {...props}
   />
 ))

@@ -8,7 +8,7 @@ const useParamsQuery = <T>(initialParams?: IApiQuery) => {
   const pathName = usePathname()
   const router = useRouter()
 
-  const [params, setParams] = useState<IApiQuery | undefined>(initialParams)
+  const [params, setParams] = useState<IApiQuery | undefined>(undefined)
 
   const patchParams = useCallback((newParams: IApiQuery) => {
     setParams((oldParams) => ({
@@ -30,18 +30,18 @@ const useParamsQuery = <T>(initialParams?: IApiQuery) => {
   }, [params, pathName, router]);
 
   useEffect(() => {
-    if (params) {
-      return
-    }
     const paramsEntries = Object.fromEntries(query);
+    console.log(paramsEntries)
+    console.log(initialParams)
     setParams({
-      filter: paramsEntries.filter ?? '',
-      limit: +(paramsEntries.limit ?? 10),
-      page: +(paramsEntries.page ?? 1),
-      sort: paramsEntries.sort ?? '',
+      ...(initialParams ?? {
+        page: '1',
+        limit: '10',
+        sort: ''
+      }),
       ...paramsEntries
     })
-  }, [query, params])
+  }, [])
 
   return {
     params: params as T,

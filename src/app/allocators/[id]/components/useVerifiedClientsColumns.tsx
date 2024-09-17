@@ -8,7 +8,7 @@ import {IClient} from "@/lib/interfaces/dmob.interface";
 
 type FilterCallback = (key: string, direction: string) => void;
 
-export const useClientsColumns = (filterCallback: FilterCallback) => {
+export const useVerifiedClientsColumns = (filterCallback: FilterCallback) => {
   const columns = [
     {
       accessorKey: "addressId",
@@ -21,7 +21,7 @@ export const useClientsColumns = (filterCallback: FilterCallback) => {
       },
       cell: ({row}) => {
         const addressId = row.getValue('addressId') as string
-        return <Link className="table-link" href={`clients/${addressId}`}>{addressId}</Link>
+        return <Link className="table-link" href={`/clients/${addressId}`}>{addressId}</Link>
       }
     }, {
       accessorKey: "name",
@@ -38,14 +38,14 @@ export const useClientsColumns = (filterCallback: FilterCallback) => {
         if (name?.length > 20) {
           return <HoverCard openDelay={100} closeDelay={50}>
             <HoverCardTrigger asChild>
-              <Link className="table-link" href={`clients/${addressId}`}>{name.slice(0, 20)}...</Link>
+              <Link className="table-link" href={`/clients/${addressId}`}>{name.slice(0, 20)}...</Link>
             </HoverCardTrigger>
             <HoverCardContent className="w-80">
               {name}
             </HoverCardContent>
           </HoverCard>
         } else {
-          return <Link className="table-link" href={`clients/${addressId}`}>{name}</Link>
+          return <Link className="table-link" href={`/clients/${addressId}`}>{name}</Link>
         }
       }
     },{

@@ -7,12 +7,13 @@ import {Paginator} from "@/components/ui/pagination";
 import {Select, SelectContent, SelectItem, SelectTrigger} from "@/components/ui/select";
 import {IApiQuery} from "@/lib/interfaces/api.interface";
 import {LoaderCircle} from "lucide-react";
-import {IApiListResponse} from "@/lib/interfaces/dmob.interface";
+import {cn} from "@/lib/utils";
 
 interface GenericContentHeaderProps {
   placeholder: string,
+  fixedHeight?: boolean,
   query?: string,
-  setQuery: (query: string) => void,
+  setQuery?: (query: string) => void,
   getCsv?: {
     method: () => Promise<{
       data: never[]
@@ -26,7 +27,7 @@ interface GenericContentHeaderProps {
 }
 
 const GenericContentHeader = ({
-                                query, setQuery, children, placeholder, getCsv
+                                query, setQuery, children, placeholder, getCsv, fixedHeight = true
                               }: PropsWithChildren<GenericContentHeaderProps>) => {
 
   const [searchQuery, setSearchQuery] = useState<string>(query ?? '');
@@ -35,7 +36,7 @@ const GenericContentHeader = ({
   useEffect(() => {
     if (searchQuery === query) return
     const timeout = setTimeout(() => {
-      setQuery(searchQuery)
+      setQuery && setQuery(searchQuery)
     }, 350)
 
     return () => clearTimeout(timeout)
@@ -53,7 +54,7 @@ const GenericContentHeader = ({
       const dataString = data?.data.map((entry: never) => {
         return allowedKeys.map((key) => {
           const value = entry[key]
-          if (value !== null) {
+          if (!!value) {
             return JSON.stringify(value).replace(/,/g, ' ').replace(/;/g, ' ')
           }
           return ''
@@ -76,17 +77,17 @@ const GenericContentHeader = ({
     }
   }, [getCsv])
 
-  return <CardHeader className="border-b py-3 min-h-[91px]">
+  return <CardHeader className={cn("border-b items-center p-3", fixedHeight && 'min-h-[91px]')}>
     <CardTitle>
       {children}
     </CardTitle>
-    <div className="flex gap-4">
-      <Input className="bg-background w-64" value={searchQuery}
-             placeholder={placeholder}
-             onChange={(e) => setSearchQuery(e.target.value)}/>
+    <div className="flex flex-row gap-4">
+      {!!setQuery && <Input className="bg-background w-64" value={searchQuery}
+              placeholder={placeholder}
+              onChange={(e) => setSearchQuery(e.target.value)}/>}
       {getCsv && <Button variant="outline" onClick={downloadCsv}>
         {
-          downloadCsvLoading ? <LoaderCircle className="animate-spin"/> : 'Download CSV'
+          downloadCsvLoading ? <LoaderCircle className="animate-spin"/> : 'Export to CSV'
         }
       </Button>}
     </div>
@@ -94,9 +95,9 @@ const GenericContentHeader = ({
 }
 
 interface GenericContentFooterProps {
-  total: number,
-  limit?: number,
-  page?: number,
+  total: string,
+  limit?: string,
+  page?: string,
   patchParams: (params: Partial<IApiQuery>) => void
 }
 
@@ -108,11 +109,11 @@ const GenericContentFooter = ({
     return <></>
   }
   return <CardFooter className="border-t flex py-3 w-full justify-between">
-    <Paginator page={page} perPage={limit} total={total}
-               onPageChange={(page: number) => patchParams({page})}/>
+    <Paginator page={+page} perPage={+limit} total={+total}
+               onPageChange={(page: number) => patchParams({page: page.toString()})}/>
     <div className="flex gap-2 font-semibold items-center text-muted-foreground">
       <p>View</p>
-      <Select value={limit.toString()} onValueChange={(val) => patchParams({limit: +val, page: 1})}>
+      <Select value={limit.toString()} onValueChange={(val) => patchParams({limit: val, page: '1'})}>
         <SelectTrigger className="bg-background">{limit}</SelectTrigger>
         <SelectContent>
           <SelectItem value="10">10</SelectItem>
