@@ -1,0 +1,31 @@
+name: Build FE
+
+on:
+  push:
+    branches: ["dev"]
+
+env:
+  SLACK_CHANNEL: infra-ci-filplus
+  AWS_REGION: us-east-1
+  S3_BUCKET: production-nextdatacapstatsio-origin
+  CDN_NAME: next.datacapstats.io
+  NODE_VERSION: 18.13
+  BUILD_COMMAND: npm
+  BUILD_PATH: dist
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: cristi-mb/build-fe@main
+        with:
+          aws-access-key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+          aws-s3-name: ${{ env.S3_BUCKET }}
+          aws-cloudfront-name: ${{ env.CDN_NAME }}
+          slack-channel: ${{ env.SLACK_CHANNEL }}
+          slack-token: ${{ secrets.SLACK_BOT_TOKEN }}
+          node-version: ${{ env.NODE_VERSION }}
+          build-command: ${{ env.BUILD_COMMAND }}
+          build-path: ${{ env.BUILD_PATH }}
