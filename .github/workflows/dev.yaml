@@ -10,7 +10,7 @@ env:
   S3_BUCKET: production-nextdatacapstatsio-origin
   CDN_NAME: next.datacapstats.io
   BUILD_COMMAND: bun
-  BUILD_PATH: dist
+  BUILD_PATH: ".next"
 
 jobs:
   build:
