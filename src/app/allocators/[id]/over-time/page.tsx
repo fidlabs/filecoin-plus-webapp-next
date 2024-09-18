@@ -1,7 +1,6 @@
 "use client"
 import {Card, CardContent} from "@/components/ui/card";
-import {GenericContentFooter, GenericContentHeader} from "@/components/generic-content-view";
-import {getClients} from "@/lib/api";
+import {GenericContentHeader} from "@/components/generic-content-view";
 import {LoaderCircle} from "lucide-react";
 import {useAllocatorDetails} from "@/app/allocators/[id]/components/allocator.provider";
 import {Tabs, TabsList, TabsTrigger} from "@/components/ui/tabs";

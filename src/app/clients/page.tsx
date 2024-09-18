@@ -1,5 +1,6 @@
 import {Metadata} from "next";
 import {ClientsList} from "@/app/clients/components/clients-list";
+import {Suspense} from "react";
 
 export const metadata: Metadata = {
   title: "Fil+ Dashboard | Clients",
@@ -7,7 +8,9 @@ export const metadata: Metadata = {
 }
 
 const ClientsPage = () => {
-  return <ClientsList/>
+  return <Suspense>
+    <ClientsList/>
+  </Suspense>
 };
 
 export default ClientsPage;

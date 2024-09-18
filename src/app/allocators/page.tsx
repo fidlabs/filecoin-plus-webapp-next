@@ -1,5 +1,6 @@
 import {Metadata} from "next";
 import {AllocatorsList} from "@/app/allocators/components/allocators-list";
+import {Suspense} from "react";
 
 export const metadata: Metadata = {
   title: "Fil+ Dashboard | Allocators",
@@ -7,7 +8,9 @@ export const metadata: Metadata = {
 }
 
 const AllocatorsPage = () => {
-  return <AllocatorsList/>
+  return <Suspense>
+    <AllocatorsList/>
+  </Suspense>
 };
 
 export default AllocatorsPage;

@@ -1,7 +1,7 @@
 import {getAllocatorById} from "@/lib/api";
 import {AllocatorProvider} from "@/app/allocators/[id]/components/allocator.provider";
 import {Metadata, ResolvingMetadata} from "next";
-import {PropsWithChildren} from "react";
+import {PropsWithChildren, Suspense} from "react";
 
 interface IPageProps {
   params: { id: string }
@@ -14,7 +14,7 @@ export async function generateMetadata(
   const {id} = params
 
   const allocatorResponse = await getAllocatorById(id, {
-    limit: 1
+    limit: '1'
   });
 
   if (!allocatorResponse) {
@@ -36,7 +36,9 @@ export async function generateMetadata(
 const AllocatorDetailsLayout = async ({children, params}: PropsWithChildren<IPageProps>) => {
 
   return <AllocatorProvider id={params.id}>
-    {children}
+    <Suspense>
+      {children}
+    </Suspense>
   </AllocatorProvider>
 }
 
