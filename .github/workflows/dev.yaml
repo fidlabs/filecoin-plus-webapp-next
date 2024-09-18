@@ -9,8 +9,7 @@ env:
   AWS_REGION: us-east-1
   S3_BUCKET: production-nextdatacapstatsio-origin
   CDN_NAME: next.datacapstats.io
-  NODE_VERSION: 18.13
-  BUILD_COMMAND: npm
+  BUILD_COMMAND: bun
   BUILD_PATH: dist
 
 jobs:
@@ -26,6 +25,5 @@ jobs:
           aws-cloudfront-name: ${{ env.CDN_NAME }}
           slack-channel: ${{ env.SLACK_CHANNEL }}
           slack-token: ${{ secrets.SLACK_BOT_TOKEN }}
-          node-version: ${{ env.NODE_VERSION }}
           build-command: ${{ env.BUILD_COMMAND }}
           build-path: ${{ env.BUILD_PATH }}
