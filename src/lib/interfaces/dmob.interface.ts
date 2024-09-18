@@ -150,7 +150,7 @@ export interface IClient {
   allowance: string
   verifierAddressId: string
   createdAtHeight: number
-  issueCreateTimestamp: any
+  issueCreateTimestamp: string
   createMessageTimestamp: number
   verifierName: string
   dealCount?: number

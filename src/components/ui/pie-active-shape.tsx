@@ -49,7 +49,7 @@ const ActiveShape = (props: PieSectorDataItem) => {
 };
 
 const ActiveShapeSimple = (props: PieSectorDataItem, foreignObject?: ReactNode) => {
-  const {name, cx = 0, cy = 0, innerRadius, outerRadius = 0, startAngle, endAngle, fill, percent, value } = props;
+  const {cx = 0, cy = 0, innerRadius, outerRadius = 0, startAngle, endAngle, fill } = props;
 
   return (
     <g>

@@ -20,8 +20,8 @@ import {ScaleSelector} from "@/components/ui/scale-selector";
 
 const DataCapOverTimeChart = () => {
   const [params] = useState({
-    page: 1,
-    showInactive: true,
+    page: '1',
+    showInactive: 'true',
   })
   const {data, loading} = useDataCapAllocationsWeeklyByClient();
   const {data: allocatorsData} = useAllocators(params);
