@@ -4,7 +4,7 @@ import {GenericContentFooter, GenericContentHeader} from "@/components/generic-c
 import {getClients} from "@/lib/api";
 import {LoaderCircle} from "lucide-react";
 import {DataTable} from "@/components/ui/data-table";
-import {useVerifiedClientsColumns} from "@/app/storage-providers/[id]/components/useVerifiedClientsColumns";
+import {useStorageProviderClientsColumns} from "@/app/storage-providers/[id]/components/useStorageProviderClientsColumns";
 import {useStorageProviderDetails} from "@/app/storage-providers/[id]/components/storage.provider";
 
 interface IPageProps {
@@ -16,7 +16,7 @@ const StorageProviderDetailsPage = (pageParams: IPageProps) => {
   const {
     columns,
     csvHeaders
-  } = useVerifiedClientsColumns((key, direction) => patchParams({sort: `[["${key}",${direction}]]`}));
+  } = useStorageProviderClientsColumns((key, direction) => patchParams({sort: `[["${key}",${direction}]]`}));
 
   return <Card>
     <GenericContentHeader placeholder="Client ID / Address / Name"
@@ -34,7 +34,7 @@ const StorageProviderDetailsPage = (pageParams: IPageProps) => {
       <div>
         <h1 className="text-2xl text-black leading-none font-semibold flex items-center gap-2">
           <p>
-            {loading && <LoaderCircle className="animate-spin"/>}
+            {loading && !data?.count && <LoaderCircle className="animate-spin"/>}
             {data?.count}
           </p>
           <p>Verified clients</p>
