@@ -2,7 +2,7 @@
 import {useStats} from "@/lib/hooks/dmob.hooks";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {Cell, Pie, PieChart, ResponsiveContainer} from "recharts";
-import React, {useMemo} from "react";
+import React, {useMemo, useState} from "react";
 import {convertBytesToIEC, palette} from "@/lib/utils";
 import {ActiveShapeSimple} from "@/components/ui/pie-active-shape";
 import {PieSectorDataItem} from "recharts/types/polar/Pie";
@@ -12,10 +12,14 @@ const DatacapAllocationChart = () => {
   const {
     data, loading,
   } = useStats()
+
+  const [chartDataParsing, setChartDataParsing] = useState(true);
+
   const chartData = useMemo(() => {
     if (!data) {
       return undefined;
     }
+    setChartDataParsing(true);
 
     const {totalDcGivenToAllocators, totalDcUsedByAllocators} = data;
     const usedDataCapNum = +totalDcUsedByAllocators;
@@ -25,11 +29,17 @@ const DatacapAllocationChart = () => {
       return undefined;
     }
 
+    setChartDataParsing(false);
+
     return [
       {name: 'Allocated', value: usedDataCapNum, percent: usedDataCapNum / +totalDcGivenToAllocators * 100},
       {name: 'Available', value: availableDataCapNum, percent: availableDataCapNum / +totalDcGivenToAllocators * 100}
     ];
   }, [data]);
+
+  const isLoading = useMemo(() => {
+    return loading || chartDataParsing;
+  }, [loading, chartDataParsing]);
 
   const totalDc = useMemo(() => {
     if (!data) {
@@ -45,7 +55,7 @@ const DatacapAllocationChart = () => {
     </CardHeader>
     <CardContent className="flex flex-col items-center justify-center relative">
       {
-        !loading && !chartData && <p>Error loading data</p>
+        !isLoading && !chartData && <p>Error loading data</p>
       }
       {chartData && <ResponsiveContainer width={'100%'} aspect={1} debounce={100}>
         <PieChart>

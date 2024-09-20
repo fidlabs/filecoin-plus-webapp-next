@@ -5,7 +5,7 @@ import {
   IFilDCAllocationsWeekly,
   IFilDCAllocationsWeeklyByClient,
   IFilDCFLow,
-  IFilPlusStats, IStorageProvidersResponse
+  IFilPlusStats, IStorageProviderResponse, IStorageProvidersResponse
 } from "@/lib/interfaces/dmob.interface";
 
 const revalidate = 12 * 60 * 60;
@@ -79,4 +79,9 @@ export const getClients = async (query?: IApiQuery) => {
 export const getStorageProviders = async (query?: IApiQuery) => {
   const url = `${apiUrl}/v2/getMiners${parseQuery(query)}`
   return await fetchData(url) as IStorageProvidersResponse;
+}
+
+export const getStorageProviderById = async (id: string, query?: IApiQuery) => {
+  const url = `${apiUrl}/v2/getMinerInfo/${id}${parseQuery(query)}`
+  return await fetchData(url) as IStorageProviderResponse;
 }

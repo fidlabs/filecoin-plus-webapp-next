@@ -188,3 +188,13 @@ export interface IStorageProvider {
   noOfClients: number
   lastDealHeight: string
 }
+
+export interface IStorageProviderResponse extends IApiListResponse<IVerifiedClient>, IApiListCountable {
+  providerId: string
+}
+
+export interface IVerifiedClient {
+  no_of_deals: string
+  concat: string
+  lastdealstart: number
+}

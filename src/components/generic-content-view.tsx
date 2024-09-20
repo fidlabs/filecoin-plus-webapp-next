@@ -6,8 +6,9 @@ import {PropsWithChildren, useCallback, useEffect, useState} from "react";
 import {Paginator} from "@/components/ui/pagination";
 import {Select, SelectContent, SelectItem, SelectTrigger} from "@/components/ui/select";
 import {IApiQuery} from "@/lib/interfaces/api.interface";
-import {LoaderCircle} from "lucide-react";
+import {LoaderCircle, MenuIcon} from "lucide-react";
 import {cn} from "@/lib/utils";
+import {DropdownMenu, DropdownMenuTrigger} from "@/components/ui/dropdown-menu";
 
 interface GenericContentHeaderProps {
   placeholder: string,
@@ -77,19 +78,31 @@ const GenericContentHeader = ({
     }
   }, [getCsv])
 
-  return <CardHeader className={cn("border-b items-center p-3", fixedHeight && 'min-h-[91px]')}>
+  return <CardHeader
+    className={cn("border-b items-center block sm:flex flex-wrap gap-3 p-3", fixedHeight && 'min-h-[91px]')}>
     <CardTitle>
       {children}
     </CardTitle>
-    <div className="flex flex-row gap-4">
-      {!!setQuery && <Input className="bg-background w-64" value={searchQuery}
-              placeholder={placeholder}
-              onChange={(e) => setSearchQuery(e.target.value)}/>}
-      {getCsv && <Button variant="outline" onClick={downloadCsv}>
-        {
-          downloadCsvLoading ? <LoaderCircle className="animate-spin"/> : 'Export to CSV'
-        }
-      </Button>}
+    <div className="flex flex-row justify-end gap-3 mt-3 sm:mt-0">
+      {!!setQuery && <Input className="bg-background w-full max-w-96 sm:w-64" value={searchQuery}
+                            placeholder={placeholder}
+                            onChange={(e) => setSearchQuery(e.target.value)}/>}
+      {getCsv && <>
+        <Button variant="outline" className="hidden md:block" onClick={downloadCsv}>
+          {
+            downloadCsvLoading ? <LoaderCircle className="animate-spin"/> : 'Export to CSV'
+          }
+        </Button>
+        <div className="md:hidden">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost">
+                <MenuIcon className="h-5 w-5"/>
+              </Button>
+            </DropdownMenuTrigger>
+          </DropdownMenu>
+        </div>
+      </>}
     </div>
   </CardHeader>
 }
@@ -98,11 +111,13 @@ interface GenericContentFooterProps {
   total: string,
   limit?: string,
   page?: string,
+  paginationSteps?: string[]
   patchParams: (params: Partial<IApiQuery>) => void
 }
 
 const GenericContentFooter = ({
-                                total, patchParams, limit, page
+                                total, patchParams, limit, page,
+                                paginationSteps = ['10', '15', '25']
                               }: GenericContentFooterProps) => {
 
   if (!total || !limit || !page) {
@@ -116,9 +131,7 @@ const GenericContentFooter = ({
       <Select value={limit.toString()} onValueChange={(val) => patchParams({limit: val, page: '1'})}>
         <SelectTrigger className="bg-background">{limit}</SelectTrigger>
         <SelectContent>
-          <SelectItem value="10">10</SelectItem>
-          <SelectItem value="15">15</SelectItem>
-          <SelectItem value="25">25</SelectItem>
+          {paginationSteps?.map((step) => (<SelectItem key={step} value={step}>{step}</SelectItem>))}
         </SelectContent>
       </Select>
       <p>items per page</p>
