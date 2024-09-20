@@ -20,7 +20,6 @@ import {ChevronDown, ChevronUp} from "lucide-react";
 import {PropsWithChildren, useMemo, useState} from "react";
 import {useSearchParams} from "next/navigation";
 import {cn} from "@/lib/utils";
-import {Skeleton} from "@/components/ui/skeleton";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
