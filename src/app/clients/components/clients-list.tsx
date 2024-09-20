@@ -13,7 +13,12 @@ import {ClientsStats} from "@/app/clients/components/clients-stats";
 
 const ClientsList = () => {
 
-  const {params, patchParams} = useParamsQuery<IClientsQuery>()
+  const {params, patchParams} = useParamsQuery<IClientsQuery>({
+    page: '1',
+    limit: '10',
+    sort: '',
+    filter: ''
+  })
 
   const {
     data,

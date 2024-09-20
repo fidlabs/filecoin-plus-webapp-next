@@ -14,7 +14,7 @@ export const useStorageProvidersColumns = (filterCallback: FilterCallback) => {
       accessorKey: "provider",
       header: () => {
         return (
-          <DataTableSort property="addressId" setSorting={filterCallback}>
+          <DataTableSort property="provider" setSorting={filterCallback}>
             Storage Provider ID
           </DataTableSort>
         )
@@ -27,7 +27,7 @@ export const useStorageProvidersColumns = (filterCallback: FilterCallback) => {
       accessorKey: "noOfVerifiedDeals",
       header: () => {
         return (
-          <DataTableSort property="addressId" setSorting={filterCallback}>
+          <DataTableSort property="noOfVerifiedDeals" setSorting={filterCallback}>
             Deals
           </DataTableSort>
         )
@@ -36,7 +36,7 @@ export const useStorageProvidersColumns = (filterCallback: FilterCallback) => {
       accessorKey: "noOfClients",
       header: () => {
         return (
-          <DataTableSort property="addressId" setSorting={filterCallback}>
+          <DataTableSort property="noOfClients" setSorting={filterCallback}>
             Number of clients
           </DataTableSort>
         )
@@ -45,9 +45,9 @@ export const useStorageProvidersColumns = (filterCallback: FilterCallback) => {
       accessorKey: 'verifiedDealsTotalSize',
       header: () => {
         return (
-          <DataTableSort property="lastDealHeight" setSorting={filterCallback}>
+          <p>
             Total Deals Size
-          </DataTableSort>
+          </p>
         )
       },
       cell: ({row}) => {

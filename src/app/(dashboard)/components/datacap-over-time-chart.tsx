@@ -123,7 +123,7 @@ const DataCapOverTimeChart = () => {
     name: string;
     [key: string]: number | string;
   }) => {
-    window.open(`/notaries/${data.name}`, '_blank');
+    window.open(`/allocators/${data.name}`, '_blank');
   };
 
   const minValue = useMemo(() => {

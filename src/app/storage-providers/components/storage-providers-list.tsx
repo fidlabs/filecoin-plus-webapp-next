@@ -12,7 +12,12 @@ import {useStorageProvidersColumns} from "@/app/storage-providers/components/use
 
 const StorageProvidersList = () => {
 
-  const {params, patchParams} = useParamsQuery<IStorageProvidersQuery>()
+  const {params, patchParams} = useParamsQuery<IStorageProvidersQuery>({
+    page: '1',
+    limit: '10',
+    sort: '',
+    filter: ''
+  })
 
   const {
     data,

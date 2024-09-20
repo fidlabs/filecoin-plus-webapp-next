@@ -31,13 +31,11 @@ const useParamsQuery = <T>(initialParams?: IApiQuery) => {
 
   useEffect(() => {
     const paramsEntries = Object.fromEntries(query);
-    console.log(paramsEntries)
-    console.log(initialParams)
     setParams({
       ...(initialParams ?? {
         page: '1',
         limit: '10',
-        sort: ''
+        sort: '',
       }),
       ...paramsEntries
     })
