@@ -12,6 +12,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Set timestamp
+        id: set-timestamp
+        run: |
+          echo "timestamp=$(date +%s)" >> $GITHUB_OUTPUT
+    
       - uses: cristi-mb/build-be@main
         id: build-be
         with:
@@ -19,6 +24,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
           ecr-repository: ${{ env.ECR_REPOSITORY }}
+          tag-extras: ${{ steps.set-timestamp.outputs.timestamp }}
 
       - name: Show image tag
         if: steps.build-be.outcome == 'success'
