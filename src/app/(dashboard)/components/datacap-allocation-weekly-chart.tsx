@@ -1,10 +1,11 @@
 "use client";
 import {useDataCapAllocationsWeekly} from "@/lib/hooks/dmob.hooks";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
-import {Legend, Line, LineChart, ResponsiveContainer, Tooltip, TooltipProps, XAxis, YAxis} from "recharts";
+import {Legend, Line, LineChart, ResponsiveContainer, TooltipProps, XAxis, YAxis} from "recharts";
 import React, {useMemo} from "react";
 import {convertBytesToIEC, palette} from "@/lib/utils";
 import {NameType, ValueType} from "recharts/types/component/DefaultTooltipContent";
+import {ChartTooltip} from "@/components/ui/chart";
 
 const DatacapAllocationWeeklyChart = () => {
   const {
@@ -62,7 +63,7 @@ const DatacapAllocationWeeklyChart = () => {
               fill: 'var(--muted-foreground)'
             }}
           />
-          <Tooltip content={(props: TooltipProps<ValueType, NameType>) => {
+          <ChartTooltip content={(props: TooltipProps<ValueType, NameType>) => {
             return <Card>
               <CardHeader>
                 <CardTitle>{props.label}</CardTitle>

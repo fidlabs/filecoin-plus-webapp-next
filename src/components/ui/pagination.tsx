@@ -1,20 +1,22 @@
 "use client"
 
-import * as React from "react"
 import {ChevronLeft, ChevronRight, MoreHorizontal} from "lucide-react"
 import {cn} from "@/lib/utils"
 import {ButtonProps, buttonVariants} from "@/components/ui/button"
-import {useMemo} from "react";
+import {ComponentProps, forwardRef, useMemo} from "react";
+import {Select, SelectContent, SelectItem, SelectTrigger} from "@/components/ui/select";
+import {IApiQuery} from "@/lib/interfaces/api.interface";
 
 interface PaginatorProps {
   page: number
   perPage: number
   total: number
-  onPageChange: (page: number) => void
+  paginationSteps?: string[]
+  patchParams: (params: Partial<IApiQuery>) => void
 }
 
 const Paginator = ({
-                     page, onPageChange, perPage, total
+                     page, patchParams, perPage, total, paginationSteps
                    }: PaginatorProps) => {
 
   const startPage = 1
@@ -41,49 +43,79 @@ const Paginator = ({
   const showFirstPage = useMemo(() => visiblePages[0] > startPage, [visiblePages]);
   const showEndPage = useMemo(() => visiblePages[visiblePages.length - 1] < endPage, [endPage, visiblePages]);
 
+  const canGoBack = useMemo(() => page > startPage, [page, startPage]);
+  const canGoForward = useMemo(() => page < endPage, [endPage, page]);
 
-  return <Pagination>
-    <PaginationContent>
-      <PaginationItem onClick={() => onPageChange(page - 1)}>
-        <PaginationPrevious/>
-      </PaginationItem>
-      {
-        showFirstPage && <PaginationItem onClick={() => onPageChange(startPage)}>
-          <PaginationLink isActive={startPage === page}>
-            {startPage}
-          </PaginationLink>
+  return <div className="flex w-full justify-between">
+    <Pagination>
+      <PaginationContent>
+        <PaginationItem className={cn(!canGoBack && 'pointer-events-none')}
+                        onClick={() => patchParams({page: (page - 1).toString()})}>
+          <PaginationPrevious/>
         </PaginationItem>
-      }
-      {
-        showPreviousEllipsis && <PaginationEllipsis/>
-      }
-      {
-        visiblePages.map((pageNumber) => (
-          <PaginationItem key={pageNumber} onClick={() => onPageChange(pageNumber)}>
-            <PaginationLink isActive={pageNumber === page}>
-              {pageNumber}
+        {
+          showFirstPage && <PaginationItem
+            className="hidden md:block"
+            onClick={() => patchParams({
+              page: startPage.toString()
+            })}>
+            <PaginationLink isActive={startPage === page}>
+              {startPage}
             </PaginationLink>
           </PaginationItem>
-        ))
-      }
-      {
-        showNextEllipsis && <PaginationEllipsis/>
-      }
-      {
-        showEndPage && <PaginationItem onClick={() => onPageChange(endPage)}>
-          <PaginationLink isActive={endPage === page}>
-            {endPage}
-          </PaginationLink>
+        }
+        {
+          showPreviousEllipsis && <PaginationEllipsis className="hidden md:flex"/>
+        }
+        {
+          visiblePages.map((pageNumber) => (
+            <PaginationItem
+              className={cn(pageNumber === page && 'pointer-events-none')}
+              key={pageNumber}
+              onClick={() => patchParams({
+                page: pageNumber.toString()
+              })}>
+              <PaginationLink isActive={pageNumber === page}>
+                {pageNumber}
+              </PaginationLink>
+            </PaginationItem>
+          ))
+        }
+        {
+          showNextEllipsis && <PaginationEllipsis className="hidden md:flex"/>
+        }
+        {
+          showEndPage && <PaginationItem
+            className="hidden md:block"
+            onClick={() => patchParams({
+              page: endPage.toString()
+            })}>
+            <PaginationLink isActive={endPage === page}>
+              {endPage}
+            </PaginationLink>
+          </PaginationItem>
+        }
+        <PaginationItem className={cn(!canGoForward && 'pointer-events-none')} onClick={() => patchParams({
+          page: (page + 1).toString()
+        })}>
+          <PaginationNext/>
         </PaginationItem>
-      }
-      <PaginationItem onClick={() => onPageChange(page + 1)}>
-        <PaginationNext/>
-      </PaginationItem>
-    </PaginationContent>
-  </Pagination>
+      </PaginationContent>
+    </Pagination>
+    <div className="flex gap-2 font-semibold items-center text-muted-foreground">
+      <p className="hidden md:block">View</p>
+      <Select value={perPage.toString()} onValueChange={(val) => patchParams({limit: val, page: '1'})}>
+        <SelectTrigger className="bg-background">{perPage}</SelectTrigger>
+        <SelectContent>
+          {paginationSteps?.map((step) => (<SelectItem key={step} value={step}>{step}</SelectItem>))}
+        </SelectContent>
+      </Select>
+      <p className="hidden md:block">items per page</p>
+    </div>
+  </div>
 }
 
-const Pagination = ({className, ...props}: React.ComponentProps<"nav">) => (
+const Pagination = ({className, ...props}: ComponentProps<"nav">) => (
   <nav
     role="navigation"
     aria-label="pagination"
@@ -93,9 +125,9 @@ const Pagination = ({className, ...props}: React.ComponentProps<"nav">) => (
 )
 Pagination.displayName = "Pagination"
 
-const PaginationContent = React.forwardRef<
+const PaginationContent = forwardRef<
   HTMLUListElement,
-  React.ComponentProps<"ul">
+  ComponentProps<"ul">
 >(({className, ...props}, ref) => (
   <ul
     ref={ref}
@@ -105,9 +137,9 @@ const PaginationContent = React.forwardRef<
 ))
 PaginationContent.displayName = "PaginationContent"
 
-const PaginationItem = React.forwardRef<
+const PaginationItem = forwardRef<
   HTMLLIElement,
-  React.ComponentProps<"li">
+  ComponentProps<"li">
 >(({className, ...props}, ref) => (
   <li ref={ref} className={cn("", className)} {...props} />
 ))
@@ -116,7 +148,7 @@ PaginationItem.displayName = "PaginationItem"
 type PaginationLinkProps = {
   isActive?: boolean
 } & Pick<ButtonProps, "size"> &
-  React.ComponentProps<"a">
+  ComponentProps<"a">
 
 const PaginationLink = ({
                           className,
@@ -142,7 +174,7 @@ PaginationLink.displayName = "PaginationLink"
 const PaginationPrevious = ({
                               className,
                               ...props
-                            }: React.ComponentProps<typeof PaginationLink>) => (
+                            }: ComponentProps<typeof PaginationLink>) => (
   <PaginationLink
     aria-label="Go to previous page"
     size="default"
@@ -157,7 +189,7 @@ PaginationPrevious.displayName = "PaginationPrevious"
 const PaginationNext = ({
                           className,
                           ...props
-                        }: React.ComponentProps<typeof PaginationLink>) => (
+                        }: ComponentProps<typeof PaginationLink>) => (
   <PaginationLink
     aria-label="Go to next page"
     size="default"
@@ -172,7 +204,7 @@ PaginationNext.displayName = "PaginationNext"
 const PaginationEllipsis = ({
                               className,
                               ...props
-                            }: React.ComponentProps<"span">) => (
+                            }: ComponentProps<"span">) => (
   <span
     aria-hidden
     className={cn("flex h-9 w-9 items-center justify-center", className)}

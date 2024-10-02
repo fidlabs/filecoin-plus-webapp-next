@@ -4,7 +4,7 @@ import {HoverCard, HoverCardContent, HoverCardTrigger} from "@/components/ui/hov
 import {calculateDateFromHeight, convertBytesToIEC} from "@/lib/utils";
 import {InfoIcon} from "lucide-react";
 import {ColumnDef} from "@tanstack/react-table";
-import {IClient} from "@/lib/interfaces/dmob.interface";
+import {IClient} from "@/lib/interfaces/dmob/client.interface";
 
 type FilterCallback = (key: string, direction: string) => void;
 

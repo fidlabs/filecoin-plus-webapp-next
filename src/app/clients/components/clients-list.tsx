@@ -8,7 +8,6 @@ import {InfoIcon, LoaderCircle} from "lucide-react";
 import {getClients} from "@/lib/api";
 import {useParamsQuery} from "@/lib/hooks/useParamsQuery";
 import {useClientsColumns} from "@/app/clients/components/useClientsColumns";
-import {PageHeader, PageTitle} from "@/components/ui/title";
 import {ClientsStats} from "@/app/clients/components/clients-stats";
 
 const ClientsList = () => {
@@ -28,9 +27,6 @@ const ClientsList = () => {
   const {columns, csvHeaders} = useClientsColumns((key, direction) => patchParams({sort: `[["${key}",${direction}]]`}));
 
   return <div>
-    <PageHeader>
-      <PageTitle>Clients</PageTitle>
-    </PageHeader>
     {data && <ClientsStats data={data}/>}
     <Card className="mt-4">
       <GenericContentHeader placeholder="Client ID / Address / Name" query={params?.filter}

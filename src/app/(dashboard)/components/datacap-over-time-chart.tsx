@@ -16,6 +16,7 @@ import {cn, convertBytesToIEC, palette} from "@/lib/utils";
 import {NameType, ValueType} from "recharts/types/component/DefaultTooltipContent";
 import useChartScale from "@/lib/hooks/useChartScale";
 import {ScaleSelector} from "@/components/ui/scale-selector";
+import {IAllocatorsResponse} from "@/lib/interfaces/dmob/allocator.interface";
 
 
 const DataCapOverTimeChart = () => {
@@ -98,7 +99,7 @@ const DataCapOverTimeChart = () => {
             if (normalData.findIndex((item) => item.name === clientKey) === -1) {
               normalData.push({
                 name: clientKey,
-                display: allocatorsData.data.find((notary) => notary.addressId === clientKey)?.name || clientKey,
+                display: (allocatorsData as IAllocatorsResponse).data.find((notary) => notary.addressId === clientKey)?.name || clientKey,
                 [`w${weekKey}`]: +clientObj
               });
             } else {
@@ -189,7 +190,7 @@ const DataCapOverTimeChart = () => {
     return chartData.filter((item) => weeksToDisplay.some((key) => Object.keys(item).includes(key)));
   }, [chartData, weeksToDisplay]);
 
-  return <Card className=" hidden lg:block md:col-span-2 : lg:col-span-3">
+  return <Card className=" hidden lg:block lg:col-span-3">
     <CardHeader>
       <CardTitle>DataCap Used Over Time by Allocator</CardTitle>
       <ScaleSelector scale={selectedScale} setScale={setSelectedScale}/>

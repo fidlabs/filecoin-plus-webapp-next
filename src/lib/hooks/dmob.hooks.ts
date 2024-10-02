@@ -1,23 +1,28 @@
 import {useCallback, useEffect, useState} from "react";
 import {
-  IAllocatorsResponse, IClientsResponse,
-  IFilDCAllocationsWeekly, IFilDCAllocationsWeeklyByClient,
+  IFilDCAllocationsWeekly,
+  IFilDCAllocationsWeeklyByClient,
   IFilDCFLow,
   IFilDCFLowActiveAllocators,
   IFilDCFLowAllocator,
   IFilDCFLowAllocators,
-  IFilPlusStats, IStorageProvidersResponse
-} from "@/lib/interfaces/dmob.interface";
-import {groupBy} from "lodash";
+  IFilPlusStats
+} from "@/lib/interfaces/dmob/dmob.interface";
+import {groupBy, isEqual} from "lodash";
 import {convertBytesToIEC} from "@/lib/utils";
 import {
-  getAllocators, getClients,
+  getAllocators,
+  getClients,
   getDataCapAllocationsWeekly,
   getDataCapAllocationsWeeklyByClient,
   getDCFlow,
-  getStats, getStorageProviders
+  getStats,
+  getStorageProviders
 } from "@/lib/api";
 import {IApiQuery} from "@/lib/interfaces/api.interface";
+import {IStorageProvidersResponse} from "@/lib/interfaces/dmob/sp.interface";
+import {IClientsResponse} from "@/lib/interfaces/dmob/client.interface";
+import {IAllocatorsResponse} from "@/lib/interfaces/dmob/allocator.interface";
 
 
 export interface DataCapChild {
@@ -32,6 +37,18 @@ export interface DataCapChild {
 
 const PB_10 = 10 * 1024 * 1024 * 1024 * 1024 * 1024;
 const PB_15 = 15 * 1024 * 1024 * 1024 * 1024 * 1024;
+
+const getDifferentParams = (params: IApiQuery, newParams: IApiQuery): string[] => {
+  return Object.keys(newParams).filter(key => newParams[key] !== params[key]);
+}
+
+const shouldClearData = (params: IApiQuery | undefined, newParams: IApiQuery | undefined): boolean => {
+  if (!params || !newParams) {
+    return true;
+  }
+  const differentParams = getDifferentParams(params!, newParams!);
+  return differentParams.some(key => key !== 'page');
+}
 
 const useDataCapFlow = () => {
 
@@ -259,18 +276,24 @@ const useDataCapAllocationsWeeklyByClient = () => {
 const useAllocators = (params?: IApiQuery) => {
   const [data, setData] = useState<IAllocatorsResponse | undefined>(undefined);
   const [loading, setLoading] = useState<boolean>(false);
+  const [currentParams, setCurrentParams] = useState<IApiQuery | undefined>(params);
 
   useEffect(() => {
-    if (!params) {
+    if (isEqual(currentParams, params)) {
       return;
     }
-    setLoading(true);
-    setData(undefined)
-    getAllocators(params).then(data => {
-      setData(data);
-      setLoading(false);
-    });
-  }, [params]);
+    if (shouldClearData(currentParams, params)) {
+      setLoading(true);
+      setData(undefined)
+    }
+    setCurrentParams(params);
+
+    getAllocators(params)
+      .then(setData)
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [currentParams, params]);
 
   return {
     data,
@@ -281,18 +304,24 @@ const useAllocators = (params?: IApiQuery) => {
 const useClients = (params?: IApiQuery) => {
   const [data, setData] = useState<IClientsResponse | undefined>(undefined);
   const [loading, setLoading] = useState<boolean>(false);
+  const [currentParams, setCurrentParams] = useState<IApiQuery | undefined>(params);
 
   useEffect(() => {
-    if (!params) {
+    if (isEqual(currentParams, params)) {
       return;
     }
-    setLoading(true);
-    setData(undefined)
-    getClients(params).then(data => {
-      setData(data);
+    if (shouldClearData(currentParams, params)) {
+      setLoading(true);
+      setData(undefined)
+    }
+    setCurrentParams(params);
+
+    getClients(params)
+      .then(setData)
+      .finally(() => {
       setLoading(false);
     });
-  }, [params]);
+  }, [currentParams, params]);
 
   return {
     data,
@@ -303,18 +332,24 @@ const useClients = (params?: IApiQuery) => {
 const useStorageProviders = (params?: IApiQuery) => {
   const [data, setData] = useState<IStorageProvidersResponse | undefined>(undefined);
   const [loading, setLoading] = useState<boolean>(false);
+  const [currentParams, setCurrentParams] = useState<IApiQuery | undefined>(params);
 
   useEffect(() => {
-    if (!params) {
+    if (isEqual(currentParams, params)) {
       return;
     }
-    setLoading(true);
-    setData(undefined)
-    getStorageProviders(params).then(data => {
-      setData(data);
-      setLoading(false);
+    if (shouldClearData(currentParams, params)) {
+      setLoading(true);
+      setData(undefined)
+    }
+    setCurrentParams(params);
+
+    getStorageProviders(params)
+      .then(setData)
+      .finally(() => {
+        setLoading(false);
     });
-  }, [params]);
+  }, [currentParams, params]);
 
   return {
     data,

@@ -1,18 +1,19 @@
 "use client";
-import {CardFooter, CardHeader, CardTitle} from "@/components/ui/card";
+import {CardFooter, CardHeader} from "@/components/ui/card";
 import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
-import {PropsWithChildren, useCallback, useEffect, useState} from "react";
+import {PropsWithChildren, ReactNode, useCallback, useEffect, useState} from "react";
 import {Paginator} from "@/components/ui/pagination";
-import {Select, SelectContent, SelectItem, SelectTrigger} from "@/components/ui/select";
 import {IApiQuery} from "@/lib/interfaces/api.interface";
-import {LoaderCircle, MenuIcon} from "lucide-react";
+import {LoaderCircle, MoreVerticalIcon} from "lucide-react";
 import {cn} from "@/lib/utils";
-import {DropdownMenu, DropdownMenuTrigger} from "@/components/ui/dropdown-menu";
+import {Drawer, DrawerContent, DrawerTrigger} from "@/components/ui/drawer";
 
 interface GenericContentHeaderProps {
   placeholder: string,
   fixedHeight?: boolean,
+  sticky?: boolean,
+  addons?: ReactNode,
   query?: string,
   setQuery?: (query: string) => void,
   getCsv?: {
@@ -28,7 +29,7 @@ interface GenericContentHeaderProps {
 }
 
 const GenericContentHeader = ({
-                                query, setQuery, children, placeholder, getCsv, fixedHeight = true
+                                addons, query, setQuery, children, placeholder, getCsv, sticky, fixedHeight = true
                               }: PropsWithChildren<GenericContentHeaderProps>) => {
 
   const [searchQuery, setSearchQuery] = useState<string>(query ?? '');
@@ -79,28 +80,38 @@ const GenericContentHeader = ({
   }, [getCsv])
 
   return <CardHeader
-    className={cn("border-b items-center block sm:flex flex-wrap gap-3 p-3", fixedHeight && 'min-h-[91px]')}>
-    <CardTitle>
-      {children}
-    </CardTitle>
-    <div className="flex flex-row justify-end gap-3 mt-3 sm:mt-0">
+    className={cn("border-b items-center block sm:flex flex-wrap gap-3 p-3",
+      fixedHeight && 'min-h-[91px]',
+      sticky && 'sticky top-0 bg-white z-10 rounded-t-lg',
+      !setQuery && 'flex w-full justify-between'
+    )}>
+    {children}
+    <div className={cn("flex flex-row justify-end gap-3 sm:mt-0", !!setQuery && ' mt-3 sm:mt-0')}>
       {!!setQuery && <Input className="bg-background w-full max-w-96 sm:w-64" value={searchQuery}
                             placeholder={placeholder}
                             onChange={(e) => setSearchQuery(e.target.value)}/>}
       {getCsv && <>
-        <Button variant="outline" className="hidden md:block" onClick={downloadCsv}>
+        <Button variant="outline" className="hidden lg:block" onClick={downloadCsv}>
           {
             downloadCsvLoading ? <LoaderCircle className="animate-spin"/> : 'Export to CSV'
           }
         </Button>
-        <div className="md:hidden">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost">
-                <MenuIcon className="h-5 w-5"/>
+        <div className="lg:hidden">
+          <Drawer>
+            <DrawerTrigger asChild>
+              <Button variant="ghost" size="icon">
+                <MoreVerticalIcon/>
               </Button>
-            </DropdownMenuTrigger>
-          </DropdownMenu>
+            </DrawerTrigger>
+            <DrawerContent className="flex flex-col p-4 pb-20 items-stretch gap-4">
+              {addons}
+              <Button variant="outline" onClick={downloadCsv}>
+                {
+                  downloadCsvLoading ? <LoaderCircle className="animate-spin"/> : 'Export to CSV'
+                }
+              </Button>
+            </DrawerContent>
+          </Drawer>
         </div>
       </>}
     </div>
@@ -123,19 +134,10 @@ const GenericContentFooter = ({
   if (!total || !limit || !page) {
     return <></>
   }
-  return <CardFooter className="border-t flex py-3 w-full justify-between">
+  return <CardFooter className="border-t w-full p-3">
     <Paginator page={+page} perPage={+limit} total={+total}
-               onPageChange={(page: number) => patchParams({page: page.toString()})}/>
-    <div className="flex gap-2 font-semibold items-center text-muted-foreground">
-      <p>View</p>
-      <Select value={limit.toString()} onValueChange={(val) => patchParams({limit: val, page: '1'})}>
-        <SelectTrigger className="bg-background">{limit}</SelectTrigger>
-        <SelectContent>
-          {paginationSteps?.map((step) => (<SelectItem key={step} value={step}>{step}</SelectItem>))}
-        </SelectContent>
-      </Select>
-      <p>items per page</p>
-    </div>
+               paginationSteps={paginationSteps}
+               patchParams={patchParams}/>
   </CardFooter>
 }
 
