@@ -20,7 +20,6 @@ import {ChevronDown, ChevronUp} from "lucide-react";
 import {PropsWithChildren, useMemo, useState} from "react";
 import {useSearchParams} from "next/navigation";
 import {cn} from "@/lib/utils";
-import {Skeleton} from "@/components/ui/skeleton";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -51,7 +50,7 @@ export function DataTable<TData, TValue>({
           <TableRow key={headerGroup.id}>
             {headerGroup.headers.map((header) => {
               return (
-                <TableHead key={header.id}>
+                <TableHead key={header.id} className="last-of-type:flex last-of-type:justify-end items-center h-full">
                   {header.isPlaceholder
                     ? null
                     : flexRender(
@@ -72,7 +71,7 @@ export function DataTable<TData, TValue>({
               data-state={row.getIsSelected() && "selected"}
             >
               {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id}>
+                <TableCell key={cell.id} className="last-of-type:flex last-of-type:justify-end items-center h-full">
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </TableCell>
               ))}
@@ -114,7 +113,7 @@ export const DataTableSort = ({children, property, setSorting}: PropsWithChildre
 
   return <div className="flex gap-2 items-center">
     <p>{children}</p>
-    <div className="flex flex-col my-4">
+    <div className="flex flex-col">
       <Button
         variant="ghost"
         className={cn("h-5 w-5 p-0 rounded-b-none", selectedDirection === '1' && 'text-link bg-muted rounded-md')}

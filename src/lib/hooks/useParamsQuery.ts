@@ -29,7 +29,10 @@ const useParamsQuery = <T>(initialParams?: IApiQuery) => {
     router.replace(newPath)
   }, [params, pathName, router]);
 
-  useEffect(() => {
+  const parseInitialParams = useCallback(() => {
+    if (params) {
+      return
+    }
     const paramsEntries = Object.fromEntries(query);
     setParams({
       ...(initialParams ?? {
@@ -39,7 +42,11 @@ const useParamsQuery = <T>(initialParams?: IApiQuery) => {
       }),
       ...paramsEntries
     })
-  }, [])
+  }, [initialParams, params, query])
+
+  useEffect(() => {
+    parseInitialParams();
+  }, [parseInitialParams])
 
   return {
     params: params as T,

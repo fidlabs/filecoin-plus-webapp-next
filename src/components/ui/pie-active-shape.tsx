@@ -1,4 +1,3 @@
-import {convertBytesToIEC} from "@/lib/utils";
 import {Sector} from "recharts";
 import {PieSectorDataItem} from "recharts/types/polar/Pie";
 import {ReactNode} from "react";
@@ -7,7 +6,7 @@ import {ReactNode} from "react";
 
 const ActiveShape = (props: PieSectorDataItem) => {
   const RADIAN = Math.PI / 180;
-  const {name, cx = 0, cy = 0, midAngle = 0, innerRadius, outerRadius = 0, startAngle, endAngle, fill, percent, value } = props;
+  const {name, cx = 0, cy = 0, midAngle = 0, innerRadius, outerRadius = 0, startAngle, endAngle, fill, payload } = props;
   const sin = Math.sin(-RADIAN * midAngle);
   const cos = Math.cos(-RADIAN * midAngle);
   const sx = cx + (outerRadius + 10) * cos;
@@ -42,7 +41,9 @@ const ActiveShape = (props: PieSectorDataItem) => {
       <circle cx={ex} cy={ey} r={2} fill={fill} stroke="none" />
       <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} textAnchor={textAnchor} fill="#333">{name}</text>
       <text x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} dy={18} fontSize={14} textAnchor={textAnchor} fill="#999">
-        {`${convertBytesToIEC(value ?? 0)} (${percent?.toFixed(2)}%)`}
+        {(payload as unknown as {
+          valueString: string
+        })?.valueString}
       </text>
     </g>
   );

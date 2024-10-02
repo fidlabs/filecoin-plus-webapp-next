@@ -1,12 +1,17 @@
 import {IApiQuery} from "@/lib/interfaces/api.interface";
 import {
-  IAllocatorResponse,
-  IAllocatorsResponse, IClientsResponse,
   IFilDCAllocationsWeekly,
-  IFilDCAllocationsWeeklyByClient,
-  IFilDCFLow,
-  IFilPlusStats, IStorageProviderResponse, IStorageProvidersResponse
-} from "@/lib/interfaces/dmob.interface";
+  IFilDCAllocationsWeeklyByClient, IFilDCFLow,
+  IFilPlusStats
+} from "@/lib/interfaces/dmob/dmob.interface";
+import {IAllocatorResponse, IAllocatorsResponse} from "@/lib/interfaces/dmob/allocator.interface";
+import {
+  IClientAllocationsResponse,
+  IClientProviderBreakdownResponse,
+  IClientResponse,
+  IClientsResponse
+} from "@/lib/interfaces/dmob/client.interface";
+import {IStorageProviderResponse, IStorageProvidersResponse} from "@/lib/interfaces/dmob/sp.interface";
 
 const revalidate = 12 * 60 * 60;
 const apiUrl = 'https://api.datacapstats.io/api'
@@ -74,6 +79,21 @@ export const getDCFlow = async () => {
 export const getClients = async (query?: IApiQuery) => {
   const url = `${apiUrl}/getVerifiedClients${parseQuery(query)}`
   return await fetchData(url) as IClientsResponse;
+}
+
+export const getClientById = async (id: string, query?: IApiQuery) => {
+  const url = `${apiUrl}/v2/getUnifiedVerifiedDeals/${id}${parseQuery(query)}`
+  return await fetchData(url) as IClientResponse;
+}
+
+export const getClientProviderBreakdownById = async (id: string) => {
+  const url = `${apiUrl}/v2/getDealAllocationStats/${id}`
+  return await fetchData(url) as IClientProviderBreakdownResponse;
+}
+
+export const getClientAllocationsById = async (id: string) => {
+  const url = `${apiUrl}/getVerifiedClients?filter=${id}`
+  return await fetchData(url) as IClientAllocationsResponse;
 }
 
 export const getStorageProviders = async (query?: IApiQuery) => {

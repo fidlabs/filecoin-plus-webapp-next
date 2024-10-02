@@ -4,7 +4,7 @@
 
 @layer utilities {
   .text-balance {
-    text-wrap: balance;
+    @apply text-balance
   }
 }
 
@@ -52,11 +52,12 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    background: var(--color-solitude) !important;
+    @apply text-foreground;
   }
 
   .button-link::after {
-    @apply content-[''] p-0 left-0 bottom-0 absolute w-full h-[1px] transition-transform border-b border-b-current rounded-none transform -translate-x-full
+    @apply md:content-[''] p-0 left-0 bottom-0 absolute w-full h-[1px] transition-transform border-b border-b-current rounded-none transform -translate-x-full
   }
   .button-link:hover::after {
     @apply transform translate-x-0

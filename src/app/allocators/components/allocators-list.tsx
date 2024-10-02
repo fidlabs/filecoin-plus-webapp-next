@@ -35,7 +35,7 @@ const AllocatorsList = () => {
                                 data: data.data as never[]
                               }
                             },
-                            title: 'allocators.csv',
+                            title: 'allocations.csv',
                             headers: csvHeaders
                           }}
                           setQuery={(filter: string) => patchParams({filter, page: '1'})}>
