@@ -4,6 +4,8 @@ on:
   push:
     branches: [dev]
 
+# For configuration please see https://github.com/cristi-mb/build-be
+
 env:
   AWS_REGION: us-east-1
   ECR_REPOSITORY: filecoin/filplus/filecoin-plus-webapp-next
