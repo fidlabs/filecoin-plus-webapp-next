@@ -5,7 +5,6 @@ import {
   Bar,
   CartesianGrid,
   ComposedChart,
-  Legend,
   ResponsiveContainer,
   Tooltip,
   TooltipProps,
