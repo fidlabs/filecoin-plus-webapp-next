@@ -40,22 +40,21 @@ const StorageProvidersList = () => {
                             title: 'storage-providers.csv',
                             headers: csvHeaders
                           }}
+                          header={<div className="flex flex-row gap-6 items-baseline">
+                            <h1 className="text-2xl text-black leading-none font-semibold flex items-center gap-2">
+                              <p>
+                                {loading && <LoaderCircle className="animate-spin"/>}
+                                {data?.count}
+                              </p>
+                              <p>Storage providers</p>
+                            </h1>
+                          </div>}
                           setQuery={(filterString: string) => {
                             const filter = filterString.startsWith('f0') ? filterString.substring(2) : filterString
                             if (params.filter !== filter) {
                               patchParams({filter, page: '1'})
                             }
-                          }}>
-      <div className="flex flex-row gap-6 items-baseline">
-        <h1 className="text-2xl text-black leading-none font-semibold flex items-center gap-2">
-          <p>
-            {loading && <LoaderCircle className="animate-spin"/>}
-            {data?.count}
-          </p>
-          <p>Storage providers</p>
-        </h1>
-      </div>
-    </GenericContentHeader>
+                          }} />
     <CardContent className="p-0">
       {
         loading && <div className="p-10 w-full flex flex-col items-center justify-center">

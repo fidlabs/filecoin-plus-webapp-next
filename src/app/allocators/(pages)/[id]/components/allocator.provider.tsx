@@ -6,6 +6,8 @@ import {IAllocatorsQuery, IApiQuery} from "@/lib/interfaces/api.interface";
 import {groupBy} from "lodash";
 import {IAllocatorResponse} from "@/lib/interfaces/dmob/allocator.interface";
 import {IClient} from "@/lib/interfaces/dmob/client.interface";
+import {LoaderCircle} from "lucide-react";
+import {ITabNavigatorTab} from "@/components/ui/tab-navigator";
 
 interface IAllocatorContext {
   data?: IAllocatorResponse;
@@ -16,6 +18,7 @@ interface IAllocatorContext {
   }[];
   minValue: number;
   loading: boolean;
+  tabs: ITabNavigatorTab[];
   params: IAllocatorsQuery;
   patchParams: (newParams: IApiQuery) => void;
   fetchChartData: () => void;
@@ -49,6 +52,27 @@ const AllocatorProvider = ({children, id}: PropsWithChildren<{ id: string }>) =>
     limit: '10',
     sort: ''
   } as IAllocatorsQuery)
+
+  const tabs = useMemo(() => {
+    return [
+      {
+        label: <>
+          <p>
+            {loading && !data && <LoaderCircle size={15} className="animate-spin"/>}
+            {data?.count}
+          </p>
+          <p>Verified Clients</p>
+        </>,
+        href: `/allocators/${id}`,
+        value: 'list'
+      },
+      {
+        label: 'Allocations over time',
+        href: `/allocators/${id}/over-time`,
+        value: 'chart'
+      }
+    ] as ITabNavigatorTab[]
+  }, [id, data, loading])
 
   useEffect(() => {
     if (!params) {
@@ -105,7 +129,7 @@ const AllocatorProvider = ({children, id}: PropsWithChildren<{ id: string }>) =>
   }, [chartData, id])
 
   return <AllocatorContext.Provider
-    value={{data, loading, params, patchParams, chartData: chartDataParsed, fetchChartData, minValue}}>
+    value={{data, loading, params, patchParams, chartData: chartDataParsed, fetchChartData, minValue, tabs}}>
     <main className="flex flex-col gap-8 items-start">
       <div className="w-full">
         {children}

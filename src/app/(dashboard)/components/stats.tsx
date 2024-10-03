@@ -1,18 +1,6 @@
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
-import {cn} from "@/lib/utils";
-import Link, {LinkProps} from "next/link";
-import {buttonVariants} from "@/components/ui/button";
-import {ChevronRight} from "lucide-react";
 import {getStats} from "@/lib/api";
-import {PropsWithChildren} from "react";
-
-const StatsLink = ({href, children}: PropsWithChildren<LinkProps>) => {
-  return <Link href={href} className={cn(buttonVariants({variant: "link"}), "group !pr-[20px]")}>
-    {children}
-    <ChevronRight size={16}
-                  className="absolute right-[3px] transition-all group-hover:right-0"/>
-  </Link>
-}
+import {StatsLink} from "@/components/ui/stats-link";
 
 const Stats = async () => {
 

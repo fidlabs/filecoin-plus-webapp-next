@@ -31,7 +31,6 @@
     "react": "^18",
     "react-d3-tree": "^3.6.2",
     "react-dom": "^18",
-    "react-markdown": "^9.0.1",
     "react-resizable-panels": "^2.1.4",
     "recharts": "^2.13.0-alpha.5",
     "sonner": "^1.5.0",

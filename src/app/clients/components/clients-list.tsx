@@ -40,17 +40,16 @@ const ClientsList = () => {
                               title: 'clients.csv',
                               headers: csvHeaders
                             }}
-                            setQuery={(filter: string) => patchParams({filter, page: '1'})}>
-        <div className="flex flex-row gap-6 items-baseline">
-          <h1 className="text-2xl text-black leading-none font-semibold flex items-center gap-2">
-            <p>
-              {loading && <LoaderCircle className="animate-spin"/>}
-              {data?.count}
-            </p>
-            <p>Clients</p>
-          </h1>
-        </div>
-      </GenericContentHeader>
+                            header={<div className="flex flex-row gap-6 items-baseline">
+                              <h1 className="text-2xl text-black leading-none font-semibold flex items-center gap-2">
+                                <p>
+                                  {loading && <LoaderCircle className="animate-spin"/>}
+                                  {data?.count}
+                                </p>
+                                <p>Clients</p>
+                              </h1>
+                            </div>}
+                            setQuery={(filter: string) => patchParams({filter, page: '1'})}/>
       <CardContent className="p-0 m-0 border-b bg-[#F2F9FF]">
         <div className="flex items-center px-6 py-2 gap-3">
           <InfoIcon className="w-5 h-5 bg-[#475A6E] rounded-full text-white flex flex-col items-center justify-center"/>

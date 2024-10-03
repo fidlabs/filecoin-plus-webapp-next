@@ -1,5 +1,5 @@
 "use client";
-import {useDataCapAllocationsWeeklyByClient, useAllocators} from "@/lib/hooks/dmob.hooks";
+import {useDataCapAllocationsWeeklyByClient, useAllocators, useAllAllocators} from "@/lib/hooks/dmob.hooks";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {
   Bar,
@@ -20,12 +20,8 @@ import {IAllocatorsResponse} from "@/lib/interfaces/dmob/allocator.interface";
 
 
 const DataCapOverTimeChart = () => {
-  const [params] = useState({
-    page: '1',
-    showInactive: 'true',
-  })
   const {data, loading} = useDataCapAllocationsWeeklyByClient();
-  const {data: allocatorsData} = useAllocators(params);
+  const {data: allocatorsData} = useAllAllocators();
 
   const [weeksKeys, setWeeksKeys] = useState<string[]>([]);
   const [selectedWeek, setSelectedWeek] = useState<string[]>([]);
@@ -117,6 +113,7 @@ const DataCapOverTimeChart = () => {
         });
       });
     }
+
     return normalData;
   }, [data, allocatorsData])
 
@@ -190,7 +187,7 @@ const DataCapOverTimeChart = () => {
     return chartData.filter((item) => weeksToDisplay.some((key) => Object.keys(item).includes(key)));
   }, [chartData, weeksToDisplay]);
 
-  return <Card className=" hidden lg:block lg:col-span-3">
+  return <Card className="hidden lg:block lg:col-span-3">
     <CardHeader>
       <CardTitle>DataCap Used Over Time by Allocator</CardTitle>
       <ScaleSelector scale={selectedScale} setScale={setSelectedScale}/>

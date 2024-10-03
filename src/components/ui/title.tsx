@@ -3,7 +3,7 @@ import {PropsWithChildren} from "react";
 
 const PageTitle = ({children}: PropsWithChildren) => {
   return <div className="h-[90px] flex flex-col items-end justify-end">
-    <h1 className="text-3xl leading-loose font-semibold text-white">{children}</h1>
+    <h1 className="text-3xl leading-relaxed font-semibold text-white">{children}</h1>
   </div>
 }
 

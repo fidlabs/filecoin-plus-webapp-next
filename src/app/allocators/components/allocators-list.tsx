@@ -24,7 +24,10 @@ const AllocatorsList = () => {
     loading
   } = useAllocators(params)
 
-  const {columns, csvHeaders} = useAllocatorsColumns((key, direction) => patchParams({sort: `[["${key}",${direction}]]`}));
+  const {
+    columns,
+    csvHeaders
+  } = useAllocatorsColumns((key, direction) => patchParams({sort: `[["${key}",${direction}]]`}));
 
   return <Card className="mt-[50px]">
     <GenericContentHeader placeholder="Allocator ID / Address / Name" query={params?.filter}
@@ -38,29 +41,29 @@ const AllocatorsList = () => {
                             title: 'allocations.csv',
                             headers: csvHeaders
                           }}
-                          setQuery={(filter: string) => patchParams({filter, page: '1'})}>
-      <div className="flex flex-row gap-6 items-baseline">
-        <h1 className="text-2xl text-black leading-none font-semibold flex items-center gap-2">
-          <p>
-            {loading && <LoaderCircle className="animate-spin"/>}
-            {data?.count}
-          </p>
-          <p>Allocators</p>
-        </h1>
-        <div className="flex items-center space-x-2">
-          <label
-            htmlFor="terms"
-            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-          >
-            Show inactive
-          </label>
-          <Checkbox id="terms" checked={params?.showInactive === 'true'} onCheckedChange={(checked) => patchParams({
-            showInactive: !!checked ? 'true' : 'false',
-            page: '1'
-          })}/>
-        </div>
-      </div>
-    </GenericContentHeader>
+                          header={<div className="flex flex-row gap-6 items-baseline">
+                            <h1 className="text-2xl text-black leading-none font-semibold flex items-center gap-2">
+                              <p>
+                                {loading && <LoaderCircle className="animate-spin"/>}
+                                {data?.count}
+                              </p>
+                              <p>Allocators</p>
+                            </h1>
+                            <div className="flex items-center space-x-2">
+                              <label
+                                htmlFor="terms"
+                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed whitespace-nowrap peer-disabled:opacity-70"
+                              >
+                                Inactive
+                              </label>
+                              <Checkbox id="terms" checked={params?.showInactive === 'true'}
+                                        onCheckedChange={(checked) => patchParams({
+                                          showInactive: !!checked ? 'true' : 'false',
+                                          page: '1'
+                                        })}/>
+                            </div>
+                          </div>}
+                          setQuery={(filter: string) => patchParams({filter, page: '1'})}/>
     <CardContent className="p-0">
       {
         loading && <div className="p-10 w-full flex flex-col items-center justify-center">
