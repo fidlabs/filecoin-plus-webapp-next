@@ -12,7 +12,7 @@ import {
   XAxis,
   YAxis
 } from "recharts";
-import {calculateDateFromHeight, convertBytesToIEC} from "@/lib/utils";
+import {calculateDateFromHeight, convertBytesToIEC, palette} from "@/lib/utils";
 import {NameType, ValueType} from "recharts/types/component/DefaultTooltipContent";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 
@@ -84,9 +84,10 @@ const AllocationsChart = () => {
         <XAxis dataKey="height" tickFormatter={(value) => calculateDateFromHeight(value)}/>
         <YAxis tickFormatter={(value) => convertBytesToIEC(value)}/>
         <Tooltip content={renderTooltip}/>
-        <Legend/>
-        <Area type="monotone" dataKey="totalAllowance" fill="#8884d8" stroke="#8884d8"/>
-        <Bar dataKey="allowance" barSize={50} fill="#413ea0"/>
+        <Area type="monotone" dataKey="totalAllowance"
+              stroke={palette(64)}
+              fill={palette(64)}/>
+        <Bar dataKey="allowance" barSize={50} fill={palette(0)}/>
       </ComposedChart>
     </ResponsiveContainer>}
   </div>
