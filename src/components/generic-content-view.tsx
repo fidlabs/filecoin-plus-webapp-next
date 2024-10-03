@@ -138,7 +138,7 @@ const GenericContentHeader = ({
       </div>
     </div>
     <div className={cn("flex flex-row justify-end gap-3 sm:mt-0", !!setQuery && ' mt-3 sm:mt-0')}>
-      {!!setQuery && <Input className="bg-background w-full max-w-96 sm:w-64" value={searchQuery}
+      {!!setQuery && <Input className="bg-background w-full max-w-[350px] sm:w-64 text-[18px] lg:text-base" value={searchQuery}
                             placeholder={placeholder}
                             onChange={(e) => setSearchQuery(e.target.value)}/>}
       <div className="hidden lg:block">
