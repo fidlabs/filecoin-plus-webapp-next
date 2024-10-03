@@ -55,7 +55,7 @@ const ClientDetailsLayout = async ({children, params}: PropsWithChildren<IPagePr
         <PageSubTitle>Client ID: {params.id}</PageSubTitle>
       </PageHeader>
       <ResponsiveView>
-        <div className="grid grid-cols-2 w-full p-4 pb-20 gap-4 md:my-6 md:p-0">
+        <div className="grid grid-cols-2 w-full p-4 pb-10 gap-4 md:my-6 md:p-0">
           <Card>
             <CardHeader className="p-4">
               <CardTitle>Remaining DataCap</CardTitle>

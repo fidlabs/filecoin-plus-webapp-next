@@ -1,5 +1,5 @@
 import {useAllocatorDetails} from "@/app/allocators/(pages)/[id]/components/allocator.provider";
-import {Bar, ComposedChart, Line, ResponsiveContainer, Tooltip, TooltipProps, XAxis, YAxis} from "recharts";
+import {Area, Bar, ComposedChart, ResponsiveContainer, Tooltip, TooltipProps, XAxis, YAxis} from "recharts";
 import {calculateDateFromHeight, convertBytesToIEC, palette} from "@/lib/utils";
 import {NameType, ValueType} from "recharts/types/component/DefaultTooltipContent";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
@@ -43,11 +43,12 @@ const AllocationsOverTimeChart = ({scale}: IAllocationsOverTimeChartProps) => {
         }}
       />
       <Tooltip content={renderTooltip} />
-      <Line
+      <Area
         name="Allocations over time"
         type="monotone"
         dataKey="value"
-        stroke={palette(0)}
+        stroke={palette(64)}
+        fill={palette(64)}
       />
       <Bar dataKey="allocationValue" barSize={50} fill={palette(0)} />
     </ComposedChart>

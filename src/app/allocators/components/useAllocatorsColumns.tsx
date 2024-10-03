@@ -148,7 +148,7 @@ export const useAllocatorsColumns = (filterCallback: FilterCallback) => {
       header: () => {
         return (
           <DataTableSort property="remainingDatacap" setSorting={filterCallback}>
-            DataCap Remaining
+            Used DataCap
           </DataTableSort>
         )
       },
