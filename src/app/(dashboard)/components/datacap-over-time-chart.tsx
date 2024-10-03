@@ -1,5 +1,5 @@
 "use client";
-import {useDataCapAllocationsWeeklyByClient, useAllocators, useAllAllocators} from "@/lib/hooks/dmob.hooks";
+import {useDataCapAllocationsWeeklyByClient, useAllAllocators} from "@/lib/hooks/dmob.hooks";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {
   Bar,
