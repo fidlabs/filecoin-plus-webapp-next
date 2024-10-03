@@ -6,7 +6,6 @@ import {LoaderCircle} from "lucide-react";
 import {DataTable} from "@/components/ui/data-table";
 import {useDataCapClaimsColumns} from "@/app/clients/(pages)/[id]/components/useDataCapClaimsColumns";
 import {useClientDetails} from "@/app/clients/(pages)/[id]/components/client.provider";
-import {ClientsNavigation} from "@/app/clients/(pages)/[id]/components/clients-navigation";
 import {ComplianceDownloadButton} from "@/components/compliance-button";
 
 interface IPageProps {
@@ -16,7 +15,7 @@ interface IPageProps {
 const ClientDetailsPage = (pageParams: IPageProps) => {
   const clientId = pageParams.params.id
 
-  const {data, loading, params, patchParams} = useClientDetails()
+  const {data, tabs, loading, params, patchParams} = useClientDetails()
   const {
     columns,
     csvHeaders
@@ -33,6 +32,8 @@ const ClientDetailsPage = (pageParams: IPageProps) => {
                               patchParams({filter, page: '1'})
                             }
                           }}
+                          navigation={tabs}
+                          selected="list"
                           getCsv={{
                             method: async () => {
                               const data = await getClients(params)
@@ -42,11 +43,7 @@ const ClientDetailsPage = (pageParams: IPageProps) => {
                             },
                             title: 'clients.csv',
                             headers: csvHeaders
-                          }}>
-      <div className="flex flex-row gap-6 items-baseline">
-        <ClientsNavigation selected={'list'} clientId={clientId} loading={loading} data={data}/>
-      </div>
-    </GenericContentHeader>
+                          }} />
     <CardContent className="p-0">
       {
         loading && !data && <div className="p-10 w-full flex flex-col items-center justify-center">

@@ -21,6 +21,15 @@ const StorageProviderDetailsPage = (pageParams: IPageProps) => {
   return <Card>
     <GenericContentHeader placeholder="Client ID / Address / Name"
                           fixedHeight={false}
+                          header={<div>
+                            <h1 className="text-2xl text-black leading-none font-semibold flex items-center gap-2">
+                              <p>
+                                {loading && !data?.count && <LoaderCircle className="animate-spin"/>}
+                                {data?.count}
+                              </p>
+                              <p>Verified clients</p>
+                            </h1>
+                          </div>}
                           getCsv={{
                             method: async () => {
                               const data = await getClients(params)
@@ -30,17 +39,7 @@ const StorageProviderDetailsPage = (pageParams: IPageProps) => {
                             },
                             title: `sp_${pageParams.params.id}_clients.csv`,
                             headers: csvHeaders
-                          }}>
-      <div>
-        <h1 className="text-2xl text-black leading-none font-semibold flex items-center gap-2">
-          <p>
-            {loading && !data?.count && <LoaderCircle className="animate-spin"/>}
-            {data?.count}
-          </p>
-          <p>Verified clients</p>
-        </h1>
-      </div>
-    </GenericContentHeader>
+                          }} />
     <CardContent className="p-0">
       {
         loading && !data && <div className="p-10 w-full flex flex-col items-center justify-center">

@@ -1,7 +1,6 @@
 "use client";
 import {GenericContentHeader} from "@/components/generic-content-view";
 import {ComplianceDownloadButton} from "@/components/compliance-button";
-import {ClientsNavigation} from "@/app/clients/(pages)/[id]/components/clients-navigation";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {LoaderCircle} from "lucide-react";
 import {useClientDetails} from "@/app/clients/(pages)/[id]/components/client.provider";
@@ -19,7 +18,7 @@ const ClientAllocationsPage = (pageParams: IPageProps) => {
 
   const clientId = pageParams.params.id
 
-  const {allocationsData, getAllocationsData, data, loading} = useClientDetails()
+  const {allocationsData, tabs, getAllocationsData, loading} = useClientDetails()
 
   useEffect(() => {
     getAllocationsData()
@@ -29,12 +28,10 @@ const ClientAllocationsPage = (pageParams: IPageProps) => {
     <Card>
       <GenericContentHeader placeholder="Storage Provider ID"
                             sticky
+                            navigation={tabs}
+                            selected="allocations"
                             fixedHeight={false}
-                            addons={<ComplianceDownloadButton id={clientId}/>}>
-        <div className="flex flex-row gap-6 items-baseline">
-          <ClientsNavigation selected={'allocations'} clientId={clientId} loading={loading} data={data}/>
-        </div>
-      </GenericContentHeader>
+                            addons={<ComplianceDownloadButton id={clientId}/>} />
       <CardContent className="p-0">
         {
           loading && !allocationsData && <div className="p-10 w-full flex flex-col items-center justify-center">

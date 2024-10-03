@@ -6,10 +6,10 @@ import {InfoIcon} from "lucide-react";
 const ResponsiveView = ({ children }: PropsWithChildren) => {
 
   return <>
-    <div className="flex flex-col justify-center items-center md:hidden">
+    <div className="flex flex-col justify-center items-center md:hidden relative">
       <Drawer shouldScaleBackground={true}>
         <DrawerTrigger asChild>
-          <Button variant="outline" size="icon">
+          <Button className="absolute right-2 bottom-[55px]" variant="outline" size="icon">
             <InfoIcon/>
           </Button>
         </DrawerTrigger>

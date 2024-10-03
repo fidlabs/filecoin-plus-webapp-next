@@ -301,6 +301,29 @@ const useAllocators = (params?: IApiQuery) => {
   }
 }
 
+const useAllAllocators = () => {
+  const [data, setData] = useState<IAllocatorsResponse | undefined>(undefined);
+  const [loading, setLoading] = useState<boolean>(false);
+
+  useEffect(() => {
+    setLoading(true);
+    setData(undefined)
+    getAllocators({
+      page: '1',
+      showInactive: 'true',
+    })
+      .then(setData)
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
+
+  return {
+    data,
+    loading
+  }
+}
+
 const useClients = (params?: IApiQuery) => {
   const [data, setData] = useState<IClientsResponse | undefined>(undefined);
   const [loading, setLoading] = useState<boolean>(false);
@@ -319,8 +342,8 @@ const useClients = (params?: IApiQuery) => {
     getClients(params)
       .then(setData)
       .finally(() => {
-      setLoading(false);
-    });
+        setLoading(false);
+      });
   }, [currentParams, params]);
 
   return {
@@ -348,7 +371,7 @@ const useStorageProviders = (params?: IApiQuery) => {
       .then(setData)
       .finally(() => {
         setLoading(false);
-    });
+      });
   }, [currentParams, params]);
 
   return {
@@ -363,6 +386,7 @@ export {
   useDataCapAllocationsWeekly,
   useDataCapAllocationsWeeklyByClient,
   useAllocators,
+  useAllAllocators,
   useClients,
   useStorageProviders,
 };

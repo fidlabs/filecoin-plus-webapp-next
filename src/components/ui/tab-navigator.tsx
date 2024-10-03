@@ -3,9 +3,6 @@ import Link from "next/link";
 import {cn} from "@/lib/utils";
 import {DynamicHeading} from "@/components/ui/dynamic-heading";
 import {ReactNode} from "react";
-import {Drawer, DrawerContent, DrawerTrigger} from "@/components/ui/drawer";
-import {Button, buttonVariants} from "@/components/ui/button";
-import {ChevronRight, MenuIcon} from "lucide-react";
 
 export interface ITabNavigatorTab {
   label: ReactNode | string,
@@ -34,31 +31,10 @@ const TabNavigator = ({tabs, selected}: ITabNavigatorProps) => {
         }
       </TabsList>
     </Tabs>
-    <div className="flex w-full gap-6 items-center justify-between w-full md:hidden">
+    <div className="flex gap-6 items-center justify-between md:hidden">
       <h1 className="flex text-xl gap-2">
         {tabs.find(({value}) => value === selected)?.label}
       </h1>
-      <Drawer shouldScaleBackground>
-        <DrawerTrigger asChild>
-          <Button variant="ghost" size="icon">
-            <MenuIcon/>
-          </Button>
-        </DrawerTrigger>
-        <DrawerContent className="p-4 pb-20 flex flex-col gap-4">
-          {
-            tabs.filter(({value}) => value !== selected).map(({label, href}, index) =>
-              <Link
-                key={index}
-                href={href}
-                className={cn(buttonVariants({variant: 'outline'}), 'flex gap-2 items-center')}
-              >
-                {label}
-                <ChevronRight/>
-              </Link>
-            )
-          }
-        </DrawerContent>
-      </Drawer>
     </div>
   </>
 }

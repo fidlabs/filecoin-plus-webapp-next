@@ -9,11 +9,14 @@ import {createContext, PropsWithChildren, useCallback, useContext, useEffect, us
 import {useParamsQuery} from "@/lib/hooks/useParamsQuery";
 import {getClientAllocationsById, getClientById, getClientProviderBreakdownById} from "@/lib/api";
 import {convertBytesToIEC} from "@/lib/utils";
+import {LoaderCircle} from "lucide-react";
+import {ITabNavigatorTab} from "@/components/ui/tab-navigator";
 
 interface IClientContext {
   data?: IClientResponse;
   loading: boolean;
   params: IApiQuery;
+  tabs: ITabNavigatorTab[];
   patchParams: (newParams: IApiQuery) => void;
   providersData: IClientProviderBreakdownResponse | undefined;
   allocationsData: IClientAllocationsResponse | undefined;
@@ -32,6 +35,7 @@ const ClientContext = createContext<IClientContext>({
     limit: '10',
     sort: ''
   },
+  tabs: [],
   patchParams: () => {},
   providersData: undefined,
   allocationsData: undefined,
@@ -55,6 +59,32 @@ const ClientProvider = ({children, id, initialData}: PropsWithChildren<{ id: str
     limit: '10',
     sort: ''
   } as IApiQuery)
+
+  const tabs = useMemo(() => {
+    return [
+      {
+        label: <>
+          <p>
+            {loading && !data && <LoaderCircle size={15} className="animate-spin"/>}
+            {data?.count}
+          </p>
+          <p>Claims</p>
+        </>,
+        href: `/clients/${id}`,
+        value: 'list'
+      },
+      {
+        label: 'Providers',
+        href: `/clients/${id}/providers`,
+        value: 'providers'
+      },
+      {
+        label: 'Allocations',
+        href: `/clients/${id}/allocations`,
+        value: 'allocations'
+      }
+    ] as ITabNavigatorTab[]
+  }, [id, data, loading])
 
   const getProvidersData = useCallback( () => {
     if (providersData) {
@@ -106,6 +136,7 @@ const ClientProvider = ({children, id, initialData}: PropsWithChildren<{ id: str
 
   return <ClientContext.Provider value={{
     data,
+    tabs,
     loading,
     params,
     patchParams,

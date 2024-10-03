@@ -1,7 +1,7 @@
 import {useState} from 'react';
 import {toast} from 'sonner';
 import {Button} from "@/components/ui/button";
-import {LoaderCircleIcon} from "lucide-react";
+import {DownloadIcon, LoaderCircleIcon} from "lucide-react";
 
 interface IProps {
   id: string;
@@ -37,11 +37,11 @@ const ComplianceDownloadButton = ({id}: IProps) => {
   return <div aria-disabled={complianceLoading}>
     <Button
       variant="outline"
-      className="w-full md:min-w-[160px] md:w-auto"
+      className="w-full lg:min-w-[160px] lg:w-auto"
       disabled={complianceLoading}
       onClick={generateComplianceReport}
     >
-      {!complianceLoading && <span>Compliance report</span>}
+      {!complianceLoading && <p className="flex items-center gap-2">Compliance Report <DownloadIcon className="md:hidden" size={15}/></p>}
       {complianceLoading && <LoaderCircleIcon className="animate-spin"/>}
     </Button>
   </div>

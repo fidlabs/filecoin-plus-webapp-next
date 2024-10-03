@@ -53,7 +53,7 @@ const DatacapAllocationChart = () => {
     <CardHeader>
       <CardTitle>DataCap Allocation</CardTitle>
     </CardHeader>
-    <CardContent className="flex flex-col items-center justify-center relative">
+    <CardContent className="flex flex-col md:flex-row lg:flex-col items-center justify-center relative">
       {
         !isLoading && !chartData && <p>Error loading data</p>
       }

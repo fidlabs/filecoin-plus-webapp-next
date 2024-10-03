@@ -1,19 +1,25 @@
 "use client";
 import {CardFooter, CardHeader} from "@/components/ui/card";
 import {Input} from "@/components/ui/input";
-import {Button} from "@/components/ui/button";
-import {PropsWithChildren, ReactNode, useCallback, useEffect, useState} from "react";
+import {Button, buttonVariants} from "@/components/ui/button";
+import {ReactNode, useCallback, useEffect, useState} from "react";
 import {Paginator} from "@/components/ui/pagination";
 import {IApiQuery} from "@/lib/interfaces/api.interface";
-import {LoaderCircle, MoreVerticalIcon} from "lucide-react";
+import {ChevronRight, DownloadIcon, LoaderCircle, MenuIcon} from "lucide-react";
 import {cn} from "@/lib/utils";
 import {Drawer, DrawerContent, DrawerTrigger} from "@/components/ui/drawer";
+import {ITabNavigatorTab, TabNavigator} from "@/components/ui/tab-navigator";
+import Link from "next/link";
+import {Separator} from "@/components/ui/separator";
 
 interface GenericContentHeaderProps {
   placeholder: string,
   fixedHeight?: boolean,
   sticky?: boolean,
   addons?: ReactNode,
+  header?: ReactNode,
+  navigation?: ITabNavigatorTab[],
+  selected?: string
   query?: string,
   setQuery?: (query: string) => void,
   getCsv?: {
@@ -29,8 +35,17 @@ interface GenericContentHeaderProps {
 }
 
 const GenericContentHeader = ({
-                                addons, query, setQuery, children, placeholder, getCsv, sticky, fixedHeight = true
-                              }: PropsWithChildren<GenericContentHeaderProps>) => {
+                                header,
+                                navigation,
+                                selected,
+                                addons,
+                                query,
+                                setQuery,
+                                placeholder,
+                                getCsv,
+                                sticky,
+                                fixedHeight = true
+                              }: GenericContentHeaderProps) => {
 
   const [searchQuery, setSearchQuery] = useState<string>(query ?? '');
   const [downloadCsvLoading, setDownloadCsvLoading] = useState<boolean>(false);
@@ -85,35 +100,55 @@ const GenericContentHeader = ({
       sticky && 'sticky top-0 bg-white z-10 rounded-t-lg',
       !setQuery && 'flex w-full justify-between'
     )}>
-    {children}
+    <div className="flex w-full lg:w-auto justify-between items-center">
+      {header && header}
+      {navigation && selected && <TabNavigator tabs={navigation} selected={selected}/>}
+      <div className="lg:hidden">
+        <Drawer>
+          <DrawerTrigger asChild>
+            <Button variant="ghost" size="icon">
+              <MenuIcon/>
+            </Button>
+          </DrawerTrigger>
+          <DrawerContent className="flex flex-col p-4 pb-10 items-stretch gap-4">
+            <div className="flex flex-col gap-4 md:hidden">
+              {
+                navigation?.filter(({value}) => value !== selected).map(({label, href}, index) =>
+                  <Link
+                    key={index}
+                    href={href}
+                    className={cn(buttonVariants({variant: 'outline'}), 'flex gap-2 items-center')}
+                  >
+                    {label}
+                    <ChevronRight/>
+                  </Link>
+                )
+              }
+              {navigation && <Separator/>}
+            </div>
+            {addons}
+            {getCsv && <Button variant="outline" onClick={downloadCsv}>
+              {
+                downloadCsvLoading ? <LoaderCircle className="animate-spin"/> :
+                  <p className="flex items-center gap-2">{'Export to CSV'} <DownloadIcon size={15}/></p>
+              }
+            </Button>}
+          </DrawerContent>
+        </Drawer>
+      </div>
+    </div>
     <div className={cn("flex flex-row justify-end gap-3 sm:mt-0", !!setQuery && ' mt-3 sm:mt-0')}>
       {!!setQuery && <Input className="bg-background w-full max-w-96 sm:w-64" value={searchQuery}
                             placeholder={placeholder}
                             onChange={(e) => setSearchQuery(e.target.value)}/>}
-      {getCsv && <>
-        <Button variant="outline" className="hidden lg:block" onClick={downloadCsv}>
+      <div className="hidden lg:block">
+        {addons}
+      </div>
+      {getCsv && <Button variant="outline" className="hidden lg:block" onClick={downloadCsv}>
           {
             downloadCsvLoading ? <LoaderCircle className="animate-spin"/> : 'Export to CSV'
           }
-        </Button>
-        <div className="lg:hidden">
-          <Drawer>
-            <DrawerTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <MoreVerticalIcon/>
-              </Button>
-            </DrawerTrigger>
-            <DrawerContent className="flex flex-col p-4 pb-20 items-stretch gap-4">
-              {addons}
-              <Button variant="outline" onClick={downloadCsv}>
-                {
-                  downloadCsvLoading ? <LoaderCircle className="animate-spin"/> : 'Export to CSV'
-                }
-              </Button>
-            </DrawerContent>
-          </Drawer>
-        </div>
-      </>}
+        </Button>}
     </div>
   </CardHeader>
 }
