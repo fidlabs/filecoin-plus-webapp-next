@@ -20,7 +20,7 @@ const AllocationsListTable = () => {
     return allocationsData?.data.flatMap((item) => item.allowanceArray)
   }, [allocationsData])
 
-  return <div className="lg:max-h-[50vh] overflow-y-auto overflow-x-hidden">
+  return <div>
     {
       loading && <div className="p-10 w-full flex flex-col items-center justify-center">
         <LoaderCircle className="animate-spin"/>

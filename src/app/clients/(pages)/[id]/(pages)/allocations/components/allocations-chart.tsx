@@ -30,8 +30,8 @@ const AllocationsChart = () => {
       </CardHeader>
       <CardContent>
         <p>{`From: ${allocationData['verifierAddressId']}`}</p>
-        <p>{`Allocated: ${convertBytesToIEC(allocationData['allowance'])}`}</p>
-        <p>{`Total: ${convertBytesToIEC(allocationData['totalAllowance'])}`}</p>
+        <p style={{color: palette(0)}}>{`Allocated: ${convertBytesToIEC(allocationData['allowance'])}`}</p>
+        <p style={{color: palette(64)}}>{`Total: ${convertBytesToIEC(allocationData['totalAllowance'])}`}</p>
       </CardContent>
     </Card>;
   };

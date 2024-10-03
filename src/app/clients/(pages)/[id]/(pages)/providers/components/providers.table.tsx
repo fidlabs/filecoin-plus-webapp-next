@@ -7,7 +7,7 @@ import {buttonVariants} from "@/components/ui/button";
 const ProvidersTable = () => {
   const {providersData, activeProviderIndex, setActiveProviderIndex} = useClientDetails()
 
-  return <div className="max-h-[calc(100svh-300px)] overflow-auto md:max-h-[calc(100svh-400px)]">
+  return <div className="overflow-auto md:max-h-[calc(100vh-400px)]">
     <Table>
       <TableHeader>
         <TableCell>
