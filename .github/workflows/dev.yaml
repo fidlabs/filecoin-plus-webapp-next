@@ -26,7 +26,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
           ecr-repository: ${{ env.ECR_REPOSITORY }}
-          tag-extras: "-${{ steps.set-timestamp.outputs.timestamp }}"
+          tag-suffix: "-${{ steps.set-timestamp.outputs.timestamp }}"
 
       - name: Show image tag
         if: steps.build-be.outcome == 'success'
