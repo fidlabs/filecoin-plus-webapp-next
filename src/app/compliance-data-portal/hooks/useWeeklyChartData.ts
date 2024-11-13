@@ -4,7 +4,7 @@ import {format} from "date-fns";
 import {uniq} from "lodash";
 import {ICDPWeek} from "@/lib/interfaces/cdp/cdp.interface";
 
-const useWeeklyChartData = (data: ICDPWeek[] | undefined, unit = '', defaultTab = '3 bars') => {
+const useWeeklyChartData = (data: ICDPWeek[] | undefined, unit = '', defaultTab = '3 groups') => {
   const {
     barTabs,
     globalBarTab,

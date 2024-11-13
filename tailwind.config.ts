@@ -1,4 +1,5 @@
 import type {Config} from "tailwindcss";
+import plugin from "tailwindcss/plugin"
 
 const config: Config = {
   darkMode: ["class"],
@@ -97,6 +98,16 @@ const config: Config = {
   		}
   	}
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [require("tailwindcss-animate"), plugin(({ matchUtilities }) => {
+
+		//Add the css properties that you use in tailwind
+		matchUtilities({
+			'animation-delay': (value) => {
+				return {
+					'animation-delay': value,
+				};
+			},
+		});
+	})],
 };
 export default config;

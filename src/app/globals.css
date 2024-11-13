@@ -90,4 +90,27 @@
   .table-link {
     @apply underline underline-offset-2 hover:text-dodger-blue
   }
+
+  @keyframes loading {
+    0% {
+      background-color: #cd0a00;
+    }
+    30% {
+      background-color: #fa8a00;
+    }
+    50% {
+      height: 100px;
+      margin-top: 0px;
+    }
+    80% {
+      background-color: #91d700;
+    }
+    100% {
+      background-color: #cd0a00;
+    }
+  }
+
+  .animate-loading {
+    animation: loading 2.5s infinite;
+  }
 }

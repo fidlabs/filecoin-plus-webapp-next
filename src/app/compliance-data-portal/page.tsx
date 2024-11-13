@@ -2,6 +2,10 @@
 
 import {useCDPUtils} from "@/app/compliance-data-portal/providers/cdp.provider";
 import StorageProviderRetrievability from "@/app/compliance-data-portal/components/storage-providers/retrievability";
+import StorageProviderNumberOfAllocations
+  from "@/app/compliance-data-portal/components/storage-providers/numberOfAllocations";
+import StorageProviderBiggestAllocation
+  from "@/app/compliance-data-portal/components/storage-providers/biggestAllocation";
 
 const CompliancePage = () => {
 
@@ -10,11 +14,11 @@ const CompliancePage = () => {
   return (
     <div className="w-full mb-[25%]">
       <h3>SPs</h3>
-      <>
+      <div className="flex flex-col gap-6 w-full mb-6">
         <StorageProviderRetrievability setCurrentElement={scrollCallback}/>
-        {/*<NumberOfDealsSP setCurrentElement={scrollCallback}/>*/}
-        {/*<BiggestDealsSP setCurrentElement={scrollCallback}/>*/}
-      </>
+        <StorageProviderNumberOfAllocations setCurrentElement={scrollCallback}/>
+        <StorageProviderBiggestAllocation setCurrentElement={scrollCallback}/>
+      </div>
       <h3>Allocators</h3>
       <>
         {/*<RetrievabilityScoreAllocator setCurrentElement={scrollCallback}/>*/}
