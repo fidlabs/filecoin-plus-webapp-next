@@ -15,7 +15,7 @@ const ComplianceLayout = ({
   children: ReactNode;
 }>) => {
   return (
-    <main className="flex flex-col gap-8 row-start-2 items-start">
+    <main className="flex flex-col justify-start gap-8 row-start-2 items-start">
       <CdpProvider>
         <PageTitle>Compliance overview</PageTitle>
         <div className="mt-9 flex gap-5 w-full">

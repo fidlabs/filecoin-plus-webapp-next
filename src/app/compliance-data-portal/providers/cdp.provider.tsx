@@ -4,13 +4,13 @@ import {createContext, PropsWithChildren, useCallback, useContext, useState} fro
 import {useScrollToHash} from "@/lib/hooks/useScrollToHash";
 import {ICDPRange} from "@/lib/interfaces/cdp/cdp.interface";
 
-const barTabs = ['3 bars', '6 bars', 'All'];
+const barTabs = ['3 groups', '6 groups', 'All'];
 const scaleTabs = ['Linear scale', 'Log scale'];
 
 const CommonChartContext = createContext({
   barTabs,
   scaleTabs,
-  globalBarTab: '3 bars',
+  globalBarTab: '3 groups',
   setGlobalBarTab: (v: string) => console.log(v),
   globalScaleTab: '',
   setGlobalScaleTab: (v: string) => console.log(v),
@@ -41,7 +41,7 @@ const CdpProvider = ({ children }: PropsWithChildren) => {
 
   const scrollToHash = useScrollToHash();
 
-  const [globalBarTab, setGlobalBarTab] = useState('3 bars');
+  const [globalBarTab, setGlobalBarTab] = useState('3 groups');
   const [globalScaleTab, setGlobalScaleTab] = useState('linear');
   const [currentElement, setCurrentElement] = useState('RetrievabilityScoreSP');
   const [disableCallbacks, setDisableCallbacks] = useState(false);

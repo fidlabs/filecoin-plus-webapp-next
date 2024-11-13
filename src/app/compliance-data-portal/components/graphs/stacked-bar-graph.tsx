@@ -4,6 +4,8 @@ import {useMemo} from "react";
 import {uniq} from "lodash";
 import {NameType, ValueType} from "recharts/types/component/DefaultTooltipContent";
 import {Scale} from "@/lib/hooks/useChartScale";
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
+import {ChartLoader} from "@/components/ui/chart-loader";
 
 interface Props {
   data: { [key: PropertyKey]: string | number }[],
@@ -13,9 +15,7 @@ interface Props {
   unit?: string
 }
 
-const StackedBarGraph = ({ data, scale = 'linear', isLoading, color, unit = 'allocators' }: Props) => {
-
-  console.log(data, scale, isLoading, color, unit)
+const StackedBarGraph = ({data, scale = 'linear', isLoading, color, unit = ''}: Props) => {
 
   const renderTooltip = (props: TooltipProps<ValueType, NameType>) => {
     const payload = props?.payload?.[0]?.payload;
@@ -24,9 +24,13 @@ const StackedBarGraph = ({ data, scale = 'linear', isLoading, color, unit = 'all
     }
 
     return (
-      <div className="chartTooltip">
-        <div className="chartTooltipTitle">{payload.name}</div>
-        <div className="chartTooltipData">{
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            {payload.name}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>{
           dataKeys.map((key: string, index: number) => {
             const value = payload[`group${index}`] ?? payload[key];
             if (!value) {
@@ -34,11 +38,11 @@ const StackedBarGraph = ({ data, scale = 'linear', isLoading, color, unit = 'all
             }
             const name = payload[`group${index}Name`] ?? payload[`${key}Name`] ?? key;
             return <div key={key} className="chartTooltipRow">
-              <div style={{ color: palette(index) }} >{name} - {value} {unit}</div>
+              <div style={{color: palette(index)}}>{name} - {value} {unit}{value > 1 && 's'}</div>
             </div>
           })
-        }</div>
-      </div>
+        }</CardContent>
+      </Card>
     );
   };
 
@@ -58,31 +62,32 @@ const StackedBarGraph = ({ data, scale = 'linear', isLoading, color, unit = 'all
   }, [data]);
 
   if (isLoading) {
-    return <div>
-      <div>
-        Loading
-      </div>
+    return <div className="flex w-full min-h-[350px] justify-center items-center">
+      <ChartLoader/>
     </div>
   }
 
   if (!data?.length) {
-    return null;
+    return <div className="flex w-full min-h-[350px] justify-center items-center">
+      Data not available
+    </div>
   }
+
 
   return <div>
     <ResponsiveContainer width="100%" aspect={3 / 2} debounce={500}>
       <BarChart
         data={data}
-        margin={{ bottom: data.length > 6 ? 150 : 20 }}
+        margin={{bottom: data.length > 6 ? 150 : 20}}
       >
-        <CartesianGrid strokeDasharray="3 3" />
-        <Tooltip content={renderTooltip} />
+        <CartesianGrid strokeDasharray="3 3"/>
+        <Tooltip content={renderTooltip}/>
         <XAxis dataKey="name" angle={data.length > 6 ? 90 : 0} interval={0} minTickGap={0}
-               tick={data.length > 6 ? <CustomizedAxisTick /> : true} />
-        <YAxis domain={[0, parseDataMax]} />
-        <Tooltip />
+               tick={data.length > 6 ? <CustomizedAxisTick/> : true}/>
+        <YAxis domain={[0, parseDataMax]} scale={scale}/>
+        <Tooltip/>
         {dataKeys.map((key, index) => <Bar key={key} dataKey={key}
-                                          stackId="a" fill={color ?? palette(index)} />)}
+                                           stackId="a" fill={color ?? palette(index)}/>)}
         ))
       </BarChart>
     </ResponsiveContainer>
@@ -95,7 +100,7 @@ const CustomizedAxisTick = (props: {
   stroke?: string,
   payload?: { value: string }
 }) => {
-  const { x, y, payload } = props;
+  const {x, y, payload} = props;
   return (
     <g transform={`translate(${x},${y})`}>
       <text x={0} y={0} dx={-5} dy={5} textAnchor="end" fill="#666" fontSize={15} transform="rotate(-90)">
