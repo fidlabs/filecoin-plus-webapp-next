@@ -7,7 +7,7 @@ import {DataCapFlowSankey} from "@/app/(dashboard)/components/datacap-flow-sanke
 import {useState} from "react";
 
 const DatacapFlow = () => {
-  const {data} = useDataCapFlow()
+  const {dataCapFlow} = useDataCapFlow()
 
   const [tab, setTab] = useState('tree')
 
@@ -33,10 +33,10 @@ const DatacapFlow = () => {
           </div>
         </div>
         <TabsContent value="tree">
-          <DataCapFlowTree data={data}/>
+          <DataCapFlowTree data={dataCapFlow}/>
         </TabsContent>
         <TabsContent value="flow">
-          <DataCapFlowSankey data={data}/>
+          <DataCapFlowSankey data={dataCapFlow}/>
         </TabsContent>
       </Tabs>
     </CardContent>

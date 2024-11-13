@@ -1,4 +1,4 @@
-import {useMemo, useState} from 'react';
+import {useEffect, useMemo, useState} from 'react';
 import {DataCapChild} from "@/lib/hooks/dmob.hooks";
 import {convertBytesToIEC} from "@/lib/utils";
 import {ResponsiveContainer, Sankey, Tooltip} from "recharts";
@@ -20,10 +20,13 @@ export const DataCapFlowSankey = ({
                                     data
                                   }: Props) => {
 
-  const [selectedNodes, setSelectedNodes] = useState([{
-    id: 0,
-    name: 'Root Key Holder',
-  }]);
+  const [selectedNodes, setSelectedNodes] = useState<DataCapChild[]>([]);
+
+  useEffect(() => {
+    if (data) {
+      setSelectedNodes([data[0]]);
+    }
+  }, [data]);
 
   const renderTooltip = (props: TooltipProps<ValueType, NameType>) => {
     const linkData = props?.payload?.[0]?.payload?.payload;
@@ -64,7 +67,7 @@ export const DataCapFlowSankey = ({
       isParent: boolean;
       hasChildren: boolean;
       arrayIndex: number;
-      children: DataCapChild[];
+      childObject: DataCapChild;
     };
   }) => {
     if (data.payload?.target) {
@@ -76,7 +79,7 @@ export const DataCapFlowSankey = ({
     const lastSelectedNode = selectedNodes[selectedNodes.length - 1];
 
     if (lastSelectedNode.name === name && isParent) {
-      setSelectedNodes(selectedNodes.slice(0, -1));
+      setSelectedNodes(selectedNodes.slice(0, - 1));
       return
     }
 
@@ -84,12 +87,9 @@ export const DataCapFlowSankey = ({
       return
     }
 
-    const arrayIndex = data?.payload?.arrayIndex;
+    const childObject = data?.payload?.childObject;
 
-    setSelectedNodes([...selectedNodes, {
-      id: arrayIndex,
-      name: name,
-    }]);
+    setSelectedNodes([...selectedNodes, childObject]);
   };
 
   const handleBackClick = (backIndex: number) => {
@@ -97,14 +97,11 @@ export const DataCapFlowSankey = ({
   };
 
   const sankeyData = useMemo(() => {
-    if (!data?.length) {
+    if (!selectedNodes?.length) {
       return null;
     }
 
-    let currentNode = data[selectedNodes[0].id];
-    for (let i = 1; i < selectedNodes.length; i++) {
-      currentNode = currentNode!.children![selectedNodes[i].id];
-    }
+    const currentNode = selectedNodes[selectedNodes.length - 1];
 
     return {
       nodes: [{
@@ -112,27 +109,26 @@ export const DataCapFlowSankey = ({
         datacap: currentNode?.attributes?.datacap,
         allocators: currentNode?.attributes?.allocators,
         isParent: selectedNodes.length > 1,
-      }, ...currentNode?.children?.map((child, index) => ({
+      }, ...currentNode?.children?.map((child) => ({
         name: child?.name,
         datacap: child?.attributes?.datacap,
         allocators: child?.attributes?.allocators,
-        arrayIndex: index,
-        children: child?.children,
-        hasChildren: !!child?.children?.map(item => !!item.children?.length).filter(val => val).length
+        childObject: child,
+        // hasChildren: !!child?.children?.map(item => !!item.children?.length).filter(val => !!val).length,
+        hasChildren: !!child?.children?.map(item => !!item.children?.length).filter(val => val).length,
       })) || []],
       links: currentNode?.children?.map((child, index) => ({
         source: 0,
         target: index + 1,
-        arrayIndex: index,
-        value: child?.attributes?.datacap,
+        value: (child?.attributes?.datacap ?? 0) + 1,
         datacap: child?.attributes?.datacap,
         allocators: child?.attributes?.allocators,
-        children: child?.children,
-        hasChildren: !!child?.children?.map(item => !!item.children?.length).filter(val => val).length
+        // hasChildren: !!child?.children?.map(item => !!item.children?.length).filter(val => !!val).length,
+        hasChildren: !!child?.children?.map(item => !!item.children?.length).filter(val => val).length,
       })) || []
-    }
+    };
 
-  }, [data, selectedNodes]);
+  }, [selectedNodes]);
 
   return <div>
     <Breadcrumb className="mx-6">

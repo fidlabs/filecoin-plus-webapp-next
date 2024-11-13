@@ -2,14 +2,19 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
+interface AlternateCardProps extends React.HTMLAttributes<HTMLDivElement>{
+  alternate?: boolean
+}
+
 const Card = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
+  AlternateCardProps
+>(({ className, alternate, ...props }, ref) => (
   <div
     ref={ref}
     className={cn(
       "rounded-lg border-none text-card-foreground shadow-f-card bg-white",
+      {"bg-background shadow-f-card-inset" : alternate},
       className
     )}
     {...props}

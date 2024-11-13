@@ -100,8 +100,8 @@ const DatacapAllocationChart = () => {
             <p className="text-sm">Remaining DataCap Allowance</p>
           </div>
           <div className="flex flex-col items-end">
-            <p className="text-sm">{convertBytesToIEC(chartData[0].value)}</p>
-            <p className="text-xs text-muted-foreground">{chartData[0].percent.toFixed(2)}%</p>
+            <p className="text-sm">{convertBytesToIEC(chartData[1].value)}</p>
+            <p className="text-xs text-muted-foreground">{chartData[1].percent.toFixed(2)}%</p>
           </div>
         </div>
       </div>}
