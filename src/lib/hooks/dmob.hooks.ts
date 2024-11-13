@@ -1,21 +1,15 @@
-import {useCallback, useEffect, useState} from "react";
+import {useCallback, useEffect, useMemo, useState} from "react";
 import {
   IFilDCAllocationsWeekly,
   IFilDCAllocationsWeeklyByClient,
-  IFilDCFLow,
-  IFilDCFLowActiveAllocators,
-  IFilDCFLowAllocator,
-  IFilDCFLowAllocators,
   IFilPlusStats
 } from "@/lib/interfaces/dmob/dmob.interface";
-import {groupBy, isEqual} from "lodash";
-import {convertBytesToIEC} from "@/lib/utils";
+import {isEqual} from "lodash";
 import {
   getAllocators,
   getClients,
   getDataCapAllocationsWeekly,
   getDataCapAllocationsWeeklyByClient,
-  getDCFlow,
   getStats,
   getStorageProviders
 } from "@/lib/api";
@@ -23,6 +17,8 @@ import {IApiQuery} from "@/lib/interfaces/api.interface";
 import {IStorageProvidersResponse} from "@/lib/interfaces/dmob/sp.interface";
 import {IClientsResponse} from "@/lib/interfaces/dmob/client.interface";
 import {IAllocatorsResponse} from "@/lib/interfaces/dmob/allocator.interface";
+import {useGoogleSheetFilters, useGoogleSheetsAuditReport} from "@/lib/hooks/google.hooks";
+import {IAllocatorsWithSheetInfo, IAllocatorWithSheetInfo} from "@/lib/interfaces/cdp/google.interface";
 
 
 export interface DataCapChild {
@@ -30,13 +26,11 @@ export interface DataCapChild {
   attributes: {
     datacap?: number;
     allocators?: number;
+    allocatorId?: string;
     id?: string;
   };
   children: DataCapChild[] | undefined;
 }
-
-const PB_10 = 10 * 1024 * 1024 * 1024 * 1024 * 1024;
-const PB_15 = 15 * 1024 * 1024 * 1024 * 1024 * 1024;
 
 const getDifferentParams = (params: IApiQuery, newParams: IApiQuery): string[] => {
   return Object.keys(newParams).filter(key => newParams[key] !== params[key]);
@@ -52,171 +46,88 @@ const shouldClearData = (params: IApiQuery | undefined, newParams: IApiQuery | u
 
 const useDataCapFlow = () => {
 
-  const [data, setData] = useState<DataCapChild[] | undefined>([]);
-  const [loading, setLoading] = useState<boolean>(false);
+  const {
+    activeFilter, partialFilter, failedFilter, notActiveFilter, notAuditedFilter, notWaitingFilter, passFilter
+  } = useGoogleSheetFilters()
 
-  const getName = useCallback((key: string) => {
-    switch (key) {
-      case 'rkh':
-        return 'Root Key Holder';
-      case 'inactiveAllocators':
-        return 'Inactive Allocators';
-      case 'activeAllocators':
-        return 'Active Allocators';
-      case 'passedAudit':
-        return 'Passed Audit';
-      case 'passedAuditConditionally':
-        return 'Passed Audit Conditionally';
-      case 'failedAudit':
-        return 'Failed Audit';
-      case 'notAudited':
-        return 'Not Audited';
-      default:
-        return key;
-    }
-  }, [])
+  const { results, loading, loaded } = useGoogleSheetsAuditReport();
 
-  const countChildAllocators = useCallback((data: IFilDCFLowAllocator | IFilDCFLowAllocators): number | undefined => {
-    if ((data as IFilDCFLowAllocator)?.datacap) {
-      return undefined;
-    }
+  const getElement = useCallback((name: string, array: IAllocatorWithSheetInfo[], withSimpleChildren = false) => {
 
-    if ((data as IFilDCFLowAllocators)?.allocators?.length) {
-      return (data as IFilDCFLowAllocators).allocators.length;
-    } else {
-      return Object.entries(data).reduce((acc, [, data]) => {
-        return acc + (countChildAllocators(data) ?? 0);
-      }, 0);
-    }
-  }, [])
+    const element = {
+      name,
+      attributes: getAttributes(array)
+    } as DataCapChild;
 
-  const groupAllocators = useCallback((allocators: IFilDCFLowAllocator[], skipUnique = false): DataCapChild[] => {
-
-    const uniqueAllocationValues = Array.from(new Set(allocators.map(a => a.datacap)));
-
-    if (uniqueAllocationValues.length > 3 && !skipUnique) {
-      const datacapAllocatorsGrouped = groupBy(Object.values(allocators), item => {
-        if (+item.datacap < PB_10) {
-          return '<10 PiB';
-        } else if (+item.datacap < PB_15) {
-          return '>10 PiB & <15 PiB';
-        } else {
-          return '>15 PiB';
-        }
-      });
-      return Object.entries(datacapAllocatorsGrouped).map(([key, data]) => {
-        return {
-          name: key,
-          attributes: {
-            datacap: data.reduce((acc, curr) => acc + +curr.datacap, 0),
-            allocators: data.length
-          },
-          children: groupAllocators(data, true)
-        } as DataCapChild;
-      });
-    } else {
-      const datacapAllocatorsGrouped = groupBy(Object.values(allocators), item => convertBytesToIEC(+item.datacap));
-
-      if (Object.keys(datacapAllocatorsGrouped).length === 1) {
-        return Object.values(datacapAllocatorsGrouped)[0].map((data) => {
-          return {
-            name: data.name ?? data.addressId,
-            attributes: {
-              datacap: +data.datacap,
-              id: data.addressId
-            },
-            children: undefined
-          } as DataCapChild;
-        });
-      }
-
-      return Object.entries(datacapAllocatorsGrouped).map(([key, data]) => {
-        if (data.length === 1) {
-          return {
-            name: data[0].name ?? data[0].addressId,
-            attributes: {
-              datacap: +data[0].datacap,
-              id: data[0].addressId
-            },
-            children: undefined
-          };
-        }
-        return {
-          name: key,
-          attributes: {
-            datacap: data.reduce((acc, curr) => acc + +curr.datacap, 0),
-            allocators: data.length
-          },
-          children: data.map((data) => {
-            return {
-              name: data.name ?? data.addressId,
-              attributes: {
-                datacap: +data.datacap,
-                id: data.addressId
-              },
-              children: undefined
-            };
-          })
-        };
-      });
-    }
-  }, [])
-
-  const parseChildren = useCallback((data: IFilDCFLowAllocators): DataCapChild[] => {
-
-    if (data?.allocators?.length > 10) {
-      return groupAllocators(data.allocators);
-    }
-
-    return data?.allocators?.map((data) => ({
-      name: data.name ?? data.addressId,
-      attributes: {
-        datacap: +data.datacap,
-        id: data.addressId
-      },
-      children: undefined
-    } as DataCapChild));
-
-  }, [groupAllocators]);
-
-  const parseChildrenGroups = useCallback((data: IFilDCFLowActiveAllocators): DataCapChild[] => {
-    return Object.entries(data).map(([key, data]) => ({
-      name: getName(key),
-      attributes: {
-        datacap: data.totalDc ? +data.totalDc : Object.values(data).reduce((acc, val) => (acc as number) + +(val as IFilDCFLowAllocators).totalDc, 0),
-        allocators: countChildAllocators(data)
-      },
-      children: data?.allocators?.length ? parseChildren(data) : parseChildrenGroups(data)
-    } as DataCapChild));
-
-  }, [countChildAllocators, getName, parseChildren]);
-
-  const parseDCFLow = useCallback((data: IFilDCFLow): DataCapChild[] => {
-    return Object.entries(data).map(([key, data]) => {
-      const children = data?.allocators?.length ? parseChildren(data) : parseChildrenGroups(data);
-      return {
-        name: getName(key),
-        children,
+    if (withSimpleChildren) {
+      element['children'] = array.map((data) => ({
+        name: data.name,
         attributes: {
-          datacap: children.reduce((acc, curr) => acc + +(curr.attributes.datacap ?? 0), 0),
-          allocators: children.reduce((acc, curr) => acc + +(curr.attributes.datacap ?? 0), 0)
-        }
-      };
-    });
-  }, [getName, parseChildren, parseChildrenGroups]);
+          datacap: +data.initialAllowance,
+          allocatorId: data.addressId
+        },
+        children: undefined
+      } as DataCapChild));
+    }
+    return element;
+  }, []);
 
-  useEffect(() => {
-    setLoading(true);
-    getDCFlow().then(data => {
-      setData(parseDCFLow(data));
-      setLoading(false);
-    });
-  }, [parseDCFLow]);
+  const getAttributes = (array: IAllocatorWithSheetInfo[]) => {
+    return {
+      datacap: array.reduce((acc, curr) => acc + +curr.initialAllowance, 0),
+      allocators: array.length
+    };
+  };
+
+  const getAudits = useCallback((results: IAllocatorsWithSheetInfo) => {
+    const numberOfAudits = results.audits;
+    const data = results.data.filter(activeFilter);
+    const audits = [
+      {
+        ...getElement('Not Audited', data.filter(notAuditedFilter), true)
+      }
+    ];
+
+    for (let i = 0; i < numberOfAudits; i++) {
+      const notWaitingData = data.filter(notWaitingFilter(i));
+
+      audits.push({
+        ...getElement(`Audit ${i + 1}`, notWaitingData),
+        children: !!notWaitingData.length ? [
+          getElement('Failed', notWaitingData.filter(failedFilter(i)), true),
+          getElement('Conditional', notWaitingData.filter(partialFilter(i)), true),
+          getElement('Pass', notWaitingData.filter(passFilter(i)), true)
+        ] : undefined
+      });
+    }
+
+    return audits;
+  }, [activeFilter, failedFilter, getElement, notAuditedFilter, notWaitingFilter, partialFilter, passFilter]);
+
+  const dataCapFlow = useMemo(() => {
+
+    if (!loaded) {
+      return [];
+    }
+
+    return [{
+      name: 'Root Key Holder',
+      attributes: getAttributes(results.data),
+      children: [
+        getElement('Not Active', results.data.filter(notActiveFilter), true),
+        {
+          ...getElement('Active', results.data.filter(activeFilter)),
+          children: getAudits(results)
+        }
+      ]
+    }];
+  }, [loaded, results, getElement, notActiveFilter, activeFilter, getAudits]);
 
   return {
-    data,
-    loading
-  }
+    dataCapFlow,
+    loading,
+    loaded
+  };
 }
 
 const useStats = () => {

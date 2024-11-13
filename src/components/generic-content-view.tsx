@@ -43,7 +43,6 @@ const GenericContentHeader = ({
                                 setQuery,
                                 placeholder,
                                 getCsv,
-                                sticky,
                                 fixedHeight = true
                               }: GenericContentHeaderProps) => {
 
@@ -97,7 +96,6 @@ const GenericContentHeader = ({
   return <CardHeader
     className={cn("border-b items-center block sm:flex flex-wrap gap-3 p-3",
       fixedHeight && 'min-h-[91px]',
-      sticky && 'sticky top-0 bg-white z-10 rounded-t-lg',
       !setQuery && 'flex w-full justify-between'
     )}>
     <div className="flex w-full lg:w-auto justify-between items-center">

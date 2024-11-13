@@ -23,4 +23,4 @@ const useChartScale = (minValue: number, defaultValue = 'linear') => {
   }
 }
 
-export default useChartScale;
+export {useChartScale};

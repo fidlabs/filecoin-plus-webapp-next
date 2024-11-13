@@ -14,7 +14,7 @@ import {
 import React, {useCallback, useMemo, useState} from "react";
 import {cn, convertBytesToIEC, palette} from "@/lib/utils";
 import {NameType, ValueType} from "recharts/types/component/DefaultTooltipContent";
-import useChartScale from "@/lib/hooks/useChartScale";
+import {useChartScale} from "@/lib/hooks/useChartScale";
 import {ScaleSelector} from "@/components/ui/scale-selector";
 import {IAllocatorsResponse} from "@/lib/interfaces/dmob/allocator.interface";
 

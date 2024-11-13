@@ -12,6 +12,7 @@ import {
   IClientsResponse
 } from "@/lib/interfaces/dmob/client.interface";
 import {IStorageProviderResponse, IStorageProvidersResponse} from "@/lib/interfaces/dmob/sp.interface";
+import {IGoogleSheetResponse} from "@/lib/interfaces/cdp/google.interface";
 
 const revalidate = 12 * 60 * 60;
 const apiUrl = 'https://api.datacapstats.io/api'
@@ -104,4 +105,9 @@ export const getStorageProviders = async (query?: IApiQuery) => {
 export const getStorageProviderById = async (id: string, query?: IApiQuery) => {
   const url = `${apiUrl}/v2/getMinerInfo/${id}${parseQuery(query)}`
   return await fetchData(url) as IStorageProviderResponse;
+}
+
+export const getGoogleSheetData = async () => {
+  const url = `https://cdp.allocator.tech/proxy/googleapis/allocators-overview`
+  return await fetchData(url) as IGoogleSheetResponse;
 }
