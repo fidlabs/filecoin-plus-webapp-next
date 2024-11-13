@@ -6,7 +6,7 @@ import {useAllocatorDetails} from "@/app/allocators/(pages)/[id]/components/allo
 import {AllocationsOverTimeChart} from "@/app/allocators/(pages)/[id]/(pages)/over-time/components/allocations-over-time-chart";
 import {useEffect} from "react";
 import {ScaleSelector} from "@/components/ui/scale-selector";
-import useChartScale from "@/lib/hooks/useChartScale";
+import {useChartScale} from "@/lib/hooks/useChartScale";
 
 const AllocatorOverTimeDetailsPage = () => {
 

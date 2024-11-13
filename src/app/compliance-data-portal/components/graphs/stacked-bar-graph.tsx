@@ -4,6 +4,7 @@ import {useMemo} from "react";
 import {uniq} from "lodash";
 import {NameType, ValueType} from "recharts/types/component/DefaultTooltipContent";
 import {Scale} from "@/lib/hooks/useChartScale";
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 
 interface Props {
   data: { [key: PropertyKey]: string | number }[],
@@ -24,9 +25,13 @@ const StackedBarGraph = ({ data, scale = 'linear', isLoading, color, unit = 'all
     }
 
     return (
-      <div className="chartTooltip">
-        <div className="chartTooltipTitle">{payload.name}</div>
-        <div className="chartTooltipData">{
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            {payload.name}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>{
           dataKeys.map((key: string, index: number) => {
             const value = payload[`group${index}`] ?? payload[key];
             if (!value) {
@@ -37,8 +42,8 @@ const StackedBarGraph = ({ data, scale = 'linear', isLoading, color, unit = 'all
               <div style={{ color: palette(index) }} >{name} - {value} {unit}</div>
             </div>
           })
-        }</div>
-      </div>
+        }</CardContent>
+      </Card>
     );
   };
 
