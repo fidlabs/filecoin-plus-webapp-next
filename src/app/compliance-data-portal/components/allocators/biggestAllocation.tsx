@@ -1,4 +1,4 @@
-import {useStorageProviderBiggestDeal} from "@/lib/hooks/cdp.hooks";
+import {useAllocatorBiggestDeal} from "@/lib/hooks/cdp.hooks";
 import {StackedBarGraph} from "@/app/compliance-data-portal/components/graphs/stacked-bar-graph";
 import {ChartWrapper} from "@/app/compliance-data-portal/components/chart-wrapper";
 import {useCDPChartDataEngine} from "@/app/compliance-data-portal/hooks/useCDPChartDataEngine";
@@ -7,21 +7,21 @@ interface Props {
   setCurrentElement: (val: string) => void
 }
 
-const StorageProviderBiggestAllocation = ({setCurrentElement}: Props) => {
+const AllocatorBiggestAllocation = ({setCurrentElement}: Props) => {
   const {
     isLoading, ref, chartData, currentTab, setCurrentTab, tabs, scale, selectedScale, setSelectedScale, data
-  } = useCDPChartDataEngine(useStorageProviderBiggestDeal, setCurrentElement, 'BiggestDealsSP', ' %')
+  } = useCDPChartDataEngine(useAllocatorBiggestDeal, setCurrentElement, 'BiggestDealsAllocator', ' %')
 
   return <ChartWrapper
     title="Size Of The Biggest client allocation"
     tabs={tabs}
     currentTab={currentTab}
     setCurrentTab={setCurrentTab}
-    id="BiggestDealsSP"
+    id="BiggestDealsAllocator"
     selectedScale={selectedScale}
     setSelectedScale={setSelectedScale}
     addons={[{
-      name: 'Total number of providers',
+      name: 'Total number of allocators',
       value: data?.count
     }, {
       name: "What's here?",
@@ -29,9 +29,9 @@ const StorageProviderBiggestAllocation = ({setCurrentElement}: Props) => {
       value: "What % of the total data cap used comes from the single client"
     }]}
     ref={ref}>
-    <StackedBarGraph data={chartData} scale={scale} isLoading={isLoading} unit="provider"/>
+    <StackedBarGraph data={chartData} scale={scale} isLoading={isLoading} unit="allocator"/>
   </ChartWrapper>
 
 }
 
-export default StorageProviderBiggestAllocation;
+export default AllocatorBiggestAllocation;

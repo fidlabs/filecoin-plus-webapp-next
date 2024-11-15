@@ -6,10 +6,11 @@ import {ScaleSelector} from "@/app/compliance-data-portal/components/scale-selec
 
 interface Props extends PropsWithChildren, HTMLAttributes<HTMLDivElement> {
   title: string
-  tabs: string[]
-  currentTab: string
+  tabs?: string[]
+  additionalFilters?: ReactNode[]
+  currentTab?: string
   selectedScale: string
-  setCurrentTab: (val: string) => void
+  setCurrentTab?: (val: string) => void
   setSelectedScale: (val: string) => void
   addons?: {
     name: string
@@ -22,7 +23,7 @@ const ChartWrapper = forwardRef<
   HTMLDivElement,
   Props
 >(({
-     title, tabs, currentTab, setCurrentTab, children, addons, selectedScale, setSelectedScale, ...props
+     title, tabs, currentTab, setCurrentTab, children, addons, selectedScale, setSelectedScale, additionalFilters, ...props
    }, ref) => {
   return <div className="w-full mt-2" ref={ref} {...props}>
     <Card>
@@ -30,8 +31,9 @@ const ChartWrapper = forwardRef<
         <CardTitle className="flex w-full justify-between">
           <div>{title}</div>
           <div className="flex gap-2">
+            {additionalFilters?.map((filter, index) => <div key={index}>{filter}</div>)}
             <ScaleSelector selectedScale={selectedScale} setSelectedScale={setSelectedScale}/>
-            <TabsSelector tabs={tabs} currentTab={currentTab} setCurrentTab={setCurrentTab}/>
+            {(tabs && currentTab&& setCurrentTab) && <TabsSelector tabs={tabs} currentTab={currentTab} setCurrentTab={setCurrentTab}/>}
           </div>
         </CardTitle>
       </CardHeader>
