@@ -6,6 +6,9 @@ import StorageProviderNumberOfAllocations
   from "@/app/compliance-data-portal/components/storage-providers/numberOfAllocations";
 import StorageProviderBiggestAllocation
   from "@/app/compliance-data-portal/components/storage-providers/biggestAllocation";
+import AllocatorRetrievability from "@/app/compliance-data-portal/components/allocators/retrievability";
+import AllocatorBiggestAllocation from "@/app/compliance-data-portal/components/allocators/biggestAllocation";
+import ProviderComplianceAllocator from "@/app/compliance-data-portal/components/allocators/providerCompliance";
 
 const CompliancePage = () => {
 
@@ -20,12 +23,12 @@ const CompliancePage = () => {
         <StorageProviderBiggestAllocation setCurrentElement={scrollCallback}/>
       </div>
       <h3>Allocators</h3>
-      <>
-        {/*<RetrievabilityScoreAllocator setCurrentElement={scrollCallback}/>*/}
-        {/*<BiggestDealsAllocator setCurrentElement={scrollCallback}/>*/}
-        {/*<ProviderComplianceAllocator setCurrentElement={scrollCallback}/>*/}
+      <div className="flex flex-col gap-6 w-full mb-6">
+        <AllocatorRetrievability setCurrentElement={scrollCallback}/>
+        <AllocatorBiggestAllocation setCurrentElement={scrollCallback}/>
+        <ProviderComplianceAllocator setCurrentElement={scrollCallback}/>
         {/*<AuditStateAllocator setCurrentElement={scrollCallback}/>*/}
-      </>
+      </div>
     </div>
   );
 };

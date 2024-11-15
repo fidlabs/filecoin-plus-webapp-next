@@ -25,3 +25,13 @@ export interface ICDPUnifiedHistogram {
   count: number
   buckets: ICDPWeek[]
 }
+
+
+export interface IAllocatorSPSComplainceResult {
+  results: IAllocatorSPSComplianceRange[]
+}
+
+export interface IAllocatorSPSComplianceRange {
+  scoreRange: number
+  histogram: ICDPHistogram
+}

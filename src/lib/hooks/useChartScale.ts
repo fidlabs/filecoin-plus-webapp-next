@@ -12,7 +12,7 @@ const useChartScale = (minValue: number, defaultValue = 'linear') => {
     if (selectedScale === 'linear') {
       return "linear" as ScaleType;
     } else if (selectedScale === 'log') {
-      return scaleSymlog().constant(minValue);
+      return scaleSymlog().constant(minValue || 1);
     }
   }, [selectedScale, minValue])
 

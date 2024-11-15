@@ -80,7 +80,7 @@ const TreeNode = ({props}: {props: CustomNodeElementProps}) => {
         <text className="text-[14px] leading-[16px] font-thin fill-dodger-blue m-0 stroke-[0.3]" x="-20" y="35">
           {nodeDatum.attributes &&
             Object.entries(nodeDatum.attributes).map(([labelKey, labelValue], i) => {
-              if (labelKey !== 'id') {
+              if (labelKey !== 'allocatorId') {
                 return (
                   <tspan key={`${labelKey}-${i}`} x="-20" dy="1.2em">
                     {labelKey}: {labelKey === 'datacap' ? convertBytesToIEC(labelValue) : labelValue}
@@ -89,14 +89,14 @@ const TreeNode = ({props}: {props: CustomNodeElementProps}) => {
               }
             })}
         </text>
-        {!!nodeDatum?.attributes?.id && <text
+        {!!nodeDatum?.attributes?.allocatorId && <text
           className="text-[16px] leading-[18px] font-thin fill-mountain-meadow m-0 stroke-[0.4] cursor-pointer hover:underline hover:underline-offset-2"
           textAnchor="start"
           fontWeight={400}
           x="-20"
           y="70"
           onClick={() => {
-            window.open(`notaries\\${nodeDatum?.attributes?.id}`, '_blank');
+            window.open(`allocators\\${nodeDatum?.attributes?.allocatorId}`, '_blank');
           }}
         >
           See details

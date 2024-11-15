@@ -26,7 +26,7 @@ const Navigation = () => {
     }
   }, [currentElement]);
 
-  return <div className="sticky top-[100px]">
+  return <div className="sticky top-[50px]">
     <div
       className="min-w-[250px] relative flex flex-col text-xs leading-4 font-medium text-theme-text-secondary gap-4">
       <div
