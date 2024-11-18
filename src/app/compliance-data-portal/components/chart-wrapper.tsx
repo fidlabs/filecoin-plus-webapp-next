@@ -9,9 +9,9 @@ interface Props extends PropsWithChildren, HTMLAttributes<HTMLDivElement> {
   tabs?: string[]
   additionalFilters?: ReactNode[]
   currentTab?: string
-  selectedScale: string
+  selectedScale?: string
   setCurrentTab?: (val: string) => void
-  setSelectedScale: (val: string) => void
+  setSelectedScale?: (val: string) => void
   addons?: {
     name: string
     size?: number
@@ -32,7 +32,7 @@ const ChartWrapper = forwardRef<
           <div>{title}</div>
           <div className="flex gap-2">
             {additionalFilters?.map((filter, index) => <div key={index}>{filter}</div>)}
-            <ScaleSelector selectedScale={selectedScale} setSelectedScale={setSelectedScale}/>
+            {(selectedScale && setSelectedScale) && <ScaleSelector selectedScale={selectedScale} setSelectedScale={setSelectedScale}/>}
             {(tabs && currentTab&& setCurrentTab) && <TabsSelector tabs={tabs} currentTab={currentTab} setCurrentTab={setCurrentTab}/>}
           </div>
         </CardTitle>

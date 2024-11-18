@@ -5,6 +5,7 @@ import {useScrollObserver} from "@/lib/hooks/useScrollObserver";
 import {useChartScale} from "@/lib/hooks/useChartScale";
 import {useEffect, useState} from "react";
 import {Slider} from "@/components/ui/slider";
+import {gradientPalette} from "@/lib/utils";
 
 interface Props {
   setCurrentElement: (val: string) => void
@@ -34,7 +35,7 @@ const ProviderComplianceAllocator = ({setCurrentElement}: Props) => {
     setSelectedScale={setSelectedScale}
     additionalFilters={[<ThresholdSelector key="threshold" threshold={threshold} setThreshold={setThreshold}/>]}
     ref={ref}>
-    <StackedBarGraph data={chartData} scale={scale} isLoading={isLoading} unit="provider"/>
+    <StackedBarGraph customPalette={gradientPalette('#FF5722', '#4CAF50', 3)} data={chartData} scale={scale} isLoading={isLoading} unit="provider"/>
   </ChartWrapper>
 
 }

@@ -75,7 +75,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function convertBytesToIEC(bytes?: string | number | boolean) {
+export const convertBytesToIEC = (bytes?: string | number | boolean) => {
   return bytes !== undefined && !isNaN(Number(bytes)) && isFinite(Number(bytes))
     ? filesize(Number(bytes), {
       standard: 'iec',
@@ -83,18 +83,47 @@ export function convertBytesToIEC(bytes?: string | number | boolean) {
     : 'N/A';
 }
 
-export function calculateTimestampFromHeight(height: number) {
+export const calculateTimestampFromHeight = (height: number) => {
   return 1598306400 + 30 * height;
 }
 
-export function calculateDateFromHeight(timestamp: number) {
+export const calculateDateFromHeight = (timestamp: number) => {
   return new Date(calculateTimestampFromHeight(timestamp) * 1000).toDateString();
 }
 
-export function calculateISODateFromHeight(timestamp: number) {
+export const calculateISODateFromHeight = (timestamp: number) => {
   return new Date(calculateTimestampFromHeight(timestamp) * 1000).toISOString();
 }
 
-export function palette(step: number) {
+export const palette = (step: number) => {
   return mpn65[step % mpn65.length]
+}
+
+const hexToRgb = (hex: string) => {
+  const bigint = parseInt(hex.slice(1), 16);
+  return {
+    r: (bigint >> 16) & 255,
+    g: (bigint >> 8) & 255,
+    b: bigint & 255
+  };
+}
+
+const rgbToHex = (r: number, g: number, b: number) => {
+  return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+}
+
+export const gradientPalette = (colorA: string, colorB: string, steps: number) => {
+  const start = hexToRgb(colorA);
+  const end = hexToRgb(colorB);
+  const stepFactor = 1 / (steps - 1);
+  const gradient = [];
+
+  for (let i = 0; i < steps; i++) {
+    const r = Math.round(start.r + (end.r - start.r) * stepFactor * i);
+    const g = Math.round(start.g + (end.g - start.g) * stepFactor * i);
+    const b = Math.round(start.b + (end.b - start.b) * stepFactor * i);
+    gradient.push(rgbToHex(r, g, b));
+  }
+
+  return gradient;
 }

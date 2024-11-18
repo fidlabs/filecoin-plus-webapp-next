@@ -3,8 +3,21 @@ import {useEffect, useMemo, useState} from "react";
 import {format} from "date-fns";
 import {uniq} from "lodash";
 import {ICDPWeek} from "@/lib/interfaces/cdp/cdp.interface";
+import {gradientPalette} from "@/lib/utils";
 
-const useWeeklyChartData = (data: ICDPWeek[] | undefined, unit = '', defaultTab = '3 groups') => {
+interface WeeklyChartDataOptions {
+  data: ICDPWeek[] | undefined;
+  unit?: string;
+  defaultTab?: string;
+  paletteDirection?: 'dsc' | 'asc';
+}
+
+const defaultPalette = {
+  'asc': ['#FF5722', '#4CAF50'],
+  'dsc': ['#4CAF50', '#FF5722']
+};
+
+const useWeeklyChartData = ({data, unit = '', defaultTab = '3 groups', paletteDirection = 'asc'}: WeeklyChartDataOptions) => {
   const {
     barTabs,
     globalBarTab,
@@ -14,6 +27,14 @@ const useWeeklyChartData = (data: ICDPWeek[] | undefined, unit = '', defaultTab 
   } = useCDPUtils();
 
   const [currentTab, setCurrentTab] = useState(defaultTab);
+
+  const palette = useMemo(() => {
+    if (currentTab === barTabs[barTabs.length - 1]) {
+      return gradientPalette(defaultPalette[paletteDirection][0], defaultPalette[paletteDirection][1], data?.length || 1);
+    } else {
+      return gradientPalette(defaultPalette[paletteDirection][0], defaultPalette[paletteDirection][1], barTabs.indexOf(currentTab) * 3 + 3);
+    }
+  }, [barTabs, currentTab, data?.length, paletteDirection])
 
   const chartData = useMemo(() => {
     if (!data?.length) {
@@ -58,7 +79,8 @@ const useWeeklyChartData = (data: ICDPWeek[] | undefined, unit = '', defaultTab 
     currentTab,
     setCurrentTab,
     tabs: barTabs,
-    minValue
+    minValue,
+    palette
   };
 };
 

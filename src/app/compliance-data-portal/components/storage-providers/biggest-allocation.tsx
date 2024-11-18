@@ -9,8 +9,14 @@ interface Props {
 
 const StorageProviderBiggestAllocation = ({setCurrentElement}: Props) => {
   const {
-    isLoading, ref, chartData, currentTab, setCurrentTab, tabs, scale, selectedScale, setSelectedScale, data
-  } = useCDPChartDataEngine(useStorageProviderBiggestDeal, setCurrentElement, 'BiggestDealsSP', ' %')
+    isLoading, ref, chartData, currentTab, setCurrentTab, tabs, scale, selectedScale, setSelectedScale, data, palette
+  } = useCDPChartDataEngine({
+    fetchMethod: useStorageProviderBiggestDeal,
+    setCurrentElement,
+    id: 'BiggestDealsSP',
+    unit: ' %',
+    paletteDirection: 'dsc'
+  })
 
   return <ChartWrapper
     title="Size Of The Biggest client allocation"
@@ -20,6 +26,7 @@ const StorageProviderBiggestAllocation = ({setCurrentElement}: Props) => {
     id="BiggestDealsSP"
     selectedScale={selectedScale}
     setSelectedScale={setSelectedScale}
+
     addons={[{
       name: 'Total number of providers',
       value: data?.count
@@ -29,7 +36,7 @@ const StorageProviderBiggestAllocation = ({setCurrentElement}: Props) => {
       value: "What % of the total data cap used comes from the single client"
     }]}
     ref={ref}>
-    <StackedBarGraph data={chartData} scale={scale} isLoading={isLoading} unit="provider"/>
+    <StackedBarGraph customPalette={palette} data={chartData} scale={scale} isLoading={isLoading} unit="provider"/>
   </ChartWrapper>
 
 }

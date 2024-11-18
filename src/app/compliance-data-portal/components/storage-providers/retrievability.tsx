@@ -10,8 +10,13 @@ interface Props {
 const StorageProviderRetrievability = ({setCurrentElement}: Props) => {
 
   const {
-    isLoading, ref, chartData, currentTab, setCurrentTab, tabs, scale, selectedScale, setSelectedScale
-  } = useCDPChartDataEngine(useStorageProviderRetrievability, setCurrentElement, 'RetrievabilityScoreSP', '%')
+    isLoading, ref, chartData, currentTab, setCurrentTab, tabs, scale, selectedScale, setSelectedScale, palette
+  } = useCDPChartDataEngine({
+    fetchMethod: useStorageProviderRetrievability,
+    setCurrentElement,
+    id: 'RetrievabilityScoreSP',
+    unit: ' %',
+  })
 
   return <ChartWrapper
     title="Retrievability Score"
@@ -22,7 +27,7 @@ const StorageProviderRetrievability = ({setCurrentElement}: Props) => {
     selectedScale={selectedScale}
     setSelectedScale={setSelectedScale}
     ref={ref}>
-    <StackedBarGraph data={chartData} scale={scale} isLoading={isLoading} unit="provider"/>
+    <StackedBarGraph customPalette={palette} data={chartData} scale={scale} isLoading={isLoading} unit="provider"/>
   </ChartWrapper>
 
 }

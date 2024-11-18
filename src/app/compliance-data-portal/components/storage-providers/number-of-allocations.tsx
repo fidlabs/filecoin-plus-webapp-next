@@ -9,8 +9,13 @@ interface Props {
 
 const StorageProviderNumberOfAllocations = ({setCurrentElement}: Props) => {
   const {
-    isLoading, ref, chartData, currentTab, setCurrentTab, tabs, scale, selectedScale, setSelectedScale, data
-  } = useCDPChartDataEngine(useStorageProviderNumberOfDeals, setCurrentElement, 'NumberOfDealsSP', ' clients')
+    isLoading, ref, chartData, currentTab, setCurrentTab, tabs, scale, selectedScale, setSelectedScale, data, palette
+  } = useCDPChartDataEngine({
+    fetchMethod: useStorageProviderNumberOfDeals,
+    setCurrentElement,
+    id: 'NumberOfDealsSP',
+    unit: ' clients'
+  })
 
   return <ChartWrapper
     title="Number of allocations"
@@ -29,7 +34,7 @@ const StorageProviderNumberOfAllocations = ({setCurrentElement}: Props) => {
       value: "Chart is showing how many client each provider has"
     }]}
     ref={ref}>
-    <StackedBarGraph data={chartData} scale={scale} isLoading={isLoading} unit="provider"/>
+    <StackedBarGraph customPalette={palette} data={chartData} scale={scale} isLoading={isLoading} unit="provider"/>
   </ChartWrapper>
 
 }

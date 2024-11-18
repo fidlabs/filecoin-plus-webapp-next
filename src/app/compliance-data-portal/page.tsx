@@ -3,12 +3,13 @@
 import {useCDPUtils} from "@/app/compliance-data-portal/providers/cdp.provider";
 import StorageProviderRetrievability from "@/app/compliance-data-portal/components/storage-providers/retrievability";
 import StorageProviderNumberOfAllocations
-  from "@/app/compliance-data-portal/components/storage-providers/numberOfAllocations";
+  from "@/app/compliance-data-portal/components/storage-providers/number-of-allocations";
 import StorageProviderBiggestAllocation
-  from "@/app/compliance-data-portal/components/storage-providers/biggestAllocation";
+  from "@/app/compliance-data-portal/components/storage-providers/biggest-allocation";
 import AllocatorRetrievability from "@/app/compliance-data-portal/components/allocators/retrievability";
-import AllocatorBiggestAllocation from "@/app/compliance-data-portal/components/allocators/biggestAllocation";
-import ProviderComplianceAllocator from "@/app/compliance-data-portal/components/allocators/providerCompliance";
+import AllocatorBiggestAllocation from "@/app/compliance-data-portal/components/allocators/biggest-allocation";
+import ProviderComplianceAllocator from "@/app/compliance-data-portal/components/allocators/provider-compliance";
+import {AllocatorAuditState} from "@/app/compliance-data-portal/components/allocators/audit-state";
 
 const CompliancePage = () => {
 
@@ -27,7 +28,7 @@ const CompliancePage = () => {
         <AllocatorRetrievability setCurrentElement={scrollCallback}/>
         <AllocatorBiggestAllocation setCurrentElement={scrollCallback}/>
         <ProviderComplianceAllocator setCurrentElement={scrollCallback}/>
-        {/*<AuditStateAllocator setCurrentElement={scrollCallback}/>*/}
+        <AllocatorAuditState setCurrentElement={scrollCallback}/>
       </div>
     </div>
   );

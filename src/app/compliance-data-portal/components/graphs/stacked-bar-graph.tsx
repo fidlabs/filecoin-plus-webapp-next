@@ -11,18 +11,17 @@ interface Props {
   data: { [key: PropertyKey]: string | number }[],
   scale?: Scale,
   isLoading: boolean,
-  color?: string,
-  unit?: string
+  unit?: string,
+  customPalette?: string[]
 }
 
-const StackedBarGraph = ({data, scale = 'linear', isLoading, color, unit = ''}: Props) => {
+const StackedBarGraph = ({data, scale = 'linear', isLoading, customPalette, unit = ''}: Props) => {
 
   const renderTooltip = (props: TooltipProps<ValueType, NameType>) => {
     const payload = props?.payload?.[0]?.payload;
     if (!payload) {
       return null;
     }
-
     return (
       <Card>
         <CardHeader>
@@ -33,12 +32,13 @@ const StackedBarGraph = ({data, scale = 'linear', isLoading, color, unit = ''}: 
         <CardContent>{
           dataKeys.map((key: string, index: number) => {
             const value = payload[`group${index}`] ?? payload[key];
+            const color = customPalette ? customPalette[index % customPalette.length ]  : palette(index)
             if (!value) {
               return null;
             }
             const name = payload[`group${index}Name`] ?? payload[`${key}Name`] ?? key;
             return <div key={key} className="chartTooltipRow">
-              <div style={{color: palette(index)}}>{name} - {value} {unit}{value > 1 && 's'}</div>
+              <div style={{color}}>{name} - {value} {unit}{value > 1 && 's'}</div>
             </div>
           })
         }</CardContent>
@@ -87,7 +87,7 @@ const StackedBarGraph = ({data, scale = 'linear', isLoading, color, unit = ''}: 
         <YAxis domain={[0, parseDataMax]} scale={scale}/>
         <Tooltip/>
         {dataKeys.map((key, index) => <Bar key={key} dataKey={key}
-                                           stackId="a" fill={color ?? palette(index)}/>)}
+                                           stackId="a" fill={customPalette ? customPalette[index % customPalette.length ]  : palette(index)}/>)}
         ))
       </BarChart>
     </ResponsiveContainer>

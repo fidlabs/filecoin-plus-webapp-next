@@ -9,14 +9,26 @@ type FetchMethod = () => {
   isLoading: boolean;
 }
 
-const useCDPChartDataEngine = (fetchMethod: FetchMethod, setCurrentElement: (val: string) => void, id: string, unit = '') => {
+interface ChartEngineOptions {
+  fetchMethod: FetchMethod;
+  setCurrentElement: (val: string) => void;
+  id: string;
+  unit?: string;
+  paletteDirection?: 'dsc' | 'asc';
+}
+
+const useCDPChartDataEngine = ({fetchMethod, paletteDirection = 'asc', unit, id, setCurrentElement}: ChartEngineOptions) => {
 
   const {
     data, isLoading
   } = fetchMethod()
 
   const {top, ref} = useScrollObserver()
-  const {chartData, currentTab, setCurrentTab, tabs, minValue} = useWeeklyChartData(data?.buckets, unit)
+  const {chartData, currentTab, setCurrentTab, tabs, minValue, palette} = useWeeklyChartData({
+    data: data?.buckets,
+    unit,
+    paletteDirection
+  })
   const {scale, selectedScale, setSelectedScale} = useChartScale(minValue)
 
   useEffect(() => {
@@ -36,6 +48,7 @@ const useCDPChartDataEngine = (fetchMethod: FetchMethod, setCurrentElement: (val
     ref,
     isLoading: isLoading || !data,
     data,
+    palette
   }
 
 }
