@@ -1,23 +1,10 @@
-import {useGoogleSheetFilters, useGoogleSheetsAuditReport} from "@/lib/hooks/google.hooks";
+import {useGoogleSheetsAuditReport} from "@/lib/hooks/google.hooks";
 import {useScrollObserver} from "@/lib/hooks/useScrollObserver";
-import {useEffect, useMemo, useState} from "react";
-import {ChartLoader} from "@/components/ui/chart-loader";
-import {IAllocatorWithSheetInfo} from "@/lib/interfaces/cdp/google.interface";
+import {useEffect, useState} from "react";
 import {ChartWrapper} from "@/app/compliance-data-portal/components/chart-wrapper";
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  Cell,
-  Legend,
-  ResponsiveContainer,
-  Tooltip,
-  TooltipProps,
-  XAxis,
-  YAxis
-} from "recharts";
-import {NameType, ValueType} from "recharts/types/component/DefaultTooltipContent";
-import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
+import {AuditHistoryBarGraph} from "@/app/compliance-data-portal/components/graphs/audits-history-graph";
+import {Checkbox} from "@/components/ui/checkbox";
+
 
 interface Props {
   setCurrentElement: (val: string) => void
@@ -28,220 +15,44 @@ const AllocatorAuditState = ({setCurrentElement}: Props) => {
 
   const {top, ref} = useScrollObserver();
 
+  const [showActive, setShowActive] = useState(true);
+  const [showAudited, setShowAudited] = useState(true);
+
   useEffect(() => {
     if (top > 0 && top < 300) {
       setCurrentElement('AuditStateAllocator');
     }
   }, [setCurrentElement, top]);
 
-
   return <ChartWrapper
     title="Audit state of the allocators"
+    addons={[{
+      name: 'Filters',
+      value: <div>
+        <div className="flex gap-1 items-center">
+          <Checkbox checked={showActive} onCheckedChange={(checked) => {
+            setShowActive(!!checked)
+            if (!checked) {
+              setShowAudited(false)
+            }
+          }}>Show active</Checkbox>
+          Show only active
+        </div>
+        <div className="flex gap-1 items-center">
+          <Checkbox checked={showAudited} onCheckedChange={(checked) => {
+            setShowAudited(!!checked)
+            if (!!checked) {
+              setShowActive(true)
+            }
+          }}>Show active</Checkbox>
+          Show only audited
+        </div>
+      </div>
+    }]}
     ref={ref}
   >
-    <AuditHistoryBarGraph data={results?.data} audits={results?.audits} isLoading={loading}/>
+    <AuditHistoryBarGraph data={results?.data} audits={results?.audits} isLoading={loading} showActive={showActive} showAudited={showAudited}/>
   </ChartWrapper>;
-
-};
-
-interface AuditHistoryBarGraphProps {
-  data: IAllocatorWithSheetInfo[];
-  scale?: string;
-  isLoading: boolean;
-  audits: number;
-}
-
-const AuditHistoryBarGraph = ({data, isLoading, audits}: AuditHistoryBarGraphProps) => {
-
-  const {
-    activeFilter, auditedFilter, FAILED_STATUSES, WAITING_STATUSES, PARTIAL_STATUSES, PASS_STATUSES
-  } = useGoogleSheetFilters();
-
-  const [showActive, setShowActive] = useState(true);
-  const [showAudited, setShowAudited] = useState(true);
-
-  const getStatusFriendlyName = (status: string) => {
-
-    if (FAILED_STATUSES.includes(status)) {
-      return 'Failed';
-    }
-    if (PARTIAL_STATUSES.includes(status)) {
-      return 'Passed conditionally';
-    }
-    if (PASS_STATUSES.includes(status)) {
-      return 'Passed';
-    }
-    return 'Pre audit';
-  };
-
-  const getStatusColor = (status: string) => {
-    if (FAILED_STATUSES.includes(status)) {
-      return '#ff0029';
-    }
-    if (PARTIAL_STATUSES.includes(status)) {
-      return '#f2b94f';
-    }
-    if (PASS_STATUSES.includes(status)) {
-      return '#66a61e';
-    }
-    return '#525252';
-  };
-
-  const getOrdinalNumber = (number: number) => {
-    const j = number % 10,
-      k = number % 100;
-    if (j === 1 && k !== 11) {
-      return number + 'st';
-    }
-    if (j === 2 && k !== 12) {
-      return number + 'nd';
-    }
-    if (j === 3 && k !== 13) {
-      return number + 'rd';
-    }
-    return number + 'th';
-  };
-
-  const renderTooltip = (props: TooltipProps<ValueType, NameType>) => {
-    const payload = props?.payload?.[0]?.payload;
-
-    const dataKeysReversed = [...dataKeys].reverse();
-
-    if (!payload) {
-      return null;
-    }
-
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>{payload.name}</CardTitle>
-        </CardHeader>
-        <CardContent>{
-          dataKeysReversed.map((key) => {
-            const value = payload[key];
-            if (!value || (!key.includes('0') && WAITING_STATUSES.includes(payload[`${key}Name`])) || payload[`${key}Name`] === 'INACTIVE') {
-              return null;
-            }
-            return <div key={key} className="chartTooltipRow">
-              <div>{getOrdinalNumber(+key.substring(1) + 1)} Audit - <span
-                style={{color: getStatusColor(payload[`${key}Name`])}}>{getStatusFriendlyName(payload[`${key}Name`])}</span>
-              </div>
-            </div>;
-          })
-        }</CardContent>
-      </Card>
-    );
-  };
-
-  const chartData = useMemo(() => {
-    const returnData = [] as { [key: PropertyKey]: string | number }[];
-
-    const filteredData = data.filter((item) => (!showActive || activeFilter(item)) && (!showAudited || auditedFilter(item)));
-
-    filteredData.forEach((item) => {
-      const chart = {
-        name: item.name
-      } as { [key: PropertyKey]: string | number }
-
-      item.auditStatuses.forEach((status, index) => {
-        if (index > 0 && WAITING_STATUSES.includes(status) || status === 'INACTIVE') {
-          return;
-        }
-
-        const key = `a${index}`;
-        chart[key] = 1;
-        chart[`${key}Name`] = status;
-      });
-
-      returnData.push(
-        chart
-      );
-    });
-    return returnData;
-  }, [WAITING_STATUSES, activeFilter, auditedFilter, data, showActive, showAudited]);
-
-  const dataKeys = useMemo(() => {
-    return Array.from({length: audits}, (_, i) => `a${i}`);
-  }, [audits]);
-
-  const renderLegend = () => {
-    return (
-      <div className="flex flex-col m-2 gap-1">
-        <div
-          className="text-sm leading-none flex items-center h-[25px] gap-1">
-          <div className="w-[20px] h-[15px] rounded-[4px]" style={{backgroundColor: getStatusColor('DOUBLE')}}/>
-          Passed
-        </div>
-        <div
-          className="text-sm leading-none flex items-center h-[25px] gap-1">
-          <div className="w-[20px] h-[15px] rounded-[4px]" style={{backgroundColor: getStatusColor('THROTTLE')}}/>
-          Passed <br/> conditionally
-        </div>
-        <div
-          className="text-sm leading-none flex items-center h-[25px] gap-1">
-          <div className="w-[20px] h-[15px] rounded-[4px]" style={{backgroundColor: getStatusColor('REJECT')}}/>
-          Failed
-        </div>
-        <div
-          className="text-sm leading-none flex items-center h-[25px] gap-1">
-          <div className="w-[20px] h-[15px] rounded-[4px]" style={{backgroundColor: getStatusColor('WAITING')}}/>
-          Waiting
-        </div>
-
-      </div>
-    );
-  };
-
-  if (!data?.length) {
-    return null;
-  }
-
-  if (isLoading) {
-    return <div className="flex w-full min-h-[350px] justify-center items-center">
-      <ChartLoader/>
-    </div>
-  }
-
-  return <ResponsiveContainer width="100%" aspect={5/4} debounce={500}>
-    <BarChart
-      data={chartData}
-      layout="vertical"
-      margin={{left: 150}}
-    >
-      <CartesianGrid strokeDasharray="3 3"/>
-      <Tooltip content={renderTooltip}/>
-      <YAxis dataKey="name" type="category" interval={0} minTickGap={0}
-             tick={chartData.length > 6 ? <CustomizedAxisTick/> : true}/>
-      <XAxis type="number" domain={[0, audits]} tickCount={audits + 1}/>
-      <Tooltip/>
-      <Legend align="right" verticalAlign="middle" layout="vertical" content={renderLegend}/>
-      {dataKeys.map((key) => <Bar layout="vertical" key={key} dataKey={key}
-                                  stackId="a">
-        {
-          chartData.map((entry, index) => (
-            <Cell key={index} fill={getStatusColor(entry[key + 'Name']?.toString())}/>
-          ))
-        }
-      </Bar>)}
-      ))
-    </BarChart>
-  </ResponsiveContainer>
-};
-
-const CustomizedAxisTick = (props: {
-  x?: number,
-  y?: number,
-  stroke?: string,
-  payload?: { value: string }
-}) => {
-  const {x, y, payload} = props;
-  return (
-    <g transform={`translate(${x},${y})`}>
-      <text x={0} y={0} dx={-5} dy={5} textAnchor="end" fill="#666" fontSize={15}>
-        {payload?.value.substring(0, 25)}{(payload?.value?.length ?? 0) > 25 ? '...' : ''}
-      </text>
-    </g>
-  );
 };
 
 export {AllocatorAuditState};
