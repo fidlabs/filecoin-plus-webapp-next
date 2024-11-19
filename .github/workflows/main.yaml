@@ -1,0 +1,25 @@
+name: Build Main
+
+on:
+  push:
+    branches: [main]
+
+env:
+  AWS_REGION: us-east-1
+  S3_BUCKET: production-olddatacapstatsio-origin
+  CDN_NAME: old.datacapstats.io
+  BUILD_ENVS: |
+    REACT_APP_API_BASE_URL="https://api.datacapstats.io/api"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: cristi-mb/build-fe@main
+        with:
+          aws-access-key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+          aws-s3-name: ${{ env.S3_BUCKET }}
+          aws-cloudfront-name: ${{ env.CDN_NAME }}
+          build-envs: ${{ env.BUILD_ENVS }}
