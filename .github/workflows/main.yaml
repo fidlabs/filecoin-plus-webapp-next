@@ -9,6 +9,7 @@ env:
   S3_BUCKET: production-olddatacapstatsio-origin
   CDN_NAME: old.datacapstats.io
   NODE_VERSION: "18.x"
+  BUILD_COMMAND: "npm"
   BUILD_ENVS: |
     REACT_APP_API_BASE_URL="https://api.datacapstats.io/api"
 
@@ -24,4 +25,5 @@ jobs:
           aws-s3-name: ${{ env.S3_BUCKET }}
           aws-cloudfront-name: ${{ env.CDN_NAME }}
           node-version: ${{ env.NODE_VERSION }}
+          build-command: ${{ env.BUILD_COMMAND }}
           build-envs: ${{ env.BUILD_ENVS }}
