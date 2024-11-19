@@ -1,0 +1,35 @@
+name: Build Production
+
+on:
+  push:
+    branches: [production]
+
+# For configuration please see https://github.com/cristi-mb/build-be
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: filecoin/filplus/filecoin-plus-webapp-next
+  TAG_PREFIX: production-
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set timestamp
+        id: set-timestamp
+        run: |
+          echo "timestamp=$(date +%s)" >> $GITHUB_OUTPUT
+    
+      - uses: cristi-mb/build-be@main
+        id: build-be
+        with:
+          aws-access-key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+          ecr-repository: ${{ env.ECR_REPOSITORY }}
+          tag-prefix: ${{ env.TAG_PREFIX }}
+          tag-suffix: "-${{ steps.set-timestamp.outputs.timestamp }}"
+
+      - name: Show image tag
+        if: steps.build-be.outcome == 'success'
+        run: echo "${{ steps.build-be.outputs.image-tag }}"
