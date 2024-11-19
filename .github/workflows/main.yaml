@@ -4,28 +4,32 @@ on:
   push:
     branches: [main]
 
+# For configuration please see https://github.com/cristi-mb/build-be
+
 env:
   AWS_REGION: us-east-1
-  S3_BUCKET: production-olddatacapstatsio-origin
-  CDN_NAME: old.datacapstats.io
-  NODE_VERSION: "18.x"
-  BUILD_COMMAND: "npm"
-  BUILD_PATH: "dist"
-  BUILD_ENVS: |
-    REACT_APP_API_BASE_URL="https://api.datacapstats.io/api"
+  ECR_REPOSITORY: filecoin/filplus/filecoin-plus-webapp-next
+  TAG_PREFIX: main-
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: cristi-mb/build-fe@main
+      - name: Set timestamp
+        id: set-timestamp
+        run: |
+          echo "timestamp=$(date +%s)" >> $GITHUB_OUTPUT
+    
+      - uses: cristi-mb/build-be@main
+        id: build-be
         with:
           aws-access-key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
-          aws-s3-name: ${{ env.S3_BUCKET }}
-          aws-cloudfront-name: ${{ env.CDN_NAME }}
-          node-version: ${{ env.NODE_VERSION }}
-          build-command: ${{ env.BUILD_COMMAND }}
-          build-path: ${{ env.BUILD_PATH }}
-          build-envs: ${{ env.BUILD_ENVS }}
+          ecr-repository: ${{ env.ECR_REPOSITORY }}
+          tag-prefix: ${{ env.TAG_PREFIX }}
+          tag-suffix: "-${{ steps.set-timestamp.outputs.timestamp }}"
+
+      - name: Show image tag
+        if: steps.build-be.outcome == 'success'
+        run: echo "${{ steps.build-be.outputs.image-tag }}"
