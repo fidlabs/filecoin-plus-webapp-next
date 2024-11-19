@@ -9,6 +9,7 @@ on:
 env:
   AWS_REGION: us-east-1
   ECR_REPOSITORY: filecoin/filplus/filecoin-plus-webapp-next
+  TAG_PREFIX: dev-
 
 jobs:
   build:
@@ -26,6 +27,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
           ecr-repository: ${{ env.ECR_REPOSITORY }}
+          tag-prefix: ${{ env.TAG_PREFIX }}
           tag-suffix: "-${{ steps.set-timestamp.outputs.timestamp }}"
 
       - name: Show image tag
