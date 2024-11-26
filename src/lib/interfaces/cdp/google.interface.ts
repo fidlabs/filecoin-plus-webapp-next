@@ -17,3 +17,10 @@ export interface IAllocatorWithSheetInfo extends IAllocator {
 export interface IAllocatorsWithSheetInfo  extends IApiListResponse<IAllocatorWithSheetInfo> {
   audits: number
 }
+
+export interface IAllocatorStructure {
+  id: string
+  name: string
+  auditStatuses: string[]
+  children: IAllocatorStructure[]
+}

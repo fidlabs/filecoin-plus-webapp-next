@@ -69,7 +69,8 @@ const config: Config = {
   		},
   		boxShadow: {
   			'f-card': '0 0 16px #102a4314',
-  			'f-card-inset': 'inset 0 0 16px #102a4314'
+  			'f-card-inset': 'inset 0 0 16px #102a4314',
+  			'structure-inset': 'inset 0px 0px 0px 1px rgba(66, 68, 90, 1);',
   		},
   		backgroundImage: {
   			header: 'linear-gradient(268deg, var(--color-medium-turquoise) 0%, var(--color-dodger-blue) 100%)'

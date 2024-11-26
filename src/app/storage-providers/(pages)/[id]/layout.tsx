@@ -42,18 +42,20 @@ export async function generateMetadata(
 const AllocatorDetailsLayout = async ({children, params}: PropsWithChildren<IPageProps>) => {
   const spResponse = await fetchData(params.id)
 
-  return <StorageProvider id={params.id} initialData={spResponse}>
-    <div className="flex w-full justify-between mb-4">
-      <PageHeader>
-        <PageTitle>
-          {spResponse?.providerId}
-        </PageTitle>
-      </PageHeader>
-    </div>
-    <Suspense>
-      {children}
-    </Suspense>
-  </StorageProvider>
+  return <main className="main-content">
+    <StorageProvider id={params.id} initialData={spResponse}>
+      <div className="flex w-full justify-between mb-4">
+        <PageHeader>
+          <PageTitle>
+            {spResponse?.providerId}
+          </PageTitle>
+        </PageHeader>
+      </div>
+      <Suspense>
+        {children}
+      </Suspense>
+    </StorageProvider>
+  </main>
 }
 
 export default AllocatorDetailsLayout;

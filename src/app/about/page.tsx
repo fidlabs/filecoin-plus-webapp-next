@@ -29,7 +29,7 @@ const contentLink = {
 
 export default function AboutPage() {
   return (
-    <main className="flex flex-col gap-8 row-start-2 items-start">
+    <main className="main-content flex flex-col gap-8 row-start-2 items-start">
       <PageTitle>About</PageTitle>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-9">
         <Card className="flex flex-col">

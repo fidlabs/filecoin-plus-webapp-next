@@ -107,7 +107,12 @@ export const getStorageProviderById = async (id: string, query?: IApiQuery) => {
   return await fetchData(url) as IStorageProviderResponse;
 }
 
-export const getGoogleSheetData = async () => {
+export const getGoogleSheetAuditHistory = async () => {
   const url = `https://cdp.allocator.tech/proxy/googleapis/allocators-overview`
+  return await fetchData(url) as IGoogleSheetResponse;
+}
+
+export const getGoogleSheetAuditSizes = async () => {
+  const url = `https://cdp.allocator.tech/proxy/googleapis/allocators-overview?tab=Raw+Data`
   return await fetchData(url) as IGoogleSheetResponse;
 }

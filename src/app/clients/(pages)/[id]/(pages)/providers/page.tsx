@@ -27,48 +27,47 @@ const ClientProviderBreakdownPage = (pageParams: IPageProps) => {
   const isDesktop = useMediaQuery('(min-width: 768px)');
 
   return <Card>
-    <GenericContentHeader placeholder="Storage Provider ID"
-                          sticky
-                          navigation={tabs}
-                          selected="providers"
-                          fixedHeight={false}
-                          addons={<ComplianceDownloadButton id={clientId}/>} />
-    <CardContent className="p-0">
-      {
-        loading && !providersData && <div className="p-10 w-full flex flex-col items-center justify-center">
-          <LoaderCircle className="animate-spin"/>
-        </div>
-      }
-      {
-        providersData && isDesktop && <ResizablePanelGroup direction="horizontal">
+      <GenericContentHeader placeholder="Storage Provider ID"
+                            sticky
+                            navigation={tabs}
+                            selected="providers"
+                            fixedHeight={false}
+                            addons={<ComplianceDownloadButton id={clientId}/>}/>
+      <CardContent className="p-0">
+        {
+          loading && !providersData && <div className="p-10 w-full flex flex-col items-center justify-center">
+            <LoaderCircle className="animate-spin"/>
+          </div>
+        }
+        {
+          providersData && isDesktop && <ResizablePanelGroup direction="horizontal">
             <ResizablePanel defaultSize={65}>
               <ProvidersChart/>
             </ResizablePanel>
-            <ResizableHandle />
+            <ResizableHandle/>
             <ResizablePanel>
               <ProvidersTable/>
             </ResizablePanel>
           </ResizablePanelGroup>
-      }
-      {
-        providersData && !isDesktop && <Accordion defaultValue={'table'} className="p-4" type="single" collapsible>
-          <AccordionItem value="charts">
-            <AccordionTrigger>Charts</AccordionTrigger>
-            <AccordionContent>
-              <ProvidersChart/>
-            </AccordionContent>
-          </AccordionItem>
-          <AccordionItem value="table">
-            <AccordionTrigger>Table</AccordionTrigger>
-            <AccordionContent>
-              <ProvidersTable/>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
-      }
-    </CardContent>
-  </Card>
-
+        }
+        {
+          providersData && !isDesktop && <Accordion defaultValue={'table'} className="p-4" type="single" collapsible>
+            <AccordionItem value="charts">
+              <AccordionTrigger>Charts</AccordionTrigger>
+              <AccordionContent>
+                <ProvidersChart/>
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="table">
+              <AccordionTrigger>Table</AccordionTrigger>
+              <AccordionContent>
+                <ProvidersTable/>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        }
+      </CardContent>
+    </Card>
 }
 
 export default ClientProviderBreakdownPage
