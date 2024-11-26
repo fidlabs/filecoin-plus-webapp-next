@@ -17,7 +17,7 @@ const defaultPalette = {
   'dsc': ['#4CAF50', '#FF5722']
 };
 
-const useWeeklyChartData = ({data, unit = '', defaultTab = '3 groups', paletteDirection = 'asc'}: WeeklyChartDataOptions) => {
+const useWeeklyChartData = ({data, unit = '', defaultTab = '6 groups', paletteDirection = 'asc'}: WeeklyChartDataOptions) => {
   const {
     barTabs,
     globalBarTab,

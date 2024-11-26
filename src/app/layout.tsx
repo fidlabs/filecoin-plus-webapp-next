@@ -1,11 +1,11 @@
 import type {Metadata} from "next";
-import { Inter } from 'next/font/google'
+import { Montserrat } from 'next/font/google'
 import "./globals.css";
 import {ReactNode} from "react";
 import {Header} from "@/components/header";
 import {Toaster} from "@/components/ui/sonner";
 
-const font = Inter({
+const font = Montserrat({
   subsets: ['latin'],
 })
 
@@ -26,7 +26,7 @@ export default function RootLayout({
     >
     <div vaul-drawer-wrapper="">
       <Header/>
-      <div className="w-full max-w-[1600px] mx-auto px-4 pb-14">
+      <div>
         {children}
       </div>
       <Toaster position="top-right"/>

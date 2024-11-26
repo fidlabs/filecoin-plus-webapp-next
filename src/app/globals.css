@@ -71,6 +71,10 @@
     transition: max-height 0.25s 0.1s cubic-bezier(0, 0.55, 0.45, 1), opacity 0.2s ease-in-out;
   }
 
+  .main-content {
+    @apply w-full max-w-[1600px] mx-auto px-4
+  }
+
   .active + .active {
     @apply rounded-t-none
   }

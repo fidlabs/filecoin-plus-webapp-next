@@ -9,14 +9,14 @@ export const metadata: Metadata = {
 }
 
 const ClientsPage = () => {
-  return <div>
+  return <main className="main-content">
     <PageHeader>
       <PageTitle>Clients</PageTitle>
     </PageHeader>
     <Suspense>
       <ClientsList/>
     </Suspense>
-  </div>
+  </main>
 };
 
 export default ClientsPage;

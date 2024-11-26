@@ -44,32 +44,34 @@ export async function generateMetadata(
 const AllocatorDetailsLayout = async ({children, params}: PropsWithChildren<IPageProps>) => {
   const allocatorResponse = await fetchData(params.id);
 
-  return <AllocatorProvider id={params.id}>
-    <div className="flex w-full justify-between mb-4">
-      <PageHeader>
-        <PageTitle>
-          {allocatorResponse?.name}
-        </PageTitle>
-        <PageSubTitle>Allocator ID: {allocatorResponse?.addressId}</PageSubTitle>
-      </PageHeader>
-      <ResponsiveView>
-        <div className="p-4 pb-10 md:my-6 md:p-0">
-          <Card>
-            <CardHeader className="p-4">
-              <CardTitle>Remaining DataCap</CardTitle>
+  return <main className="main-content">
+    <AllocatorProvider id={params.id}>
+      <div className="flex w-full justify-between mb-4">
+        <PageHeader>
+          <PageTitle>
+            {allocatorResponse?.name}
+          </PageTitle>
+          <PageSubTitle>Allocator ID: {allocatorResponse?.addressId}</PageSubTitle>
+        </PageHeader>
+        <ResponsiveView>
+          <div className="p-4 pb-10 md:my-6 md:p-0">
+            <Card>
+              <CardHeader className="p-4">
+                <CardTitle>Remaining DataCap</CardTitle>
 
-            </CardHeader>
-            <CardContent className="p-4 pt-0">
-              {convertBytesToIEC(allocatorResponse?.remainingDatacap)}
-            </CardContent>
-          </Card>
-        </div>
-      </ResponsiveView>
-    </div>
-    <Suspense>
-      {children}
-    </Suspense>
-  </AllocatorProvider>
+              </CardHeader>
+              <CardContent className="p-4 pt-0">
+                {convertBytesToIEC(allocatorResponse?.remainingDatacap)}
+              </CardContent>
+            </Card>
+          </div>
+        </ResponsiveView>
+      </div>
+      <Suspense>
+        {children}
+      </Suspense>
+    </AllocatorProvider>
+  </main>
 }
 
 export default AllocatorDetailsLayout;

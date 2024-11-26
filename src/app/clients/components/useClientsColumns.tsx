@@ -5,6 +5,7 @@ import {calculateDateFromHeight, convertBytesToIEC} from "@/lib/utils";
 import {InfoIcon} from "lucide-react";
 import {ColumnDef} from "@tanstack/react-table";
 import {IClient} from "@/lib/interfaces/dmob/client.interface";
+import {GithubIcon} from "@/components/icons/github.icon";
 
 type FilterCallback = (key: string, direction: string) => void;
 
@@ -21,7 +22,14 @@ export const useClientsColumns = (filterCallback: FilterCallback) => {
       },
       cell: ({row}) => {
         const addressId = row.getValue('addressId') as string
-        return <Link className="table-link" href={`clients/${addressId}`}>{addressId}</Link>
+        const githubLink = row.original.allowanceArray.sort((a, b) => +b.height - +a.height)[0].auditTrail
+        return <div className="flex gap-1 items-center">
+          <Link className="table-link" href={`clients/${addressId}`}>{addressId}</Link>
+          {githubLink && <Link
+            className="text-gray-500 hover:text-gray-900"
+            target="_blank"
+            href={githubLink}><GithubIcon width={15} height={15}/></Link>}
+        </div>
       }
     }, {
       accessorKey: "name",
@@ -48,7 +56,7 @@ export const useClientsColumns = (filterCallback: FilterCallback) => {
           return <Link className="table-link" href={`clients/${addressId}`}>{name}</Link>
         }
       }
-    },{
+    }, {
       accessorKey: 'initialAllowance',
       header: () => {
         return (
@@ -59,7 +67,7 @@ export const useClientsColumns = (filterCallback: FilterCallback) => {
       },
       cell: ({row}) => {
         const initialAllowance = row.getValue('initialAllowance') as string
-        const allowanceArray =  row.original.allowanceArray;
+        const allowanceArray = row.original.allowanceArray;
         return <div className="whitespace-nowrap flex gap-1 items-center">
           {convertBytesToIEC(initialAllowance)}
           {allowanceArray?.length && <HoverCard openDelay={100} closeDelay={50}>
@@ -71,7 +79,9 @@ export const useClientsColumns = (filterCallback: FilterCallback) => {
                 allowanceArray.map((allowance, index) => {
                   return <div key={index} className="grid grid-cols-7 gap-2">
                     <div className="col-span-2 text-right">{convertBytesToIEC(allowance.allowance)}</div>
-                    <div className="col-span-5 text-sm text-muted-foreground">({calculateDateFromHeight(+allowance.height)})</div>
+                    <div
+                      className="col-span-5 text-sm text-muted-foreground">({calculateDateFromHeight(+allowance.height)})
+                    </div>
                   </div>
                 })
               }

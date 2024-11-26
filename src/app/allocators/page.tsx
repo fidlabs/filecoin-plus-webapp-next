@@ -8,9 +8,11 @@ export const metadata: Metadata = {
 }
 
 const AllocatorsPage = () => {
-  return <Suspense>
-    <AllocatorsList/>
-  </Suspense>
+  return <main className="main-content ">
+    <Suspense>
+      <AllocatorsList/>
+    </Suspense>
+  </main>
 };
 
 export default AllocatorsPage;

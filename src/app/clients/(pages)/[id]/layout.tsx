@@ -46,39 +46,41 @@ export async function generateMetadata(
 const ClientDetailsLayout = async ({children, params}: PropsWithChildren<IPageProps>) => {
   const clientResponse = await fetchData(params.id)
 
-  return <ClientProvider id={params.id} initialData={clientResponse}>
-    <div className="flex w-full justify-between mb-4">
-      <PageHeader>
-        <PageTitle>
-          {clientResponse?.name}
-        </PageTitle>
-        <PageSubTitle>Client ID: {params.id}</PageSubTitle>
-      </PageHeader>
-      <ResponsiveView>
-        <div className="grid grid-cols-2 w-full p-4 pb-10 gap-4 md:my-6 md:p-0">
-          <Card>
-            <CardHeader className="p-4">
-              <CardTitle>Remaining DataCap</CardTitle>
-            </CardHeader>
-            <CardContent className="p-4 pt-0">
-              {convertBytesToIEC(clientResponse?.remainingDatacap)}
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="p-4">
-              <CardTitle>Allocated DataCap</CardTitle>
-            </CardHeader>
-            <CardContent className="p-4 pt-0">
-              {convertBytesToIEC(clientResponse?.allocatedDatacap)}
-            </CardContent>
-          </Card>
-        </div>
-      </ResponsiveView>
-    </div>
-    <Suspense>
-      {children}
-    </Suspense>
-  </ClientProvider>
+  return <main className="main-content">
+    <ClientProvider id={params.id} initialData={clientResponse}>
+      <div className="flex w-full justify-between mb-4">
+        <PageHeader>
+          <PageTitle>
+            {clientResponse?.name}
+          </PageTitle>
+          <PageSubTitle>Client ID: {params.id}</PageSubTitle>
+        </PageHeader>
+        <ResponsiveView>
+          <div className="grid grid-cols-2 w-full p-4 pb-10 gap-4 md:my-6 md:p-0">
+            <Card>
+              <CardHeader className="p-4">
+                <CardTitle>Remaining DataCap</CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 pt-0">
+                {convertBytesToIEC(clientResponse?.remainingDatacap)}
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="p-4">
+                <CardTitle>Allocated DataCap</CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 pt-0">
+                {convertBytesToIEC(clientResponse?.allocatedDatacap)}
+              </CardContent>
+            </Card>
+          </div>
+        </ResponsiveView>
+      </div>
+      <Suspense>
+        {children}
+      </Suspense>
+    </ClientProvider>
+  </main>
 }
 
 export default ClientDetailsLayout;

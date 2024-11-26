@@ -1,6 +1,6 @@
 import {useCallback, useMemo, useState} from "react";
 import {useAsync} from "@/lib/hooks/useAsync";
-import {getAllocators, getGoogleSheetData} from "@/lib/api";
+import {getAllocators, getGoogleSheetAuditHistory} from "@/lib/api";
 import {IAllocatorsResponse} from "@/lib/interfaces/dmob/allocator.interface";
 import {
   IAllocatorsWithSheetInfo,
@@ -52,7 +52,7 @@ const useGoogleSheetsAuditReport = () => {
     () => getAllocators({showInactive: 'false'})
   );
 
-  const {data: googleSheetsData, loading: googleLoading } = useAsync<IGoogleSheetResponse>(getGoogleSheetData);
+  const {data: googleSheetsData, loading: googleLoading } = useAsync<IGoogleSheetResponse>(getGoogleSheetAuditHistory);
 
   const loading = useMemo(() => dataLoading || googleLoading, [dataLoading, googleLoading]);
 
