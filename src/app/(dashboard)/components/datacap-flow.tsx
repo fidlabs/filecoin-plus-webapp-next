@@ -7,16 +7,16 @@ import {DataCapFlowSankey} from "@/app/(dashboard)/components/datacap-flow-sanke
 import {useState} from "react";
 
 const DatacapFlow = () => {
-  const {dataCapFlow} = useDataCapFlow()
+  const {dataCapFlow, rawData} = useDataCapFlow()
 
   const [tab, setTab] = useState('tree')
 
   return <Card id="flowCharts"
-               className="hidden w-full overflow-hidden h-auto lg:block">
+               className="hidden w-full overflow-hidden h-auto lg:block mb-28">
     <CardHeader>
       <CardTitle>Datacap Flow</CardTitle>
     </CardHeader>
-    <CardContent className="min-h-[1000px] px-0 max-h-[1000px]">
+    <CardContent className="px-0">
       <Tabs value={tab} className="w-full" onValueChange={setTab}>
         <div className="flex items-center px-6 pb-4 border-b">
           <TabsList>
@@ -36,7 +36,7 @@ const DatacapFlow = () => {
           <DataCapFlowTree data={dataCapFlow}/>
         </TabsContent>
         <TabsContent value="flow">
-          <DataCapFlowSankey data={dataCapFlow}/>
+          <DataCapFlowSankey data={dataCapFlow} rawData={rawData}/>
         </TabsContent>
       </Tabs>
     </CardContent>

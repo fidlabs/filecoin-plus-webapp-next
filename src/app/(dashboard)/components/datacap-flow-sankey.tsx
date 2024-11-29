@@ -1,7 +1,7 @@
-import {useEffect, useMemo, useState} from 'react';
+import {useCallback, useEffect, useMemo, useState} from 'react';
 import {DataCapChild} from "@/lib/hooks/dmob.hooks";
-import {convertBytesToIEC} from "@/lib/utils";
-import {ResponsiveContainer, Sankey, Tooltip} from "recharts";
+import {cn, convertBytesToIEC, convertBytesToIECSimple, palette} from "@/lib/utils";
+import {ResponsiveContainer, Sankey, Tooltip as RechartsTooltip} from "recharts";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -11,16 +11,50 @@ import {
 import {TooltipProps} from 'recharts';
 import {NameType, ValueType} from 'recharts/types/component/DefaultTooltipContent';
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
+import {Button, buttonVariants} from "@/components/ui/button";
+import {MaximizeIcon, MinimizeIcon} from "lucide-react";
+import {TooltipContent, TooltipProvider, TooltipTrigger, Tooltip} from "@/components/ui/tooltip";
+import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger} from "@/components/ui/dialog";
+import {IAllocatorsWithSheetInfo, IAllocatorWithSheetInfo} from "@/lib/interfaces/cdp/google.interface";
+import {Table, TableBody, TableCell, TableHeader, TableRow} from "@/components/ui/table";
+import Link from "next/link";
 
 interface Props {
   data: DataCapChild[] | undefined
+  rawData: IAllocatorsWithSheetInfo
+}
+
+interface SankeyNode {
+  name: string
+  datacap: number | undefined
+  allocators: number | undefined
+  rawData?: IAllocatorWithSheetInfo[]
+  childObject: DataCapChild
+  hasChildren?: boolean
+  nodeId?: number
+  isParent?: boolean
+  isHidden?: boolean
+}
+
+interface SankeyLink {
+  source: number;
+  target: number;
+
+  [key: string]: unknown;
+}
+
+interface SankeyData {
+  nodes: SankeyNode[];
+  links: SankeyLink[]
 }
 
 export const DataCapFlowSankey = ({
-                                    data
+                                    data,
+                                    rawData
                                   }: Props) => {
 
   const [selectedNodes, setSelectedNodes] = useState<DataCapChild[]>([]);
+  const [expanded, setExpanded] = useState(true)
 
   useEffect(() => {
     if (data) {
@@ -28,7 +62,7 @@ export const DataCapFlowSankey = ({
     }
   }, [data]);
 
-  const renderTooltip = (props: TooltipProps<ValueType, NameType>) => {
+  const renderTooltip = useCallback((props: TooltipProps<ValueType, NameType>) => {
     const linkData = props?.payload?.[0]?.payload?.payload;
     const nodeData = linkData?.target ?? linkData;
     if (!nodeData) {
@@ -53,10 +87,15 @@ export const DataCapFlowSankey = ({
           {allocators > 0 && <p>
             {allocators} Allocators
           </p>}
+          {
+            expanded && <p className="text-xs text-muted-foreground mt-4">
+              Click on the node to see more details
+            </p>
+          }
         </CardContent>
       </Card>
     </>);
-  };
+  }, [expanded])
 
   const handleNodeClick = (data: {
     payload: {
@@ -79,7 +118,7 @@ export const DataCapFlowSankey = ({
     const lastSelectedNode = selectedNodes[selectedNodes.length - 1];
 
     if (lastSelectedNode.name === name && isParent) {
-      setSelectedNodes(selectedNodes.slice(0, - 1));
+      setSelectedNodes(selectedNodes.slice(0, -1));
       return
     }
 
@@ -96,12 +135,7 @@ export const DataCapFlowSankey = ({
     setSelectedNodes(selectedNodes.slice(0, backIndex + 1));
   };
 
-  const sankeyData = useMemo(() => {
-    if (!selectedNodes?.length) {
-      return null;
-    }
-
-    const currentNode = selectedNodes[selectedNodes.length - 1];
+  const parseData = useCallback((currentNode: DataCapChild) => {
 
     return {
       nodes: [{
@@ -126,17 +160,111 @@ export const DataCapFlowSankey = ({
         // hasChildren: !!child?.children?.map(item => !!item.children?.length).filter(val => !!val).length,
         hasChildren: !!child?.children?.map(item => !!item.children?.length).filter(val => val).length,
       })) || []
-    };
+    }
+  }, [selectedNodes.length]);
 
-  }, [selectedNodes]);
+  const parseNodes = useCallback((currentNode: DataCapChild) => {
+    const hasChildren = !!currentNode?.children?.map(item => !!item.children?.length).filter(val => val).length
+    let nodes = [
+      {
+        name: currentNode?.name,
+        datacap: currentNode?.attributes?.datacap,
+        allocators: currentNode?.attributes?.allocators,
+        rawData: rawData.data.filter(item => currentNode.attributes.allocatorsIdList?.split(',').includes(item.addressId)),
+        nodeId: currentNode?.nodeId,
+        isParent: false,
+        hasChildren: false
+      }
+    ] as SankeyNode[]
 
-  return <div>
-    <Breadcrumb className="mx-6">
+    if (hasChildren) {
+      nodes = [
+        ...nodes,
+        ...(currentNode?.children?.flatMap(child => parseNodes(child)) || [])
+      ]
+    }
+
+    return nodes;
+  }, []);
+
+  const parseLinks = useCallback((currentNode: DataCapChild, parentId?: number) => {
+    const hasChildren = !!currentNode?.children?.map(item => !!item.children?.length).filter(val => val).length
+    let links = [] as SankeyLink[];
+
+    if (parentId !== undefined) {
+      links = [
+        {
+          source: parentId,
+          target: currentNode.nodeId,
+          value: convertBytesToIECSimple(currentNode?.attributes?.datacap ?? 0) + 1,
+          datacap: currentNode?.attributes?.datacap,
+          allocators: currentNode?.attributes?.allocators,
+          hasChildren: !!currentNode?.children?.map(item => !!item.children?.length).filter(val => val).length,
+        }
+      ]
+    }
+
+    if (hasChildren) {
+      links = [
+        ...links,
+        ...(currentNode?.children?.flatMap(child => parseLinks(child, currentNode.nodeId)) || [])
+      ]
+    }
+
+    return links;
+  }, []);
+
+  const sankeyData = useMemo(() => {
+    if (!data || !selectedNodes?.length) {
+      return null;
+    }
+
+    if (expanded) {
+
+      const nodes = parseNodes(data[0]);
+      const links = parseLinks(data[0]);
+
+      return {
+        nodes: [
+          ...nodes,
+          {
+            name: 'Hidden',
+            isHidden: true,
+            nodeId: nodes.length
+          }
+        ],
+        links: [
+          ...links,
+          {
+            source: nodes.find(node => node.name === 'Not Active')?.nodeId ?? 0,
+            target: nodes.length,
+            value: 0.1,
+            datacap: 0,
+            allocators: [],
+            hasChildren: false,
+          },
+          {
+            source: nodes.find(node => node.name === 'Not Audited')?.nodeId ?? 0,
+            target: nodes.length,
+            value: 0.1,
+            datacap: 0,
+            allocators: [],
+            hasChildren: false,
+          },
+        ]
+      } as SankeyData;
+
+    } else {
+      return parseData(selectedNodes[selectedNodes.length - 1]) as SankeyData;
+    }
+  }, [selectedNodes, expanded, parseNodes, parseData, data]);
+
+  return <div className="relative">
+    {!expanded && <Breadcrumb className="mx-6">
       <BreadcrumbList>
         {
           selectedNodes.map((node, index) => {
             return <>
-              {/* eslint-disable-next-line react/jsx-no-undef */}
               <BreadcrumbItem key={index} onClick={() => handleBackClick(index)}>
                 {node.name}
               </BreadcrumbItem>
@@ -147,24 +275,41 @@ export const DataCapFlowSankey = ({
           })
         }
       </BreadcrumbList>
-    </Breadcrumb>
-    {sankeyData && <ResponsiveContainer width="100%" aspect={2} debounce={100}>
+    </Breadcrumb>}
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            className="absolute top-0 right-0 m-6 z-10 flex items-center justify-center group transition-all hover:gap-2 hover:w-36"
+            variant="outline" size="icon" onClick={() => setExpanded(!expanded)}>
+            {expanded ? <MinimizeIcon/> : <MaximizeIcon/>}
+            <p className="w-0 group-hover:w-16 transition-all overflow-hidden">{expanded ? 'Collapse' : 'Expand'}</p>
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Add to library</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+
+    {sankeyData && <ResponsiveContainer width="100%" aspect={expanded ? 1.5 : 2} debounce={100}>
       <Sankey
         width={960}
         height={500}
         data={sankeyData}
         nodePadding={50}
-        node={Node}
+        node={expanded ? ExpandedNode : Node}
+        iterations={0}
         margin={{
-          left: 200,
-          right: 200,
+          left: 50,
+          right: 150,
           top: 100,
-          bottom: 100
+          bottom: 50
         }}
         onClick={handleNodeClick}
         link={{stroke: 'var(--color-medium-turquoise)'}}
       >
-        <Tooltip content={renderTooltip}/>
+        <RechartsTooltip content={renderTooltip}/>
       </Sankey>
     </ResponsiveContainer>}
   </div>;
@@ -181,7 +326,9 @@ interface NodeProps {
     datacap: number;
     allocators: number;
     isParent: boolean;
+    isHidden?: boolean;
     hasChildren: boolean;
+    rawData?: IAllocatorWithSheetInfo[]
   };
 }
 
@@ -200,4 +347,54 @@ const Node = ({x, y, width, height, payload}: NodeProps) => {
       {payload.name}
     </text>
   </g>;
+};
+
+const ExpandedNode = ({x, y, width, height, payload}: NodeProps) => {
+  const hasChildren = payload.hasChildren || payload.isParent;
+  const rawData = payload.rawData;
+  const isHidden = payload.isHidden;
+  if (isHidden || isNaN(x) || isNaN(y)) {
+    return <g transform={`translate(${x},${y})`}></g>
+  }
+  return <g transform={`translate(${x},${y})`} style={{cursor: 'pointer', pointerEvents: !!rawData?.length ? 'all' : 'none'}}>
+    <Dialog>
+      <DialogTrigger asChild>
+        <rect x={-width}
+              y={-5}
+              width={width * 2}
+              rx={4}
+              height={height + 10}
+              cursor={!!rawData?.length  ? 'pointer' : 'default'}
+              fill={!!rawData?.length  ? 'var(--color-dodger-blue)' : 'var(--color-horizon)'}/>
+      </DialogTrigger>
+      <DialogContent className="bg-white">
+        <DialogHeader>
+          <DialogTitle>
+            {payload.name}
+          </DialogTitle>
+        </DialogHeader>
+        <div className="max-h-[500px] overflow-auto flex flex-col gap-2">
+          {
+            rawData?.map(({initialAllowance, addressId, name}, index) =>
+              <div key={index}>
+                <div>
+                  <Link href={`/allocators/${addressId}`} className={cn(buttonVariants({variant: 'link'}))}>
+                    {name}
+                  </Link>
+                </div>
+                <div className="text-sm">
+                  <span className="text-muted-foreground">Total Datacap:</span> {convertBytesToIEC(initialAllowance)}
+                </div>
+              </div>)
+          }
+        </div>
+
+      </DialogContent>
+    </Dialog>
+    <text x={width * 1.5} y={height / 2} fill="black" fontSize={12}
+          cursor={hasChildren ? 'pointer' : 'default'}>
+      {payload.name}
+    </text>
+  </g>
+
 };
