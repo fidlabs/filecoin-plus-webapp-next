@@ -1,6 +1,6 @@
 import {useCallback, useEffect, useMemo, useState} from 'react';
 import {DataCapChild} from "@/lib/hooks/dmob.hooks";
-import {cn, convertBytesToIEC, convertBytesToIECSimple, palette} from "@/lib/utils";
+import {cn, convertBytesToIEC, convertBytesToIECSimple} from "@/lib/utils";
 import {ResponsiveContainer, Sankey, Tooltip as RechartsTooltip} from "recharts";
 import {
   Breadcrumb,
@@ -16,7 +16,6 @@ import {MaximizeIcon, MinimizeIcon} from "lucide-react";
 import {TooltipContent, TooltipProvider, TooltipTrigger, Tooltip} from "@/components/ui/tooltip";
 import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger} from "@/components/ui/dialog";
 import {IAllocatorsWithSheetInfo, IAllocatorWithSheetInfo} from "@/lib/interfaces/cdp/google.interface";
-import {Table, TableBody, TableCell, TableHeader, TableRow} from "@/components/ui/table";
 import Link from "next/link";
 
 interface Props {
