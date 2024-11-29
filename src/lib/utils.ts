@@ -83,6 +83,14 @@ export const convertBytesToIEC = (bytes?: string | number | boolean) => {
     : 'N/A';
 }
 
+export const convertBytesToIECSimple = (bytes?: string | number | boolean) => {
+  return bytes !== undefined && !isNaN(Number(bytes)) && isFinite(Number(bytes))
+    ? +(filesize(Number(bytes), {
+      standard: 'iec',
+    }).split(' ')[0])
+    : 0;
+}
+
 export const calculateTimestampFromHeight = (height: number) => {
   return 1598306400 + 30 * height;
 }

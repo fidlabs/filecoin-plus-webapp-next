@@ -48,12 +48,18 @@
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
   body {
     background: var(--color-solitude) !important;
     @apply text-foreground;
+    overscroll-behavior: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  * {
+    user-select: none !important;
+    -webkit-touch-callout: none !important;
+    -webkit-user-select: none !important;
   }
 
   .button-link::after {

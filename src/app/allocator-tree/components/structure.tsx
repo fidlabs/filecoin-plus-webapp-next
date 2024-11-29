@@ -5,12 +5,11 @@ import {AllocatorNode} from "./allocator.node";
 
 import {
   ReactFlow,
-  Node, Edge, NodeMouseHandler, Panel, Background,
+  Node, Edge, NodeMouseHandler, Background,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import {IAllocatorNode} from "@/app/allocator-tree/interfaces/structure.interface";
-import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
-import {Input} from "@/components/ui/input";
+import {SearchPanel} from "@/app/allocator-tree/components/search-panel";
 
 const nodeTypes = {
   allocatorNode: AllocatorNode,
@@ -147,6 +146,7 @@ const Structure = ({auditHistory, allocatorStatuses}: IStructureProps) => {
     position: {x: 50 + (200 * group), y: 250},
   } as Node), [])
 
+
   const parsedAllocators = useMemo(() => {
     const _allocatorId = allocatorStatuses.values[0].indexOf('Allocator ID');
     const _auditHistoryAllocatorId = auditHistory.values[0].indexOf('Allocator ID');
@@ -198,7 +198,8 @@ const Structure = ({auditHistory, allocatorStatuses}: IStructureProps) => {
     ];
   }, [parseAllocatorToNode, parsedAllocators, search])
 
-  const onNodeClick: NodeMouseHandler = () => {}
+  const onNodeClick: NodeMouseHandler = () => {
+  }
 
   return <div className="w-full h-[calc(100dvh-260px)]">
     <ReactFlow
@@ -212,21 +213,13 @@ const Structure = ({auditHistory, allocatorStatuses}: IStructureProps) => {
       fitView
     >
       <Background/>
-      <Panel position="top-left">
-          <Card>
-            <CardHeader>
-              <CardTitle>
-                Search for allocator
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Input placeholder={'Search for allocator'} value={search} onChange={(e) => setSearch(e.target.value)}/>
-            </CardContent>
-          </Card>
-      </Panel>
+      <SearchPanel search={search} onSearchChange={setSearch}/>
     </ReactFlow>
   </div>
-
 }
+
+
+
+
 
 export {Structure}

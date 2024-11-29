@@ -80,7 +80,7 @@ const TreeNode = ({props}: {props: CustomNodeElementProps}) => {
         <text className="text-[14px] leading-[16px] font-thin fill-dodger-blue m-0 stroke-[0.3]" x="-20" y="35">
           {nodeDatum.attributes &&
             Object.entries(nodeDatum.attributes).map(([labelKey, labelValue], i) => {
-              if (labelKey !== 'allocatorId') {
+              if (labelKey !== 'allocatorId' && labelKey !== 'allocatorsIdList') {
                 return (
                   <tspan key={`${labelKey}-${i}`} x="-20" dy="1.2em">
                     {labelKey}: {labelKey === 'datacap' ? convertBytesToIEC(labelValue) : labelValue}
