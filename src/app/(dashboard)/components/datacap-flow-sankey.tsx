@@ -378,7 +378,7 @@ const ExpandedNode = ({x, y, width, height, payload}: NodeProps) => {
               <div key={index}>
                 <div>
                   <Link href={`/allocators/${addressId}`} className={cn(buttonVariants({variant: 'link'}))}>
-                    {name}
+                    {name ?? addressId}
                   </Link>
                 </div>
                 <div className="text-sm">
