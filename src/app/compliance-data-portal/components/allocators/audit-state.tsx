@@ -17,6 +17,7 @@ const AllocatorAuditState = ({setCurrentElement}: Props) => {
 
   const [showActive, setShowActive] = useState(true);
   const [showAudited, setShowAudited] = useState(true);
+  const [hideWaiting, setHideWaiting] = useState(false);
 
   useEffect(() => {
     if (top > 0 && top < 300) {
@@ -37,7 +38,7 @@ const AllocatorAuditState = ({setCurrentElement}: Props) => {
               setShowAudited(false)
             }
           }}>Show active</Checkbox>
-          Show only active
+          Show only active allocators
         </div>
         <div className="flex gap-1 items-center">
           <Checkbox checked={showAudited} onCheckedChange={(checked) => {
@@ -46,13 +47,19 @@ const AllocatorAuditState = ({setCurrentElement}: Props) => {
               setShowActive(true)
             }
           }}>Show active</Checkbox>
-          Show only audited
+          Show only audited allocators
+        </div>
+        <div className="flex gap-1 items-center">
+          <Checkbox checked={hideWaiting} onCheckedChange={(checked) => {
+            setHideWaiting(!!checked)
+          }}>Show active</Checkbox>
+          Hide waiting audits for audited allocators
         </div>
       </div>
     }]}
     ref={ref}
   >
-    <AuditHistoryBarGraph data={results?.data} audits={results?.audits} isLoading={loading} showActive={showActive} showAudited={showAudited}/>
+    <AuditHistoryBarGraph data={results?.data} audits={results?.audits} isLoading={loading} showActive={showActive} hideWaiting={hideWaiting} showAudited={showAudited}/>
   </ChartWrapper>;
 };
 

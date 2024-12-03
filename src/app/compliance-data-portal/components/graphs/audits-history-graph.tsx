@@ -23,9 +23,10 @@ interface AuditHistoryBarGraphProps {
   audits: number;
   showActive: boolean;
   showAudited: boolean;
+  hideWaiting: boolean;
 }
 
-const AuditHistoryBarGraph = ({data, isLoading, audits, showAudited, showActive}: AuditHistoryBarGraphProps) => {
+const AuditHistoryBarGraph = ({data, isLoading, audits, showAudited, showActive, hideWaiting}: AuditHistoryBarGraphProps) => {
 
   const {
     activeFilter, auditedFilter, FAILED_STATUSES, WAITING_STATUSES, PARTIAL_STATUSES, PASS_STATUSES
@@ -90,12 +91,12 @@ const AuditHistoryBarGraph = ({data, isLoading, audits, showAudited, showActive}
         <CardContent>{
           dataKeysReversed.map((key) => {
             const value = payload[key];
-            if (!value || (!key.includes('0') && WAITING_STATUSES.includes(payload[`${key}Name`])) || payload[`${key}Name`] === 'INACTIVE') {
+            if (!value || (hideWaiting && WAITING_STATUSES.includes(payload[`${key}Name`])) || payload[`${key}Name`] === 'INACTIVE') {
               return null;
             }
             return <div key={key} className="chartTooltipRow">
               <div>{getOrdinalNumber(+key.substring(1) + 1)} Audit - <span style={{color: getStatusColor(payload[`${key}Name`])}}>
-                {getStatusFriendlyName(payload[`${key}Name`])} ({payload[key]} PiB)
+                {getStatusFriendlyName(payload[`${key}Name`])} {!FAILED_STATUSES.includes(payload[`${key}Name`].toUpperCase()) && <span>({payload[key]} PiB)</span>}
               </span>
               </div>
             </div>;
@@ -126,7 +127,7 @@ const AuditHistoryBarGraph = ({data, isLoading, audits, showAudited, showActive}
       } as { [key: PropertyKey]: string | number }
 
       item.auditStatuses.forEach((status, index) => {
-        if (index > 0 && WAITING_STATUSES.includes(status) || status === 'INACTIVE') {
+        if (index > 0 && hideWaiting && WAITING_STATUSES.includes(status) || status === 'INACTIVE') {
           return;
         }
 
@@ -140,7 +141,7 @@ const AuditHistoryBarGraph = ({data, isLoading, audits, showAudited, showActive}
       );
     });
     return returnData;
-  }, [WAITING_STATUSES, activeFilter, auditedFilter, data, showActive, showAudited]);
+  }, [WAITING_STATUSES, activeFilter, auditedFilter, data, showActive, showAudited, hideWaiting]);
 
   const dataKeys = useMemo(() => {
     return Array.from({length: audits}, (_, i) => `a${i}`);
