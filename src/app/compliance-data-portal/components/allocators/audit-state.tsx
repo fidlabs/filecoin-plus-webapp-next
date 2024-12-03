@@ -26,6 +26,7 @@ const AllocatorAuditState = ({setCurrentElement}: Props) => {
 
   return <ChartWrapper
     title="Audit state of the allocators"
+    id="AuditStateAllocator"
     addons={[{
       name: 'Filters',
       value: <div>

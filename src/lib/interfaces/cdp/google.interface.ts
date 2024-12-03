@@ -9,6 +9,7 @@ export interface IGoogleSheetResponse {
 
 export interface IAllocatorWithSheetInfo extends IAllocator {
   auditStatuses: string[]
+  auditSizes: number[]
   isActive: boolean
   isAudited?: boolean
   lastValidAudit: number

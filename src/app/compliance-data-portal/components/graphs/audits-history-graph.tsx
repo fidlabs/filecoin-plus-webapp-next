@@ -94,8 +94,9 @@ const AuditHistoryBarGraph = ({data, isLoading, audits, showAudited, showActive}
               return null;
             }
             return <div key={key} className="chartTooltipRow">
-              <div>{getOrdinalNumber(+key.substring(1) + 1)} Audit - <span
-                style={{color: getStatusColor(payload[`${key}Name`])}}>{getStatusFriendlyName(payload[`${key}Name`])}</span>
+              <div>{getOrdinalNumber(+key.substring(1) + 1)} Audit - <span style={{color: getStatusColor(payload[`${key}Name`])}}>
+                {getStatusFriendlyName(payload[`${key}Name`])} ({payload[key]} PiB)
+              </span>
               </div>
             </div>;
           })
@@ -103,6 +104,16 @@ const AuditHistoryBarGraph = ({data, isLoading, audits, showAudited, showActive}
       </Card>
     );
   };
+
+  const maxValue = useMemo(() => {
+    const filteredData = data.filter((item) => (!showActive || activeFilter(item)) && (!showAudited || auditedFilter(item)));
+
+    return Math.max(...filteredData.map((item) => {
+      return item.auditSizes.reduce((acc, size) => {
+        return acc + size;
+      }, 0);
+    }));
+  }, [activeFilter, auditedFilter, data, showActive, showAudited])
 
   const chartData = useMemo(() => {
     const returnData = [] as { [key: PropertyKey]: string | number }[];
@@ -120,7 +131,7 @@ const AuditHistoryBarGraph = ({data, isLoading, audits, showAudited, showActive}
         }
 
         const key = `a${index}`;
-        chart[key] = 1;
+        chart[key] = item.auditSizes[index] ?? 5;
         chart[`${key}Name`] = status;
       });
 
@@ -183,10 +194,11 @@ const AuditHistoryBarGraph = ({data, isLoading, audits, showAudited, showActive}
       <Tooltip content={renderTooltip}/>
       <YAxis dataKey="name" type="category" interval={0} minTickGap={0}
              tick={<CustomizedAxisTick/>}/>
-      <XAxis type="number" domain={[0, audits]} tickCount={audits + 1}/>
+      <XAxis type="number" name="PiB" domain={[0, maxValue]} tickCount={Math.floor(maxValue / 10) + 1}/>
       <Tooltip/>
       <Legend align="right" verticalAlign="middle" layout="vertical" content={renderLegend}/>
       {dataKeys.map((key) => <Bar layout="vertical" key={key} dataKey={key}
+                                  style={{ stroke: '#fff', strokeWidth: 2 }}
                                   stackId="a">
         {
           chartData.map((entry, index) => (
@@ -209,7 +221,7 @@ const CustomizedAxisTick = (props: {
   return (
     <g transform={`translate(${x},${y})`}>
       <text x={0} y={0} dx={-5} dy={5} textAnchor="end" fill="#666" fontSize={15}>
-        {payload?.value.substring(0, 25)}{(payload?.value?.length ?? 0) > 25 ? '...' : ''}
+        {payload?.value.substring(0, 20)}{(payload?.value?.length ?? 0) > 20 ? '...' : ''}
       </text>
     </g>
   );

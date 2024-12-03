@@ -112,6 +112,11 @@ export const getGoogleSheetAuditHistory = async () => {
   return await fetchData(url) as IGoogleSheetResponse;
 }
 
+export const getGoogleSheetAuditHistorySizes = async () => {
+  const url = `https://cdp.allocator.tech/proxy/googleapis/allocators-overview?tab=Audit+Results+per+DC`
+  return await fetchData(url) as IGoogleSheetResponse;
+}
+
 export const getGoogleSheetAuditSizes = async () => {
   const url = `https://cdp.allocator.tech/proxy/googleapis/allocators-overview?tab=Raw+Data`
   return await fetchData(url) as IGoogleSheetResponse;

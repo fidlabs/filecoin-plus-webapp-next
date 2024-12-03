@@ -1,6 +1,6 @@
 import {useCallback, useMemo, useState} from "react";
 import {useAsync} from "@/lib/hooks/useAsync";
-import {getAllocators, getGoogleSheetAuditHistory} from "@/lib/api";
+import {getAllocators, getGoogleSheetAuditHistory, getGoogleSheetAuditHistorySizes} from "@/lib/api";
 import {IAllocatorsResponse} from "@/lib/interfaces/dmob/allocator.interface";
 import {
   IAllocatorsWithSheetInfo,
@@ -48,13 +48,20 @@ const useGoogleSheetsAuditReport = () => {
 
   const [loaded, setLoaded] = useState(false);
 
-  const {data, loading: dataLoading } = useAsync<IAllocatorsResponse>(
+  const {data, loading: dataLoading} = useAsync<IAllocatorsResponse>(
     () => getAllocators({showInactive: 'false'})
   );
 
-  const {data: googleSheetsData, loading: googleLoading } = useAsync<IGoogleSheetResponse>(getGoogleSheetAuditHistory);
+  const {
+    data: googleSheetsAuditHistory,
+    loading: googleSheetsAuditHistoryLoading
+  } = useAsync<IGoogleSheetResponse>(getGoogleSheetAuditHistory);
+  const {
+    data: googleSheetsAuditSizes,
+    loading: googleSheetsAuditSizesLoading
+  } = useAsync<IGoogleSheetResponse>(getGoogleSheetAuditHistorySizes);
 
-  const loading = useMemo(() => dataLoading || googleLoading, [dataLoading, googleLoading]);
+  const loading = useMemo(() => dataLoading || googleSheetsAuditHistoryLoading || googleSheetsAuditSizesLoading, [dataLoading, googleSheetsAuditHistoryLoading, googleSheetsAuditSizesLoading]);
 
   const parsedData = useMemo(() => {
     setLoaded(false);
@@ -63,11 +70,13 @@ const useGoogleSheetsAuditReport = () => {
       data: []
     } as IAllocatorsWithSheetInfo;
 
-    if (data?.data && googleSheetsData?.values) {
-      const allocatorIdIndex = googleSheetsData.values[0].indexOf('Allocator ID');
-      const firstReviewIndex = googleSheetsData.values[0].indexOf('1');
+    if (data?.data && googleSheetsAuditHistory?.values && googleSheetsAuditSizes?.values) {
+      const allocatorIdIndex = googleSheetsAuditHistory.values[0].indexOf('Allocator ID');
+      const allocatorIdName = googleSheetsAuditHistory.values[0].indexOf('Allocator');
+      const firstReviewIndex = googleSheetsAuditHistory.values[0].indexOf('1');
+      const firstReviewIndexSizes = googleSheetsAuditSizes.values[0].indexOf('1');
 
-      returnData.audits = +(googleSheetsData.values[0][googleSheetsData.values[0].length - 1]);
+      returnData.audits = +(googleSheetsAuditHistory.values[0][googleSheetsAuditHistory.values[0].length - 1]);
 
       if (allocatorIdIndex === -1) {
         throw new Error('Allocator ID column not found in google sheets data');
@@ -75,22 +84,35 @@ const useGoogleSheetsAuditReport = () => {
 
 
       data?.data.forEach((result) => {
-        const googleSheetData = googleSheetsData?.values.find((data) => data[allocatorIdIndex] === result.addressId);
-        const auditStatuses = googleSheetData ? googleSheetData.slice(firstReviewIndex).map(item => item.toUpperCase()) : []
+        const googleAuditHistoryData = googleSheetsAuditHistory?.values.find((data) => data[allocatorIdIndex] === result.addressId);
+        const googleAuditSizesData = googleSheetsAuditSizes?.values.find((data) => data[allocatorIdIndex] === result.addressId);
+        const auditStatuses = googleAuditHistoryData ? googleAuditHistoryData.slice(firstReviewIndex).map(item => item.toUpperCase()) : []
+        const auditSizes = googleAuditSizesData ? googleAuditSizesData.slice(firstReviewIndexSizes).map(item => {
+          const numeric = +item;
+          return isNaN(numeric) || !numeric ? 5 : numeric;
+        }) : []
 
-        returnData.data.push({
-          ...result,
-          auditStatuses,
-          isActive: (googleSheetData && googleSheetData[firstReviewIndex] !== 'Inactive') || false,
-          isAudited: googleSheetData && !['Inactive', 'Waiting', 'Pre Audit'].includes(googleSheetData[firstReviewIndex]),
-          lastValidAudit : auditStatuses.filter(item => !['WAITING', 'PRE AUDIT', 'INACTIVE'].includes(item)).length - 1,
-        });
+        const name = result.name ?? googleAuditHistoryData?.[allocatorIdName];
+
+        if (!!name) {
+          returnData.data.push({
+            ...result,
+            auditStatuses,
+            auditSizes,
+            name,
+            isActive: (googleAuditHistoryData && googleAuditHistoryData[firstReviewIndex] !== 'Inactive') || false,
+            isAudited: googleAuditHistoryData && !['Inactive', 'Waiting', 'Pre Audit'].includes(googleAuditHistoryData[firstReviewIndex]),
+            lastValidAudit: auditStatuses.filter(item => !['WAITING', 'PRE AUDIT', 'INACTIVE'].includes(item)).length - 1,
+          });
+        }
+
       });
 
       setLoaded(true);
     }
+
     return returnData;
-  }, [data, googleSheetsData]);
+  }, [data, googleSheetsAuditHistory, googleSheetsAuditSizes]);
 
   return {
     results: parsedData,
@@ -99,4 +121,4 @@ const useGoogleSheetsAuditReport = () => {
   };
 };
 
-export { useGoogleSheetsAuditReport, useGoogleSheetFilters };
+export {useGoogleSheetsAuditReport, useGoogleSheetFilters};
