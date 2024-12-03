@@ -48,7 +48,6 @@ const AllocatorDetailsPage = (pageParams: IPageProps) => {
     <GenericContentFooter page={params?.page} limit={params?.limit} total={(data?.count ?? '0')}
                           patchParams={patchParams}/>
   </Card>
-
 }
 
 export default AllocatorDetailsPage

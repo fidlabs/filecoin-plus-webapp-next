@@ -6,7 +6,7 @@ import {Charts} from "@/app/(dashboard)/components/charts";
 export default async function Home() {
 
   return (
-    <main className="flex flex-col gap-8 items-start">
+    <main className="main-content flex flex-col gap-8 items-start">
       <PageHeader>
         <PageTitle>State of Fil+</PageTitle>
         <PageSubTitle>Quick statistics and metrics about the Filecoin Plus program.</PageSubTitle>

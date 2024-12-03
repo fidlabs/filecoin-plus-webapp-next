@@ -16,7 +16,7 @@ export const useClientAllocatorsColumns = () => {
       },
       cell: ({row}) => {
         const verifierAddressId = row.getValue('verifierAddressId') as string
-        return <Link className="table-link" href={`allocators/${verifierAddressId}`}>{verifierAddressId}</Link>
+        return <Link className="table-link" href={`/allocators/${verifierAddressId}`}>{verifierAddressId}</Link>
       }
     }, {
       accessorKey: 'initialAllowance',

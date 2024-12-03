@@ -72,6 +72,12 @@ const NavMenu = ({className, onClick}: {
     )}>
       Compliance
     </Link>
+    <Link href="/allocator-tree" onClick={onClick} className={cn(
+      "nav-link",
+      {"active": path.indexOf('allocator-tree') > -1},
+    )}>
+      Allocators tree
+    </Link>
     <Link href="/about" onClick={onClick} className={cn(
       "nav-link",
       {"active": path.indexOf('about') > -1},

@@ -8,9 +8,11 @@ export const metadata: Metadata = {
 }
 
 const StorageProvidersPage = () => {
-  return <Suspense>
-    <StorageProvidersList/>
-  </Suspense>
+  return <main className="main-content">
+    <Suspense>
+      <StorageProvidersList/>
+    </Suspense>
+  </main>
 };
 
 export default StorageProvidersPage;

@@ -48,12 +48,18 @@
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
   body {
     background: var(--color-solitude) !important;
     @apply text-foreground;
+    overscroll-behavior: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  * {
+    user-select: none !important;
+    -webkit-touch-callout: none !important;
+    -webkit-user-select: none !important;
   }
 
   .button-link::after {
@@ -69,6 +75,10 @@
 
   .card-transition-inner {
     transition: max-height 0.25s 0.1s cubic-bezier(0, 0.55, 0.45, 1), opacity 0.2s ease-in-out;
+  }
+
+  .main-content {
+    @apply w-full max-w-[1600px] mx-auto px-4
   }
 
   .active + .active {

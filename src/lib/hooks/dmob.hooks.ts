@@ -23,9 +23,11 @@ import {IAllocatorsWithSheetInfo, IAllocatorWithSheetInfo} from "@/lib/interface
 
 export interface DataCapChild {
   name: string;
+  nodeId: number;
   attributes: {
     datacap?: number;
     allocators?: number;
+    allocatorsIdList?: string;
     allocatorId?: string;
     id?: string;
   };
@@ -52,10 +54,11 @@ const useDataCapFlow = () => {
 
   const { results, loading, loaded } = useGoogleSheetsAuditReport();
 
-  const getElement = useCallback((name: string, array: IAllocatorWithSheetInfo[], withSimpleChildren = false) => {
+  const getElement = useCallback((nodeIdGenerator: Generator<number>, name: string, array: IAllocatorWithSheetInfo[], withSimpleChildren = false) => {
 
     const element = {
       name,
+      nodeId: nodeIdGenerator.next().value as number,
       attributes: getAttributes(array)
     } as DataCapChild;
 
@@ -73,18 +76,20 @@ const useDataCapFlow = () => {
   }, []);
 
   const getAttributes = (array: IAllocatorWithSheetInfo[]) => {
+
     return {
       datacap: array.reduce((acc, curr) => acc + +curr.initialAllowance, 0),
-      allocators: array.length
+      allocators: array.length,
+      allocatorsIdList: array.map((data) => data.addressId).join(','),
     };
   };
 
-  const getAudits = useCallback((results: IAllocatorsWithSheetInfo) => {
+  const getAudits = useCallback((nodeIdGenerator: Generator<number>, results: IAllocatorsWithSheetInfo) => {
     const numberOfAudits = results.audits;
     const data = results.data.filter(activeFilter);
     const audits = [
       {
-        ...getElement('Not Audited', data.filter(notAuditedFilter), true)
+        ...getElement(nodeIdGenerator, 'Not Audited', data.filter(notAuditedFilter), true)
       }
     ];
 
@@ -92,11 +97,11 @@ const useDataCapFlow = () => {
       const notWaitingData = data.filter(notWaitingFilter(i));
 
       audits.push({
-        ...getElement(`Audit ${i + 1}`, notWaitingData),
+        ...getElement(nodeIdGenerator, `Audit ${i + 1}`, notWaitingData),
         children: !!notWaitingData.length ? [
-          getElement('Failed', notWaitingData.filter(failedFilter(i)), true),
-          getElement('Conditional', notWaitingData.filter(partialFilter(i)), true),
-          getElement('Pass', notWaitingData.filter(passFilter(i)), true)
+          getElement(nodeIdGenerator, 'Failed', notWaitingData.filter(failedFilter(i)), true),
+          getElement(nodeIdGenerator, 'Conditional', notWaitingData.filter(partialFilter(i)), true),
+          getElement(nodeIdGenerator, 'Pass', notWaitingData.filter(passFilter(i)), true)
         ] : undefined
       });
     }
@@ -104,26 +109,37 @@ const useDataCapFlow = () => {
     return audits;
   }, [activeFilter, failedFilter, getElement, notAuditedFilter, notWaitingFilter, partialFilter, passFilter]);
 
+  function* getNodeIdGenerator() {
+    let id = 0;
+    while (true) {
+      yield id++;
+    }
+  }
+
   const dataCapFlow = useMemo(() => {
 
     if (!loaded) {
       return [];
     }
 
+    const nodeIdGenerator = getNodeIdGenerator();
+
     return [{
       name: 'Root Key Holder',
+      nodeId: nodeIdGenerator.next().value as number,
       attributes: getAttributes(results.data),
       children: [
-        getElement('Not Active', results.data.filter(notActiveFilter), true),
+        getElement(nodeIdGenerator, 'Not Active', results.data.filter(notActiveFilter), true),
         {
-          ...getElement('Active', results.data.filter(activeFilter)),
-          children: getAudits(results)
+          ...getElement(nodeIdGenerator, 'Active', results.data.filter(activeFilter)),
+          children: getAudits(nodeIdGenerator, results)
         }
       ]
     }];
   }, [loaded, results, getElement, notActiveFilter, activeFilter, getAudits]);
 
   return {
+    rawData: results,
     dataCapFlow,
     loading,
     loaded

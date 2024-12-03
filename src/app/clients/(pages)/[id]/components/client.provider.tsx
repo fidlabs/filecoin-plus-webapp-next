@@ -111,8 +111,6 @@ const ClientProvider = ({children, id, initialData}: PropsWithChildren<{ id: str
       return [];
     }
 
-    console.log(providersData)
-
     return providersData?.stats?.map((item) => ({
       name: item.provider,
       value: +item.percent,

@@ -28,7 +28,7 @@ const ChartWrapper = forwardRef<
   return <div className="w-full mt-2" ref={ref} {...props}>
     <Card>
       <CardHeader>
-        <CardTitle className="flex w-full justify-between">
+        <CardTitle className="flex w-full flex-wrap justify-between">
           <div>{title}</div>
           <div className="flex gap-2">
             {additionalFilters?.map((filter, index) => <div key={index}>{filter}</div>)}
@@ -38,7 +38,7 @@ const ChartWrapper = forwardRef<
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {!!addons?.length && <div className="grid grid-cols-3 gap-2 mb-6">
+        {!!addons?.length && <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-y-2 sm:gap-2 mb-6">
           {
             addons?.map((addon, index) => {
               return <Card alternate key={index} className={`col-span-${addon.size ?? 1}`}>
