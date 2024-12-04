@@ -35,3 +35,17 @@ export interface IAllocatorSPSComplianceRange {
   scoreRange: number
   histogram: ICDPHistogram
 }
+
+export interface IClientReportHeader {
+  id: string
+  create_date: string
+  client: string
+  client_address: string
+  organization_name: string
+}
+
+export interface ICLientFullreport extends IClientReportHeader {
+
+}
+
+export type IClientReportsResponse = IClientReportHeader[]

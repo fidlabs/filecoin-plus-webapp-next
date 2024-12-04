@@ -4,24 +4,30 @@ import {
   IClientProviderBreakdownResponse,
   IClientResponse
 } from "@/lib/interfaces/dmob/client.interface";
-import {IApiQuery} from "@/lib/interfaces/api.interface";
 import {createContext, PropsWithChildren, useCallback, useContext, useEffect, useMemo, useState} from "react";
-import {useParamsQuery} from "@/lib/hooks/useParamsQuery";
-import {getClientAllocationsById, getClientById, getClientProviderBreakdownById} from "@/lib/api";
+import {
+  generateClientReport,
+  getClientAllocationsById,
+  getClientById,
+  getClientProviderBreakdownById,
+  getClientReports
+} from "@/lib/api";
 import {convertBytesToIEC} from "@/lib/utils";
-import {LoaderCircle} from "lucide-react";
 import {ITabNavigatorTab} from "@/components/ui/tab-navigator";
+import {IClientReportsResponse} from "@/lib/interfaces/cdp/cdp.interface";
 
 interface IClientContext {
   data?: IClientResponse;
   loading: boolean;
-  params: IApiQuery;
+  reportGenerating: boolean;
   tabs: ITabNavigatorTab[];
-  patchParams: (newParams: IApiQuery) => void;
   providersData: IClientProviderBreakdownResponse | undefined;
   allocationsData: IClientAllocationsResponse | undefined;
+  reportsData: IClientReportsResponse | undefined;
   getProvidersData: () => void;
   getAllocationsData: () => void;
+  getReportsData: () => void;
+  generateNewReport: () => void;
   activeProviderIndex: number;
   setActiveProviderIndex: (index: number) => void;
   providersChartData: { name: string, value: number, totalSize: string, valueString: string }[];
@@ -30,46 +36,42 @@ interface IClientContext {
 const ClientContext = createContext<IClientContext>({
   data: undefined,
   loading: false,
-  params: {
-    page: '1',
-    limit: '10',
-    sort: ''
-  },
+  reportGenerating: false,
   tabs: [],
-  patchParams: () => {},
   providersData: undefined,
   allocationsData: undefined,
-  getProvidersData: () => {},
-  getAllocationsData: () => {},
+  reportsData: undefined,
+  getReportsData: () => {
+  },
+  getProvidersData: () => {
+  },
+  getAllocationsData: () => {
+  },
+  generateNewReport: () => {
+  },
   activeProviderIndex: 0,
-  setActiveProviderIndex: () => {},
+  setActiveProviderIndex: () => {
+  },
   providersChartData: [],
 } as IClientContext);
 
-const ClientProvider = ({children, id, initialData}: PropsWithChildren<{ id: string, initialData: IClientResponse }>) => {
+const ClientProvider = ({children, id, initialData}: PropsWithChildren<{
+  id: string,
+  initialData: IClientResponse
+}>) => {
 
   const [loading, setLoading] = useState(false)
+  const [reportGenerating, setReportGenerating] = useState(false)
   const [data, setData] = useState<IClientResponse | undefined>(initialData)
   const [providersData, setProvidersData] = useState<IClientProviderBreakdownResponse | undefined>(undefined)
+  const [reportsData, setReportsData] = useState<IClientReportsResponse | undefined>(undefined)
   const [allocationsData, setAllocationsData] = useState<IClientAllocationsResponse | undefined>(undefined)
   const [activeProviderIndex, setActiveProviderIndex] = useState(-1);
-
-  const {params, patchParams} = useParamsQuery<IApiQuery>({
-    page: '1',
-    limit: '10',
-    sort: ''
-  } as IApiQuery)
 
   const tabs = useMemo(() => {
     return [
       {
-        label: <>
-          <p>
-            {loading && !data && <LoaderCircle size={15} className="animate-spin"/>}
-            {data?.count}
-          </p>
-          <p>Claims</p>
-        </>,
+        label: 'Latest claims',
         href: `/clients/${id}`,
         value: 'list'
       },
@@ -82,11 +84,16 @@ const ClientProvider = ({children, id, initialData}: PropsWithChildren<{ id: str
         label: 'Allocations',
         href: `/clients/${id}/allocations`,
         value: 'allocations'
+      },
+      {
+        label: 'Reports',
+        href: `/clients/${id}/reports`,
+        value: 'reports'
       }
     ] as ITabNavigatorTab[]
-  }, [id, data, loading])
+  }, [id])
 
-  const getProvidersData = useCallback( () => {
+  const getProvidersData = useCallback(() => {
     if (providersData) {
       return
     }
@@ -96,7 +103,7 @@ const ClientProvider = ({children, id, initialData}: PropsWithChildren<{ id: str
       .finally(() => setLoading(false))
   }, [id, providersData])
 
-  const getAllocationsData = useCallback( () => {
+  const getAllocationsData = useCallback(() => {
     if (allocationsData) {
       return
     }
@@ -105,6 +112,23 @@ const ClientProvider = ({children, id, initialData}: PropsWithChildren<{ id: str
     getClientAllocationsById(id).then(setAllocationsData)
       .finally(() => setLoading(false))
   }, [id, allocationsData])
+
+  const getReportsData = useCallback((override = false) => {
+    if (reportsData && !override) {
+      return
+    }
+
+    setLoading(true);
+    getClientReports(id).then(setReportsData)
+      .finally(() => setLoading(false))
+  }, [id, reportsData])
+
+  const generateNewReport = useCallback(() => {
+    setReportGenerating(true);
+    generateClientReport(id)
+      .then(() => setReportGenerating(false))
+      .then(() => getReportsData(true))
+  }, [getReportsData, id])
 
   const providersChartData = useMemo(() => {
     if (!providersData?.stats?.length) {
@@ -121,30 +145,32 @@ const ClientProvider = ({children, id, initialData}: PropsWithChildren<{ id: str
   }, [providersData]);
 
   useEffect(() => {
-    if (!params) {
-      return
-    }
     setLoading(true);
-    getClientById(id, params)
+    getClientById(id, {
+      page: '1',
+      limit: '15',
+    })
       .then((data) => {
         setData(data)
       })
       .finally(() => setLoading(false))
-  }, [id, params]);
+  }, [id]);
 
   return <ClientContext.Provider value={{
     data,
     tabs,
     loading,
-    params,
-    patchParams,
     providersData,
     getProvidersData,
     activeProviderIndex,
     setActiveProviderIndex,
     providersChartData,
     allocationsData,
-    getAllocationsData
+    getAllocationsData,
+    reportsData,
+    getReportsData,
+    generateNewReport,
+    reportGenerating
   }}>
     <main className="flex flex-col gap-8 items-start">
       <div className="w-full">

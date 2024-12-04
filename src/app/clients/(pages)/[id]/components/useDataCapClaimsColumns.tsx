@@ -1,21 +1,19 @@
-import {DataTableSort} from "@/components/ui/data-table";
 import Link from "next/link";
 import {convertBytesToIEC} from "@/lib/utils";
 import {ColumnDef} from "@tanstack/react-table";
 import {IClientDeal} from "@/lib/interfaces/dmob/client.interface";
 import {HoverCard, HoverCardContent, HoverCardTrigger} from "@/components/ui/hover-card";
 
-type FilterCallback = (key: string, direction: string) => void;
 
-export const useDataCapClaimsColumns = (filterCallback: FilterCallback) => {
+export const useDataCapClaimsColumns = () => {
   const columns = [
     {
       accessorKey: "pieceCid",
       header: () => {
         return (
-          <DataTableSort property="pieceCid" setSorting={filterCallback}>
+          <div>
             Piece CID
-          </DataTableSort>
+          </div>
         )
       },
       cell: ({row}) => {
@@ -37,9 +35,9 @@ export const useDataCapClaimsColumns = (filterCallback: FilterCallback) => {
       accessorKey: "providerId",
       header: () => {
         return (
-          <DataTableSort property="providerId" setSorting={filterCallback}>
+          <div>
             Storage Provider ID
-          </DataTableSort>
+          </div>
         )
       },
       cell: ({row}) => {
@@ -50,9 +48,9 @@ export const useDataCapClaimsColumns = (filterCallback: FilterCallback) => {
       accessorKey: 'pieceSize',
       header: () => {
         return (
-          <DataTableSort property="pieceSize" setSorting={filterCallback}>
+          <div>
             Size
-          </DataTableSort>
+          </div>
         )
       },
       cell: ({row}) => {

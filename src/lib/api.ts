@@ -13,8 +13,9 @@ import {
 } from "@/lib/interfaces/dmob/client.interface";
 import {IStorageProviderResponse, IStorageProvidersResponse} from "@/lib/interfaces/dmob/sp.interface";
 import {IGoogleSheetResponse} from "@/lib/interfaces/cdp/google.interface";
+import {IClientReportsResponse} from "@/lib/interfaces/cdp/cdp.interface";
 
-const revalidate = 12 * 60 * 60;
+const revalidate = 30;
 const apiUrl = 'https://api.datacapstats.io/api'
 
 export const fetchData = async (url: string) => {
@@ -24,7 +25,24 @@ export const fetchData = async (url: string) => {
   const response = await fetch(url, {
     method: 'GET',
     headers: headers,
-    next: { revalidate }
+    next: {revalidate}
+  });
+
+  if (!response.ok) {
+    throw await response.json();
+  }
+
+  return await response.json();
+}
+
+export const postData = async (url: string, body: {[key: PropertyKey]: unknown} | undefined = undefined) => {
+  const headers = new Headers();
+  headers.append('Content-Type', 'application/json');
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: headers,
+    body: body? JSON.stringify(body) : undefined,
   });
 
   if (!response.ok) {
@@ -107,13 +125,28 @@ export const getStorageProviderById = async (id: string, query?: IApiQuery) => {
   return await fetchData(url) as IStorageProviderResponse;
 }
 
+export const getClientReports = async (clientId: string) => {
+  const url = `https://cdp.allocator.tech/clientReport/${clientId}`
+  return await fetchData(url) as IClientReportsResponse;
+}
+
+export const getClientReportById = async (clientId: string, reportId: string) => {
+  const url = `https://cdp.allocator.tech/clientReport/${clientId}/${reportId}`
+  return await fetchData(url) as IClientReportsResponse;
+}
+
+export const generateClientReport = async (id: string) => {
+  const url = `https://cdp.allocator.tech/clientReport/${id}`
+  return await postData(url) as void;
+}
+
 export const getGoogleSheetAuditHistory = async () => {
   const url = `https://cdp.allocator.tech/proxy/googleapis/allocators-overview`
   return await fetchData(url) as IGoogleSheetResponse;
 }
 
 export const getGoogleSheetAuditHistorySizes = async () => {
-  const url = `https://cdp.allocator.tech/proxy/googleapis/allocators-overview?tab=Audit+Results+per+DC`
+  const url = `https://cdp.allocator.tech/proxy/googleapis/allocators-overview?tab=Audit+Results+per+DC-MPG`
   return await fetchData(url) as IGoogleSheetResponse;
 }
 
@@ -121,3 +154,4 @@ export const getGoogleSheetAuditSizes = async () => {
   const url = `https://cdp.allocator.tech/proxy/googleapis/allocators-overview?tab=Raw+Data`
   return await fetchData(url) as IGoogleSheetResponse;
 }
+

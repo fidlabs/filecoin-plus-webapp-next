@@ -139,9 +139,9 @@ const GenericContentHeader = ({
       {!!setQuery && <Input className="bg-background w-full max-w-[350px] sm:w-64 text-[18px] lg:text-base" value={searchQuery}
                             placeholder={placeholder}
                             onChange={(e) => setSearchQuery(e.target.value)}/>}
-      <div className="hidden lg:block">
+      {addons && <div className="hidden lg:block">
         {addons}
-      </div>
+      </div>}
       {getCsv && <Button variant="outline" className="hidden lg:block" onClick={downloadCsv}>
           {
             downloadCsvLoading ? <LoaderCircle className="animate-spin"/> : 'Export to CSV'

@@ -92,7 +92,7 @@ const useGoogleSheetsAuditReport = () => {
           return isNaN(numeric) || !numeric ? 5 : numeric;
         }) : []
 
-        const name = result.name ?? googleAuditHistoryData?.[allocatorIdName];
+        const name = googleAuditHistoryData?.[allocatorIdName] ?? result.orgName;
 
         if (!!name) {
           returnData.data.push({

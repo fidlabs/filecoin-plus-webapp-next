@@ -2,7 +2,6 @@
 import {useClientDetails} from "@/app/clients/(pages)/[id]/components/client.provider";
 import {Card, CardContent} from "@/components/ui/card";
 import {GenericContentHeader} from "@/components/generic-content-view";
-import {ComplianceDownloadButton} from "@/components/compliance-button";
 import {LoaderCircle} from "lucide-react";
 import {ResizableHandle, ResizablePanel, ResizablePanelGroup} from "@/components/ui/resizable";
 import {ProvidersChart} from "@/app/clients/(pages)/[id]/(pages)/providers/components/providers-chart";
@@ -11,13 +10,7 @@ import {ProvidersTable} from "@/app/clients/(pages)/[id]/(pages)/providers/compo
 import {useMediaQuery} from "usehooks-ts";
 import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from "@/components/ui/accordion";
 
-interface IPageProps {
-  params: { id: string }
-}
-
-const ClientProviderBreakdownPage = (pageParams: IPageProps) => {
-  const clientId = pageParams.params.id
-
+const ClientProviderBreakdownPage = () => {
   const {providersData, tabs, getProvidersData, loading} = useClientDetails()
 
   useEffect(() => {
@@ -32,7 +25,7 @@ const ClientProviderBreakdownPage = (pageParams: IPageProps) => {
                             navigation={tabs}
                             selected="providers"
                             fixedHeight={false}
-                            addons={<ComplianceDownloadButton id={clientId}/>}/>
+                            />
       <CardContent className="p-0">
         {
           loading && !providersData && <div className="p-10 w-full flex flex-col items-center justify-center">

@@ -178,7 +178,7 @@ const Structure = ({auditHistory, allocatorStatuses}: IStructureProps) => {
 
   const structureData = useMemo(() => {
 
-    const filteredAllocators = parsedAllocators.filter((item) => item.allocatorName.toLowerCase().includes(search.toLowerCase() || ''));
+    const filteredAllocators = parsedAllocators.filter((item) => item.allocatorName?.toLowerCase().includes(search.toLowerCase() || ''));
 
     const manualActiveAllocatorsNodes = parseAllocatorToNode('manualAllocators-Active-List', filteredAllocators.filter((item) => item.allocatorType === 'Manual' && item.isActive), 0);
     const manualInactiveAllocatorsNodes = parseAllocatorToNode('manualAllocators-Inactive-List', filteredAllocators.filter((item) => item.allocatorType === 'Manual' && !item.isActive), 1);

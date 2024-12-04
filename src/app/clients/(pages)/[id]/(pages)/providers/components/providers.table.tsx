@@ -1,3 +1,4 @@
+"use client";
 import {useClientDetails} from "@/app/clients/(pages)/[id]/components/client.provider";
 import {Table, TableBody, TableCell, TableHeader, TableRow} from "@/components/ui/table";
 import {cn, convertBytesToIEC, palette} from "@/lib/utils";

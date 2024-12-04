@@ -1,6 +1,5 @@
 "use client";
 import {GenericContentHeader} from "@/components/generic-content-view";
-import {ComplianceDownloadButton} from "@/components/compliance-button";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {LoaderCircle} from "lucide-react";
 import {useClientDetails} from "@/app/clients/(pages)/[id]/components/client.provider";
@@ -10,14 +9,7 @@ import {AllocatorsListTable} from "@/app/clients/(pages)/[id]/(pages)/allocation
 import {AllocationsChart} from "@/app/clients/(pages)/[id]/(pages)/allocations/components/allocations-chart";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 
-interface IPageProps {
-  params: { id: string }
-}
-
-const ClientAllocationsPage = (pageParams: IPageProps) => {
-
-  const clientId = pageParams.params.id
-
+const ClientAllocationsPage = () => {
   const {allocationsData, tabs, getAllocationsData, loading} = useClientDetails()
 
   useEffect(() => {
@@ -31,7 +23,7 @@ const ClientAllocationsPage = (pageParams: IPageProps) => {
                             navigation={tabs}
                             selected="allocations"
                             fixedHeight={false}
-                            addons={<ComplianceDownloadButton id={clientId}/>} />
+                            />
       <CardContent className="p-0">
         {
           loading && !allocationsData && <div className="p-10 w-full flex flex-col items-center justify-center">

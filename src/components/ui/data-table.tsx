@@ -5,6 +5,7 @@ import {
   flexRender,
   getCoreRowModel, getSortedRowModel, SortingState,
   useReactTable,
+  Table as TenstackTable, RowSelectionState, OnChangeFn
 } from "@tanstack/react-table"
 
 import {
@@ -17,19 +18,20 @@ import {
 } from "@/components/ui/table"
 import {Button} from "@/components/ui/button";
 import {ChevronDown, ChevronUp} from "lucide-react";
-import {PropsWithChildren, useMemo, useState} from "react";
+import {PropsWithChildren, useEffect, useMemo, useState} from "react";
 import {useSearchParams} from "next/navigation";
 import {cn} from "@/lib/utils";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
+  setTable?: (table: TenstackTable<TData>) => void
+  rowSelection?: RowSelectionState
+  setRowSelection?: OnChangeFn<RowSelectionState>
 }
 
-export function DataTable<TData, TValue>({
-                                           columns,
-                                           data,
-                                         }: DataTableProps<TData, TValue>) {
+export function DataTable<TData, TValue>(props: DataTableProps<TData, TValue>) {
+  const { columns, data, setTable, rowSelection, setRowSelection } = props;
   const [sorting, setSorting] = useState<SortingState>([])
 
   const table = useReactTable({
@@ -37,11 +39,20 @@ export function DataTable<TData, TValue>({
     columns,
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
+    onRowSelectionChange: setRowSelection,
     getSortedRowModel: getSortedRowModel(),
+    defaultColumn: {
+      size: Number.NaN,
+    },
     state: {
       sorting,
+      rowSelection: rowSelection ?? {}
     },
   })
+
+  useEffect(() => {
+    setTable && setTable(table)
+  }, [setTable, table])
 
   return (
     <Table>
@@ -68,10 +79,16 @@ export function DataTable<TData, TValue>({
           table.getRowModel().rows.map((row) => (
             <TableRow
               key={row.id}
-              data-state={row.getIsSelected() && "selected"}
+              data-state={row?.getIsSelected() && "selected"}
             >
               {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id} className="last-of-type:flex last-of-type:justify-end items-center h-full">
+                <TableCell key={cell.id}
+                           width={
+                             !Number.isNaN(cell.column.getSize())
+                               ? cell.column.getSize()
+                               : undefined
+                           }
+                           className="last-of-type:flex last-of-type:justify-end items-center h-full">
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </TableCell>
               ))}
