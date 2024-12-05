@@ -253,6 +253,7 @@ const useAllAllocators = () => {
 
 const useClients = (params?: IApiQuery) => {
   const [data, setData] = useState<IClientsResponse | undefined>(undefined);
+  const [stats, setStats] = useState<IClientsResponse | undefined>(undefined);
   const [loading, setLoading] = useState<boolean>(false);
   const [currentParams, setCurrentParams] = useState<IApiQuery | undefined>(params);
 
@@ -267,14 +268,20 @@ const useClients = (params?: IApiQuery) => {
     setCurrentParams(params);
 
     getClients(params)
-      .then(setData)
+      .then((data => {
+        setData(data);
+        if (!stats) {
+          setStats(data);
+        }
+      }))
       .finally(() => {
         setLoading(false);
       });
-  }, [currentParams, params]);
+  }, [currentParams, params, stats]);
 
   return {
     data,
+    stats,
     loading
   }
 }

@@ -56,12 +56,6 @@
     margin: 0;
   }
 
-  * {
-    user-select: none !important;
-    -webkit-touch-callout: none !important;
-    -webkit-user-select: none !important;
-  }
-
   .button-link::after {
     @apply md:content-[''] p-0 left-0 bottom-0 absolute w-full h-[1px] transition-transform border-b border-b-current rounded-none transform -translate-x-full
   }

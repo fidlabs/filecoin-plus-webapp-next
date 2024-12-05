@@ -149,6 +149,7 @@ const ClientProvider = ({children, id, initialData}: PropsWithChildren<{
     getClientById(id, {
       page: '1',
       limit: '15',
+      sort: `[["createdAt", 0]]`
     })
       .then((data) => {
         setData(data)

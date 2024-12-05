@@ -13,7 +13,7 @@ import Link from "next/link";
 import {Separator} from "@/components/ui/separator";
 
 interface GenericContentHeaderProps {
-  placeholder: string,
+  placeholder?: string,
   fixedHeight?: boolean,
   sticky?: boolean,
   addons?: ReactNode,
@@ -136,7 +136,7 @@ const GenericContentHeader = ({
       </div>
     </div>
     <div className={cn("flex flex-row justify-end gap-3 sm:mt-0", !!setQuery && ' mt-3 sm:mt-0')}>
-      {!!setQuery && <Input className="bg-background w-full max-w-[350px] sm:w-64 text-[18px] lg:text-base" value={searchQuery}
+      {!!setQuery && placeholder && <Input className="bg-background w-full max-w-[350px] sm:w-64 text-[18px] lg:text-base" value={searchQuery}
                             placeholder={placeholder}
                             onChange={(e) => setSearchQuery(e.target.value)}/>}
       {addons && <div className="hidden lg:block">

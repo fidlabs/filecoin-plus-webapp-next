@@ -44,8 +44,46 @@ export interface IClientReportHeader {
   organization_name: string
 }
 
-export interface ICLientFullreport extends IClientReportHeader {
+export interface IClientReportStorageProviderDistribution {
+  client_report_id: string
+  provider: string
+  total_deal_size: string
+  total_deal_percentage: number
+  unique_data_size: string
+  duplicated_data_size: number
+  duplication_percentage: number
+  location: IClientReportLocation
+}
 
+export interface IClientReportLocation {
+  ip: string
+  city: string
+  region: string
+  country: string
+  loc: string
+  org: string
+  postal: string
+  timezone: string
+  hostname?: string
+  provider_distribution_id: string
+}
+
+export interface IClientReportReplicaDistribution {
+  client_report_id: string
+  num_of_replicas: string
+  total_deal_size: string
+  unique_data_size: string
+  percentage: number
+}
+
+export interface IClientReportCIDSharing {
+
+}
+
+export interface IClientFullReport extends IClientReportHeader {
+  storage_provider_distribution: IClientReportStorageProviderDistribution[]
+  replica_distribution: IClientReportReplicaDistribution[]
+  cid_sharing: IClientReportCIDSharing[]
 }
 
 export type IClientReportsResponse = IClientReportHeader[]

@@ -29,7 +29,7 @@ export const useReportsColumns = () => {
       },
       cell: ({row}) => {
         const reportId = row.getValue('id') as string
-        return <Link className="table-link" href={`/storage-providers/${reportId}`}>{reportId}</Link>
+        return <Link className="table-link" href={`reports/${reportId}`}>{reportId}</Link>
       }
     }, {
       accessorKey: 'create_date',

@@ -21,13 +21,14 @@ const ClientsList = () => {
 
   const {
     data,
+    stats,
     loading
   } = useClients(params)
 
   const {columns, csvHeaders} = useClientsColumns((key, direction) => patchParams({sort: `[["${key}",${direction}]]`}));
 
   return <div>
-    {data && <ClientsStats data={data}/>}
+    <ClientsStats data={stats}/>
     <Card className="mt-4">
       <GenericContentHeader placeholder="Client ID / Address / Name" query={params?.filter}
                             getCsv={{
@@ -46,7 +47,7 @@ const ClientsList = () => {
                                   {loading && <LoaderCircle className="animate-spin"/>}
                                   {data?.count}
                                 </p>
-                                <p>Clients</p>
+                                <p>{+(data?.count ?? 0) === 1 ? "Client" : "Clients"}</p>
                               </h1>
                             </div>}
                             setQuery={(filter: string) => patchParams({filter, page: '1'})}/>

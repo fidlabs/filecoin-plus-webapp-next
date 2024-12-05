@@ -61,7 +61,7 @@ export function DataTable<TData, TValue>(props: DataTableProps<TData, TValue>) {
           <TableRow key={headerGroup.id}>
             {headerGroup.headers.map((header) => {
               return (
-                <TableHead key={header.id} className="last-of-type:flex last-of-type:justify-end items-center h-full">
+                <TableHead key={header.id} className="last-of-type:text-end items-center h-full">
                   {header.isPlaceholder
                     ? null
                     : flexRender(
@@ -88,7 +88,7 @@ export function DataTable<TData, TValue>(props: DataTableProps<TData, TValue>) {
                                ? cell.column.getSize()
                                : undefined
                            }
-                           className="last-of-type:flex last-of-type:justify-end items-center h-full">
+                           className="last-of-type:text-end items-center h-full">
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </TableCell>
               ))}
