@@ -148,7 +148,7 @@ const ClientProvider = ({children, id, initialData}: PropsWithChildren<{
     setLoading(true);
     getClientById(id, {
       page: '1',
-      limit: '15',
+      limit: '50',
       sort: `[["createdAt", 0]]`
     })
       .then((data) => {

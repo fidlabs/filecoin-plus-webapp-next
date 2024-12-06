@@ -6,7 +6,7 @@ import Link from "next/link";
 import {ColumnDef} from "@tanstack/react-table";
 import {DataTable} from "@/components/ui/data-table";
 import {Badge} from "@/components/ui/badge";
-import {cn, convertBytesToIEC} from "@/lib/utils";
+import {convertBytesToIEC} from "@/lib/utils";
 import {
   useReportsDetails
 } from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/reports-details.provider";
@@ -53,7 +53,7 @@ export const useReportViewProvidersColumns = () => {
       )
     }, cell: ({row}) => {
       const totalDealSize = row.getValue('total_deal_size') as number
-      return <div className="h-full">{convertBytesToIEC(totalDealSize)}</div>
+      return <div>{convertBytesToIEC(totalDealSize)}</div>
     }
   }, {
     accessorKey: "total_deal_percentage",
@@ -66,7 +66,7 @@ export const useReportViewProvidersColumns = () => {
     }, cell: ({row}) => {
       const percentage = row.getValue('total_deal_percentage') as number
 
-      return <div className="h-full">{percentage.toFixed(2)}%</div>
+      return <div>{percentage.toFixed(2)}%</div>
     }
   }, {
     accessorKey: "duplication_percentage",
@@ -110,8 +110,17 @@ const ReportViewProviders = () => {
     providerDistributionList
   } = useReportsDetails()
 
-  return <div className={cn("grid", `grid-cols-${providerDistributionList.length}`)}>
-    <div className={`col-span-${providerDistributionList.length} border-b p-4`}>
+  const colsStyle = {
+    gridTemplateColumns: `repeat(${providerDistributionList.length}, minmax(0, 1fr))`
+  }
+
+  const colsSpanStyle = {
+    gridColumn: `span ${providerDistributionList.length} / span ${providerDistributionList.length}`
+  }
+
+
+  return <div className="grid" style={colsStyle}>
+    <div className="p-4 border-b" style={colsSpanStyle}>
       <h2 className="font-semibold text-lg">Storage Provider Distribution</h2>
       <p className="pt-2">The below table shows the distribution of storage providers that have stored data for this
         client.</p>
@@ -125,7 +134,7 @@ const ReportViewProviders = () => {
     </div>
     {
       providerDistributionList.map((providerDistribution, index) => {
-        return <div key={index} className="[&:not(:last-child)]:border-r">
+        return <div key={index} className="border-b [&:not(:last-child)]:border-r">
           <DataTable columns={columns} data={providerDistribution}/>
         </div>
       })

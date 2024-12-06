@@ -11,7 +11,8 @@ import {ResponsiveView} from "@/components/ui/responsive-view";
 const fetchData = cache(async (id: string) => {
   return await getClientById(id, {
     page: '1',
-    limit: '10'
+    limit: '50',
+    sort: `[["createdAt", 0]]`
   })
 });
 

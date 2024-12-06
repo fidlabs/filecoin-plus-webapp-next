@@ -77,7 +77,10 @@ export interface IClientReportReplicaDistribution {
 }
 
 export interface IClientReportCIDSharing {
-
+  client: string
+  other_client: string
+  total_deal_size: string
+  unique_cid_count: number
 }
 
 export interface IClientFullReport extends IClientReportHeader {
