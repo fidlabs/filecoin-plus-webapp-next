@@ -7,7 +7,7 @@ import {DataTable} from "@/components/ui/data-table";
 import {convertBytesToIEC} from "@/lib/utils";
 import {
   useReportsDetails
-} from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/reports-details.provider";
+} from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/providers/reports-details.provider";
 
 export const useReportViewReplikasColumns = () => {
   const columns = [{
@@ -96,7 +96,7 @@ const ReportViewReplicas = () => {
     </div>
     {
       replikasList.map((replika, index) => {
-        return <div key={index} className="border-b [&:not(:last-child)]:border-r">
+        return <div key={index} className="border-b [&:not(:last-child)]:border-r-2">
           <DataTable columns={columns} data={replika.sort((a, b) => +a.num_of_replicas - +b.num_of_replicas)}/>
         </div>
       })

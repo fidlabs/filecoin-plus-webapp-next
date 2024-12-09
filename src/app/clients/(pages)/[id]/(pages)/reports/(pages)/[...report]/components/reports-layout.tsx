@@ -9,7 +9,7 @@ import {
 } from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/enable-compare.button";
 import {
   useReportsDetails
-} from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/reports-details.provider";
+} from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/providers/reports-details.provider";
 import {format} from "date-fns";
 import {
   ReportViewReplicas

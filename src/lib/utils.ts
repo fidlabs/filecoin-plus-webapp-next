@@ -135,3 +135,30 @@ export const gradientPalette = (colorA: string, colorB: string, steps: number) =
 
   return gradient;
 }
+
+export const calculateAverage = (numbers: number[], decimalPlaces?: number): number => {
+  const sum = numbers.reduce((acc, num) => acc + num, 0);
+  const average = sum / numbers.length;
+  return decimalPlaces !== undefined ? parseFloat(average.toFixed(decimalPlaces)) : average;
+};
+
+export const calculateMapScale = (locations: string[]): number => {
+  if (locations.length === 0) return 1;
+
+  const lats = locations.map(loc => +loc.split(',')[0]);
+  const lons = locations.map(loc => +loc.split(',')[1]);
+
+  const minLat = Math.min(...lats);
+  const maxLat = Math.max(...lats);
+  const minLon = Math.min(...lons);
+  const maxLon = Math.max(...lons);
+
+  const latDiff = maxLat - minLat;
+  const lonDiff = maxLon - minLon;
+
+  // Assuming a base scale factor, you can adjust this as needed
+  const baseScale = 180;
+  const scale = 100 * baseScale / Math.min(latDiff, lonDiff);
+
+  return scale;
+};

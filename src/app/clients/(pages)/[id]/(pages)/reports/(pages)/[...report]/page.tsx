@@ -3,7 +3,7 @@ import {IClientFullReport, IClientReportStorageProviderDistribution} from "@/lib
 import {ReportsLayout} from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/reports-layout";
 import {
   ReportsDetailsProvider
-} from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/reports-details.provider";
+} from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/providers/reports-details.provider";
 
 interface IPageProps {
   params: { report: string[], id: string }

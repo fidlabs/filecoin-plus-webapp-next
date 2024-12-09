@@ -1,5 +1,6 @@
 "use client"
 import {
+  IClientReportLocation,
   IClientReportStorageProviderDistribution
 } from "@/lib/interfaces/cdp/cdp.interface";
 import Link from "next/link";
@@ -9,11 +10,12 @@ import {Badge} from "@/components/ui/badge";
 import {convertBytesToIEC} from "@/lib/utils";
 import {
   useReportsDetails
-} from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/reports-details.provider";
+} from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/providers/reports-details.provider";
 import {HoverCard, HoverCardContent, HoverCardTrigger} from "@/components/ui/hover-card";
 import {InfoIcon} from "lucide-react";
-import {ComposableMap, Geographies, Geography, Graticule, Sphere} from "react-simple-maps";
+import {ComposableMap, Geographies, Geography, Graticule, Marker, Sphere} from "react-simple-maps";
 import countriesGeo from "@/lib/map-assets/countries.json"
+import {uniq, uniqBy} from "lodash";
 
 export const useReportViewProvidersColumns = () => {
   const columns = [{
@@ -113,8 +115,6 @@ const ReportViewProviders = () => {
     mapsConstraints
   } = useReportsDetails()
 
-  console.log(mapsConstraints)
-
   const colsStyle = {
     gridTemplateColumns: `repeat(${providerDistributionList.length}, minmax(0, 1fr))`
   }
@@ -139,13 +139,14 @@ const ReportViewProviders = () => {
     </div>
     {
       providerDistributionList.map((providerDistribution, index) => {
-        return <div key={index} className="border-b [&:not(:last-child)]:border-r">
+        return <div key={index} className="border-b [&:not(:last-child)]:border-r-2">
           <div className="border-b">
             <DataTable columns={columns} data={providerDistribution}/>
           </div>
           <ComposableMap width={1400} projection="geoEqualEarth" projectionConfig={{
-            center: [0, 0],
-            scale: 200
+            center: mapsConstraints.center,
+            scale: mapsConstraints.scale
+            // scale: 400
           }}>
             <Sphere id="sphere" fill="none" stroke="#E4E5E6" strokeWidth={0.5} />
             <Graticule stroke="#E4E5E6" strokeWidth={0.5} />
@@ -156,6 +157,28 @@ const ReportViewProviders = () => {
                 ))
               }
             </Geographies>
+            {uniqBy(providerDistribution.map(item => item.location), 'loc').map((location: IClientReportLocation) => (
+              <Marker key={location.org} coordinates={[+location.loc.split(',')[1], +location.loc.split(',')[0]]}>
+                <defs>
+                  <filter x="0" y="0" width="1" height="1" id="solid">
+                    <feFlood flood-color="white" result="bg"/>
+                    <feMerge>
+                      <feMergeNode in="bg"/>
+                      <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                  </filter>
+                </defs>
+                <circle r={10} fill="#0090FF" stroke="#fff" strokeWidth={2}/>
+                <text
+                  filter="url(#solid)"
+                  textAnchor="middle"
+                  y={25}
+                  style={{fill: "black"}}
+                >
+                  {location.org}
+                </text>
+              </Marker>
+            ))}
           </ComposableMap>
         </div>
       })
