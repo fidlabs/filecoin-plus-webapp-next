@@ -97,7 +97,7 @@ const ReportViewReplicas = () => {
     {
       replikasList.map((replika, index) => {
         return <div key={index} className="border-b [&:not(:last-child)]:border-r">
-          <DataTable columns={columns} data={replika}/>
+          <DataTable columns={columns} data={replika.sort((a, b) => +a.num_of_replicas - +b.num_of_replicas)}/>
         </div>
       })
     }

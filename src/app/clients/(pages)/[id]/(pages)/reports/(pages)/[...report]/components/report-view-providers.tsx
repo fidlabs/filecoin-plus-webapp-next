@@ -12,6 +12,8 @@ import {
 } from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/reports-details.provider";
 import {HoverCard, HoverCardContent, HoverCardTrigger} from "@/components/ui/hover-card";
 import {InfoIcon} from "lucide-react";
+import {ComposableMap, Geographies, Geography, Graticule, Sphere} from "react-simple-maps";
+import countriesGeo from "@/lib/map-assets/countries.json"
 
 export const useReportViewProvidersColumns = () => {
   const columns = [{
@@ -107,8 +109,11 @@ const ReportViewProviders = () => {
   } = useReportViewProvidersColumns();
 
   const {
-    providerDistributionList
+    providerDistributionList,
+    mapsConstraints
   } = useReportsDetails()
+
+  console.log(mapsConstraints)
 
   const colsStyle = {
     gridTemplateColumns: `repeat(${providerDistributionList.length}, minmax(0, 1fr))`
@@ -135,7 +140,23 @@ const ReportViewProviders = () => {
     {
       providerDistributionList.map((providerDistribution, index) => {
         return <div key={index} className="border-b [&:not(:last-child)]:border-r">
-          <DataTable columns={columns} data={providerDistribution}/>
+          <div className="border-b">
+            <DataTable columns={columns} data={providerDistribution}/>
+          </div>
+          <ComposableMap width={1400} projection="geoEqualEarth" projectionConfig={{
+            center: [0, 0],
+            scale: 200
+          }}>
+            <Sphere id="sphere" fill="none" stroke="#E4E5E6" strokeWidth={0.5} />
+            <Graticule stroke="#E4E5E6" strokeWidth={0.5} />
+            <Geographies geography={countriesGeo}>
+              {({ geographies }) =>
+                geographies.map((geo) => (
+                  <Geography key={geo.rsmKey} geography={geo} fill="#22222211" stroke="#222"/>
+                ))
+              }
+            </Geographies>
+          </ComposableMap>
         </div>
       })
     }
