@@ -184,7 +184,7 @@ const FlowSankey = ({
     }
 
     return nodes;
-  }, []);
+  }, [rawData.data]);
 
   const parseLinks = useCallback((currentNode: DataCapChild, parentId?: number) => {
     const hasChildren = !!currentNode?.children?.map(item => !!item.children?.length).filter(val => val).length
@@ -256,7 +256,7 @@ const FlowSankey = ({
     } else {
       return parseData(selectedNodes[selectedNodes.length - 1]) as SankeyData;
     }
-  }, [selectedNodes, expanded, parseNodes, parseData, data]);
+  }, [data, selectedNodes, expanded, parseNodes, parseLinks, parseData]);
 
   return <div className="relative">
     {!expanded && <Breadcrumb className="mx-6">
