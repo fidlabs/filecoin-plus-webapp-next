@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import {memo, useEffect, useState} from 'react';
 import Tree, {CustomNodeElementProps} from 'react-d3-tree';
 import {DataCapChild} from "@/lib/hooks/dmob.hooks";
 import {convertBytesToIEC} from "@/lib/utils";
@@ -7,7 +7,7 @@ interface Props {
   data: DataCapChild[] | undefined
 }
 
-export const DataCapFlowTree = ({
+const FlowTreeComponent = ({
                                   data
                                 }: Props) => {
 
@@ -105,3 +105,7 @@ const TreeNode = ({props}: {props: CustomNodeElementProps}) => {
     </>
   );
 };
+
+const DataCapFlowTree = memo(FlowTreeComponent);
+
+export {DataCapFlowTree}

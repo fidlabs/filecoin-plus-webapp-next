@@ -11,7 +11,7 @@ import {
   XAxis,
   YAxis
 } from "recharts";
-import React, {useCallback, useMemo, useState} from "react";
+import React, {memo, useCallback, useMemo, useState} from "react";
 import {cn, convertBytesToIEC, palette} from "@/lib/utils";
 import {NameType, ValueType} from "recharts/types/component/DefaultTooltipContent";
 import {useChartScale} from "@/lib/hooks/useChartScale";
@@ -19,7 +19,7 @@ import {ScaleSelector} from "@/components/ui/scale-selector";
 import {IAllocatorsResponse} from "@/lib/interfaces/dmob/allocator.interface";
 
 
-const DataCapOverTimeChart = () => {
+const Component = () => {
   const {data, loading} = useDataCapAllocationsWeeklyByClient();
   const {data: allocatorsData} = useAllAllocators();
 
@@ -233,5 +233,7 @@ const CustomizedAxisTick = (props: {
     </g>
   );
 };
+
+const DataCapOverTimeChart = memo(Component);
 
 export {DataCapOverTimeChart}

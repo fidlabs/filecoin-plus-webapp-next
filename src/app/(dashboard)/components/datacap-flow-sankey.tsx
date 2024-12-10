@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useMemo, useState} from 'react';
+import {memo, useCallback, useEffect, useMemo, useState} from 'react';
 import {DataCapChild} from "@/lib/hooks/dmob.hooks";
 import {cn, convertBytesToIEC, convertBytesToIECSimple} from "@/lib/utils";
 import {ResponsiveContainer, Sankey, Tooltip as RechartsTooltip} from "recharts";
@@ -47,7 +47,7 @@ interface SankeyData {
   links: SankeyLink[]
 }
 
-export const DataCapFlowSankey = ({
+const FlowSankey = ({
                                     data,
                                     rawData
                                   }: Props) => {
@@ -397,3 +397,7 @@ const ExpandedNode = ({x, y, width, height, payload}: NodeProps) => {
   </g>
 
 };
+
+const DataCapFlowSankey = memo(FlowSankey);
+
+export {DataCapFlowSankey}

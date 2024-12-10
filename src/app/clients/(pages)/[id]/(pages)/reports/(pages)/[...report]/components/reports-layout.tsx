@@ -3,7 +3,7 @@ import {GenericContentHeader} from "@/components/generic-content-view";
 import {Card, CardContent} from "@/components/ui/card";
 import {
   ReportViewProviders
-} from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/report-view-providers";
+} from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/provider-view/report-view-providers";
 import {
   EnableCompareButton
 } from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/enable-compare.button";
@@ -13,7 +13,7 @@ import {
 import {format} from "date-fns";
 import {
   ReportViewReplicas
-} from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/report-view-replikas";
+} from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/replikas-view/report-view-replikas";
 
 const ReportsLayout = () => {
 
@@ -35,7 +35,7 @@ const ReportsLayout = () => {
       <div className="grid border-b" style={style}>
         {
           reports.map((report, index) => {
-            return <div key={index} className="[&:not(:last-child)]:border-r p-4">
+            return <div key={index} className="[&:not(:last-child)]:border-r-2 p-4">
               Report <span className="font-semibold">{report.id}</span> from <span
               className="font-semibold">{format(new Date(report.create_date), 'yyyy-MM-dd HH:mm')}</span>
             </div>

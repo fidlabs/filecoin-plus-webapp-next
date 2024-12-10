@@ -2,13 +2,13 @@
 import {useStats} from "@/lib/hooks/dmob.hooks";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {Cell, Pie, PieChart, ResponsiveContainer} from "recharts";
-import React, {useMemo, useState} from "react";
+import React, {memo, useMemo, useState} from "react";
 import {convertBytesToIEC, palette} from "@/lib/utils";
 import {ActiveShapeSimple} from "@/components/ui/pie-active-shape";
 import {PieSectorDataItem} from "recharts/types/polar/Pie";
 
 
-const DatacapAllocationChart = () => {
+const Component = () => {
   const {
     data, loading,
   } = useStats()
@@ -108,5 +108,7 @@ const DatacapAllocationChart = () => {
     </CardContent>
   </Card>
 }
+
+const DatacapAllocationChart = memo(Component);
 
 export {DatacapAllocationChart}
