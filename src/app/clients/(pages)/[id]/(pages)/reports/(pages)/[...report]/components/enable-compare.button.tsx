@@ -1,9 +1,19 @@
 import {Button} from "@/components/ui/button";
+import {
+  useReportsDetails
+} from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/providers/reports-details.provider";
 
 
 const EnableCompareButton = () => {
-  return <Button variant={"outline"} disabled={true}>
-    Enable compare
+
+  const {
+    compareMode, toggleCompareMode
+  } = useReportsDetails()
+
+  return <Button variant={compareMode ? 'default' : "outline"} onClick={toggleCompareMode}>
+    {
+      compareMode ? 'Disable compare' : 'Enable compare'
+    }
   </Button>
 }
 

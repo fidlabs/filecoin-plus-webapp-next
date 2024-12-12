@@ -2,7 +2,7 @@
 import {CardFooter, CardHeader} from "@/components/ui/card";
 import {Input} from "@/components/ui/input";
 import {Button, buttonVariants} from "@/components/ui/button";
-import {ReactNode, useCallback, useEffect, useState} from "react";
+import {ReactNode, RefObject, useCallback, useEffect, useState} from "react";
 import {Paginator} from "@/components/ui/pagination";
 import {IApiQuery} from "@/lib/interfaces/api.interface";
 import {ChevronRight, DownloadIcon, LoaderCircle, MenuIcon} from "lucide-react";
@@ -11,6 +11,7 @@ import {Drawer, DrawerContent, DrawerTrigger} from "@/components/ui/drawer";
 import {ITabNavigatorTab, TabNavigator} from "@/components/ui/tab-navigator";
 import Link from "next/link";
 import {Separator} from "@/components/ui/separator";
+import {useScrollObserver} from "@/lib/hooks/useScrollObserver";
 
 interface GenericContentHeaderProps {
   placeholder?: string,
@@ -39,6 +40,7 @@ const GenericContentHeader = ({
                                 navigation,
                                 selected,
                                 addons,
+                                sticky,
                                 query,
                                 setQuery,
                                 placeholder,
@@ -57,6 +59,10 @@ const GenericContentHeader = ({
 
     return () => clearTimeout(timeout)
   }, [query, searchQuery, setQuery])
+
+  const {
+    top, ref
+  } = useScrollObserver()
 
   const downloadCsv = useCallback(async () => {
     if (getCsv) {
@@ -94,9 +100,12 @@ const GenericContentHeader = ({
   }, [getCsv])
 
   return <CardHeader
+    ref={ref as RefObject<HTMLDivElement>}
     className={cn("border-b items-center block sm:flex flex-wrap gap-3 p-3",
       fixedHeight && 'min-h-[91px]',
-      !setQuery && 'flex w-full justify-between'
+      !setQuery && 'flex w-full justify-between',
+      sticky && 'sticky top-0 z-10 transition-colors duration-0',
+      sticky && top === 0 && 'bg-white'
     )}>
     <div className="flex w-full lg:w-auto justify-between items-center">
       {header && header}
@@ -136,17 +145,18 @@ const GenericContentHeader = ({
       </div>
     </div>
     <div className={cn("flex flex-row justify-end gap-3 sm:mt-0", !!setQuery && ' mt-3 sm:mt-0')}>
-      {!!setQuery && placeholder && <Input className="bg-background w-full max-w-[350px] sm:w-64 text-[18px] lg:text-base" value={searchQuery}
-                            placeholder={placeholder}
-                            onChange={(e) => setSearchQuery(e.target.value)}/>}
+      {!!setQuery && placeholder &&
+        <Input className="bg-background w-full max-w-[350px] sm:w-64 text-[18px] lg:text-base" value={searchQuery}
+               placeholder={placeholder}
+               onChange={(e) => setSearchQuery(e.target.value)}/>}
       {addons && <div className="hidden lg:block">
         {addons}
       </div>}
       {getCsv && <Button variant="outline" className="hidden lg:block" onClick={downloadCsv}>
-          {
-            downloadCsvLoading ? <LoaderCircle className="animate-spin"/> : 'Export to CSV'
-          }
-        </Button>}
+        {
+          downloadCsvLoading ? <LoaderCircle className="animate-spin"/> : 'Export to CSV'
+        }
+      </Button>}
     </div>
   </CardHeader>
 }

@@ -1,16 +1,21 @@
 "use client";
 import {
-  IClientFullReport,
+  IClientFullReport, IClientReportCIDSharing,
   IClientReportReplicaDistribution,
   IClientReportStorageProviderDistribution
 } from "@/lib/interfaces/cdp/cdp.interface";
-import {createContext, PropsWithChildren, useContext, useMemo} from "react";
+import {createContext, CSSProperties, PropsWithChildren, useContext, useMemo, useState} from "react";
 import {calculateAverage, calculateMapScale} from "@/lib/utils";
 
 interface IReportsDetailsContext {
   reports: IClientFullReport[]
+  compareMode: boolean
+  toggleCompareMode: () => void
   providerDistributionList: IClientReportStorageProviderDistribution[][]
+  cidSharingList: IClientReportCIDSharing[][]
   replikasList: IClientReportReplicaDistribution[][]
+  colsStyle: CSSProperties
+  colsSpanStyle: CSSProperties
   mapsConstraints: {
     center: [number, number],
     scale: number
@@ -21,6 +26,12 @@ const ReportsDetailsContext = createContext<IReportsDetailsContext>({
   reports: [],
   providerDistributionList: [],
   replikasList: [],
+  colsStyle: {},
+  colsSpanStyle: {},
+  cidSharingList: [],
+  toggleCompareMode: () => {
+  },
+  compareMode: false,
   mapsConstraints: {
     center: [0, 0],
     scale: 200
@@ -29,12 +40,19 @@ const ReportsDetailsContext = createContext<IReportsDetailsContext>({
 
 const ReportsDetailsProvider = ({children, reports}: PropsWithChildren<{ reports: IClientFullReport[] }>) => {
 
+  const [compareMode, setCompareMode] = useState(false);
+
+
+  const toggleCompareMode = () => {
+    setCompareMode(!compareMode);
+  }
+
   const providerDistributionList = useMemo(() => {
     return reports.map(report => report.storage_provider_distribution)
   }, [reports])
 
   const mapsConstraints = useMemo(() => {
-    const locations = providerDistributionList.flatMap(providerList => providerList.map(provider => provider.location));
+    const locations = providerDistributionList.flatMap(providerList => providerList.filter(provider => !provider.not_found).map(provider => provider.location));
     const longitudes = locations.map(location => +location.loc.split(',')[0]);
     const latitudes = locations.map(location => +location.loc.split(',')[1]);
 
@@ -53,7 +71,30 @@ const ReportsDetailsProvider = ({children, reports}: PropsWithChildren<{ reports
     return reports.map(report => report.replica_distribution)
   }, [reports])
 
-  return <ReportsDetailsContext.Provider value={{reports, providerDistributionList, replikasList, mapsConstraints}}>
+  const cidSharingList = useMemo(() => {
+    return reports.map(report => report.cid_sharing)
+  }, [reports])
+
+  const colsStyle = useMemo(() => ({
+    gridTemplateColumns: `repeat(${reports.length}, minmax(0, 1fr))`
+  }), [reports])
+
+  const colsSpanStyle = useMemo(() => ({
+    gridColumn: `span ${reports.length} / span ${reports.length}`
+  }), [reports]);
+
+  return <ReportsDetailsContext.Provider
+    value={{
+      reports,
+      providerDistributionList,
+      replikasList,
+      colsStyle,
+      colsSpanStyle,
+      mapsConstraints,
+      compareMode,
+      cidSharingList,
+      toggleCompareMode
+    }}>
     {children}
   </ReportsDetailsContext.Provider>
 }
@@ -63,3 +104,4 @@ const useReportsDetails = () => {
 }
 
 export {ReportsDetailsProvider, useReportsDetails}
+

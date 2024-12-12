@@ -32,7 +32,7 @@ const ProvidersTable = () => {
                       }}
             >
               <TableCell>
-                <Link href={`/providers/${provider}`} className={cn(buttonVariants({variant: 'link'}))}>
+                <Link href={`/storage-providers/${provider}`} className={cn(buttonVariants({variant: 'link'}))}>
                   {provider}
                 </Link>
               </TableCell>

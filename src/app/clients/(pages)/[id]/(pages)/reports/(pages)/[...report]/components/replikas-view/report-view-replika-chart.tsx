@@ -7,10 +7,10 @@ import {palette} from "@/lib/utils";
 import React from "react";
 
 interface IReportViewReplicaChart {
-  replikasList: IClientReportReplicaDistribution[]
+  replikaData: IClientReportReplicaDistribution[]
 }
 
-const ReportViewReplicaChart = ({replikasList}: IReportViewReplicaChart) => {
+const ReportViewReplicaChart = ({replikaData}: IReportViewReplicaChart) => {
 
   return <div className="pt-4">
     <div className="w-full flex flex-col md:flex-row md:gap-2 items-center justify-center">
@@ -25,14 +25,14 @@ const ReportViewReplicaChart = ({replikasList}: IReportViewReplicaChart) => {
     </div>
     <ResponsiveContainer width={'100%'} maxHeight={800} aspect={1} debounce={50}>
       <BarChart
-        data={replikasList}
+        data={replikaData}
         margin={{ top: 0, right: 20, left: 20, bottom: 50 }}
       >
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey="num_of_replicas" />
         <YAxis tickFormatter={value => `${value} %`} />
         <Bar dataKey="percentage">
-          {replikasList.map((entry, index) => (
+          {replikaData.map((entry, index) => (
             <Cell key={`cell-${index}`} fill={palette(+(+entry.num_of_replicas <= 3))} />
           ))}
         </Bar>

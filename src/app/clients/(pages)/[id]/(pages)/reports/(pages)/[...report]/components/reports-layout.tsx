@@ -14,38 +14,52 @@ import {format} from "date-fns";
 import {
   ReportViewReplicas
 } from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/replikas-view/report-view-replikas";
+import {useScrollObserver} from "@/lib/hooks/useScrollObserver";
+import {cn} from "@/lib/utils";
+import {
+  ReportViewCidSharing
+} from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/cid-sharing-view/report-view-cid-sharing";
 
 const ReportsLayout = () => {
 
   const {
+    colsStyle,
     reports
   } = useReportsDetails()
 
-  const style = {
-    gridTemplateColumns: `repeat(${reports.length}, minmax(0, 1fr))`
-  }
+  const {
+    top, ref
+  } = useScrollObserver()
 
-  return <Card>
-    <GenericContentHeader
-      header="Report Detail"
-      sticky
-      addons={<EnableCompareButton/>}
-      fixedHeight={false}/>
-    <CardContent className="p-0">
-      <div className="grid border-b" style={style}>
-        {
-          reports.map((report, index) => {
-            return <div key={index} className="[&:not(:last-child)]:border-r-2 p-4">
-              Report <span className="font-semibold">{report.id}</span> from <span
-              className="font-semibold">{format(new Date(report.create_date), 'yyyy-MM-dd HH:mm')}</span>
-            </div>
-          })
-        }
-      </div>
-      <ReportViewProviders/>
-      <ReportViewReplicas/>
-    </CardContent>
-  </Card>
+  return <div className={cn(
+    reports.length > 2 ? 'mx-4' : 'main-content'
+  )}>
+    <Card>
+      <GenericContentHeader
+        header="Report Detail"
+        sticky
+        addons={reports.length >= 2 && <EnableCompareButton/>}
+        fixedHeight={true}/>
+      <CardContent className="p-0">
+        <div ref={ref} className={cn(
+          "grid border-b sticky top-[91px] bg-white z-10",
+          top === 91 && "shadow-md"
+        )} style={colsStyle}>
+          {
+            reports.map((report, index) => {
+              return <div key={index} className="[&:not(:last-child)]:border-r-2 p-4">
+                Report <span className="font-semibold">{report.id}</span> from <span
+                className="font-semibold">{format(new Date(report.create_date), 'yyyy-MM-dd HH:mm')}</span>
+              </div>
+            })
+          }
+        </div>
+        <ReportViewProviders/>
+        <ReportViewReplicas/>
+        <ReportViewCidSharing/>
+      </CardContent>
+    </Card>
+  </div>
 
 }
 

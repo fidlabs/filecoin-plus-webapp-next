@@ -8,14 +8,14 @@ import {ShieldCheckIcon, ShieldXIcon} from "lucide-react";
 import {useMemo} from "react";
 
 interface IReportViewReplicaHealth {
-  replikasList: IClientReportReplicaDistribution[]
+  replikaData: IClientReportReplicaDistribution[]
 }
 
-const ReportViewReplicaHealth = ({replikasList}: IReportViewReplicaHealth) => {
+const ReportViewReplicaHealth = ({replikaData}: IReportViewReplicaHealth) => {
 
   const healthCheck = useMemo(() => {
-    return replikasList.filter(item => +item.num_of_replicas < 4).reduce((acc, item) => acc + item.percentage, 0);
-  }, [replikasList])
+    return replikaData.filter(item => !item.not_found && +item.num_of_replicas < 4).reduce((acc, item) => acc + item.percentage, 0);
+  }, [replikaData])
 
   return <div className="p-4">
     <HoverCard>

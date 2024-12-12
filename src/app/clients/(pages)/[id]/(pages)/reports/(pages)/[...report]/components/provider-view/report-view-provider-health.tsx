@@ -16,10 +16,10 @@ const ReportViewProviderHealth = ({providerDistribution}: IReportViewProviderHea
 
   const stats = useMemo(() => {
     return {
-      totalSizeOver25Percent: providerDistribution.filter(item => item.total_deal_percentage > 25).length,
-      duplicatesOver20Percent: providerDistribution.filter(item => item.duplication_percentage > 20).length,
-      privateIdAddress: providerDistribution.filter(item => !item.location.ip).length,
-      missingRegions: providerDistribution.length - Object.keys(groupBy(providerDistribution.filter(item => !!item.location.region), item => item.location.region)).length,
+      totalSizeOver25Percent: providerDistribution.filter(item => !item.not_found && item.total_deal_percentage > 25).length,
+      duplicatesOver20Percent: providerDistribution.filter(item => !item.not_found && item.duplication_percentage > 20).length,
+      privateIdAddress: providerDistribution.filter(item => !item.not_found && !item.location.ip).length,
+      missingRegions: providerDistribution.length - Object.keys(groupBy(providerDistribution.filter(item => !item.not_found && !!item.location.region), item => item.location.region)).length,
     }
   }, [providerDistribution])
 

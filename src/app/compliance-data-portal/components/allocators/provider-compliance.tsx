@@ -29,9 +29,21 @@ const ProviderComplianceAllocator = ({setCurrentElement}: Props) => {
   }, [setCurrentElement, top]);
 
   return <ChartWrapper
-    title="Retrievability Score"
+    title="SPs Compliance"
     id="ProviderComplianceAllocator"
     selectedScale={selectedScale}
+    addons={[
+      {
+        name: 'What are the metrics',
+        size: 2,
+        value: <ul className="list-disc">
+          <p>Allocator is complaint when it&apos;s SPs:</p>
+          <li className="ml-4">Have retrievability score above average</li>
+          <li className="ml-4">Have at least 3 clients</li>
+          <li className="ml-4">Biggest client accounts for less than 30%</li>
+        </ul>
+      },
+    ]}
     setSelectedScale={setSelectedScale}
     additionalFilters={[<ThresholdSelector key="threshold" threshold={threshold} setThreshold={setThreshold}/>]}
     ref={ref}>

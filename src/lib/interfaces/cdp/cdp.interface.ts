@@ -44,14 +44,22 @@ export interface IClientReportHeader {
   organization_name: string
 }
 
+export type CompareType = "up" | "down" | "equal" | undefined
+
 export interface IClientReportStorageProviderDistribution {
+  not_found: boolean | undefined
   client_report_id: string
   provider: string
   total_deal_size: string
+  total_deal_size_compare: CompareType
   total_deal_percentage: number
+  total_deal_percentage_compare: CompareType
   unique_data_size: string
+  unique_data_size_compare: CompareType
   duplicated_data_size: number
+  duplicated_data_size_compare: CompareType
   duplication_percentage: number
+  duplication_percentage_compare: CompareType
   location: IClientReportLocation
 }
 
@@ -72,15 +80,22 @@ export interface IClientReportReplicaDistribution {
   client_report_id: string
   num_of_replicas: string
   total_deal_size: string
+  total_deal_size_compare: CompareType
   unique_data_size: string
+  unique_data_size_compare: CompareType
   percentage: number
+  percentage_compare: CompareType
+  not_found: boolean | undefined
 }
 
 export interface IClientReportCIDSharing {
+  not_found: boolean | undefined
   client: string
   other_client: string
   total_deal_size: string
+  total_deal_size_compare: CompareType
   unique_cid_count: number
+  unique_cid_count_compare: CompareType
 }
 
 export interface IClientFullReport extends IClientReportHeader {

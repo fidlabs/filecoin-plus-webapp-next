@@ -14,7 +14,8 @@ const ClientDetailsPage = () => {
     csvHeaders
   } = useDataCapClaimsColumns();
 
-  return <Card>
+  return <div className="main-content">
+    <Card>
       <GenericContentHeader placeholder="Storage Provider ID"
                             sticky
                             fixedHeight={false}
@@ -39,6 +40,7 @@ const ClientDetailsPage = () => {
         {data && <DataTable columns={columns} data={data!.data}/>}
       </CardContent>
     </Card>
+  </div>
 
 }
 

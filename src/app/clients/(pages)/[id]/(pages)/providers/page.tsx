@@ -19,13 +19,14 @@ const ClientProviderBreakdownPage = () => {
 
   const isDesktop = useMediaQuery('(min-width: 768px)');
 
-  return <Card>
+  return <div className="main-content">
+    <Card>
       <GenericContentHeader placeholder="Storage Provider ID"
                             sticky
                             navigation={tabs}
                             selected="providers"
                             fixedHeight={false}
-                            />
+      />
       <CardContent className="p-0">
         {
           loading && !providersData && <div className="p-10 w-full flex flex-col items-center justify-center">
@@ -61,6 +62,7 @@ const ClientProviderBreakdownPage = () => {
         }
       </CardContent>
     </Card>
+  </div>
 }
 
 export default ClientProviderBreakdownPage
