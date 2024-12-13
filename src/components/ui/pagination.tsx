@@ -18,6 +18,7 @@ interface PaginatorProps {
 interface InfinitePaginatorProps {
   page: number
   perPage: number
+  currentElements: number,
   paginationSteps?: string[]
   patchParams: (params: Partial<IApiQuery>) => void
 }
@@ -123,12 +124,14 @@ const Paginator = ({
 }
 
 const InfinitePaginator = ({
-                     page, patchParams, perPage, paginationSteps
-                   }: InfinitePaginatorProps) => {
+                             page, patchParams, perPage, paginationSteps,
+                             currentElements
+                           }: InfinitePaginatorProps) => {
 
   const startPage = 1
 
   const canGoBack = useMemo(() => page > startPage, [page, startPage]);
+  const canGoNext = useMemo(() => currentElements >= perPage, [currentElements, perPage]);
 
   return <div className="flex w-full justify-between">
     <Pagination>
@@ -143,7 +146,8 @@ const InfinitePaginator = ({
             {page}
           </PaginationLink>
         </PaginationItem>
-        <PaginationItem onClick={() => patchParams({
+        <PaginationItem className={cn(!canGoNext && 'pointer-events-none')}
+                        onClick={() => patchParams({
           page: (page + 1).toString()
         })}>
           <PaginationNext/>

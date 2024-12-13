@@ -46,7 +46,9 @@ const ClientDetailsPage = () => {
         }
         {data && <DataTable columns={columns} data={data!.data}/>}
       </CardContent>
-      <GenericContentFooter page={params?.page} limit={params?.limit}
+      <GenericContentFooter page={params?.page}
+                            currentElements={data?.data.length || 0}
+                            limit={params?.limit}
                             paginationSteps={['15', '25', '50']}
                             patchParams={patchParams}/>
     </Card>

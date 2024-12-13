@@ -163,6 +163,7 @@ const GenericContentHeader = ({
 
 interface GenericContentFooterProps {
   total?: string,
+  currentElements?: number,
   limit?: string,
   page?: string,
   paginationSteps?: string[]
@@ -171,6 +172,7 @@ interface GenericContentFooterProps {
 
 const GenericContentFooter = ({
                                 total, patchParams, limit, page,
+                                currentElements,
                                 paginationSteps = ['10', '15', '25']
                               }: GenericContentFooterProps) => {
 
@@ -182,6 +184,7 @@ const GenericContentFooter = ({
                 paginationSteps={paginationSteps}
                 patchParams={patchParams}/>}
     {!total && <InfinitePaginator page={+page} perPage={+limit}
+                currentElements={currentElements}
                 paginationSteps={paginationSteps}
                 patchParams={patchParams}/>}
   </CardFooter>
