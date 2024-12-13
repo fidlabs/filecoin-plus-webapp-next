@@ -184,7 +184,7 @@ const GenericContentFooter = ({
                 paginationSteps={paginationSteps}
                 patchParams={patchParams}/>}
     {!total && <InfinitePaginator page={+page} perPage={+limit}
-                currentElements={currentElements}
+                currentElements={currentElements ?? 0}
                 paginationSteps={paginationSteps}
                 patchParams={patchParams}/>}
   </CardFooter>
