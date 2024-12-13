@@ -32,8 +32,16 @@ export interface IAllocatorSPSComplainceResult {
 }
 
 export interface IAllocatorSPSComplianceRange {
-  scoreRange: number
-  histogram: ICDPHistogram
+  week: string
+  allocators: IAllocatorSPSComplianceAllocator[]
+  total: number
+}
+
+export interface IAllocatorSPSComplianceAllocator {
+  id: string
+  compliantSpsPercentage?: number
+  partiallyCompliantSpsPercentage?: number
+  nonCompliantSpsPercentage?: number
 }
 
 export interface IClientReportHeader {

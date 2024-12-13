@@ -5,8 +5,9 @@ import {
   ICDPHistogramResult,
   ICDPUnifiedHistogram
 } from "@/lib/interfaces/cdp/cdp.interface";
-import {difference} from "lodash";
 import {format} from "date-fns";
+
+type AllocatorSPSComplianceMetric = 'compliant' | 'partiallyCompliant' | 'nonCompliant';
 
 const CDP_API = `https://cdp.allocator.tech`;
 
@@ -134,7 +135,7 @@ const useAllocatorBiggestDeal = () => {
 
 const useAllocatorSPSComplaince = (threshold: number) => {
   const fetchData = async () => {
-    const response = await fetch(`${CDP_API}/stats/acc/allocators/sps-compliance`);
+    const response = await fetch(`${CDP_API}/stats/acc/allocators/sps-compliance-data`);
     return await response.json() as IAllocatorSPSComplainceResult
   };
 
@@ -161,33 +162,29 @@ const useAllocatorSPSComplaince = (threshold: number) => {
       compliantName: string
     }[];
 
-    const nonCompliantMetric = data?.results[0]?.histogram?.results;
-    const compliantMetric = data?.results[2]?.histogram?.results;
-    const partiallyCompliantMetric = data?.results[1]?.histogram?.results;
-    const weeks = nonCompliantMetric.map(item => item.week)?.sort((a, b) => (new Date(a)).getTime() - (new Date(b)).getTime());
-
-    const differedWeeks = difference(weeks, compliantMetric.map(item => item.week), partiallyCompliantMetric.map(item => item.week));
-
-    if (differedWeeks.length) {
-      console.error('/stats/acc/allocators/sps-compliance - Weeks are not equal');
-      return []
-    }
+    const weeks = data.results.map(item => item.week)?.sort((a, b) => (new Date(a)).getTime() - (new Date(b)).getTime());
 
     for (const week of weeks) {
-      const nonCompliant = nonCompliantMetric.find(item => item.week === week);
-      const nonCompliantCount = nonCompliant?.total || 0;
-      const partiallyCompliant = partiallyCompliantMetric.find(item => item.week === week);
-      const partiallyCompliantCount = partiallyCompliant?.results?.filter(item => item.valueFromExclusive >= threshold)?.reduce((acc, item) => acc + item.count, 0) || 0;
-      const compliant = compliantMetric.find(item => item.week === week);
-      const compliantCount = compliant?.results?.filter(item => item.valueFromExclusive >= threshold)?.reduce((acc, item) => acc + item.count, 0) || 0;
+
+      const allocatorComplaincy = data.results.find(item => item.week === week)?.allocators.map(allocator => {
+        const compliantSpsPercentage = allocator.compliantSpsPercentage ?? 0
+        const partiallyCompliantSpsPercentage = allocator.partiallyCompliantSpsPercentage ?? 0
+        if ((compliantSpsPercentage) >= threshold) {
+          return 'compliant' as AllocatorSPSComplianceMetric;
+        } else if ((partiallyCompliantSpsPercentage + compliantSpsPercentage) >= threshold) {
+          return 'partiallyCompliant' as AllocatorSPSComplianceMetric;
+        } else {
+          return 'nonCompliant' as AllocatorSPSComplianceMetric;
+        }
+      }) ?? [];
 
       chartData.push({
         name: `w${format(new Date(week), 'ww yyyy')}`,
-        nonCompliant: nonCompliantCount - partiallyCompliantCount - compliantCount,
+        nonCompliant: allocatorComplaincy.filter(item => item === 'nonCompliant').length,
         nonCompliantName: 'Non compliant',
-        partiallyCompliant: partiallyCompliantCount,
+        partiallyCompliant: allocatorComplaincy.filter(item => item === 'partiallyCompliant').length,
         partiallyCompliantName: 'Partially compliant',
-        compliant: compliantCount,
+        compliant: allocatorComplaincy.filter(item => item === 'compliant').length,
         compliantName: 'Compliant',
       });
     }

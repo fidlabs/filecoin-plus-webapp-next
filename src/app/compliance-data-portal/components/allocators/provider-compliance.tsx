@@ -47,7 +47,7 @@ const ProviderComplianceAllocator = ({setCurrentElement}: Props) => {
     setSelectedScale={setSelectedScale}
     additionalFilters={[<ThresholdSelector key="threshold" threshold={threshold} setThreshold={setThreshold}/>]}
     ref={ref}>
-    <StackedBarGraph customPalette={gradientPalette('#FF5722', '#4CAF50', 3)} data={chartData} scale={scale} isLoading={isLoading} unit="provider"/>
+    <StackedBarGraph customPalette={gradientPalette('#FF5722', '#4CAF50', 3)} data={chartData} scale={scale} isLoading={isLoading} unit="allocator"/>
   </ChartWrapper>
 
 }

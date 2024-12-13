@@ -1,6 +1,6 @@
 "use client"
 import {Card, CardContent} from "@/components/ui/card";
-import {GenericContentHeader} from "@/components/generic-content-view";
+import {GenericContentFooter, GenericContentHeader} from "@/components/generic-content-view";
 import {getClients} from "@/lib/api";
 import {LoaderCircle} from "lucide-react";
 import {DataTable} from "@/components/ui/data-table";
@@ -8,7 +8,7 @@ import {useDataCapClaimsColumns} from "@/app/clients/(pages)/[id]/components/use
 import {useClientDetails} from "@/app/clients/(pages)/[id]/components/client.provider";
 
 const ClientDetailsPage = () => {
-  const {data, tabs, loading} = useClientDetails()
+  const {data, tabs, loading, params, patchParams} = useClientDetails()
   const {
     columns,
     csvHeaders
@@ -20,7 +20,14 @@ const ClientDetailsPage = () => {
                             sticky
                             fixedHeight={false}
                             navigation={tabs}
+                            query={params?.filter}
                             selected="list"
+                            setQuery={(filter: string) => patchParams({
+                              page: '1',
+                              limit: '15',
+                              sort: `[["createdAt", 0]]`,
+                              filter
+                            })}
                             getCsv={{
                               method: async () => {
                                 const data = await getClients()
@@ -39,6 +46,9 @@ const ClientDetailsPage = () => {
         }
         {data && <DataTable columns={columns} data={data!.data}/>}
       </CardContent>
+      <GenericContentFooter page={params?.page} limit={params?.limit}
+                            paginationSteps={['15', '25', '50']}
+                            patchParams={patchParams}/>
     </Card>
   </div>
 

@@ -15,6 +15,13 @@ interface PaginatorProps {
   patchParams: (params: Partial<IApiQuery>) => void
 }
 
+interface InfinitePaginatorProps {
+  page: number
+  perPage: number
+  paginationSteps?: string[]
+  patchParams: (params: Partial<IApiQuery>) => void
+}
+
 const Paginator = ({
                      page, patchParams, perPage, total, paginationSteps
                    }: PaginatorProps) => {
@@ -96,6 +103,47 @@ const Paginator = ({
           </PaginationItem>
         }
         <PaginationItem className={cn(!canGoForward && 'pointer-events-none')} onClick={() => patchParams({
+          page: (page + 1).toString()
+        })}>
+          <PaginationNext/>
+        </PaginationItem>
+      </PaginationContent>
+    </Pagination>
+    <div className="flex gap-2 font-semibold items-center text-muted-foreground">
+      <p className="hidden md:block">View</p>
+      <Select value={perPage.toString()} onValueChange={(val) => patchParams({limit: val, page: '1'})}>
+        <SelectTrigger className="bg-background">{perPage}</SelectTrigger>
+        <SelectContent>
+          {paginationSteps?.map((step) => (<SelectItem key={step} value={step}>{step}</SelectItem>))}
+        </SelectContent>
+      </Select>
+      <p className="hidden md:block">items per page</p>
+    </div>
+  </div>
+}
+
+const InfinitePaginator = ({
+                     page, patchParams, perPage, paginationSteps
+                   }: InfinitePaginatorProps) => {
+
+  const startPage = 1
+
+  const canGoBack = useMemo(() => page > startPage, [page, startPage]);
+
+  return <div className="flex w-full justify-between">
+    <Pagination>
+      <PaginationContent>
+        <PaginationItem className={cn(!canGoBack && 'pointer-events-none')}
+                        onClick={() => patchParams({page: (page - 1).toString()})}>
+          <PaginationPrevious/>
+        </PaginationItem>
+        <PaginationItem
+          className="pointer-events-none">
+          <PaginationLink isActive>
+            {page}
+          </PaginationLink>
+        </PaginationItem>
+        <PaginationItem onClick={() => patchParams({
           page: (page + 1).toString()
         })}>
           <PaginationNext/>
@@ -218,4 +266,5 @@ PaginationEllipsis.displayName = "PaginationEllipsis"
 
 export {
   Paginator,
+  InfinitePaginator,
 }

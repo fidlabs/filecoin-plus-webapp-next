@@ -3,7 +3,7 @@ import {CardFooter, CardHeader} from "@/components/ui/card";
 import {Input} from "@/components/ui/input";
 import {Button, buttonVariants} from "@/components/ui/button";
 import {ReactNode, RefObject, useCallback, useEffect, useState} from "react";
-import {Paginator} from "@/components/ui/pagination";
+import {Paginator, InfinitePaginator} from "@/components/ui/pagination";
 import {IApiQuery} from "@/lib/interfaces/api.interface";
 import {ChevronRight, DownloadIcon, LoaderCircle, MenuIcon} from "lucide-react";
 import {cn} from "@/lib/utils";
@@ -162,7 +162,7 @@ const GenericContentHeader = ({
 }
 
 interface GenericContentFooterProps {
-  total: string,
+  total?: string,
   limit?: string,
   page?: string,
   paginationSteps?: string[]
@@ -174,13 +174,16 @@ const GenericContentFooter = ({
                                 paginationSteps = ['10', '15', '25']
                               }: GenericContentFooterProps) => {
 
-  if (!total || !limit || !page) {
+  if (!limit || !page) {
     return <></>
   }
   return <CardFooter className="border-t w-full p-3">
-    <Paginator page={+page} perPage={+limit} total={+total}
-               paginationSteps={paginationSteps}
-               patchParams={patchParams}/>
+    {total && <Paginator page={+page} perPage={+limit} total={+total}
+                paginationSteps={paginationSteps}
+                patchParams={patchParams}/>}
+    {!total && <InfinitePaginator page={+page} perPage={+limit}
+                paginationSteps={paginationSteps}
+                patchParams={patchParams}/>}
   </CardFooter>
 }
 
