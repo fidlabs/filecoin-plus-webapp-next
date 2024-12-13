@@ -14,19 +14,24 @@ interface Props {
 const ProviderComplianceAllocator = ({setCurrentElement}: Props) => {
 
   const [threshold, setThreshold] = useState(50)
+  const [usePercentage, setUsePercentage] = useState(false);
 
   const {
     chartData, isLoading
-  } = useAllocatorSPSComplaince(threshold)
+  } = useAllocatorSPSComplaince(threshold, usePercentage)
 
   const {top, ref} = useScrollObserver()
-  const {scale, selectedScale, setSelectedScale} = useChartScale(10)
+  const {scale, selectedScale, calcPercentage, setSelectedScale} = useChartScale(10)
 
   useEffect(() => {
     if (top > 0 && top < 300) {
       setCurrentElement('ProviderComplianceAllocator');
     }
   }, [setCurrentElement, top]);
+
+  useEffect(() => {
+    setUsePercentage(calcPercentage);
+  }, [calcPercentage]);
 
   return <ChartWrapper
     title="SPs Compliance"
@@ -47,7 +52,7 @@ const ProviderComplianceAllocator = ({setCurrentElement}: Props) => {
     setSelectedScale={setSelectedScale}
     additionalFilters={[<ThresholdSelector key="threshold" threshold={threshold} setThreshold={setThreshold}/>]}
     ref={ref}>
-    <StackedBarGraph customPalette={gradientPalette('#FF5722', '#4CAF50', 3)} data={chartData} scale={scale} isLoading={isLoading} unit="allocator"/>
+    <StackedBarGraph customPalette={gradientPalette('#FF5722', '#4CAF50', 3)} usePercentage={usePercentage} data={chartData} scale={scale} isLoading={isLoading} unit="allocator"/>
   </ChartWrapper>
 
 }

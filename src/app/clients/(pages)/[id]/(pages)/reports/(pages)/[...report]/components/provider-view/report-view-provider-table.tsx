@@ -159,7 +159,7 @@ const ReportViewProviderTable = ({providerDistribution}: IReportViewProviderMapP
     return selection
   }, [providerDistribution, compareMode])
 
-  return <div className="border-b border-t">
+  return <div className="border-b border-t table-select-warning">
     <DataTable columns={columns} data={providerDistribution} rowSelection={rowSelection}/>
   </div>
 }

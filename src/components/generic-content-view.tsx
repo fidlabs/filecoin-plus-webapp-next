@@ -101,11 +101,11 @@ const GenericContentHeader = ({
 
   return <CardHeader
     ref={ref as RefObject<HTMLDivElement>}
-    className={cn("border-b items-center block sm:flex flex-wrap gap-3 p-3",
+    className={cn("border-b items-center block sm:flex flex-wrap gap-3 p-3 rounded-t-lg",
       fixedHeight && 'min-h-[91px]',
       !setQuery && 'flex w-full justify-between',
-      sticky && 'sticky top-0 z-10 transition-colors duration-0',
-      sticky && top === 0 && 'bg-white'
+      sticky && 'sticky top-[-1px] z-10 bg-white',
+      sticky && top === -1 && 'rounded-t-none'
     )}>
     <div className="flex w-full lg:w-auto justify-between items-center">
       {header && header}

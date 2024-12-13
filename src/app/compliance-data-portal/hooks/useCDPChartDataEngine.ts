@@ -1,10 +1,10 @@
 import {useScrollObserver} from "@/lib/hooks/useScrollObserver";
 import useWeeklyChartData from "@/app/compliance-data-portal/hooks/useWeeklyChartData";
 import {useChartScale} from "@/lib/hooks/useChartScale";
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 import {ICDPUnifiedHistogram} from "@/lib/interfaces/cdp/cdp.interface";
 
-type FetchMethod = () => {
+type FetchMethod = (param?: boolean) => {
   data: ICDPUnifiedHistogram | undefined;
   isLoading: boolean;
 }
@@ -19,6 +19,8 @@ interface ChartEngineOptions {
 
 const useCDPChartDataEngine = ({fetchMethod, paletteDirection = 'asc', unit, id, setCurrentElement}: ChartEngineOptions) => {
 
+  const [usePercentage, setUsePercentage] = useState(false);
+
   const {
     data, isLoading
   } = fetchMethod()
@@ -27,15 +29,21 @@ const useCDPChartDataEngine = ({fetchMethod, paletteDirection = 'asc', unit, id,
   const {chartData, currentTab, setCurrentTab, tabs, minValue, palette} = useWeeklyChartData({
     data: data?.buckets,
     unit,
-    paletteDirection
+    paletteDirection,
+    usePercentage
   })
-  const {scale, selectedScale, setSelectedScale} = useChartScale(minValue)
+
+  const {scale, calcPercentage, selectedScale, setSelectedScale} = useChartScale(minValue)
 
   useEffect(() => {
     if (top > 0 && top < 300) {
       setCurrentElement(id);
     }
   }, [id, setCurrentElement, top]);
+
+  useEffect(() => {
+    setUsePercentage(calcPercentage);
+  }, [calcPercentage]);
 
   return {
     chartData,
@@ -45,6 +53,8 @@ const useCDPChartDataEngine = ({fetchMethod, paletteDirection = 'asc', unit, id,
     selectedScale,
     setSelectedScale,
     scale,
+    usePercentage,
+    calcPercentage,
     ref,
     isLoading: isLoading || !data,
     data,

@@ -101,7 +101,7 @@ const ReportViewCidSharingTable = ({cidSharingData}: IReportViewCidSharingTable)
   }, [cidSharingData, compareMode])
 
 
-  return <div className="border-b border-t">
+  return <div className="border-b border-t table-select-warning">
     <DataTable columns={columns} data={cidSharingData} rowSelection={rowSelection}/>
   </div>
 }

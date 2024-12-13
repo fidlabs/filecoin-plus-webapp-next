@@ -133,7 +133,7 @@ const useAllocatorBiggestDeal = () => {
   };
 };
 
-const useAllocatorSPSComplaince = (threshold: number) => {
+const useAllocatorSPSComplaince = (threshold: number, usePercentage?: boolean) => {
   const fetchData = async () => {
     const response = await fetch(`${CDP_API}/stats/acc/allocators/sps-compliance-data`);
     return await response.json() as IAllocatorSPSComplainceResult
@@ -166,6 +166,11 @@ const useAllocatorSPSComplaince = (threshold: number) => {
 
     for (const week of weeks) {
 
+      const total = data.results.find(item => item.week === week)?.total ?? 0;
+      const modifier = (val: number) => {
+        return usePercentage ? val / total * 100 : val;
+      }
+
       const allocatorComplaincy = data.results.find(item => item.week === week)?.allocators.map(allocator => {
         const compliantSpsPercentage = allocator.compliantSpsPercentage ?? 0
         const partiallyCompliantSpsPercentage = allocator.partiallyCompliantSpsPercentage ?? 0
@@ -180,18 +185,18 @@ const useAllocatorSPSComplaince = (threshold: number) => {
 
       chartData.push({
         name: `w${format(new Date(week), 'ww yyyy')}`,
-        nonCompliant: allocatorComplaincy.filter(item => item === 'nonCompliant').length,
+        nonCompliant: modifier(allocatorComplaincy.filter(item => item === 'nonCompliant').length),
         nonCompliantName: 'Non compliant',
-        partiallyCompliant: allocatorComplaincy.filter(item => item === 'partiallyCompliant').length,
+        partiallyCompliant: modifier(allocatorComplaincy.filter(item => item === 'partiallyCompliant').length),
         partiallyCompliantName: 'Partially compliant',
-        compliant: allocatorComplaincy.filter(item => item === 'compliant').length,
+        compliant: modifier(allocatorComplaincy.filter(item => item === 'compliant').length),
         compliantName: 'Compliant',
       });
     }
 
 
     return chartData;
-  }, [data, isLoading, threshold]);
+  }, [data, isLoading, threshold, usePercentage]);
 
   return {
     chartData,

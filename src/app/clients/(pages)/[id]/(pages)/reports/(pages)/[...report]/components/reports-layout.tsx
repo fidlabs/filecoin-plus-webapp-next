@@ -42,8 +42,8 @@ const ReportsLayout = () => {
         fixedHeight={true}/>
       <CardContent className="p-0">
         <div ref={ref} className={cn(
-          "grid border-b sticky top-[91px] bg-white z-10",
-          top === 91 && "shadow-md"
+          "grid border-b sticky top-[90px] bg-white z-10",
+          top === 90 && "shadow-md"
         )} style={colsStyle}>
           {
             reports.map((report, index) => {

@@ -6,7 +6,7 @@ interface Props {
 }
 
 const ScaleSelector = ({selectedScale, setSelectedScale}: Props) => {
-    return <TabsSelector tabs={['log', 'linear']} currentTab={selectedScale} setCurrentTab={setSelectedScale}/>
+    return <TabsSelector tabs={['log', 'linear', 'percent']} currentTab={selectedScale} setCurrentTab={setSelectedScale}/>
 }
 
 export {ScaleSelector}

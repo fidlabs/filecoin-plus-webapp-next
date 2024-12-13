@@ -119,7 +119,7 @@ const ReportViewReplicaTable = ({replikaData}: IReportViewReplicaTable) => {
   }, [replikaData, compareMode])
 
 
-  return <div className="border-b border-t">
+  return <div className="border-b border-t table-select-warning">
     <DataTable columns={columns} data={replikaData} rowSelection={rowSelection}/>
   </div>
 }

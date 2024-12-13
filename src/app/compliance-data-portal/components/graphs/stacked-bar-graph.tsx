@@ -13,9 +13,10 @@ interface Props {
   isLoading: boolean,
   unit?: string,
   customPalette?: string[]
+  usePercentage?: boolean
 }
 
-const StackedBarGraph = ({data, scale = 'linear', isLoading, customPalette, unit = ''}: Props) => {
+const StackedBarGraph = ({data, scale = 'linear', isLoading, customPalette, usePercentage, unit = ''}: Props) => {
 
   const renderTooltip = (props: TooltipProps<ValueType, NameType>) => {
     const payload = props?.payload?.[0]?.payload;
@@ -38,7 +39,8 @@ const StackedBarGraph = ({data, scale = 'linear', isLoading, customPalette, unit
             }
             const name = payload[`group${index}Name`] ?? payload[`${key}Name`] ?? key;
             return <div key={key} className="chartTooltipRow">
-              <div style={{color}}>{name} - {value} {unit}{value > 1 && 's'}</div>
+              {!usePercentage && <div style={{color}}>{name} - {value} {unit}{value > 1 && 's'}</div>}
+              {usePercentage && <div style={{color}}>{name} - {value.toFixed(2)}% of {unit}s</div>}
             </div>
           })
         }</CardContent>
@@ -73,7 +75,6 @@ const StackedBarGraph = ({data, scale = 'linear', isLoading, customPalette, unit
     </div>
   }
 
-
   return <div>
     <ResponsiveContainer width="100%" aspect={3 / 2} debounce={500}>
       <BarChart
@@ -84,7 +85,7 @@ const StackedBarGraph = ({data, scale = 'linear', isLoading, customPalette, unit
         <Tooltip content={renderTooltip}/>
         <XAxis dataKey="name" angle={data.length > 6 ? 90 : 0} interval={0} minTickGap={0}
                tick={data.length > 6 ? <CustomizedAxisTick/> : true}/>
-        <YAxis domain={[0, parseDataMax]} scale={scale}/>
+        <YAxis domain={[0, usePercentage ? 100 : parseDataMax]} scale={usePercentage ? 'linear' : scale}/>
         <Tooltip/>
         {dataKeys.map((key, index) => <Bar key={key} dataKey={key}
                                            stackId="a" fill={customPalette ? customPalette[index % customPalette.length ]  : palette(index)}/>)}
