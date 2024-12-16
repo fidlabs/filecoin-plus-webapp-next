@@ -1,11 +1,13 @@
 "use client";
 import {useStats} from "@/lib/hooks/dmob.hooks";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
-import {Cell, Pie, PieChart, ResponsiveContainer} from "recharts";
+import {Cell, Pie, PieChart, ResponsiveContainer, Tooltip, TooltipProps} from "recharts";
 import React, {memo, useMemo, useState} from "react";
-import {convertBytesToIEC, palette} from "@/lib/utils";
+import {calculateDateFromHeight, convertBytesToIEC, palette} from "@/lib/utils";
 import {ActiveShapeSimple} from "@/components/ui/pie-active-shape";
 import {PieSectorDataItem} from "recharts/types/polar/Pie";
+import {NameType, ValueType} from "recharts/types/component/DefaultTooltipContent";
+import {IClient} from "@/lib/interfaces/dmob/client.interface";
 
 
 const Component = () => {
@@ -14,6 +16,27 @@ const Component = () => {
   } = useStats()
 
   const [chartDataParsing, setChartDataParsing] = useState(true);
+
+  const renderTooltip = (props: TooltipProps<ValueType, NameType>) => {
+    const payload = props?.payload?.[0]?.payload
+    if (!payload) {
+      return <></>
+    }
+    const {name, value} = payload;
+
+    return (<Card key={props?.payload?.length}>
+      <CardHeader className="flex flex-col items-start gap-1">
+        <CardTitle>
+          {name}
+        </CardTitle>
+        <CardTitle>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="flex flex-col items-start gap-1">
+        {convertBytesToIEC(value)}
+      </CardContent>
+    </Card>);
+  };
 
   const chartData = useMemo(() => {
     if (!data) {
@@ -81,6 +104,7 @@ const Component = () => {
               <Cell key={`cell-${index}`} fill={index === 0 ? palette(index) : '#E7E7E7'}/>
             ))}
           </Pie>
+          <Tooltip content={renderTooltip}/>
         </PieChart>
       </ResponsiveContainer>}
       {chartData && <div className="w-full flex flex-col gap-4">
