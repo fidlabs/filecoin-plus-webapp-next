@@ -11,7 +11,7 @@ export default async function Home() {
         <PageTitle>State of Fil+</PageTitle>
         <PageSubTitle>Quick statistics and metrics about the Filecoin Plus program.</PageSubTitle>
       </PageHeader>
-      <div className="flex flex-col gap-4 w-full">
+      <div className="flex flex-col gap-6 w-full">
         <Stats/>
         <Charts/>
         <DatacapFlow/>
