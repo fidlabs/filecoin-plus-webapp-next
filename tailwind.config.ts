@@ -73,7 +73,8 @@ const config: Config = {
   			'structure-inset': 'inset 0px 0px 0px 1px rgba(66, 68, 90, 1);',
   		},
   		backgroundImage: {
-  			header: 'linear-gradient(268deg, var(--color-dodger-blue) 0%, var(--color-dodger-blue) 100%)'
+  			// header: 'linear-gradient(268deg, var(--color-dodger-blue) 0%, var(--color-link) 100%)'
+  			header: 'linear-gradient(268deg, var(--color-link) 0%, var(--color-link) 100%)'
   		},
   		keyframes: {
   			'accordion-down': {
