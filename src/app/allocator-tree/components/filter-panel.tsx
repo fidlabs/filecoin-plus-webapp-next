@@ -7,13 +7,17 @@ import {Button} from "@/components/ui/button";
 import {SearchIcon} from "lucide-react";
 import dynamic from "next/dynamic";
 import {useState} from "react";
+import {Tabs} from "@radix-ui/react-tabs";
+import {TabsList, TabsTrigger} from "@/components/ui/tabs";
 
 interface SearchPanelProps {
   search: string
   onSearchChange: (search: string) => void
+  tab: string
+  setTab: (tab: string) => void
 }
 
-const Component = ({search, onSearchChange}: SearchPanelProps) => {
+const Component = ({search, onSearchChange, tab, setTab}: SearchPanelProps) => {
   const isDesktop = useMediaQuery("(min-width: 768px)")
   const [drawerOpened, setDrawerOpened] = useState(false)
 
@@ -26,6 +30,15 @@ const Component = ({search, onSearchChange}: SearchPanelProps) => {
       </CardHeader>
       <CardContent>
         <Input placeholder={'Search for allocator'} value={search} onChange={(e) => onSearchChange(e.target.value)}/>
+        <div className="mt-4">
+          <Tabs value={tab} className="w-full" onValueChange={setTab}>
+            <TabsList>
+              <TabsTrigger className="min-w-[80px]" value="all">All</TabsTrigger>
+              <TabsTrigger className="min-w-[80px]" value="active">Active</TabsTrigger>
+              <TabsTrigger className="min-w-[80px]" value="inactive">Inactive</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
       </CardContent>
     </Card> : <Drawer open={drawerOpened} onOpenChange={setDrawerOpened}>
       <DrawerTrigger asChild>
@@ -46,6 +59,15 @@ const Component = ({search, onSearchChange}: SearchPanelProps) => {
               onKeyDown={(e) => e.key === 'Enter' && setDrawerOpened(false)}
               value={search}
               onChange={(e) => onSearchChange(e.target.value)}/>
+            <div className="mt-4">
+              <Tabs value={tab} className="w-full" onValueChange={setTab}>
+                <TabsList className="w-full">
+                  <TabsTrigger className="flex-1" value="all">All</TabsTrigger>
+                  <TabsTrigger className="flex-1" value="active">Active</TabsTrigger>
+                  <TabsTrigger className="flex-1" value="inactive">Inactive</TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </div>
           </CardContent>
         </Card>
       </DrawerContent>
@@ -54,6 +76,6 @@ const Component = ({search, onSearchChange}: SearchPanelProps) => {
   </Panel>
 }
 
-const SearchPanel = dynamic(() => Promise.resolve(Component), {ssr: false})
+const FilterPanel = dynamic(() => Promise.resolve(Component), {ssr: false})
 
-export {SearchPanel}
+export {FilterPanel}
