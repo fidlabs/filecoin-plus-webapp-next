@@ -21,7 +21,7 @@ const Component = ({search, onSearchChange}: SearchPanelProps) => {
     {isDesktop ? <Card>
       <CardHeader>
         <CardTitle>
-          Search for allocator
+          Search for Allocator
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -37,7 +37,7 @@ const Component = ({search, onSearchChange}: SearchPanelProps) => {
         <Card className="shadow-none">
           <CardHeader>
             <CardTitle>
-              Search for allocator
+              Search for Allocator
             </CardTitle>
           </CardHeader>
           <CardContent>

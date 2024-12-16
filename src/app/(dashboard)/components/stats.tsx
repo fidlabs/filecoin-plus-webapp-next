@@ -40,7 +40,7 @@ const Component = async () => {
     </Card>
     <Card>
       <CardHeader>
-        <CardTitle>Number of clients Served</CardTitle>
+        <CardTitle>Number of Clients Served</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="w-full flex justify-between">
