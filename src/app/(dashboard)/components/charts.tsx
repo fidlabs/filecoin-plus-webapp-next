@@ -4,7 +4,7 @@ import {DatacapAllocationWeeklyChart} from "@/app/(dashboard)/components/datacap
 import {DataCapOverTimeChart} from "@/app/(dashboard)/components/datacap-over-time-chart";
 
 const Component = () => {
-  return <div className="w-full grid grid-cols-1 lg:grid-cols-3 gap-4 content-evenly">
+  return <div className="w-full grid grid-cols-1 lg:grid-cols-3 gap-6 content-evenly">
     <Suspense>
       <DatacapAllocationChart/>
     </Suspense>
