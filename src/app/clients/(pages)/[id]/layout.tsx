@@ -11,8 +11,9 @@ import {ResponsiveView} from "@/components/ui/responsive-view";
 const fetchData = cache(async (id: string) => {
   return await getClientById(id, {
     page: '1',
-    limit: '50',
-    sort: `[["createdAt", 0]]`
+    limit: '15',
+    sort: `[["createdAt", 0]]`,
+    filter: ''
   })
 });
 
@@ -47,9 +48,8 @@ export async function generateMetadata(
 const ClientDetailsLayout = async ({children, params}: PropsWithChildren<IPageProps>) => {
   const clientResponse = await fetchData(params.id)
 
-  return <main className="main-content">
-    <ClientProvider id={params.id} initialData={clientResponse}>
-      <div className="flex w-full justify-between mb-4">
+  return <ClientProvider id={params.id} initialData={clientResponse}>
+      <div className="flex w-full justify-between mb-4 main-content">
         <PageHeader>
           <PageTitle>
             {clientResponse?.name}
@@ -81,7 +81,6 @@ const ClientDetailsLayout = async ({children, params}: PropsWithChildren<IPagePr
         {children}
       </Suspense>
     </ClientProvider>
-  </main>
 }
 
 export default ClientDetailsLayout;

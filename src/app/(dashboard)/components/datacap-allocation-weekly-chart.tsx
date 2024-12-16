@@ -2,12 +2,12 @@
 import {useDataCapAllocationsWeekly} from "@/lib/hooks/dmob.hooks";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {Legend, Line, LineChart, ResponsiveContainer, TooltipProps, XAxis, YAxis} from "recharts";
-import React, {useMemo} from "react";
+import React, {memo, useMemo} from "react";
 import {convertBytesToIEC, palette} from "@/lib/utils";
 import {NameType, ValueType} from "recharts/types/component/DefaultTooltipContent";
 import {ChartTooltip} from "@/components/ui/chart";
 
-const DatacapAllocationWeeklyChart = () => {
+const Component = () => {
   const {
     data, loading
   } = useDataCapAllocationsWeekly();
@@ -83,5 +83,8 @@ const DatacapAllocationWeeklyChart = () => {
     </CardContent>
   </Card>
 }
+
+const DatacapAllocationWeeklyChart = memo(Component);
+
 
 export {DatacapAllocationWeeklyChart}

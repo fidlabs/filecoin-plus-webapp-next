@@ -15,11 +15,15 @@ import {
 import {convertBytesToIEC} from "@/lib/utils";
 import {ITabNavigatorTab} from "@/components/ui/tab-navigator";
 import {IClientReportsResponse} from "@/lib/interfaces/cdp/cdp.interface";
+import {IApiQuery} from "@/lib/interfaces/api.interface";
+import {useParamsQuery} from "@/lib/hooks/useParamsQuery";
 
 interface IClientContext {
   data?: IClientResponse;
   loading: boolean;
   reportGenerating: boolean;
+  params: IApiQuery;
+  patchParams: (newParams: IApiQuery) => void;
   tabs: ITabNavigatorTab[];
   providersData: IClientProviderBreakdownResponse | undefined;
   allocationsData: IClientAllocationsResponse | undefined;
@@ -38,6 +42,12 @@ const ClientContext = createContext<IClientContext>({
   loading: false,
   reportGenerating: false,
   tabs: [],
+  params: {
+    page: '1',
+    limit: '15',
+    sort: `[["createdAt", 0]]`
+  },
+  patchParams: () => {},
   providersData: undefined,
   allocationsData: undefined,
   reportsData: undefined,
@@ -59,6 +69,13 @@ const ClientProvider = ({children, id, initialData}: PropsWithChildren<{
   id: string,
   initialData: IClientResponse
 }>) => {
+
+  const {params, patchParams} = useParamsQuery<IApiQuery>({
+    page: '1',
+    limit: '15',
+    sort: `[["createdAt", 0]]`,
+    filter: ''
+  } as IApiQuery)
 
   const [loading, setLoading] = useState(false)
   const [reportGenerating, setReportGenerating] = useState(false)
@@ -146,21 +163,22 @@ const ClientProvider = ({children, id, initialData}: PropsWithChildren<{
 
   useEffect(() => {
     setLoading(true);
-    getClientById(id, {
-      page: '1',
-      limit: '50',
-      sort: `[["createdAt", 0]]`
-    })
+    if (!params) {
+      return
+    }
+    getClientById(id, params)
       .then((data) => {
         setData(data)
       })
       .finally(() => setLoading(false))
-  }, [id]);
+  }, [id, params]);
 
   return <ClientContext.Provider value={{
     data,
     tabs,
     loading,
+    params,
+    patchParams,
     providersData,
     getProvidersData,
     activeProviderIndex,

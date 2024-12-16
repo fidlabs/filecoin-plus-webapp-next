@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useMemo, useState} from 'react';
+import {memo, useCallback, useEffect, useMemo, useState} from 'react';
 import {DataCapChild} from "@/lib/hooks/dmob.hooks";
 import {cn, convertBytesToIEC, convertBytesToIECSimple} from "@/lib/utils";
 import {ResponsiveContainer, Sankey, Tooltip as RechartsTooltip} from "recharts";
@@ -47,7 +47,7 @@ interface SankeyData {
   links: SankeyLink[]
 }
 
-export const DataCapFlowSankey = ({
+const FlowSankey = ({
                                     data,
                                     rawData
                                   }: Props) => {
@@ -184,7 +184,7 @@ export const DataCapFlowSankey = ({
     }
 
     return nodes;
-  }, []);
+  }, [rawData.data]);
 
   const parseLinks = useCallback((currentNode: DataCapChild, parentId?: number) => {
     const hasChildren = !!currentNode?.children?.map(item => !!item.children?.length).filter(val => val).length
@@ -256,7 +256,7 @@ export const DataCapFlowSankey = ({
     } else {
       return parseData(selectedNodes[selectedNodes.length - 1]) as SankeyData;
     }
-  }, [selectedNodes, expanded, parseNodes, parseData, data]);
+  }, [data, selectedNodes, expanded, parseNodes, parseLinks, parseData]);
 
   return <div className="relative">
     {!expanded && <Breadcrumb className="mx-6">
@@ -397,3 +397,7 @@ const ExpandedNode = ({x, y, width, height, payload}: NodeProps) => {
   </g>
 
 };
+
+const DataCapFlowSankey = memo(FlowSankey);
+
+export {DataCapFlowSankey}

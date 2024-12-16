@@ -1,8 +1,9 @@
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {getStats} from "@/lib/api";
 import {StatsLink} from "@/components/ui/stats-link";
+import {memo} from "react";
 
-const Stats = async () => {
+const Component = async () => {
 
   const stats = await getStats();
 
@@ -55,5 +56,7 @@ const Stats = async () => {
 
   </div>
 }
+
+const Stats = memo(Component);
 
 export {Stats}

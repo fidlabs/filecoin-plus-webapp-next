@@ -14,30 +14,32 @@ const ClientReportsPage = () => {
     getReportsData()
   }, [getReportsData])
 
-  return <Card>
-    <GenericContentHeader placeholder="Storage Provider ID"
-                          sticky
-                          navigation={tabs}
-                          selected="reports"
-                          fixedHeight={false}
-                          addons={<NewReportButton/>}
-    />
-    <CardContent className="p-0">
-      {
-        loading && !reportsData && <div className="p-10 w-full flex flex-col items-center justify-center">
-          <LoaderCircle className="animate-spin"/>
-        </div>
-      }
-      {
-        !loading && !reportsData?.length && <div className="p-10 w-full gap-2 flex flex-col items-center justify-center">
-          No reports found
-        </div>
-      }
-      {
-        !!reportsData?.length && <ReportsTable />
-      }
-    </CardContent>
-  </Card>
+  return <div className="main-content">
+    <Card>
+      <GenericContentHeader placeholder="Storage Provider ID"
+                            sticky
+                            navigation={tabs}
+                            selected="reports"
+                            fixedHeight={false}
+                            addons={<NewReportButton/>}
+      />
+      <CardContent className="p-0">
+        {
+          loading && !reportsData && <div className="p-10 w-full flex flex-col items-center justify-center">
+            <LoaderCircle className="animate-spin"/>
+          </div>
+        }
+        {
+          !loading && !reportsData?.length && <div className="p-10 w-full gap-2 flex flex-col items-center justify-center">
+            No reports found
+          </div>
+        }
+        {
+          !!reportsData?.length && <ReportsTable />
+        }
+      </CardContent>
+    </Card>
+  </div>
 
 }
 

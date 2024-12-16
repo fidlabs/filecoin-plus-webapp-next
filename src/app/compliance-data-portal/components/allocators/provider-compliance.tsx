@@ -14,13 +14,14 @@ interface Props {
 const ProviderComplianceAllocator = ({setCurrentElement}: Props) => {
 
   const [threshold, setThreshold] = useState(50)
+  const [usePercentage, setUsePercentage] = useState(false);
 
   const {
     chartData, isLoading
-  } = useAllocatorSPSComplaince(threshold)
+  } = useAllocatorSPSComplaince(threshold, usePercentage)
 
   const {top, ref} = useScrollObserver()
-  const {scale, selectedScale, setSelectedScale} = useChartScale(10)
+  const {scale, selectedScale, calcPercentage, setSelectedScale} = useChartScale(10)
 
   useEffect(() => {
     if (top > 0 && top < 300) {
@@ -28,14 +29,30 @@ const ProviderComplianceAllocator = ({setCurrentElement}: Props) => {
     }
   }, [setCurrentElement, top]);
 
+  useEffect(() => {
+    setUsePercentage(calcPercentage);
+  }, [calcPercentage]);
+
   return <ChartWrapper
-    title="Retrievability Score"
+    title="SPs Compliance"
     id="ProviderComplianceAllocator"
     selectedScale={selectedScale}
+    addons={[
+      {
+        name: 'What are the metrics',
+        size: 2,
+        value: <ul className="list-disc">
+          <p>Allocator is complaint when it&apos;s SPs:</p>
+          <li className="ml-4">Have retrievability score above average</li>
+          <li className="ml-4">Have at least 3 clients</li>
+          <li className="ml-4">Biggest client accounts for less than 30%</li>
+        </ul>
+      },
+    ]}
     setSelectedScale={setSelectedScale}
     additionalFilters={[<ThresholdSelector key="threshold" threshold={threshold} setThreshold={setThreshold}/>]}
     ref={ref}>
-    <StackedBarGraph customPalette={gradientPalette('#FF5722', '#4CAF50', 3)} data={chartData} scale={scale} isLoading={isLoading} unit="provider"/>
+    <StackedBarGraph customPalette={gradientPalette('#FF5722', '#4CAF50', 3)} usePercentage={usePercentage} data={chartData} scale={scale} isLoading={isLoading} unit="allocator"/>
   </ChartWrapper>
 
 }

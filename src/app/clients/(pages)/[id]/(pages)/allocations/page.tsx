@@ -16,7 +16,7 @@ const ClientAllocationsPage = () => {
     getAllocationsData()
   }, [getAllocationsData])
 
-  return <>
+  return <div className="main-content">
     <Card>
       <GenericContentHeader placeholder="Storage Provider ID"
                             sticky
@@ -65,7 +65,7 @@ const ClientAllocationsPage = () => {
         }
       </CardContent>
     </Card>
-  </>
+  </div>
 }
 
 export default ClientAllocationsPage

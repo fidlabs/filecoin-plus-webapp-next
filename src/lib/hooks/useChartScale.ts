@@ -13,12 +13,21 @@ const useChartScale = (minValue: number, defaultValue = 'linear') => {
       return "linear" as ScaleType;
     } else if (selectedScale === 'log') {
       return scaleSymlog().constant(minValue || 1);
+    } else if (selectedScale === 'percent') {
+      return "percent" as ScaleType;
+    } else {
+      return "linear" as ScaleType;
     }
   }, [selectedScale, minValue])
+
+  const calcPercentage = useMemo(() => {
+    return selectedScale === 'percent'
+  }, [selectedScale])
 
   return {
     scale,
     selectedScale,
+    calcPercentage,
     setSelectedScale
   }
 }

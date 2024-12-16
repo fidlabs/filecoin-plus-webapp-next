@@ -10,6 +10,7 @@ interface WeeklyChartDataOptions {
   unit?: string;
   defaultTab?: string;
   paletteDirection?: 'dsc' | 'asc';
+  usePercentage?: boolean;
 }
 
 const defaultPalette = {
@@ -17,7 +18,7 @@ const defaultPalette = {
   'dsc': ['#4CAF50', '#FF5722']
 };
 
-const useWeeklyChartData = ({data, unit = '', defaultTab = '6 groups', paletteDirection = 'asc'}: WeeklyChartDataOptions) => {
+const useWeeklyChartData = ({data, unit = '', defaultTab = '6 groups', paletteDirection = 'asc', usePercentage}: WeeklyChartDataOptions) => {
   const {
     barTabs,
     globalBarTab,
@@ -49,6 +50,10 @@ const useWeeklyChartData = ({data, unit = '', defaultTab = '6 groups', paletteDi
 
       let results;
 
+      const modifier = (val: number) => {
+        return usePercentage ? val / bucket.total * 100 : val;
+      }
+
       if (currentTab === barTabs[barTabs.length - 1]) {
         results = bucket.results.map((bucket, index) => parseSingleBucketWeek(bucket, index, data?.length, unit));
       } else {
@@ -57,13 +62,13 @@ const useWeeklyChartData = ({data, unit = '', defaultTab = '6 groups', paletteDi
       }
 
       Object.values(results).forEach((value, index) => {
-        mappedData[`group${index}`] = value.value;
+        mappedData[`group${index}`] = modifier(value.value);
         mappedData[`group${index}Name`] = value.name;
       });
       return mappedData;
     })
 
-  }, [data, currentTab, barTabs, parseSingleBucketWeek, unit, groupData, parseBucketGroupWeek]);
+  }, [data, currentTab, barTabs, parseSingleBucketWeek, unit, groupData, parseBucketGroupWeek, usePercentage]);
 
   const minValue = useMemo(() => {
     const dataKeys = uniq(chartData.flatMap(d => Object.values(d)).filter(val => !isNaN(+val))).map(item => +item);
