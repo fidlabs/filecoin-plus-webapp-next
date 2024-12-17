@@ -1,6 +1,6 @@
 import {Metadata} from "next";
 import {PageHeader, PageTitle} from "@/components/ui/title";
-import {getGoogleSheetAuditHistory, getGoogleSheetAuditSizes} from "@/lib/api";
+import {getAllocators, getGoogleSheetAuditSizes} from "@/lib/api";
 import {Structure} from "@/app/allocator-tree/components/structure";
 
 export const metadata: Metadata = {
@@ -11,7 +11,11 @@ export const metadata: Metadata = {
 const AllocatorsTreePage = async () => {
 
   const allocatorStatuses = await getGoogleSheetAuditSizes();
-  const auditHistory = await getGoogleSheetAuditHistory();
+  const allAllocators = await getAllocators({
+    page: '1',
+    pageSize: '1000',
+    showInactive: 'true',
+  })
 
   return <main>
     <div className="main-content">
@@ -20,7 +24,7 @@ const AllocatorsTreePage = async () => {
       </PageHeader>
     </div>
     <div className="whitespace-pre flex gap-2">
-      <Structure allocatorStatuses={allocatorStatuses} auditHistory={auditHistory}/>
+      <Structure allocatorStatuses={allocatorStatuses} allAllocators={allAllocators}/>
     </div>
   </main>
 };
