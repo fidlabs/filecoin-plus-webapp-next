@@ -1,4 +1,4 @@
-import {useCDPUtils} from "@/app/compliance-data-portal/providers/cdp.provider";
+import {useCDPUtils} from "@/lib/providers/cdp.provider";
 import {useEffect, useMemo, useState} from "react";
 import {format} from "date-fns";
 import {uniq} from "lodash";

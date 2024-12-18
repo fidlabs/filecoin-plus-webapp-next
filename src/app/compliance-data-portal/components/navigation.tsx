@@ -1,7 +1,7 @@
 "use client";
 
 import {useMemo} from "react";
-import {useCDPUtils} from "@/app/compliance-data-portal/providers/cdp.provider";
+import {useCDPUtils} from "@/lib/providers/cdp.provider";
 
 const Navigation = () => {
 
@@ -23,6 +23,8 @@ const Navigation = () => {
         return 16 + 22 + 22 + 22 + 22 + 22 + 64;
       case 'AuditStateAllocator':
         return 16 + 22 + 22 + 22 + 22 + 22 + 22 + 72;
+      case 'TrustLevelAllocator':
+        return 16 + 22 + 22 + 22 + 22 + 22 + 22 + 22 + 80;
     }
   }, [currentElement]);
 
@@ -67,6 +69,10 @@ const Navigation = () => {
           <button
             className="bg-transparent border-none outline-none text-left text-base leading-5 font-semibold text-theme-text h-[22px]"
             onClick={() => scrollTo('AuditStateAllocator')}>Audit state
+          </button>
+          <button
+            className="bg-transparent border-none outline-none text-left text-base leading-5 font-semibold text-theme-text h-[22px]"
+            onClick={() => scrollTo('TrustLevelAllocator')}>Trust level
           </button>
         </div>
       </div>

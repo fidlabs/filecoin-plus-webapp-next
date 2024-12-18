@@ -9,6 +9,8 @@ import {LoaderCircle} from "lucide-react";
 import {useAllocatorsColumns} from "@/app/allocators/components/useAllocatorsColumns";
 import {getAllocators} from "@/lib/api";
 import {useParamsQuery} from "@/lib/hooks/useParamsQuery";
+import {useMemo} from "react";
+import {ITabNavigatorTab} from "@/components/ui/tab-navigator";
 
 const AllocatorsList = () => {
   const {params, patchParams} = useParamsQuery<IAllocatorsQuery>({
@@ -29,6 +31,20 @@ const AllocatorsList = () => {
     csvHeaders
   } = useAllocatorsColumns((key, direction) => patchParams({sort: `[["${key}",${direction}]]`}));
 
+  const tabs = useMemo(() => {
+    return [
+      {
+        label: 'Allocators',
+        href: '/allocators',
+        value: 'allocators'
+      }, {
+        label: 'Compliance',
+        href: '/allocators/compliance',
+        value: 'compliance'
+      }
+    ] as ITabNavigatorTab[]
+  }, [data, loading])
+
   return <Card className="mt-[50px]">
     <GenericContentHeader placeholder="Allocator ID / Address / Name" query={params?.filter}
                           getCsv={{
@@ -41,15 +57,10 @@ const AllocatorsList = () => {
                             title: 'allocations.csv',
                             headers: csvHeaders
                           }}
-                          header={<div className="flex flex-row gap-6 items-baseline">
-                            <h1 className="text-2xl text-black leading-none font-semibold flex items-center gap-2">
-                              <p>
-                                {loading && <LoaderCircle className="animate-spin"/>}
-                                {data?.count}
-                              </p>
-                              <p>Allocators</p>
-                            </h1>
-                            <div className="flex items-center space-x-2">
+                          selected={tabs[0].value}
+                          navigation={tabs}
+                          addons={[
+                            <div key="termsSearchCheckbox" className="flex items-center space-x-2">
                               <label
                                 htmlFor="terms"
                                 className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed whitespace-nowrap peer-disabled:opacity-70"
@@ -62,7 +73,7 @@ const AllocatorsList = () => {
                                           page: '1'
                                         })}/>
                             </div>
-                          </div>}
+                          ]}
                           setQuery={(filter: string) => patchParams({filter, page: '1'})}/>
     <CardContent className="p-0">
       {

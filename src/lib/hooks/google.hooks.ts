@@ -1,6 +1,11 @@
 import {useCallback, useMemo, useState} from "react";
 import {useAsync} from "@/lib/hooks/useAsync";
-import {getAllocators, getGoogleSheetAuditHistory, getGoogleSheetAuditHistorySizes} from "@/lib/api";
+import {
+  getAllocators,
+  getGoogleSheetAllocatorsTrust,
+  getGoogleSheetAuditHistory,
+  getGoogleSheetAuditHistorySizes
+} from "@/lib/api";
 import {IAllocatorsResponse} from "@/lib/interfaces/dmob/allocator.interface";
 import {
   IAllocatorsWithSheetInfo,
@@ -41,7 +46,6 @@ const useGoogleSheetFilters = () => {
     PASS_STATUSES,
     WAITING_STATUSES
   }
-
 }
 
 const useGoogleSheetsAuditReport = () => {
@@ -121,4 +125,49 @@ const useGoogleSheetsAuditReport = () => {
   };
 };
 
-export {useGoogleSheetsAuditReport, useGoogleSheetFilters};
+const useGoogleTrustLevels = () => {
+  const {
+    data,
+    loading
+  } = useAsync<IGoogleSheetResponse>(getGoogleSheetAllocatorsTrust);
+
+  const [loaded, setLoaded] = useState(false);
+
+  const parsedData = useMemo(() => {
+
+    if (!data?.values) {
+      return [];
+    }
+
+    const returnData = [] as {[key: PropertyKey]: string}[];
+
+    const _firstMonthInxed = data?.values[0].indexOf('March');
+    const _lastMonthIndex = data?.values[0].length - 1;
+
+    for (let i = _firstMonthInxed; i <= _lastMonthIndex; i++) {
+      const name = data?.values[0][i];
+      returnData.push({
+        name,
+        notAudited: data?.values[1][i],
+        notAuditedName: data?.values[1][_firstMonthInxed - 1],
+        failed: data?.values[2][i],
+        failedName: data?.values[2][_firstMonthInxed - 1],
+        partial: data?.values[3][i],
+        partialName: data?.values[3][_firstMonthInxed - 1],
+        pass: data?.values[4][i],
+        passName: data?.values[4][_firstMonthInxed - 1],
+      });
+    }
+
+    setLoaded(true);
+    return returnData;
+  }, [data]);
+
+  return {
+    results: parsedData,
+    loading,
+    loaded
+  };
+}
+
+export {useGoogleSheetsAuditReport, useGoogleSheetFilters, useGoogleTrustLevels};

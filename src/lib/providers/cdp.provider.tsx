@@ -16,7 +16,6 @@ const CommonChartContext = createContext({
   setGlobalScaleTab: (v: string) => console.log(v),
   currentElement: 'RetrievabilityScoreSP',
   scrollTo: (element: string) => console.log(element),
-  scrollCallback: (element: string) => console.log(element),
   groupData: (data: ICDPRange[], groupCount: number) => {
     console.log(data, groupCount)
     return [] as ICDPRange[][];
@@ -44,23 +43,11 @@ const CdpProvider = ({ children }: PropsWithChildren) => {
   const [globalBarTab, setGlobalBarTab] = useState('6 groups');
   const [globalScaleTab, setGlobalScaleTab] = useState('linear');
   const [currentElement, setCurrentElement] = useState('RetrievabilityScoreSP');
-  const [disableCallbacks, setDisableCallbacks] = useState(false);
 
   const scrollTo = useCallback((element: string) => {
-    setDisableCallbacks(true);
     setCurrentElement(element);
     scrollToHash(element);
-    setTimeout(() => {
-      setDisableCallbacks(false);
-    }, 500);
   }, [scrollToHash]);
-
-  const scrollCallback = useCallback((element: string) => {
-    if (disableCallbacks) {
-      return;
-    }
-    setCurrentElement(element);
-  }, [disableCallbacks]);
 
   const groupData = useCallback((data: ICDPRange[], groupCount: number) => {
 
@@ -117,7 +104,6 @@ const CdpProvider = ({ children }: PropsWithChildren) => {
       setGlobalScaleTab,
       currentElement,
       scrollTo,
-      scrollCallback,
       groupData,
       parseSingleBucketWeek,
       parseBucketGroupWeek,

@@ -1,4 +1,3 @@
-import {useScrollObserver} from "@/lib/hooks/useScrollObserver";
 import useWeeklyChartData from "@/app/compliance-data-portal/hooks/useWeeklyChartData";
 import {useChartScale} from "@/lib/hooks/useChartScale";
 import {useEffect, useState} from "react";
@@ -11,13 +10,11 @@ type FetchMethod = (param?: boolean) => {
 
 interface ChartEngineOptions {
   fetchMethod: FetchMethod;
-  setCurrentElement: (val: string) => void;
-  id: string;
   unit?: string;
   paletteDirection?: 'dsc' | 'asc';
 }
 
-const useCDPChartDataEngine = ({fetchMethod, paletteDirection = 'asc', unit, id, setCurrentElement}: ChartEngineOptions) => {
+const useCDPChartDataEngine = ({fetchMethod, paletteDirection = 'asc', unit}: ChartEngineOptions) => {
 
   const [usePercentage, setUsePercentage] = useState(false);
 
@@ -25,7 +22,6 @@ const useCDPChartDataEngine = ({fetchMethod, paletteDirection = 'asc', unit, id,
     data, isLoading
   } = fetchMethod()
 
-  const {top, ref} = useScrollObserver()
   const {chartData, currentTab, setCurrentTab, tabs, minValue, palette} = useWeeklyChartData({
     data: data?.buckets,
     unit,
@@ -34,12 +30,6 @@ const useCDPChartDataEngine = ({fetchMethod, paletteDirection = 'asc', unit, id,
   })
 
   const {scale, calcPercentage, selectedScale, setSelectedScale} = useChartScale(minValue)
-
-  useEffect(() => {
-    if (top > 0 && top < 300) {
-      setCurrentElement(id);
-    }
-  }, [id, setCurrentElement, top]);
 
   useEffect(() => {
     setUsePercentage(calcPercentage);
@@ -55,7 +45,6 @@ const useCDPChartDataEngine = ({fetchMethod, paletteDirection = 'asc', unit, id,
     scale,
     usePercentage,
     calcPercentage,
-    ref,
     isLoading: isLoading || !data,
     data,
     palette

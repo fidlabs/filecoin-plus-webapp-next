@@ -39,7 +39,7 @@ const StackedBarGraph = ({data, scale = 'linear', isLoading, customPalette, useP
             }
             const name = payload[`group${index}Name`] ?? payload[`${key}Name`] ?? key;
             return <div key={key} className="chartTooltipRow">
-              {!usePercentage && <div style={{color}}>{name} - {value} {unit}{value > 1 && 's'}</div>}
+              {!usePercentage && <div style={{color}}>{name} - {value} {unit}{value !== 1 && 's'}</div>}
               {usePercentage && <div style={{color}}>{name} - {value.toFixed(2)}% of {unit}s</div>}
             </div>
           })

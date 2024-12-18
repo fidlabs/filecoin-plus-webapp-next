@@ -1,7 +1,7 @@
 import {Metadata} from "next";
 import {PageTitle} from "@/components/ui/title";
 import {ReactNode} from "react";
-import {CdpProvider} from "@/app/compliance-data-portal/providers/cdp.provider";
+import {CdpProvider} from "@/lib/providers/cdp.provider";
 import {Navigation} from "@/app/compliance-data-portal/components/navigation";
 
 export const metadata: Metadata = {
