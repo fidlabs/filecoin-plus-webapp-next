@@ -1,16 +1,17 @@
 "use client";
-import {useDataCapAllocationsWeekly} from "@/lib/hooks/dmob.hooks";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {Legend, Line, LineChart, ResponsiveContainer, TooltipProps, XAxis, YAxis} from "recharts";
-import React, {memo, useMemo} from "react";
+import {memo, useMemo} from "react";
 import {convertBytesToIEC, palette} from "@/lib/utils";
 import {NameType, ValueType} from "recharts/types/component/DefaultTooltipContent";
 import {ChartTooltip} from "@/components/ui/chart";
+import {IFilDCAllocationsWeekly} from "@/lib/interfaces/dmob/dmob.interface";
 
-const Component = () => {
-  const {
-    data, loading
-  } = useDataCapAllocationsWeekly();
+interface Props {
+  data: IFilDCAllocationsWeekly
+}
+
+const Component = ({data}: Props) => {
 
   const chartData = useMemo(() => {
     const normalData: {
@@ -38,7 +39,7 @@ const Component = () => {
     </CardHeader>
     <CardContent className="flex w-full items-center justify-center">
       {
-        !loading && !chartData && <p>Error loading data</p>
+        !chartData && <p>Error loading data</p>
       }
       {chartData && <ResponsiveContainer width="100%" aspect={2} debounce={500}>
         <LineChart

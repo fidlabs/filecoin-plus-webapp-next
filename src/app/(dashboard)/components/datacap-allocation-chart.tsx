@@ -1,18 +1,18 @@
 "use client";
-import {useStats} from "@/lib/hooks/dmob.hooks";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {Cell, Pie, PieChart, ResponsiveContainer, Tooltip, TooltipProps} from "recharts";
-import React, {memo, useMemo, useState} from "react";
+import {memo, useMemo, useState} from "react";
 import {convertBytesToIEC, palette} from "@/lib/utils";
 import {ActiveShapeSimple} from "@/components/ui/pie-active-shape";
 import {PieSectorDataItem} from "recharts/types/polar/Pie";
 import {NameType, ValueType} from "recharts/types/component/DefaultTooltipContent";
+import {IFilPlusStats} from "@/lib/interfaces/dmob/dmob.interface";
 
+interface Props {
+  data: IFilPlusStats;
+}
 
-const Component = () => {
-  const {
-    data, loading,
-  } = useStats()
+const Component = ({data}: Props) => {
 
   const [chartDataParsing, setChartDataParsing] = useState(true);
 
@@ -60,8 +60,8 @@ const Component = () => {
   }, [data]);
 
   const isLoading = useMemo(() => {
-    return loading || chartDataParsing;
-  }, [loading, chartDataParsing]);
+    return chartDataParsing;
+  }, [chartDataParsing]);
 
   const totalDc = useMemo(() => {
     if (!data) {
