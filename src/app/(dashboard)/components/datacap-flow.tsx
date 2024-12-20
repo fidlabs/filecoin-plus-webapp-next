@@ -4,9 +4,9 @@ import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {DataCapFlowTree} from "@/app/(dashboard)/components/datacap-flow-tree";
 import {DataCapFlowSankey} from "@/app/(dashboard)/components/datacap-flow-sankey";
-import {memo, useState} from "react";
+import {useState} from "react";
 
-const Component = () => {
+const DatacapFlow = () => {
   const {dataCapFlow, rawData} = useDataCapFlow()
 
   const [tab, setTab] = useState('tree')
@@ -41,9 +41,6 @@ const Component = () => {
       </Tabs>
     </CardContent>
   </Card>
-
 }
-
-const DatacapFlow = memo(Component)
 
 export {DatacapFlow}
