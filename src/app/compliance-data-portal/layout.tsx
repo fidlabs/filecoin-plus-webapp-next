@@ -19,9 +19,7 @@ const ComplianceLayout = ({
       <CdpProvider>
         <PageTitle>Compliance overview</PageTitle>
         <div className="mt-9 flex gap-5 w-full">
-          <div className="hidden md:block">
-            <Navigation/>
-          </div>
+          <Navigation/>
           <div className="flex-1">
             {children}
           </div>
