@@ -16,6 +16,7 @@ import {
 import {NameType, ValueType} from "recharts/types/component/DefaultTooltipContent";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {ChartLoader} from "@/components/ui/chart-loader";
+import {useMediaQuery} from "usehooks-ts";
 
 interface AuditHistoryBarGraphProps {
   data: IAllocatorWithSheetInfo[];
@@ -31,6 +32,8 @@ const AuditHistoryBarGraph = ({data, isLoading, audits, showAudited, showActive,
   const {
     activeFilter, auditedFilter, FAILED_STATUSES, WAITING_STATUSES, PARTIAL_STATUSES, PASS_STATUSES
   } = useGoogleSheetFilters();
+
+  const isDesktop = useMediaQuery("(min-width: 768px)");
 
   const getStatusFriendlyName = (status: string) => {
 
@@ -149,7 +152,7 @@ const AuditHistoryBarGraph = ({data, isLoading, audits, showAudited, showActive,
 
   const renderLegend = () => {
     return (
-      <div className="flex flex-col m-2 gap-1">
+      <div className="grid md:flex grid-cols-2 md:flex-col m-2 gap-1">
         <div
           className="text-sm leading-none flex items-center h-[25px] gap-1">
           <div className="w-[20px] h-[15px] rounded-[4px]" style={{backgroundColor: getStatusColor('DOUBLE')}}/>
@@ -175,6 +178,15 @@ const AuditHistoryBarGraph = ({data, isLoading, audits, showAudited, showActive,
     );
   };
 
+  const aspect = useMemo(() => {
+    const rate = chartData?.length ? 70 / chartData?.length : 1;
+    if (isDesktop) {
+      return rate
+    } else {
+      return 0.5 / rate
+    }
+  }, [chartData?.length, isDesktop])
+
   if (!data?.length) {
     return null;
   }
@@ -185,19 +197,24 @@ const AuditHistoryBarGraph = ({data, isLoading, audits, showAudited, showActive,
     </div>
   }
 
-  return <ResponsiveContainer width="100%" aspect={chartData?.length ? 70 / chartData?.length : 1} debounce={500}>
+  return <ResponsiveContainer width="100%" aspect={aspect} debounce={500}>
     <BarChart
       data={chartData}
       layout="vertical"
-      margin={{left: 150}}
+      margin={{left: isDesktop ? 150 : 0}}
     >
       <CartesianGrid strokeDasharray="3 3"/>
       <Tooltip content={renderTooltip}/>
-      <YAxis dataKey="name" type="category" interval={0} minTickGap={0}
-             tick={<CustomizedAxisTick/>}/>
-      <XAxis type="number" name="PiB" domain={[0, maxValue]} tickCount={Math.floor(maxValue / 10) + 1}/>
       <Tooltip/>
-      <Legend align="right" verticalAlign="middle" layout="vertical" content={renderLegend}/>
+      <Legend align={isDesktop ? "right" : "center"}
+              verticalAlign={isDesktop ? "middle" : "top"}
+              layout={isDesktop ? "vertical" : "horizontal"}
+              wrapperStyle={{
+                width: isDesktop ? '150px' : '100%',
+                left: isDesktop ? 'auto' : '0',
+                right: isDesktop ? '0' : 'auto',
+              }}
+              content={renderLegend}/>
       {dataKeys.map((key) => <Bar layout="vertical" key={key} dataKey={key}
                                   style={{ stroke: '#fff', strokeWidth: 2 }}
                                   stackId="a">
@@ -207,6 +224,11 @@ const AuditHistoryBarGraph = ({data, isLoading, audits, showAudited, showActive,
           ))
         }
       </Bar>)}
+      <YAxis dataKey="name" type="category" interval={0} minTickGap={0}
+             mirror={!isDesktop}
+             orientation={isDesktop ? 'left' : 'right'}
+             tick={<CustomizedAxisTick/>}/>
+      <XAxis type="number" name="PiB" domain={[0, maxValue]} tickCount={Math.floor(maxValue / 10) + 1}/>
       ))
     </BarChart>
   </ResponsiveContainer>
@@ -219,9 +241,10 @@ const CustomizedAxisTick = (props: {
   payload?: { value: string }
 }) => {
   const {x, y, payload} = props;
+
   return (
     <g transform={`translate(${x},${y})`}>
-      <text x={0} y={0} dx={-5} dy={5} textAnchor="end" fill="#666" fontSize={15}>
+      <text x={0} y={0} dx={-5} dy={5} textAnchor="end" fill="#666" fontSize={14}>
         {payload?.value.substring(0, 20)}{(payload?.value?.length ?? 0) > 20 ? '...' : ''}
       </text>
     </g>

@@ -1,5 +1,5 @@
 import {IFilDCAllocationsWeeklyByClient} from "@/lib/interfaces/dmob/dmob.interface";
-import {IAllocatorsResponse} from "@/lib/interfaces/dmob/allocator.interface";
+import {IAllocator, IAllocatorsResponse} from "@/lib/interfaces/dmob/allocator.interface";
 import {useCallback, useMemo, useState} from "react";
 import {TooltipProps} from "recharts";
 import {NameType, ValueType} from "recharts/types/component/DefaultTooltipContent";
@@ -73,7 +73,7 @@ export const useDataCapOverTimeChart = (mode: DataCapOverTimeChartMode, data: IF
         Object.keys(yearObj).forEach((weekKey) => {
           const weekObj = yearObj[weekKey];
           normalData.push({
-            name: `w${weekKey} ${yearKey}`,
+            name: `w${weekKey} '${yearKey.substr(2)}`,
             ...weekObj
           });
           setValueKeys(keys => {
@@ -87,6 +87,16 @@ export const useDataCapOverTimeChart = (mode: DataCapOverTimeChartMode, data: IF
     }
     return normalData;
   }, [data]);
+
+  const getAllocatorName = (allocator: IAllocator | undefined) => {
+    if (!!allocator?.orgName?.length) {
+      return `${allocator?.orgName?.substring(0, 15) }${allocator?.orgName?.length > 15 ? '...' : ''}`;
+    } else if (!!allocator?.name?.length) {
+      return `${allocator?.name?.substring(0, 15) }${allocator?.name?.length > 15 ? '...' : ''}`;
+    } else {
+      return undefined;
+    }
+  }
 
   const parseDataWeek = useCallback(() => {
     let normalData: {
@@ -109,10 +119,11 @@ export const useDataCapOverTimeChart = (mode: DataCapOverTimeChartMode, data: IF
           });
           Object.keys(weekObj).forEach((clientKey) => {
             const clientObj = weekObj[clientKey];
+            const display = getAllocatorName(allocators.data.find((notary) => notary.addressId === clientKey));
             if (normalData.findIndex((item) => item.name === clientKey) === -1) {
               normalData.push({
                 name: clientKey,
-                display: allocators.data.find((notary) => notary.addressId === clientKey)?.name || clientKey,
+                display: display ?? clientKey,
                 [`w${weekKey}`]: +clientObj
               });
             } else {
