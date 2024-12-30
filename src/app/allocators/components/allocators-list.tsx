@@ -59,13 +59,28 @@ const AllocatorsList = () => {
                           }}
                           selected={tabs[0].value}
                           navigation={tabs}
-                          addons={[
-                            <div key="termsSearchCheckbox" className="flex items-center space-x-2">
+                          titleAddons={[
+                            <div key="termsSearchCheckbox" className="hdden md:flex items-center justify-center space-x-2">
                               <label
                                 htmlFor="terms"
                                 className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed whitespace-nowrap peer-disabled:opacity-70"
                               >
-                                Inactive
+                                Show Inactive
+                              </label>
+                              <Checkbox id="terms" checked={params?.showInactive === 'true'}
+                                        onCheckedChange={(checked) => patchParams({
+                                          showInactive: !!checked ? 'true' : 'false',
+                                          page: '1'
+                                        })}/>
+                            </div>
+                          ]}
+                          addons={[
+                            <div key="termsSearchCheckbox" className="md:hidden flex items-center justify-center space-x-2">
+                              <label
+                                htmlFor="terms"
+                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed whitespace-nowrap peer-disabled:opacity-70"
+                              >
+                                Show Inactive
                               </label>
                               <Checkbox id="terms" checked={params?.showInactive === 'true'}
                                         onCheckedChange={(checked) => patchParams({
