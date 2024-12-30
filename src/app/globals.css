@@ -40,7 +40,7 @@
     --color-solitude: hsl(210, 36%, 96%);
     --color-medium-turquoise: hsl(184, 58%, 51%);
     --color-oyster-bay: hsl(212, 33%, 89%);
-    --color-horizon: hsl(210, 22%, 49%);
+    --color-horizon: hsl(211, 22%, 35%);
     --color-echo-blue: hsl(211, 27%, 70%);
     --color-cyprus: hsl(209, 61%, 16%);
     --color-mountain-meadow: hsl(168, 78%, 41%);
@@ -78,7 +78,7 @@
   }
 
   .main-content {
-    @apply w-full max-w-[1600px] mx-auto px-4
+    @apply w-full max-w-[1700px] mx-auto px-4 md:px-12
   }
 
   .active + .active {

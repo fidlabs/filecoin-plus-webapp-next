@@ -2,11 +2,13 @@ import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {TabsSelector} from "@/components/ui/tabs-selector";
 import {forwardRef, HTMLAttributes, PropsWithChildren, ReactNode} from "react";
 import {ScaleSelector} from "@/app/compliance-data-portal/components/scale-selector";
+import {cn} from "@/lib/utils";
 
 
 interface Props extends PropsWithChildren, HTMLAttributes<HTMLDivElement> {
   title: string
   tabs?: string[]
+  plain?: boolean
   additionalFilters?: ReactNode[]
   currentTab?: string
   selectedScale?: string
@@ -23,14 +25,14 @@ const ChartWrapper = forwardRef<
   HTMLDivElement,
   Props
 >(({
-     title, tabs, currentTab, setCurrentTab, children, addons, selectedScale, setSelectedScale, additionalFilters, ...props
+     title, tabs, currentTab, setCurrentTab, children, addons, selectedScale, setSelectedScale, additionalFilters, plain, ...props
    }, ref) => {
-  return <div className="w-full mt-2" ref={ref} {...props}>
-    <Card>
+  return <div className="w-full" ref={ref} {...props}>
+    <Card className={cn(plain && "bg-transparent shadow-none rounded-none")}>
       <CardHeader>
-        <CardTitle className="flex w-full flex-wrap justify-between">
+        <CardTitle className="flex w-full flex-col gap-2 md:flex-row flex-wrap justify-between">
           <div>{title}</div>
-          <div className="flex gap-2">
+          <div className="flex flex-col md:flex-row justify-end gap-2">
             {additionalFilters?.map((filter, index) => <div key={index}>{filter}</div>)}
             {(selectedScale && setSelectedScale) && <ScaleSelector selectedScale={selectedScale} setSelectedScale={setSelectedScale}/>}
             {(tabs && currentTab&& setCurrentTab) && <TabsSelector tabs={tabs} currentTab={currentTab} setCurrentTab={setCurrentTab}/>}

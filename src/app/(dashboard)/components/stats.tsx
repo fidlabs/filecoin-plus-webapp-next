@@ -7,7 +7,7 @@ const Component = async () => {
 
   const stats = await getStats();
 
-  return <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 content-evenly">
+  return <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 content-evenly">
     <Card>
       <CardHeader>
         <CardTitle>Total Approved Allocators</CardTitle>
@@ -40,7 +40,7 @@ const Component = async () => {
     </Card>
     <Card>
       <CardHeader>
-        <CardTitle>Number of clients Served</CardTitle>
+        <CardTitle>Number of Clients Served</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="w-full flex justify-between">

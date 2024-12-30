@@ -68,7 +68,7 @@ const renderTooltip = (props: TooltipProps<ValueType, NameType>) => {
           {calculateDateFromHeight(name)}
         </CardTitle>
         <CardTitle>
-          Total allocations to date: {convertBytesToIEC(value)}
+          Total Allocations to Date: {convertBytesToIEC(value)}
         </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col items-start gap-1">

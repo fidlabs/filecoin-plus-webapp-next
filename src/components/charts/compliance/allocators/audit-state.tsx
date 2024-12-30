@@ -1,33 +1,29 @@
 import {useGoogleSheetsAuditReport} from "@/lib/hooks/google.hooks";
-import {useScrollObserver} from "@/lib/hooks/useScrollObserver";
-import {useEffect, useState} from "react";
+import {useState} from "react";
 import {ChartWrapper} from "@/app/compliance-data-portal/components/chart-wrapper";
-import {AuditHistoryBarGraph} from "@/app/compliance-data-portal/components/graphs/audits-history-graph";
+import {AuditHistoryBarGraph} from "@/components/charts/compliance/graphs/audits-history-graph";
 import {Checkbox} from "@/components/ui/checkbox";
 
-
 interface Props {
-  setCurrentElement: (val: string) => void
+  currentElement?: string;
+  plain?: boolean;
 }
 
-const AllocatorAuditState = ({setCurrentElement}: Props) => {
+const AllocatorAuditState = ({currentElement, plain}: Props) => {
   const {results, loading} = useGoogleSheetsAuditReport();
-
-  const {top, ref} = useScrollObserver();
 
   const [showActive, setShowActive] = useState(true);
   const [showAudited, setShowAudited] = useState(true);
   const [hideWaiting, setHideWaiting] = useState(false);
 
-  useEffect(() => {
-    if (top > 0 && top < 300) {
-      setCurrentElement('AuditStateAllocator');
-    }
-  }, [setCurrentElement, top]);
+  if (!!currentElement && currentElement !==  'AuditStateAllocator') {
+    return null;
+  }
 
   return <ChartWrapper
     title="Audit state of the allocators"
     id="AuditStateAllocator"
+    plain={plain}
     addons={[{
       name: 'Filters',
       value: <div>
@@ -57,7 +53,6 @@ const AllocatorAuditState = ({setCurrentElement}: Props) => {
         </div>
       </div>
     }]}
-    ref={ref}
   >
     <AuditHistoryBarGraph data={results?.data} audits={results?.audits} isLoading={loading} showActive={showActive} hideWaiting={hideWaiting} showAudited={showAudited}/>
   </ChartWrapper>;

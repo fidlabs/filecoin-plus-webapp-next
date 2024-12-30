@@ -16,7 +16,7 @@ const ClientsStats = ({data}: ClientsStatsProps) => {
       {!data && <Skeleton className="h-[110px] w-full rounded-lg"/>}
       {!!data && <>
         <CardHeader>
-          <CardTitle>Filecoin clients</CardTitle>
+          <CardTitle>Filecoin Clients</CardTitle>
         </CardHeader><CardContent>
         <div className="w-full flex justify-between">
           <p className="font-semibold textxl">
@@ -29,7 +29,7 @@ const ClientsStats = ({data}: ClientsStatsProps) => {
     <Card>
       {!data && <Skeleton className="h-[110px] w-full rounded-lg"/>}
       {!!data && <><CardHeader>
-        <CardTitle>Total remaining DataCap</CardTitle>
+        <CardTitle>Total Remaining DataCap</CardTitle>
       </CardHeader>
         <CardContent>
           <div className="w-full flex justify-between">
@@ -55,7 +55,7 @@ const ClientsStats = ({data}: ClientsStatsProps) => {
     <Card>
       {!data && <Skeleton className="h-[110px] w-full rounded-lg"/>}
       {!!data && <><CardHeader>
-        <CardTitle>Clients with active deals and Remaining DataCap</CardTitle>
+        <CardTitle>Clients With Active Deals and Remaining DataCap</CardTitle>
       </CardHeader>
         <CardContent>
           <div className="w-full flex justify-between">

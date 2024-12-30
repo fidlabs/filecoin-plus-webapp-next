@@ -8,6 +8,8 @@ import {LoaderCircle} from "lucide-react";
 import {getStorageProviders} from "@/lib/api";
 import {useParamsQuery} from "@/lib/hooks/useParamsQuery";
 import {useStorageProvidersColumns} from "@/app/storage-providers/components/useStorageProvidersColumns";
+import {useMemo} from "react";
+import {ITabNavigatorTab} from "@/components/ui/tab-navigator";
 
 const StorageProvidersList = () => {
 
@@ -28,6 +30,20 @@ const StorageProvidersList = () => {
     csvHeaders
   } = useStorageProvidersColumns((key, direction) => patchParams({sort: `[["${key}",${direction}]]`}));
 
+  const tabs = useMemo(() => {
+    return [
+      {
+        label: 'Storage Providers',
+        href: '/storage-providers',
+        value: 'list'
+      }, {
+        label: 'Compliance',
+        href: '/storage-providers/compliance',
+        value: 'compliance'
+      }
+    ] as ITabNavigatorTab[]
+  }, [data, loading])
+
   return <Card className="mt-[50px]">
     <GenericContentHeader placeholder="Storage provider ID" query={params?.filter}
                           getCsv={{
@@ -40,15 +56,8 @@ const StorageProvidersList = () => {
                             title: 'storage-providers.csv',
                             headers: csvHeaders
                           }}
-                          header={<div className="flex flex-row gap-6 items-baseline">
-                            <h1 className="text-2xl text-black leading-none font-semibold flex items-center gap-2">
-                              <p>
-                                {loading && <LoaderCircle className="animate-spin"/>}
-                                {data?.count}
-                              </p>
-                              <p>Storage providers</p>
-                            </h1>
-                          </div>}
+                          navigation={tabs}
+                          selected={tabs[0].value}
                           setQuery={(filterString: string) => {
                             const filter = filterString.startsWith('f0') ? filterString.substring(2) : filterString
                             if (params.filter !== filter) {

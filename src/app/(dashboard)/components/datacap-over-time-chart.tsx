@@ -1,5 +1,4 @@
 "use client";
-import {useDataCapAllocationsWeeklyByClient, useAllAllocators} from "@/lib/hooks/dmob.hooks";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {
   Bar,
@@ -7,115 +6,59 @@ import {
   CartesianGrid,
   Legend,
   ResponsiveContainer,
-  Tooltip, TooltipProps,
+  Tooltip,
   XAxis,
   YAxis
 } from "recharts";
-import React, {memo, useCallback, useMemo, useState} from "react";
+import {memo, useCallback, useMemo, MouseEvent, useState, useEffect} from "react";
 import {cn, convertBytesToIEC, palette} from "@/lib/utils";
-import {NameType, ValueType} from "recharts/types/component/DefaultTooltipContent";
 import {useChartScale} from "@/lib/hooks/useChartScale";
 import {ScaleSelector} from "@/components/ui/scale-selector";
-import {IAllocatorsResponse} from "@/lib/interfaces/dmob/allocator.interface";
+import {IAllocator, IAllocatorsResponse} from "@/lib/interfaces/dmob/allocator.interface";
+import {IFilDCAllocationsWeeklyByClient} from "@/lib/interfaces/dmob/dmob.interface";
+import {useDataCapOverTimeChart} from "@/app/(dashboard)/hooks/useDataCapOverTimeChart";
+import {Tabs, TabsList, TabsTrigger} from "@/components/ui/tabs";
+import {useWindowSize} from "usehooks-ts";
 
+interface Props {
+  data: IFilDCAllocationsWeeklyByClient,
+  allocators: IAllocatorsResponse
+}
 
-const Component = () => {
-  const {data, loading} = useDataCapAllocationsWeeklyByClient();
-  const {data: allocatorsData} = useAllAllocators();
+const Component = ({data, allocators}: Props) => {
 
-  const [weeksKeys, setWeeksKeys] = useState<string[]>([]);
-  const [selectedWeek, setSelectedWeek] = useState<string[]>([]);
+  const [mode, setMode] = useState<'week' | 'allocator'>('allocator')
+  const [legendHeight, setLegendHeight] = useState(900)
 
-  const reversedWeekKeys = useMemo(() => weeksKeys.slice().reverse(), [weeksKeys]);
+  const { width = 0 } = useWindowSize({
+    initializeWithValue: true,
+  })
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (width >= 1600) {
+        setLegendHeight(900)
+      } else {
+        setLegendHeight(width * 9 / 16)
+      }
+    }, 25)
 
-  const weeksToDisplay = useMemo(() => {
-    if (!selectedWeek?.length) {
-      return weeksKeys;
-    }
-    return weeksKeys.filter((key) => selectedWeek.indexOf(key) > -1);
-  }, [selectedWeek, weeksKeys]);
+    return () => clearTimeout(timeout) //clear timeout (delete function execution)
+  }, [width])
+
+  const {
+    valueKeys,
+    valuesToDisplay,
+    selectedValues,
+    setSelectedValues,
+    reversedValueKeys,
+    renderTooltip,
+    chartData,
+    minValue
+  } = useDataCapOverTimeChart(mode, data, allocators);
 
   const formatYAxisTick = (value: string) => {
     return convertBytesToIEC(value);
   };
-
-  const renderTooltip = (props: TooltipProps<ValueType, NameType>) => {
-    const providerData = props?.payload?.[0]?.payload;
-    if (!providerData) return null;
-
-    const total = weeksToDisplay.reduce((acc, key) => (isNaN(+providerData[key]) ? 0 : +providerData[key]) + acc, 0);
-
-    return <Card>
-      <CardHeader>
-        <CardTitle>{providerData['display']} - {convertBytesToIEC(total)}</CardTitle>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-2">
-        {reversedWeekKeys.filter(key => weeksToDisplay.includes(key)).map((key, index) => {
-          if (providerData[key]) {
-            return <div
-              key={index}
-              className="flex flex-row items-center justify-start gap-1 text-sm text-muted-foreground"
-            >
-              <div className="w-[10px] h-[10px] rounded-full" style={{
-                backgroundColor: palette(
-                  weeksKeys.indexOf(key)
-                )
-              }}/>
-              <p className="leading-none">
-                {`${key}: ${convertBytesToIEC(providerData[key])}`}
-              </p>
-            </div>
-          }
-        })}
-      </CardContent>
-    </Card>;
-  };
-
-  const chartData = useMemo(() => {
-    let normalData: {
-      name: string;
-      display: string;
-      [key: string]: number | string;
-    }[] = [];
-
-    if (data && !!allocatorsData?.data) {
-      setWeeksKeys([]);
-      Object.keys(data).forEach((yearKey) => {
-        const yearObj = data[yearKey];
-        Object.keys(yearObj).forEach((weekKey) => {
-          const weekObj = yearObj[weekKey];
-          setWeeksKeys(keys => {
-            return [
-              ...keys,
-              `w${weekKey}`
-            ];
-          });
-          Object.keys(weekObj).forEach((clientKey) => {
-            const clientObj = weekObj[clientKey];
-            if (normalData.findIndex((item) => item.name === clientKey) === -1) {
-              normalData.push({
-                name: clientKey,
-                display: (allocatorsData as IAllocatorsResponse).data.find((notary) => notary.addressId === clientKey)?.name || clientKey,
-                [`w${weekKey}`]: +clientObj
-              });
-            } else {
-              normalData = normalData.map((item) => {
-                if (item.name === clientKey) {
-                  return {
-                    ...item,
-                    [`w${weekKey}`]: +clientObj
-                  };
-                }
-                return item;
-              });
-            }
-          });
-        });
-      });
-    }
-
-    return normalData;
-  }, [data, allocatorsData])
 
   const handleClick = (data: {
     name: string;
@@ -124,92 +67,108 @@ const Component = () => {
     window.open(`/allocators/${data.name}`, '_blank');
   };
 
-  const minValue = useMemo(() => {
-    if (!chartData.length) {
-      return 0;
-    }
-    const values = chartData.map((item) => weeksToDisplay.map(week => +item[week])).flat().filter((item) => !isNaN(+item));
+  const {scale, selectedScale, setSelectedScale} = useChartScale(minValue, 'linear');
 
-    return Math.min(...values);
-  }, [chartData, weeksToDisplay]);
-
-  const {scale, selectedScale, setSelectedScale} = useChartScale(minValue, 'log');
-
-  const clickLegend = useCallback((event: React.MouseEvent<HTMLButtonElement>, entry: string) => {
+  const clickLegend = useCallback((event: MouseEvent<HTMLButtonElement>, entry: string) => {
     const isMac = navigator.userAgent.includes('Mac');
     if (event.shiftKey) {
-      if (!selectedWeek.length) {
-        setSelectedWeek([entry]);
+      if (!selectedValues.length) {
+        setSelectedValues([entry]);
       } else {
-        const firstIndex = weeksKeys.indexOf(selectedWeek[0]);
-        const lastIndex = weeksKeys.indexOf(selectedWeek[selectedWeek.length - 1]);
-        const selectedIndex = weeksKeys.indexOf(entry);
-        const start = Math.min(firstIndex, selectedIndex, selectedWeek.indexOf(entry) > -1 ? selectedIndex : lastIndex);
-        const end = Math.max(firstIndex, selectedIndex, selectedWeek.indexOf(entry) > -1 ? selectedIndex : lastIndex);
-        setSelectedWeek(weeksKeys.slice(start, end + 1));
+        const firstIndex = valueKeys.indexOf(selectedValues[0]);
+        const lastIndex = valueKeys.indexOf(selectedValues[selectedValues.length - 1]);
+        const selectedIndex = valueKeys.indexOf(entry);
+        const start = Math.min(firstIndex, selectedIndex, selectedValues.indexOf(entry) > -1 ? selectedIndex : lastIndex);
+        const end = Math.max(firstIndex, selectedIndex, selectedValues.indexOf(entry) > -1 ? selectedIndex : lastIndex);
+        setSelectedValues(valueKeys.slice(start, end + 1));
       }
     } else if ((!isMac && event.ctrlKey) || (isMac && event.metaKey)) {
-      setSelectedWeek(curr => curr.indexOf(entry) > -1 ? curr.filter((item) => item !== entry) : [...curr, entry]);
+      setSelectedValues(curr => curr.indexOf(entry) > -1 ? curr.filter((item) => item !== entry) : [...curr, entry]);
     } else {
-      setSelectedWeek(curr => curr.length === 1 && curr.indexOf(entry) > -1 ? curr.filter((item) => item !== entry) : [entry]);
+      setSelectedValues(curr => curr.length === 1 && curr.indexOf(entry) > -1 ? curr.filter((item) => item !== entry) : [entry]);
     }
-  }, [selectedWeek, weeksKeys]);
+  }, [selectedValues, setSelectedValues, valueKeys]);
+
+  const getAllocatorName = (allocator: IAllocator | undefined) => {
+    if (!!allocator?.orgName?.length) {
+      return allocator?.orgName;
+    } else if (!!allocator?.name?.length) {
+      return allocator?.name;
+    } else {
+      return undefined;
+    }
+  }
 
   const renderLegend = useCallback(() => {
     return (
-      <div className="flex flex-col m-2">
+      <div className={cn("flex flex-col m-2 gap-x-1 h-full",
+        mode === 'allocator' && 'overflow-y-auto',
+      )}>
         {
-          reversedWeekKeys.map((entry, index) => (
-            <button
-              className={cn("bg-transparent text-sm flex items-center rounded-md h-6 p-1 hover:grayscale-0 hover:opacity-100 hover:bg-solitude",
-                {["grayscale-[80%] opacity-60"]: !!selectedWeek.length},
-                {["!bg-oyster-bay grayscale-0 opacity-100 active"]: selectedWeek.indexOf(entry) > -1})}
+          reversedValueKeys.map((entry, index) => {
+            const allocator = mode === 'allocator' ? allocators.data.find((allocator) => allocator.addressId === entry) : undefined;
+            const name = mode === 'allocator' ? getAllocatorName(allocator) ?? entry : `Week ${entry.substring(1)}`
+            return <button
+              className={cn("bg-transparent text-xs flex items-center rounded-md h-6 p-1 hover:grayscale-0 hover:opacity-100 hover:bg-solitude",
+                {["grayscale-[80%] opacity-60"]: !!selectedValues.length},
+                {["!bg-oyster-bay grayscale-0 opacity-100 active"]: selectedValues.indexOf(entry) > -1})}
               onClick={(e) => clickLegend(e, entry)} key={`item-${index}`}>
-              <div className={"w-5 h-full mr-1 rounded"} style={{backgroundColor: palette(weeksKeys.indexOf(entry))}}/>
-              Week {entry.substring(1)}
+              <div className={"w-5 h-full mr-1 rounded"} style={{backgroundColor: palette(valueKeys.indexOf(entry))}}/>
+              {name.length > 20 ? name.substring(0, 20) + '...' : name}
             </button>
-          ))
+          })
         }
         <div className="grid mt-1">
           <button
             className="bg-transparent text-sm flex items-center rounded-md h-6 p-1 hover:bg-solitude justify-center"
             onClick={() => {
-              setSelectedWeek([]);
+              setSelectedValues([]);
             }}>
             Clear
           </button>
         </div>
       </div>
     );
-  }, [clickLegend, reversedWeekKeys, selectedWeek, weeksKeys]);
+  }, [mode, reversedValueKeys, allocators.data, selectedValues, valueKeys, clickLegend, setSelectedValues]);
 
   const filteredData = useMemo(() => {
-    return chartData.filter((item) => weeksToDisplay.some((key) => Object.keys(item).includes(key)));
-  }, [chartData, weeksToDisplay]);
+    return chartData.filter((item) => valuesToDisplay.some((key) => Object.keys(item).includes(key)));
+  }, [chartData, valuesToDisplay]);
 
-  return <Card className="hidden lg:block lg:col-span-3">
+  return <Card className="hidden md:block md:col-span-3">
     <CardHeader>
       <CardTitle>DataCap Used Over Time by Allocator</CardTitle>
-      <ScaleSelector scale={selectedScale} setScale={setSelectedScale}/>
+      <div className="flex gap-2">
+        <Tabs value={mode} onValueChange={(val) => setMode(val as 'week' | 'allocator')}>
+          <TabsList>
+            <TabsTrigger value="allocator">Week based</TabsTrigger>
+            <TabsTrigger value="week">Allocator based</TabsTrigger>
+          </TabsList>
+        </Tabs>
+        <ScaleSelector scale={selectedScale} setScale={setSelectedScale}/>
+      </div>
     </CardHeader>
     <CardContent className="flex items-center justify-center">
       {
-        !loading && !chartData && <p>Error loading data</p>
+        !chartData && <p>Error loading data</p>
       }
-      {!loading && !!chartData?.length && !!filteredData?.length && <ResponsiveContainer width="100%" aspect={3 / 2} debounce={500}>
-        <BarChart
-          data={filteredData}
-          margin={{top: 40, right: 50, left: 20, bottom: 200}}
-        >
-          <CartesianGrid strokeDasharray="3 3"/>
-          <XAxis dataKey="display" angle={90} interval={0} minTickGap={0} tick={<CustomizedAxisTick/>}/>
-          <YAxis tickFormatter={formatYAxisTick} scale={scale}/>
-          <Tooltip content={renderTooltip}/>
-          <Legend align="right" verticalAlign="middle" layout="vertical" content={renderLegend}/>
-          {weeksToDisplay.map((key) => <Bar onClick={handleClick} key={key} style={{cursor: 'pointer'}} dataKey={key}
-                                            stackId="a" fill={palette(weeksKeys.indexOf(key))}/>)}
-        </BarChart>
-      </ResponsiveContainer>}
+      {!!chartData?.length && !!filteredData?.length &&
+        <ResponsiveContainer width="100%" aspect={3 / 2} debounce={500}>
+          <BarChart
+            data={filteredData}
+            margin={{top: 40, right: 10, left: 10, bottom: mode === 'week' ? 160 : 100}}
+          >
+            <CartesianGrid strokeDasharray="3 3"/>
+            {mode === 'week' && <XAxis dataKey="display" angle={90} interval={0} minTickGap={0} tick={<CustomizedAxisTick/>}/>}
+            {mode === 'allocator' && <XAxis dataKey="name" angle={90} interval={0} minTickGap={0} tick={<CustomizedAxisTick/>}/>}
+            <YAxis tickFormatter={formatYAxisTick} scale={scale}/>
+            <Tooltip content={renderTooltip}/>
+            <Legend align="right" verticalAlign="middle" layout="vertical" width={mode === 'allocator' ? 250 : undefined}
+                     height={mode === 'allocator' ? legendHeight : undefined} content={renderLegend}/>
+            {valuesToDisplay.map((key) => <Bar onClick={handleClick} key={key} style={{cursor: 'pointer'}} dataKey={key}
+                                               maxBarSize={50} stackId="a" fill={palette(valueKeys.indexOf(key))}/>)}
+          </BarChart>
+        </ResponsiveContainer>}
     </CardContent>
   </Card>
 }
@@ -227,7 +186,7 @@ const CustomizedAxisTick = (props: {
   } = props;
   return (
     <g transform={`translate(${x},${y})`}>
-      <text x={0} y={0} dx={-5} dy={5} textAnchor="end" fill="#666" transform="rotate(-90)">
+      <text x={0} y={0} dx={5} dy={5} textAnchor="start" fontSize={13} fill="#666" transform="rotate(65)">
         {payload.value.substring(0, 25)}{payload.value.length > 25 ? '...' : ''}
       </text>
     </g>
