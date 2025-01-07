@@ -129,6 +129,7 @@ const GenericContentHeader = ({
                   <Link
                     key={index}
                     href={href}
+                    prefetch={true}
                     className={cn(buttonVariants({variant: 'outline'}), 'flex gap-2 items-center')}
                   >
                     {label}
