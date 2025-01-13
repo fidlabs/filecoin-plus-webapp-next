@@ -1,5 +1,4 @@
 "use client";
-import {useClientDetails} from "@/app/clients/(pages)/[id]/components/client.provider";
 import {useReportsColumns} from "@/app/clients/(pages)/[id]/(pages)/reports/components/useReportsColumns";
 import {DataTable} from "@/components/ui/data-table";
 import {useMemo, useState} from "react";
@@ -7,9 +6,13 @@ import {RowSelectionState} from "@tanstack/react-table";
 import {CardFooter} from "@/components/ui/card";
 import {buttonVariants} from "@/components/ui/button";
 import Link from "next/link";
+import {IClientReportsResponse} from "@/lib/interfaces/cdp/cdp.interface";
 
-const ReportsTable = () => {
-  const {reportsData} = useClientDetails()
+interface IProps {
+  reportsData: IClientReportsResponse
+}
+
+const ReportsTable = ({reportsData}: IProps) => {
 
   const {columns} = useReportsColumns()
 

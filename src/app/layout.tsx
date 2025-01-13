@@ -11,8 +11,8 @@ const font = Montserrat({
 })
 
 export const metadata: Metadata = {
-  title: "Fil+ Dashboard",
-  description: "Fil+ Dashboard",
+  title: "Fil+ DataCap Stats",
+  description: "Your entry place into statistics and metrics about the Filecoin Plus program.",
 }
 
 export default function RootLayout({

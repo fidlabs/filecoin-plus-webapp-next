@@ -1,3 +1,4 @@
+"use client"
 import {useGoogleTrustLevels} from "@/lib/hooks/google.hooks";
 import {ChartWrapper} from "@/app/compliance-data-portal/components/chart-wrapper";
 import {StackedBarGraph} from "@/components/charts/compliance/graphs/stacked-bar-graph";

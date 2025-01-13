@@ -17,7 +17,7 @@ const Component = async () => {
           <p className="font-semibold textxl">
             {stats?.numberOfAllocators}
           </p>
-          <StatsLink href="/allocators?showInactive=true">
+          <StatsLink href="/allocators">
             Allocators
           </StatsLink>
         </div>
@@ -32,7 +32,7 @@ const Component = async () => {
           <p className="font-semibold textxl">
             {stats?.numberOfActiveNotariesV2}
           </p>
-          <StatsLink href="/allocators?showInactive=true">
+          <StatsLink href="/allocators">
             Allocators
           </StatsLink>
         </div>

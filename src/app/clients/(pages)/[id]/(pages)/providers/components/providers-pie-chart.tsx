@@ -1,13 +1,15 @@
 "use client";
 import {Cell, Pie, PieChart, ResponsiveContainer} from "recharts";
-import {useClientDetails} from "@/app/clients/(pages)/[id]/components/client.provider";
 import {palette} from "@/lib/utils";
 import {ActiveShape} from "@/components/ui/pie-active-shape";
+import {
+  useClientProvidersDetails
+} from "@/app/clients/(pages)/[id]/(pages)/providers/components/client-providers.provider";
 
 
 const ProvidersPieChart = () => {
 
-  const {providersChartData, activeProviderIndex, setActiveProviderIndex} = useClientDetails()
+  const {providersChartData, activeProviderIndex, setActiveProviderIndex} = useClientProvidersDetails()
 
   const onPieEnter = (_: unknown, index: number) => {
     setActiveProviderIndex(index);

@@ -1,7 +1,6 @@
 import {getStorageProviderById} from "@/lib/api";
 import {Metadata, ResolvingMetadata} from "next";
 import {cache, PropsWithChildren, Suspense} from "react";
-import {StorageProvider} from "@/app/storage-providers/(pages)/[id]/components/storage.provider";
 import {PageHeader, PageTitle} from "@/components/ui/title";
 
 const fetchData = cache(async (id: string) => {
@@ -43,18 +42,16 @@ const AllocatorDetailsLayout = async ({children, params}: PropsWithChildren<IPag
   const spResponse = await fetchData(params.id)
 
   return <main className="main-content">
-    <StorageProvider id={params.id} initialData={spResponse}>
-      <div className="flex w-full justify-between mb-4">
-        <PageHeader>
-          <PageTitle>
-            {spResponse?.providerId}
-          </PageTitle>
-        </PageHeader>
-      </div>
-      <Suspense>
-        {children}
-      </Suspense>
-    </StorageProvider>
+    <div className="flex w-full justify-between mb-4">
+      <PageHeader>
+        <PageTitle>
+          {spResponse?.providerId}
+        </PageTitle>
+      </PageHeader>
+    </div>
+    <Suspense>
+      {children}
+    </Suspense>
   </main>
 }
 

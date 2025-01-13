@@ -1,3 +1,4 @@
+"use client"
 import {useGoogleSheetsAuditReport} from "@/lib/hooks/google.hooks";
 import {useState} from "react";
 import {ChartWrapper} from "@/app/compliance-data-portal/components/chart-wrapper";

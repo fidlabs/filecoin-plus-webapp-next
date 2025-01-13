@@ -1,34 +1,28 @@
 "use client"
 import {DataTable} from "@/components/ui/data-table";
-import {useClients} from "@/lib/hooks/dmob.hooks";
 import {Card, CardContent} from "@/components/ui/card";
 import {IClientsQuery} from "@/lib/interfaces/api.interface";
 import {GenericContentFooter, GenericContentHeader} from "@/components/generic-content-view";
-import {InfoIcon, LoaderCircle} from "lucide-react";
+import {InfoIcon} from "lucide-react";
 import {getClients} from "@/lib/api";
 import {useParamsQuery} from "@/lib/hooks/useParamsQuery";
 import {useClientsColumns} from "@/app/clients/components/useClientsColumns";
 import {ClientsStats} from "@/app/clients/components/clients-stats";
+import {IClientsResponse} from "@/lib/interfaces/dmob/client.interface";
 
-const ClientsList = () => {
+interface ClientsListProps {
+  clients: IClientsResponse,
+  params: IClientsQuery
+}
 
-  const {params, patchParams} = useParamsQuery<IClientsQuery>({
-    page: '1',
-    limit: '10',
-    sort: '',
-    filter: ''
-  })
+const ClientsList = ({clients, params}: ClientsListProps) => {
 
-  const {
-    data,
-    stats,
-    loading
-  } = useClients(params)
+  const {patchParams} = useParamsQuery(params)
 
   const {columns, csvHeaders} = useClientsColumns((key, direction) => patchParams({sort: `[["${key}",${direction}]]`}));
 
   return <div>
-    <ClientsStats data={stats}/>
+    <ClientsStats data={clients}/>
     <Card className="mt-4">
       <GenericContentHeader placeholder="Client ID / Address / Name" query={params?.filter}
                             getCsv={{
@@ -44,10 +38,9 @@ const ClientsList = () => {
                             header={<div className="flex flex-row gap-6 items-baseline">
                               <h1 className="text-2xl text-black leading-none font-semibold flex items-center gap-2">
                                 <p>
-                                  {loading && <LoaderCircle className="animate-spin"/>}
-                                  {data?.count}
+                                  {clients?.count}
                                 </p>
-                                <p>{+(data?.count ?? 0) === 1 ? "Client" : "Clients"}</p>
+                                <p>{+(clients?.count ?? 0) === 1 ? "Client" : "Clients"}</p>
                               </h1>
                             </div>}
                             setQuery={(filter: string) => patchParams({filter, page: '1'})}/>
@@ -58,14 +51,9 @@ const ClientsList = () => {
         </div>
       </CardContent>
       <CardContent className="p-0">
-        {
-          loading && <div className="p-10 w-full flex flex-col items-center justify-center">
-            <LoaderCircle className="animate-spin"/>
-          </div>
-        }
-        {data && <DataTable columns={columns} data={data!.data}/>}
+        <DataTable columns={columns} data={clients!.data}/>
       </CardContent>
-      <GenericContentFooter page={params?.page} limit={params?.limit} total={(data?.count ?? '0')}
+      <GenericContentFooter page={params?.page} limit={params?.limit} total={(clients?.count ?? '0')}
                             patchParams={patchParams}/>
     </Card>
   </div>

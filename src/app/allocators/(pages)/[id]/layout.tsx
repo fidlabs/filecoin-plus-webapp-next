@@ -1,11 +1,12 @@
 import {getAllocatorById} from "@/lib/api";
-import {AllocatorProvider} from "@/app/allocators/(pages)/[id]/components/allocator.provider";
 import {Metadata, ResolvingMetadata} from "next";
 import {cache, PropsWithChildren, Suspense} from "react";
 import {PageHeader, PageSubTitle, PageTitle} from "@/components/ui/title";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {convertBytesToIEC} from "@/lib/utils";
 import {ResponsiveView} from "@/components/ui/responsive-view";
+import {JsonLd} from "@/components/json.ld";
+import {Person, WithContext} from "schema-dts";
 
 const fetchData = cache(async (id: string) => {
   return await getAllocatorById(id, {
@@ -34,7 +35,8 @@ export async function generateMetadata(
   const previousImages = (await parent).openGraph?.images || []
 
   return {
-    title: `Fil + | Allocator ${allocatorResponse.name}`,
+    title: `Fil+ DataCap Stats | ${allocatorResponse.name}`,
+    description: 'Fil+ Allocator',
     openGraph: {
       images: [...previousImages],
     },
@@ -44,8 +46,16 @@ export async function generateMetadata(
 const AllocatorDetailsLayout = async ({children, params}: PropsWithChildren<IPageProps>) => {
   const allocatorResponse = await fetchData(params.id);
 
-  return <main className="main-content">
-    <AllocatorProvider id={params.id}>
+  const person: WithContext<Person> = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": allocatorResponse?.name,
+    "description": 'Fil+ Allocator',
+    "url": `https://datacapstats.io/allocators/${params.id}`,
+  }
+
+  return <JsonLd data={person}>
+    <main className="main-content">
       <div className="flex w-full justify-between mb-4">
         <PageHeader>
           <PageTitle>
@@ -70,8 +80,8 @@ const AllocatorDetailsLayout = async ({children, params}: PropsWithChildren<IPag
       <Suspense>
         {children}
       </Suspense>
-    </AllocatorProvider>
-  </main>
+    </main>
+  </JsonLd>
 }
 
 export default AllocatorDetailsLayout;

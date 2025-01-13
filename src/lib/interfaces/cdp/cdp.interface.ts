@@ -50,6 +50,7 @@ export interface IClientReportHeader {
   client: string
   client_address: string
   organization_name: string
+  application_url: string
 }
 
 export type CompareType = "up" | "down" | "equal" | undefined
@@ -68,6 +69,8 @@ export interface IClientReportStorageProviderDistribution {
   duplicated_data_size_compare: CompareType
   duplication_percentage: number
   duplication_percentage_compare: CompareType
+  retrievability_success_rate: string,
+  retrievability_success_rate_compare: CompareType
   location: IClientReportLocation
 }
 

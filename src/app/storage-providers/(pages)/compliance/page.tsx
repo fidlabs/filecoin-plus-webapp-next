@@ -5,8 +5,8 @@ import {
 } from "@/app/storage-providers/(pages)/compliance/components/storage-provider-compliance";
 
 export const metadata: Metadata = {
-  title: "Fil+ Dashboard | Storage Providers Complaince",
-  description: "Fil+ Dashboard | Storage Providers Complaince",
+  title: "Fil+ DataCap Stats | Storage Providers Complaince",
+  description: "Fil+ DataCap Stats | Storage Providers Complaince",
 }
 
 const AllocatorsPage = () => {

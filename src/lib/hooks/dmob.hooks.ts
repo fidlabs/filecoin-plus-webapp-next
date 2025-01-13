@@ -1,22 +1,10 @@
 import {useCallback, useEffect, useMemo, useState} from "react";
-import {
-  IFilDCAllocationsWeekly,
-  IFilDCAllocationsWeeklyByClient,
-  IFilPlusStats
-} from "@/lib/interfaces/dmob/dmob.interface";
 import {isEqual} from "lodash";
 import {
-  getAllocators,
-  getClients,
-  getDataCapAllocationsWeekly,
-  getDataCapAllocationsWeeklyByClient,
-  getStats,
   getStorageProviders
 } from "@/lib/api";
 import {IApiQuery} from "@/lib/interfaces/api.interface";
 import {IStorageProvidersResponse} from "@/lib/interfaces/dmob/sp.interface";
-import {IClientsResponse} from "@/lib/interfaces/dmob/client.interface";
-import {IAllocatorsResponse} from "@/lib/interfaces/dmob/allocator.interface";
 import {useGoogleSheetFilters, useGoogleSheetsAuditReport} from "@/lib/hooks/google.hooks";
 import {IAllocatorsWithSheetInfo, IAllocatorWithSheetInfo} from "@/lib/interfaces/cdp/google.interface";
 
@@ -146,146 +134,6 @@ const useDataCapFlow = () => {
   };
 }
 
-const useStats = () => {
-  const [data, setData] = useState<IFilPlusStats | undefined>(undefined);
-  const [loading, setLoading] = useState<boolean>(false);
-
-  useEffect(() => {
-    setLoading(true);
-    getStats().then(data => {
-      setData(data);
-      setLoading(false);
-    });
-  }, []);
-
-  return {
-    data,
-    loading
-  }
-}
-
-const useDataCapAllocationsWeekly = () => {
-  const [data, setData] = useState<IFilDCAllocationsWeekly | undefined>(undefined);
-  const [loading, setLoading] = useState<boolean>(false);
-
-  useEffect(() => {
-    setLoading(true);
-    getDataCapAllocationsWeekly().then(data => {
-      setData(data);
-      setLoading(false);
-    });
-  }, []);
-
-  return {
-    data,
-    loading
-  }
-}
-
-const useDataCapAllocationsWeeklyByClient = () => {
-  const [data, setData] = useState<IFilDCAllocationsWeeklyByClient | undefined>(undefined);
-  const [loading, setLoading] = useState<boolean>(false);
-
-  useEffect(() => {
-    setLoading(true);
-    getDataCapAllocationsWeeklyByClient().then(data => {
-      setData(data);
-      setLoading(false);
-    });
-  }, []);
-
-  return {
-    data,
-    loading
-  }
-}
-
-const useAllocators = (params?: IApiQuery) => {
-  const [data, setData] = useState<IAllocatorsResponse | undefined>(undefined);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [currentParams, setCurrentParams] = useState<IApiQuery | undefined>(params);
-
-  useEffect(() => {
-    if (isEqual(currentParams, params)) {
-      return;
-    }
-    if (shouldClearData(currentParams, params)) {
-      setLoading(true);
-      setData(undefined)
-    }
-    setCurrentParams(params);
-
-    getAllocators(params)
-      .then(setData)
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [currentParams, params]);
-
-  return {
-    data,
-    loading
-  }
-}
-
-const useAllAllocators = () => {
-  const [data, setData] = useState<IAllocatorsResponse | undefined>(undefined);
-  const [loading, setLoading] = useState<boolean>(false);
-
-  useEffect(() => {
-    setLoading(true);
-    setData(undefined)
-    getAllocators({
-      page: '1',
-      showInactive: 'true',
-    })
-      .then(setData)
-      .finally(() => {
-        setLoading(false);
-      });
-  }, []);
-
-  return {
-    data,
-    loading
-  }
-}
-
-const useClients = (params?: IApiQuery) => {
-  const [data, setData] = useState<IClientsResponse | undefined>(undefined);
-  const [stats, setStats] = useState<IClientsResponse | undefined>(undefined);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [currentParams, setCurrentParams] = useState<IApiQuery | undefined>(params);
-
-  useEffect(() => {
-    if (isEqual(currentParams, params)) {
-      return;
-    }
-    if (shouldClearData(currentParams, params)) {
-      setLoading(true);
-      setData(undefined)
-    }
-    setCurrentParams(params);
-
-    getClients(params)
-      .then((data => {
-        setData(data);
-        if (!stats) {
-          setStats(data);
-        }
-      }))
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [currentParams, params, stats]);
-
-  return {
-    data,
-    stats,
-    loading
-  }
-}
-
 const useStorageProviders = (params?: IApiQuery) => {
   const [data, setData] = useState<IStorageProvidersResponse | undefined>(undefined);
   const [loading, setLoading] = useState<boolean>(false);
@@ -316,12 +164,6 @@ const useStorageProviders = (params?: IApiQuery) => {
 
 export {
   useDataCapFlow,
-  useStats,
-  useDataCapAllocationsWeekly,
-  useDataCapAllocationsWeeklyByClient,
-  useAllocators,
-  useAllAllocators,
-  useClients,
   useStorageProviders,
 };
 

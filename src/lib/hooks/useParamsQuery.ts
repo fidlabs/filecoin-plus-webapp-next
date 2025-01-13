@@ -1,55 +1,28 @@
-import {useCallback, useEffect, useState} from "react";
-import {IAllocatorsQuery, IApiQuery} from "@/lib/interfaces/api.interface";
-import {usePathname, useRouter, useSearchParams} from "next/navigation";
+import {useCallback} from "react";
+import {IApiQuery} from "@/lib/interfaces/api.interface";
+import {usePathname, useRouter} from "next/navigation";
 
 
-const useParamsQuery = <T>(initialParams?: IApiQuery) => {
-  const query = useSearchParams()
+const useParamsQuery = (initialParams?: IApiQuery) => {
   const pathName = usePathname()
   const router = useRouter()
 
-  const [params, setParams] = useState<IApiQuery | undefined>(undefined)
-
   const patchParams = useCallback((newParams: IApiQuery) => {
-    setParams((oldParams) => ({
-      ...(oldParams ?? {}),
+    const paramsToUpdate = {
+      ...(initialParams ?? {}),
       ...newParams
-    }) as IAllocatorsQuery)
-  }, []);
+    } as IApiQuery;
 
-  useEffect(() => {
-    if (!params) {
-      return
-    }
     const searchParams = new URLSearchParams();
-    for (const [key, value] of Object.entries(params)) {
+    for (const [key, value] of Object.entries(paramsToUpdate)) {
       searchParams.set(key, value?.toString() ?? '')
     }
     const newPath = `${pathName}?${searchParams.toString()}`
     router.replace(newPath)
-  }, [params, pathName, router]);
 
-  const parseInitialParams = useCallback(() => {
-    if (params) {
-      return
-    }
-    const paramsEntries = Object.fromEntries(query);
-    setParams({
-      ...(initialParams ?? {
-        page: '1',
-        limit: '10',
-        sort: '',
-      }),
-      ...paramsEntries
-    })
-  }, [initialParams, params, query])
-
-  useEffect(() => {
-    parseInitialParams();
-  }, [parseInitialParams])
+  }, [initialParams, pathName, router]);
 
   return {
-    params: params as T,
     patchParams
   }
 }

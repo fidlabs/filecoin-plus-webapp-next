@@ -1,7 +1,6 @@
 "use client";
 
 import {createContext, PropsWithChildren, useCallback, useContext, useState} from 'react';
-import {useScrollToHash} from "@/lib/hooks/useScrollToHash";
 import {ICDPRange} from "@/lib/interfaces/cdp/cdp.interface";
 
 const barTabs = ['3 groups', '6 groups', 'All'];
@@ -38,7 +37,6 @@ const CommonChartContext = createContext({
 
 const CdpProvider = ({ children }: PropsWithChildren) => {
 
-  const scrollToHash = useScrollToHash();
 
   const [globalBarTab, setGlobalBarTab] = useState('6 groups');
   const [globalScaleTab, setGlobalScaleTab] = useState('linear');
@@ -46,8 +44,7 @@ const CdpProvider = ({ children }: PropsWithChildren) => {
 
   const scrollTo = useCallback((element: string) => {
     setCurrentElement(element);
-    scrollToHash(element);
-  }, [scrollToHash]);
+  }, []);
 
   const groupData = useCallback((data: ICDPRange[], groupCount: number) => {
 

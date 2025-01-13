@@ -1,15 +1,18 @@
+"use client";
 import {LoaderCircle} from "lucide-react";
 import {DataTable} from "@/components/ui/data-table";
-import {useClientDetails} from "@/app/clients/(pages)/[id]/components/client.provider";
 import {
   useClientAllocationsColumns
 } from "@/app/clients/(pages)/[id]/(pages)/allocations/components/useClientAllocationsColumns";
 import {useMemo} from "react";
+import {IClientAllocationsResponse} from "@/lib/interfaces/dmob/client.interface";
 
+interface IProps {
+  allocationsData: IClientAllocationsResponse
+}
 
-const AllocationsListTable = () => {
+const AllocationsListTable = ({allocationsData}: IProps) => {
 
-  const {allocationsData, loading} = useClientDetails()
   const {columns} = useClientAllocationsColumns()
 
   const data = useMemo(() => {
@@ -22,7 +25,7 @@ const AllocationsListTable = () => {
 
   return <div>
     {
-      loading && <div className="p-10 w-full flex flex-col items-center justify-center">
+      !data && <div className="p-10 w-full flex flex-col items-center justify-center">
         <LoaderCircle className="animate-spin"/>
       </div>
     }
