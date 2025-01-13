@@ -1,59 +1,31 @@
-"use client"
-import {Card, CardContent} from "@/components/ui/card";
-import {GenericContentFooter, GenericContentHeader} from "@/components/generic-content-view";
-import {getClients} from "@/lib/api";
-import {LoaderCircle} from "lucide-react";
-import {DataTable} from "@/components/ui/data-table";
-import {useDataCapClaimsColumns} from "@/app/clients/(pages)/[id]/components/useDataCapClaimsColumns";
-import {useClientDetails} from "@/app/clients/(pages)/[id]/components/client.provider";
+import {getClientById} from "@/lib/api";
+import {IApiQuery} from "@/lib/interfaces/api.interface";
+import {Suspense} from "react";
+import {LatestClaims} from "@/app/clients/(pages)/[id]/components/latest-claims";
 
-const ClientDetailsPage = () => {
-  const {data, tabs, loading, params, patchParams} = useClientDetails()
-  const {
-    columns,
-    csvHeaders
-  } = useDataCapClaimsColumns();
+interface IPageProps {
+  params: { id: string }
+  searchParams: IApiQuery
+}
+
+const ClientDetailsPage = async (pageParams: IPageProps) => {
+  const clientId = pageParams.params.id
+  const searchParams = pageParams.searchParams
+
+  const currentParams = {
+    page: searchParams?.page ?? '1',
+    limit: searchParams?.limit ?? '15',
+    filter: searchParams?.filter ?? '',
+    sort: searchParams?.sort ?? `[["createdAt", 0]]`,
+  }
+
+  const data = await getClientById(clientId, currentParams)
 
   return <div className="main-content">
-    <Card>
-      <GenericContentHeader placeholder="Storage Provider ID"
-                            sticky
-                            fixedHeight={false}
-                            navigation={tabs}
-                            query={params?.filter}
-                            selected="list"
-                            setQuery={(filter: string) => patchParams({
-                              page: '1',
-                              limit: '15',
-                              sort: `[["createdAt", 0]]`,
-                              filter
-                            })}
-                            getCsv={{
-                              method: async () => {
-                                const data = await getClients()
-                                return {
-                                  data: data.data as never[]
-                                }
-                              },
-                              title: 'clients.csv',
-                              headers: csvHeaders
-                            }}/>
-      <CardContent className="p-0">
-        {
-          loading && !data && <div className="p-10 w-full flex flex-col items-center justify-center">
-            <LoaderCircle className="animate-spin"/>
-          </div>
-        }
-        {data && <DataTable columns={columns} data={data!.data}/>}
-      </CardContent>
-      <GenericContentFooter page={params?.page}
-                            currentElements={data?.data.length || 0}
-                            limit={params?.limit}
-                            paginationSteps={['15', '25', '50']}
-                            patchParams={patchParams}/>
-    </Card>
+    <Suspense>
+      <LatestClaims clientId={clientId} data={data} searchParams={currentParams}/>
+    </Suspense>
   </div>
-
 }
 
 export default ClientDetailsPage

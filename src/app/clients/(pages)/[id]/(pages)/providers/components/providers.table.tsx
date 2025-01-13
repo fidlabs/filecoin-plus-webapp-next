@@ -1,12 +1,14 @@
 "use client";
-import {useClientDetails} from "@/app/clients/(pages)/[id]/components/client.provider";
 import {Table, TableBody, TableCell, TableHeader, TableRow} from "@/components/ui/table";
 import {cn, convertBytesToIEC, palette} from "@/lib/utils";
 import Link from "next/link";
 import {buttonVariants} from "@/components/ui/button";
+import {
+  useClientProvidersDetails
+} from "@/app/clients/(pages)/[id]/(pages)/providers/components/client-providers.provider";
 
 const ProvidersTable = () => {
-  const {providersData, activeProviderIndex, setActiveProviderIndex} = useClientDetails()
+  const {providersData, activeProviderIndex, setActiveProviderIndex} = useClientProvidersDetails()
 
   return <div className="overflow-auto md:max-h-[calc(100vh-400px)]">
     <Table>

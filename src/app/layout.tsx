@@ -5,7 +5,6 @@ import {ReactNode} from "react";
 import {Header} from "@/components/header";
 import {Toaster} from "@/components/ui/sonner";
 import {ViewTransitions} from "next-view-transitions";
-import {Product, WithContext} from "schema-dts";
 
 const font = Montserrat({
   subsets: ['latin'],

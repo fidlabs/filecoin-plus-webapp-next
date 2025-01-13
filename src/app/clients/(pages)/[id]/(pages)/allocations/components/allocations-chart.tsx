@@ -1,5 +1,5 @@
+"use client";
 import {useMemo} from "react";
-import {useClientDetails} from "@/app/clients/(pages)/[id]/components/client.provider";
 import {
   Area,
   Bar,
@@ -14,11 +14,13 @@ import {
 import {calculateDateFromHeight, convertBytesToIEC, palette} from "@/lib/utils";
 import {NameType, ValueType} from "recharts/types/component/DefaultTooltipContent";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
+import {IClientAllocationsResponse} from "@/lib/interfaces/dmob/client.interface";
 
+interface IProps {
+  allocationsData: IClientAllocationsResponse
+}
 
-const AllocationsChart = () => {
-
-  const {allocationsData} = useClientDetails();
+const AllocationsChart = ({allocationsData}: IProps) => {
 
   const renderTooltip = (props: TooltipProps<ValueType, NameType>) => {
     const allocationData = props?.payload?.[0]?.payload;

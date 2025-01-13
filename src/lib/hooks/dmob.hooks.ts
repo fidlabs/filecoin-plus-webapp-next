@@ -1,22 +1,10 @@
 import {useCallback, useEffect, useMemo, useState} from "react";
-import {
-  IFilDCAllocationsWeekly,
-  IFilDCAllocationsWeeklyByClient,
-  IFilPlusStats
-} from "@/lib/interfaces/dmob/dmob.interface";
 import {isEqual} from "lodash";
 import {
-  getAllocators,
-  getClients,
-  getDataCapAllocationsWeekly,
-  getDataCapAllocationsWeeklyByClient,
-  getStats,
   getStorageProviders
 } from "@/lib/api";
 import {IApiQuery} from "@/lib/interfaces/api.interface";
 import {IStorageProvidersResponse} from "@/lib/interfaces/dmob/sp.interface";
-import {IClientsResponse} from "@/lib/interfaces/dmob/client.interface";
-import {IAllocatorsResponse} from "@/lib/interfaces/dmob/allocator.interface";
 import {useGoogleSheetFilters, useGoogleSheetsAuditReport} from "@/lib/hooks/google.hooks";
 import {IAllocatorsWithSheetInfo, IAllocatorWithSheetInfo} from "@/lib/interfaces/cdp/google.interface";
 

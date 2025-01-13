@@ -18,7 +18,7 @@ const useParamsQuery = (initialParams?: IApiQuery) => {
       searchParams.set(key, value?.toString() ?? '')
     }
     const newPath = `${pathName}?${searchParams.toString()}`
-    router.push(newPath)
+    router.replace(newPath)
 
   }, [initialParams, pathName, router]);
 

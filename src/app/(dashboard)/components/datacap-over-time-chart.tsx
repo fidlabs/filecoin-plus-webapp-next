@@ -4,13 +4,12 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
-  Legend,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis
 } from "recharts";
-import {memo, useCallback, useMemo, MouseEvent, useState, useEffect} from "react";
+import {memo, useCallback, useMemo, MouseEvent, useState} from "react";
 import {cn, convertBytesToIEC, palette} from "@/lib/utils";
 import {useChartScale} from "@/lib/hooks/useChartScale";
 import {ScaleSelector} from "@/components/ui/scale-selector";
@@ -18,7 +17,6 @@ import {IAllocator, IAllocatorsResponse} from "@/lib/interfaces/dmob/allocator.i
 import {IFilDCAllocationsWeeklyByClient} from "@/lib/interfaces/dmob/dmob.interface";
 import {useDataCapOverTimeChart} from "@/app/(dashboard)/hooks/useDataCapOverTimeChart";
 import {Tabs, TabsList, TabsTrigger} from "@/components/ui/tabs";
-import {useWindowSize} from "usehooks-ts";
 
 interface Props {
   data: IFilDCAllocationsWeeklyByClient,
@@ -28,22 +26,6 @@ interface Props {
 const Component = ({data, allocators}: Props) => {
 
   const [mode, setMode] = useState<'week' | 'allocator'>('allocator')
-  const [legendHeight, setLegendHeight] = useState(900)
-
-  const {width = 0} = useWindowSize({
-    initializeWithValue: true,
-  })
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      if (width >= 1600) {
-        setLegendHeight(900)
-      } else {
-        setLegendHeight(width * 9 / 16)
-      }
-    }, 25)
-
-    return () => clearTimeout(timeout) //clear timeout (delete function execution)
-  }, [width])
 
   const {
     valueKeys,
