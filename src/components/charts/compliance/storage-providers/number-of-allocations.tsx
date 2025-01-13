@@ -1,3 +1,4 @@
+"use client"
 import {useStorageProviderNumberOfDeals} from "@/lib/hooks/cdp.hooks";
 import {StackedBarGraph} from "@/components/charts/compliance/graphs/stacked-bar-graph";
 import {ChartWrapper} from "@/app/compliance-data-portal/components/chart-wrapper";

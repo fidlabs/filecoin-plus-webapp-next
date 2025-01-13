@@ -1,17 +1,18 @@
 import {getClientById} from "@/lib/api";
 import {Metadata, ResolvingMetadata} from "next";
 import {PropsWithChildren, Suspense} from "react";
-import {ClientProvider} from "@/app/clients/(pages)/[id]/components/client.provider";
 import {cache} from 'react';
 import {PageHeader, PageSubTitle, PageTitle} from "@/components/ui/title";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {convertBytesToIEC} from "@/lib/utils";
 import {ResponsiveView} from "@/components/ui/responsive-view";
+import {Person, WithContext} from "schema-dts";
+import {JsonLd} from "@/components/json.ld";
 
 const fetchData = cache(async (id: string) => {
   return await getClientById(id, {
     page: '1',
-    limit: '15',
+    limit: '1',
     sort: `[["createdAt", 0]]`,
     filter: ''
   })
@@ -38,7 +39,8 @@ export async function generateMetadata(
   const previousImages = (await parent).openGraph?.images || []
 
   return {
-    title: `Fil + | Client ${clientResponse.name}`,
+    title: `Fil+ DataCap Stats | ${clientResponse.name}`,
+    description: 'Fil+ Client',
     openGraph: {
       images: [...previousImages],
     },
@@ -48,7 +50,15 @@ export async function generateMetadata(
 const ClientDetailsLayout = async ({children, params}: PropsWithChildren<IPageProps>) => {
   const clientResponse = await fetchData(params.id)
 
-  return <ClientProvider id={params.id} initialData={clientResponse}>
+  const person: WithContext<Person> = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": clientResponse?.name,
+    "description": 'Fil+ Client',
+    "url": `https://datacapstats.io/clients/${params.id}`,
+  }
+
+  return <JsonLd data={person}>
       <div className="flex w-full justify-between mb-4 main-content">
         <PageHeader>
           <PageTitle>
@@ -80,7 +90,7 @@ const ClientDetailsLayout = async ({children, params}: PropsWithChildren<IPagePr
       <Suspense>
         {children}
       </Suspense>
-    </ClientProvider>
+    </JsonLd>
 }
 
 export default ClientDetailsLayout;

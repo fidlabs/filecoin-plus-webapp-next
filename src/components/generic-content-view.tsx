@@ -17,6 +17,7 @@ interface GenericContentHeaderProps {
   placeholder?: string,
   fixedHeight?: boolean,
   sticky?: boolean,
+  titleAddons?: ReactNode,
   addons?: ReactNode,
   header?: ReactNode,
   navigation?: ITabNavigatorTab[],
@@ -39,6 +40,7 @@ const GenericContentHeader = ({
                                 header,
                                 navigation,
                                 selected,
+                                titleAddons,
                                 addons,
                                 sticky,
                                 query,
@@ -110,6 +112,9 @@ const GenericContentHeader = ({
     <div className="flex w-full lg:w-auto justify-between items-center">
       {header && header}
       {navigation && selected && <TabNavigator tabs={navigation} selected={selected}/>}
+      {titleAddons && <div className="ml-2 flex gap-2 justify-center items-center">
+        {titleAddons}
+      </div>}
       <div className="lg:hidden">
         <Drawer>
           <DrawerTrigger asChild>
@@ -124,6 +129,7 @@ const GenericContentHeader = ({
                   <Link
                     key={index}
                     href={href}
+                    prefetch={true}
                     className={cn(buttonVariants({variant: 'outline'}), 'flex gap-2 items-center')}
                   >
                     {label}
@@ -144,12 +150,12 @@ const GenericContentHeader = ({
         </Drawer>
       </div>
     </div>
-    <div className={cn("flex flex-row justify-end gap-3 sm:mt-0", !!setQuery && ' mt-3 sm:mt-0')}>
+    <div className={cn("flex flex-row justify-end gap-2 sm:mt-0", !!setQuery && ' mt-3 sm:mt-0')}>
       {!!setQuery && placeholder &&
         <Input className="bg-background w-full max-w-[350px] sm:w-64 text-[18px] lg:text-base" value={searchQuery}
                placeholder={placeholder}
                onChange={(e) => setSearchQuery(e.target.value)}/>}
-      {addons && <div className="hidden lg:block">
+      {addons && <div className="hidden lg:flex gap-2 items-center justify-center">
         {addons}
       </div>}
       {getCsv && <Button variant="outline" className="hidden lg:block" onClick={downloadCsv}>

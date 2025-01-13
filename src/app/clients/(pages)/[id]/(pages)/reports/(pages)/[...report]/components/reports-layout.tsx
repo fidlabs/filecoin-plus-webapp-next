@@ -19,6 +19,8 @@ import {cn} from "@/lib/utils";
 import {
   ReportViewCidSharing
 } from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/cid-sharing-view/report-view-cid-sharing";
+import {GithubIcon} from "@/components/icons/github.icon";
+import Link from "next/link";
 
 const ReportsLayout = () => {
 
@@ -47,9 +49,13 @@ const ReportsLayout = () => {
         )} style={colsStyle}>
           {
             reports.map((report, index) => {
-              return <div key={index} className="[&:not(:last-child)]:border-r-2 p-4">
+              return <div key={index} className="[&:not(:last-child)]:border-r-2 p-4 flex gap-1 items-center">
                 Report <span className="font-semibold">{report.id}</span> from <span
                 className="font-semibold">{format(new Date(report.create_date), 'yyyy-MM-dd HH:mm')}</span>
+                {report.application_url && <Link
+                  className="text-gray-500 hover:text-gray-900"
+                  target="_blank"
+                  href={report.application_url}><GithubIcon width={15} height={15}/></Link>}
               </div>
             })
           }

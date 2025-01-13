@@ -41,18 +41,20 @@ const useReportViewProvidersColumns = (compareMode: boolean) => {
       )
     }, cell: ({row}) => {
       if (row.original.not_found) {
-        return <div className="h-full flex items-center justify-start gap-1">N/A</div>
+        return <div className="h-[40px] flex items-center justify-start gap-1">N/A</div>
       }
 
       const rawLocation = row.original.location;
-      return <HoverCard>
-        <HoverCardTrigger>
-          <div>{rawLocation.city}, {rawLocation.region}, {rawLocation.country}</div>
-        </HoverCardTrigger>
-        <HoverCardContent>
-          {rawLocation.org}
-        </HoverCardContent>
-      </HoverCard>
+      return <div className="h-[40px] flex items-center justify-start gap-1">
+        <HoverCard>
+          <HoverCardTrigger>
+            <div>{rawLocation.city}, {rawLocation.region}, {rawLocation.country}</div>
+          </HoverCardTrigger>
+          <HoverCardContent>
+            {rawLocation.org}
+          </HoverCardContent>
+        </HoverCard>
+      </div>
     }
   }, {
     accessorKey: "total_deal_size",
@@ -102,13 +104,13 @@ const useReportViewProvidersColumns = (compareMode: boolean) => {
       )
     }, cell: ({row}) => {
       if (row.original.not_found) {
-        return <div className="h-full flex items-center justify- gap-1">N/A</div>
+        return <div className="h-full flex items-center justify-start gap-1">N/A</div>
       }
 
       const duplication = row.getValue('duplication_percentage') as number
       const duplicatedDataSize = row.original.duplicated_data_size
 
-      return <div className="h-full flex items-center justify-end gap-1">
+      return <div className="h-full flex items-center justify-start gap-1">
         {duplication.toFixed(2)}%
         {!!duplicatedDataSize && <HoverCard>
           <HoverCardTrigger asChild>
@@ -121,6 +123,26 @@ const useReportViewProvidersColumns = (compareMode: boolean) => {
           </HoverCardContent>
         </HoverCard>}
         {compareMode && <CompareIcon compare={row.original.duplicated_data_size_compare}/>}
+      </div>
+    }
+  }, {
+    accessorKey: 'retrievability_success_rate',
+    header: () => {
+      return (
+        <div className="whitespace-nowrap">
+          Retrieval Rate
+        </div>
+      )
+    }, cell: ({row}) => {
+      if (row.original.not_found) {
+        return <div className="h-full flex items-center justify-end gap-1">N/A</div>
+      }
+
+      const successRate = row.getValue('retrievability_success_rate') as number
+
+      return <div className="h-full flex items-center justify-end gap-1">
+        {(successRate * 100).toFixed(2)}%
+        {compareMode && <CompareIcon compare={row.original.retrievability_success_rate_compare}/>}
       </div>
     }
   }] as ColumnDef<IClientReportStorageProviderDistribution>[]

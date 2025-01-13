@@ -21,7 +21,7 @@ const useAsync = <T>(asyncFunction: () => Promise<T>) => {
       setLoading(false);
       setLoaded(true);
     })();
-  }, []);
+  }, [asyncFunction]);
 
   return {loading, loaded, error, data};
 }

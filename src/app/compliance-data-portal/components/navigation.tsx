@@ -5,8 +5,9 @@ import {useCDPUtils} from "@/lib/providers/cdp.provider";
 import {useMediaQuery} from "usehooks-ts";
 import {Button} from "@/components/ui/button";
 import {Drawer, DrawerContent, DrawerTrigger} from "@/components/ui/drawer";
+import dynamic from "next/dynamic";
 
-const Navigation = () => {
+const NavComponent = () => {
 
   const {currentElement} = useCDPUtils();
 
@@ -116,5 +117,9 @@ const Menu = () => {
     </div>
   </div>
 }
+
+const Navigation = dynamic(() => Promise.resolve(NavComponent), {
+  ssr: false
+});
 
 export {Navigation};

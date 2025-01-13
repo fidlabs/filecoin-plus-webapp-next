@@ -39,6 +39,7 @@
     "react-resizable-panels": "^2.1.4",
     "react-simple-maps": "^3.0.0",
     "recharts": "^2.13.0-alpha.5",
+    "schema-dts": "^1.1.2",
     "sonner": "^1.5.0",
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",

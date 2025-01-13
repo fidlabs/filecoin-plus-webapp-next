@@ -7,6 +7,7 @@ import {
   StorageProviderBiggestAllocation, StorageProviderNumberOfAllocations, StorageProviderRetrievability
 } from "@/components/charts/compliance/storage-providers";
 import {CdpProvider} from "@/lib/providers/cdp.provider";
+import {Separator} from "@/components/ui/separator";
 
 
 const StorageProvidersCompliance = () => {
@@ -33,7 +34,9 @@ const StorageProvidersCompliance = () => {
     <div className="flex flex-col">
       <CdpProvider>
         <StorageProviderRetrievability plain/>
+        <Separator orientation="horizontal"/>
         <StorageProviderBiggestAllocation plain/>
+        <Separator orientation="horizontal"/>
         <StorageProviderNumberOfAllocations plain/>
       </CdpProvider>
     </div>

@@ -4,13 +4,12 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
-  Legend,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis
 } from "recharts";
-import {memo, useCallback, useMemo, MouseEvent, useState, useEffect} from "react";
+import {memo, useCallback, useMemo, MouseEvent, useState} from "react";
 import {cn, convertBytesToIEC, palette} from "@/lib/utils";
 import {useChartScale} from "@/lib/hooks/useChartScale";
 import {ScaleSelector} from "@/components/ui/scale-selector";
@@ -18,7 +17,6 @@ import {IAllocator, IAllocatorsResponse} from "@/lib/interfaces/dmob/allocator.i
 import {IFilDCAllocationsWeeklyByClient} from "@/lib/interfaces/dmob/dmob.interface";
 import {useDataCapOverTimeChart} from "@/app/(dashboard)/hooks/useDataCapOverTimeChart";
 import {Tabs, TabsList, TabsTrigger} from "@/components/ui/tabs";
-import {useWindowSize} from "usehooks-ts";
 
 interface Props {
   data: IFilDCAllocationsWeeklyByClient,
@@ -28,22 +26,6 @@ interface Props {
 const Component = ({data, allocators}: Props) => {
 
   const [mode, setMode] = useState<'week' | 'allocator'>('allocator')
-  const [legendHeight, setLegendHeight] = useState(900)
-
-  const { width = 0 } = useWindowSize({
-    initializeWithValue: true,
-  })
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      if (width >= 1600) {
-        setLegendHeight(900)
-      } else {
-        setLegendHeight(width * 9 / 16)
-      }
-    }, 25)
-
-    return () => clearTimeout(timeout) //clear timeout (delete function execution)
-  }, [width])
 
   const {
     valueKeys,
@@ -99,9 +81,45 @@ const Component = ({data, allocators}: Props) => {
     }
   }
 
-  const renderLegend = useCallback(() => {
-    return (
-      <div className={cn("flex flex-col m-2 gap-x-1 h-full",
+  const filteredData = useMemo(() => {
+    return chartData.filter((item) => valuesToDisplay.some((key) => Object.keys(item).includes(key)));
+  }, [chartData, valuesToDisplay]);
+
+  return <Card className="hidden md:block md:col-span-3">
+    <CardHeader>
+      <CardTitle>DataCap Used Over Time by Allocator</CardTitle>
+      <div className="flex gap-2">
+        <Tabs value={mode} onValueChange={(val) => setMode(val as 'week' | 'allocator')}>
+          <TabsList>
+            <TabsTrigger value="allocator">Week based</TabsTrigger>
+            <TabsTrigger value="week">Allocator based</TabsTrigger>
+          </TabsList>
+        </Tabs>
+        <ScaleSelector scale={selectedScale} setScale={setSelectedScale}/>
+      </div>
+    </CardHeader>
+    <CardContent className="flex items-center justify-center">
+      {
+        !chartData && <p>Error loading data</p>
+      }
+      {!!chartData?.length && !!filteredData?.length &&
+        <ResponsiveContainer width="100%" aspect={1.2} debounce={500}>
+          <BarChart
+            data={filteredData}
+            margin={{top: 40, right: 30, left: 10, bottom: mode === 'week' ? 160 : 100}}
+          >
+            <CartesianGrid strokeDasharray="3 3"/>
+            {mode === 'week' &&
+              <XAxis dataKey="display" angle={90} interval={0} minTickGap={0} tick={<CustomizedAxisTick/>}/>}
+            {mode === 'allocator' &&
+              <XAxis dataKey="name" angle={90} interval={0} minTickGap={0} tick={<CustomizedAxisTick/>}/>}
+            <YAxis tickFormatter={formatYAxisTick} scale={scale}/>
+            <Tooltip content={renderTooltip}/>
+            {valuesToDisplay.map((key) => <Bar onClick={handleClick} key={key} style={{cursor: 'pointer'}} dataKey={key}
+                                               maxBarSize={50} stackId="a" fill={palette(valueKeys.indexOf(key))}/>)}
+          </BarChart>
+        </ResponsiveContainer>}
+      <div className={cn("flex flex-col gap-x-1 h-full max-h-[900px] w-[250px]",
         mode === 'allocator' && 'overflow-y-auto',
       )}>
         {
@@ -128,47 +146,6 @@ const Component = ({data, allocators}: Props) => {
           </button>
         </div>
       </div>
-    );
-  }, [mode, reversedValueKeys, allocators.data, selectedValues, valueKeys, clickLegend, setSelectedValues]);
-
-  const filteredData = useMemo(() => {
-    return chartData.filter((item) => valuesToDisplay.some((key) => Object.keys(item).includes(key)));
-  }, [chartData, valuesToDisplay]);
-
-  return <Card className="hidden md:block md:col-span-3">
-    <CardHeader>
-      <CardTitle>DataCap Used Over Time by Allocator</CardTitle>
-      <div className="flex gap-2">
-        <Tabs value={mode} onValueChange={(val) => setMode(val as 'week' | 'allocator')}>
-          <TabsList>
-            <TabsTrigger value="allocator">Week based</TabsTrigger>
-            <TabsTrigger value="week">Allocator based</TabsTrigger>
-          </TabsList>
-        </Tabs>
-        <ScaleSelector scale={selectedScale} setScale={setSelectedScale}/>
-      </div>
-    </CardHeader>
-    <CardContent className="flex items-center justify-center">
-      {
-        !chartData && <p>Error loading data</p>
-      }
-      {!!chartData?.length && !!filteredData?.length &&
-        <ResponsiveContainer width="100%" aspect={3 / 2} debounce={500}>
-          <BarChart
-            data={filteredData}
-            margin={{top: 40, right: 10, left: 10, bottom: mode === 'week' ? 160 : 100}}
-          >
-            <CartesianGrid strokeDasharray="3 3"/>
-            {mode === 'week' && <XAxis dataKey="display" angle={90} interval={0} minTickGap={0} tick={<CustomizedAxisTick/>}/>}
-            {mode === 'allocator' && <XAxis dataKey="name" angle={90} interval={0} minTickGap={0} tick={<CustomizedAxisTick/>}/>}
-            <YAxis tickFormatter={formatYAxisTick} scale={scale}/>
-            <Tooltip content={renderTooltip}/>
-            <Legend align="right" verticalAlign="middle" layout="vertical" width={mode === 'allocator' ? 250 : undefined}
-                     height={mode === 'allocator' ? legendHeight : undefined} content={renderLegend}/>
-            {valuesToDisplay.map((key) => <Bar onClick={handleClick} key={key} style={{cursor: 'pointer'}} dataKey={key}
-                                               maxBarSize={50} stackId="a" fill={palette(valueKeys.indexOf(key))}/>)}
-          </BarChart>
-        </ResponsiveContainer>}
     </CardContent>
   </Card>
 }

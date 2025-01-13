@@ -56,6 +56,7 @@ export const compareReports = (reports: IClientFullReport[]) => {
           unique_data_size_compare: compare(+provider.unique_data_size, +reports[index - 1].storage_provider_distribution[providerIndex].unique_data_size),
           duplicated_data_size_compare: compare(+provider.duplicated_data_size, +reports[index - 1].storage_provider_distribution[providerIndex].duplicated_data_size),
           duplication_percentage_compare: compare(provider.duplication_percentage, reports[index - 1].storage_provider_distribution[providerIndex].duplication_percentage),
+          retrievability_success_rate_compare: compare(+provider.retrievability_success_rate, +reports[index - 1].storage_provider_distribution[providerIndex].retrievability_success_rate),
         }
       }),
       replica_distribution: report.replica_distribution.map((replica, replicaIndex) => {

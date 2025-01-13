@@ -10,6 +10,7 @@ import {
   ProviderComplianceAllocator, AllocatorTrustLevels
 } from "@/components/charts/compliance/allocators";
 import {CdpProvider} from "@/lib/providers/cdp.provider";
+import {Separator} from "@/components/ui/separator";
 
 
 const AllocatorsCompliance = () => {
@@ -35,9 +36,13 @@ const AllocatorsCompliance = () => {
     <div className="flex flex-col">
       <CdpProvider>
         <AllocatorRetrievability plain/>
+        <Separator orientation="horizontal"/>
         <AllocatorBiggestAllocation plain/>
+        <Separator orientation="horizontal"/>
         <ProviderComplianceAllocator plain/>
+        <Separator orientation="horizontal"/>
         <AllocatorAuditState plain/>
+        <Separator orientation="horizontal"/>
         <AllocatorTrustLevels plain/>
       </CdpProvider>
     </div>
