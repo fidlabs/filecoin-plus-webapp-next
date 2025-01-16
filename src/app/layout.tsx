@@ -1,19 +1,20 @@
-import type {Metadata} from "next";
 import {Montserrat} from 'next/font/google'
 import "./globals.css";
 import {ReactNode} from "react";
 import {Header} from "@/components/header";
 import {Toaster} from "@/components/ui/sonner";
 import {ViewTransitions} from "next-view-transitions";
+import {generatePageMetadata} from "@/lib/utils";
 
 const font = Montserrat({
   subsets: ['latin'],
 })
 
-export const metadata: Metadata = {
+export const metadata = generatePageMetadata({
   title: "Fil+ DataCap Stats",
   description: "Your entry place into statistics and metrics about the Filecoin Plus program.",
-}
+  url: "https://datacapstats.io"
+});
 
 export default function RootLayout({
                                      children,

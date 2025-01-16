@@ -1,10 +1,10 @@
 import {getClientById} from "@/lib/api";
-import {Metadata, ResolvingMetadata} from "next";
+import {Metadata} from "next";
 import {PropsWithChildren, Suspense} from "react";
 import {cache} from 'react';
 import {PageHeader, PageSubTitle, PageTitle} from "@/components/ui/title";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
-import {convertBytesToIEC} from "@/lib/utils";
+import {convertBytesToIEC, generatePageMetadata} from "@/lib/utils";
 import {ResponsiveView} from "@/components/ui/responsive-view";
 import {Person, WithContext} from "schema-dts";
 import {JsonLd} from "@/components/json.ld";
@@ -24,7 +24,6 @@ interface IPageProps {
 
 export async function generateMetadata(
   {params}: IPageProps,
-  parent: ResolvingMetadata
 ): Promise<Metadata> {
   const {id} = params
 
@@ -35,16 +34,11 @@ export async function generateMetadata(
       title: '404'
     }
   }
-
-  const previousImages = (await parent).openGraph?.images || []
-
-  return {
+  return generatePageMetadata({
     title: `Fil+ DataCap Stats | ${clientResponse.name}`,
     description: 'Fil+ Client',
-    openGraph: {
-      images: [...previousImages],
-    },
-  }
+    url: `https://datacapstats.io/clients/${id}`,
+  })
 }
 
 const ClientDetailsLayout = async ({children, params}: PropsWithChildren<IPageProps>) => {

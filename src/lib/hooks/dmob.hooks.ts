@@ -1,12 +1,7 @@
-import {useCallback, useEffect, useMemo, useState} from "react";
-import {isEqual} from "lodash";
-import {
-  getStorageProviders
-} from "@/lib/api";
-import {IApiQuery} from "@/lib/interfaces/api.interface";
-import {IStorageProvidersResponse} from "@/lib/interfaces/dmob/sp.interface";
+import {useCallback, useMemo} from "react";
 import {useGoogleSheetFilters, useGoogleSheetsAuditReport} from "@/lib/hooks/google.hooks";
 import {IAllocatorsWithSheetInfo, IAllocatorWithSheetInfo} from "@/lib/interfaces/cdp/google.interface";
+import {IAllocatorsResponse} from "@/lib/interfaces/dmob/allocator.interface";
 
 
 export interface DataCapChild {
@@ -22,25 +17,13 @@ export interface DataCapChild {
   children: DataCapChild[] | undefined;
 }
 
-const getDifferentParams = (params: IApiQuery, newParams: IApiQuery): string[] => {
-  return Object.keys(newParams).filter(key => newParams[key] !== params[key]);
-}
-
-const shouldClearData = (params: IApiQuery | undefined, newParams: IApiQuery | undefined): boolean => {
-  if (!params || !newParams) {
-    return true;
-  }
-  const differentParams = getDifferentParams(params!, newParams!);
-  return differentParams.some(key => key !== 'page');
-}
-
-const useDataCapFlow = () => {
+const useDataCapFlow = (allocators: IAllocatorsResponse) => {
 
   const {
     activeFilter, partialFilter, failedFilter, notActiveFilter, notAuditedFilter, notWaitingFilter, passFilter
   } = useGoogleSheetFilters()
 
-  const { results, loading, loaded } = useGoogleSheetsAuditReport();
+  const { results, loading, loaded } = useGoogleSheetsAuditReport(allocators);
 
   const getElement = useCallback((nodeIdGenerator: Generator<number>, name: string, array: IAllocatorWithSheetInfo[], withSimpleChildren = false) => {
 
@@ -134,36 +117,7 @@ const useDataCapFlow = () => {
   };
 }
 
-const useStorageProviders = (params?: IApiQuery) => {
-  const [data, setData] = useState<IStorageProvidersResponse | undefined>(undefined);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [currentParams, setCurrentParams] = useState<IApiQuery | undefined>(params);
-
-  useEffect(() => {
-    if (isEqual(currentParams, params)) {
-      return;
-    }
-    if (shouldClearData(currentParams, params)) {
-      setLoading(true);
-      setData(undefined)
-    }
-    setCurrentParams(params);
-
-    getStorageProviders(params)
-      .then(setData)
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [currentParams, params]);
-
-  return {
-    data,
-    loading
-  }
-}
-
 export {
   useDataCapFlow,
-  useStorageProviders,
 };
 

@@ -48,13 +48,9 @@ const useGoogleSheetFilters = () => {
   }
 }
 
-const useGoogleSheetsAuditReport = () => {
+const useGoogleSheetsAuditReport = (allocators: IAllocatorsResponse) => {
 
   const [loaded, setLoaded] = useState(false);
-
-  const {data, loading: dataLoading} = useAsync<IAllocatorsResponse>(
-    () => getAllocators({showInactive: 'false'})
-  );
 
   const {
     data: googleSheetsAuditHistory,
@@ -65,7 +61,7 @@ const useGoogleSheetsAuditReport = () => {
     loading: googleSheetsAuditSizesLoading
   } = useAsync<IGoogleSheetResponse>(getGoogleSheetAuditHistorySizes);
 
-  const loading = useMemo(() => dataLoading || googleSheetsAuditHistoryLoading || googleSheetsAuditSizesLoading, [dataLoading, googleSheetsAuditHistoryLoading, googleSheetsAuditSizesLoading]);
+  const loading = useMemo(() => googleSheetsAuditHistoryLoading || googleSheetsAuditSizesLoading, [googleSheetsAuditHistoryLoading, googleSheetsAuditSizesLoading]);
 
   const parsedData = useMemo(() => {
     setLoaded(false);
@@ -74,7 +70,7 @@ const useGoogleSheetsAuditReport = () => {
       data: []
     } as IAllocatorsWithSheetInfo;
 
-    if (data?.data && googleSheetsAuditHistory?.values && googleSheetsAuditSizes?.values) {
+    if (allocators?.data && googleSheetsAuditHistory?.values && googleSheetsAuditSizes?.values) {
       const allocatorIdIndex = googleSheetsAuditHistory.values[0].indexOf('Allocator ID');
       const allocatorIdName = googleSheetsAuditHistory.values[0].indexOf('Allocator');
       const firstReviewIndex = googleSheetsAuditHistory.values[0].indexOf('1');
@@ -87,7 +83,7 @@ const useGoogleSheetsAuditReport = () => {
       }
 
 
-      data?.data.forEach((result) => {
+      allocators?.data.forEach((result) => {
         const googleAuditHistoryData = googleSheetsAuditHistory?.values.find((data) => data[allocatorIdIndex] === result.addressId);
         const googleAuditSizesData = googleSheetsAuditSizes?.values.find((data) => data[allocatorIdIndex] === result.addressId);
         const auditStatuses = googleAuditHistoryData ? googleAuditHistoryData.slice(firstReviewIndex).map(item => item.toUpperCase()) : []
@@ -116,7 +112,7 @@ const useGoogleSheetsAuditReport = () => {
     }
 
     return returnData;
-  }, [data, googleSheetsAuditHistory, googleSheetsAuditSizes]);
+  }, [allocators, googleSheetsAuditHistory, googleSheetsAuditSizes]);
 
   return {
     results: parsedData,

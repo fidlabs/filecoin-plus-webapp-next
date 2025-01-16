@@ -5,11 +5,13 @@ import {Structure} from "@/app/allocator-tree/components/structure";
 import {Organization, Person, WithContext} from "schema-dts";
 import {JsonLd} from "@/components/json.ld";
 import {IGoogleSheetResponse} from "@/lib/interfaces/cdp/google.interface";
+import {generatePageMetadata} from "@/lib/utils";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = generatePageMetadata({
   title: "Fil+ DataCap Stats | Allocators tree",
   description: "Fil+ DataCap Stats | Allocators tree",
-}
+  url: "https://datacapstats.io/allocator-tree",
+})
 
 const AllocatorsTreePage = async () => {
 

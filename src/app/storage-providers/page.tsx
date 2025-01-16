@@ -5,11 +5,13 @@ import {IStorageProvidersQuery} from "@/lib/interfaces/api.interface";
 import {getStorageProviders} from "@/lib/api";
 import {ItemList, WithContext} from "schema-dts";
 import {JsonLd} from "@/components/json.ld";
+import {generatePageMetadata} from "@/lib/utils";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = generatePageMetadata({
   title: "Fil+ DataCap Stats | Storage Providers",
   description: "A convenient way to browse and search for Filecoin Plus Providers.",
-}
+  url: "https://datacapstats.io/storage-providers",
+})
 
 interface PageProps {
   searchParams: IStorageProvidersQuery;
