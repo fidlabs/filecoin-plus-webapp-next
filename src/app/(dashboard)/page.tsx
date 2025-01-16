@@ -4,6 +4,16 @@ import {DatacapFlow} from "@/app/(dashboard)/components/datacap-flow";
 import {Charts} from "@/app/(dashboard)/components/charts";
 import {WebPage, WithContext} from "schema-dts";
 import {JsonLd} from "@/components/json.ld";
+import {
+  IFilDCAllocationsWeekly,
+  IFilDCAllocationsWeeklyByClient,
+  IFilPlusStats
+} from "@/lib/interfaces/dmob/dmob.interface";
+import {IAllocatorsResponse} from "@/lib/interfaces/dmob/allocator.interface";
+import {getAllocators, getDataCapAllocationsWeekly, getDataCapAllocationsWeeklyByClient, getStats} from "@/lib/api";
+
+type AllSettledResult = [PromiseFulfilledResult<IFilPlusStats>, PromiseFulfilledResult<IFilDCAllocationsWeekly>, PromiseFulfilledResult<IFilDCAllocationsWeeklyByClient>, PromiseFulfilledResult<IAllocatorsResponse>]
+
 
 const page: WithContext<WebPage> = {
   '@context': 'https://schema.org',
@@ -15,6 +25,11 @@ const page: WithContext<WebPage> = {
 
 export default async function Home() {
 
+  const [stats, allocationWeekly, allocationWeeklyByClient, allocators] = await Promise.allSettled([await getStats(), await getDataCapAllocationsWeekly(), await getDataCapAllocationsWeeklyByClient(), await getAllocators({
+    page: '1',
+    showInactive: 'true',
+  })]) as AllSettledResult
+
   return (
     <JsonLd data={page}>
       <main className="main-content flex flex-col gap-8 items-start">
@@ -24,8 +39,13 @@ export default async function Home() {
         </PageHeader>
         <div className="flex flex-col gap-6 w-full">
           <Stats/>
-          <Charts/>
-          <DatacapFlow/>
+          <Charts
+            stats={stats.value}
+            allocationWeekly={allocationWeekly.value}
+            allocationWeeklyByClient={allocationWeeklyByClient.value}
+            allocators={allocators.value}
+          />
+          <DatacapFlow allocators={allocators.value}/>
         </div>
       </main>
     </JsonLd>

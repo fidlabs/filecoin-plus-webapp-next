@@ -1,9 +1,9 @@
 import {getAllocatorById} from "@/lib/api";
-import {Metadata, ResolvingMetadata} from "next";
+import {Metadata} from "next";
 import {cache, PropsWithChildren, Suspense} from "react";
 import {PageHeader, PageSubTitle, PageTitle} from "@/components/ui/title";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
-import {convertBytesToIEC} from "@/lib/utils";
+import {convertBytesToIEC, generatePageMetadata} from "@/lib/utils";
 import {ResponsiveView} from "@/components/ui/responsive-view";
 import {JsonLd} from "@/components/json.ld";
 import {Person, WithContext} from "schema-dts";
@@ -20,7 +20,6 @@ interface IPageProps {
 
 export async function generateMetadata(
   {params}: IPageProps,
-  parent: ResolvingMetadata
 ): Promise<Metadata> {
   const {id} = params
 
@@ -32,15 +31,11 @@ export async function generateMetadata(
     }
   }
 
-  const previousImages = (await parent).openGraph?.images || []
-
-  return {
+  return generatePageMetadata({
     title: `Fil+ DataCap Stats | ${allocatorResponse.name}`,
     description: 'Fil+ Allocator',
-    openGraph: {
-      images: [...previousImages],
-    },
-  }
+    url: `https://datacapstats.io/allocators/${id}`,
+  })
 }
 
 const AllocatorDetailsLayout = async ({children, params}: PropsWithChildren<IPageProps>) => {

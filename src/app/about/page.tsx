@@ -1,6 +1,5 @@
-import {cn} from "@/lib/utils";
+import {cn, generatePageMetadata} from "@/lib/utils";
 import {Card, CardContent, CardFooter, CardHeader, CardTitle} from "@/components/ui/card";
-import {Metadata} from "next";
 import {buttonVariants} from "@/components/ui/button";
 import {PageTitle} from "@/components/ui/title";
 import {BookIcon, CodeIcon, DatabaseIcon, ShieldCheckIcon} from "lucide-react";
@@ -17,10 +16,11 @@ const page: WithContext<WebPage> = {
   description: 'Your entry place into statistics and metrics about the Filecoin Plus program.',
 }
 
-export const metadata: Metadata = {
-  title: "Fil+ DataCap Stats | About",
-  description: "Your entry place into statistics and metrics about the Filecoin Plus program.",
-}
+export const metadata = generatePageMetadata({
+  title: 'Fil+ DataCap Stats | About',
+  description: 'Your entry place into statistics and metrics about the Filecoin Plus program.',
+  url: "https://datacapsts.io/about"
+})
 
 const contentLink = {
   'filecoin_docs': <Link

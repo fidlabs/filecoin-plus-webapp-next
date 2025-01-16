@@ -113,6 +113,24 @@ export interface IClientFullReport extends IClientReportHeader {
   storage_provider_distribution: IClientReportStorageProviderDistribution[]
   replica_distribution: IClientReportReplicaDistribution[]
   cid_sharing: IClientReportCIDSharing[]
+  check_results: IClientReportCheckResult[]
+}
+
+export interface IClientReportCheckResult {
+  check: string
+  result: boolean
+  metadata: IClientReportCheckResultMetadata
+}
+
+export interface IClientReportCheckResultMetadata {
+  msg: string
+  percentage?: number
+  zero_retrievability_providers?: number
+  max_zero_retrievability_providers?: number
+  less_than_75_retrievability_providers?: number
+  max_less_than_75_retrievability_providers?: number
+  max_percentage_for_low_replica?: string
+  count?: number
 }
 
 export type IClientReportsResponse = IClientReportHeader[]
