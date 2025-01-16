@@ -5,14 +5,12 @@ import {
 import {
   ReportViewReplicaChart
 } from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/replikas-view/report-view-replika-chart";
-import {
-  ReportViewReplicaHealth
-} from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/replikas-view/report-view-replika-health";
 import {HoverCard, HoverCardContent, HoverCardTrigger} from "@/components/ui/hover-card";
 import {InfoIcon} from "lucide-react";
 import {
   ReportViewReplicaTable
 } from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/replikas-view/report-view-replika-table";
+import {HealthCheck} from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/health-check";
 
 
 
@@ -20,7 +18,8 @@ const ReportViewReplicas = () => {
   const {
     colsStyle,
     colsSpanStyle,
-    replikasList
+    replikasList,
+    securityChecks
   } = useReportsDetails()
 
   return <div className="grid" style={colsStyle}>
@@ -44,7 +43,7 @@ const ReportViewReplicas = () => {
     {
       replikasList.map((replika, index) => {
         return <div key={index} className="border-b [&:not(:last-child)]:border-r-2">
-          <ReportViewReplicaHealth replikaData={replika}/>
+          <HealthCheck security={securityChecks[index].filter(item => item.check.startsWith("DEAL_DATA_REPLICATION"))}/>
           <ReportViewReplicaTable replikaData={replika}/>
           <ReportViewReplicaChart replikaData={replika}/>
         </div>
