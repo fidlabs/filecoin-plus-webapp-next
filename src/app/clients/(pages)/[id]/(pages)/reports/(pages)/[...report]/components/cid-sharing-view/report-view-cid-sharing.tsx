@@ -5,10 +5,6 @@ import {
 import {
   ReportViewCidSharingTable
 } from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/cid-sharing-view/report-view-cid-sharing-table";
-import {
-  ReportViewCidSharingHealth
-} from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/cid-sharing-view/report-view-cid-sharing-health";
-
 
 const ReportViewCidSharing = () => {
   const {
@@ -28,7 +24,6 @@ const ReportViewCidSharing = () => {
     {
       cidSharingList.map((cidSharingData, index) => {
         return <div key={index} className="border-b [&:not(:last-child)]:border-r-2">
-          <ReportViewCidSharingHealth cidSharingData={cidSharingData}/>
           <ReportViewCidSharingTable cidSharingData={cidSharingData}/>
         </div>
       })

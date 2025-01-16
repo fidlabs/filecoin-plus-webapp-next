@@ -1,6 +1,6 @@
 "use client";
 import {
-  IClientFullReport, IClientReportCIDSharing,
+  IClientFullReport, IClientReportCheckResult, IClientReportCIDSharing,
   IClientReportReplicaDistribution,
   IClientReportStorageProviderDistribution
 } from "@/lib/interfaces/cdp/cdp.interface";
@@ -14,6 +14,7 @@ interface IReportsDetailsContext {
   providerDistributionList: IClientReportStorageProviderDistribution[][]
   cidSharingList: IClientReportCIDSharing[][]
   replikasList: IClientReportReplicaDistribution[][]
+  securityChecks: IClientReportCheckResult[][]
   colsStyle: CSSProperties
   colsSpanStyle: CSSProperties
   mapsConstraints: {
@@ -29,6 +30,7 @@ const ReportsDetailsContext = createContext<IReportsDetailsContext>({
   colsStyle: {},
   colsSpanStyle: {},
   cidSharingList: [],
+  securityChecks: [],
   toggleCompareMode: () => {
   },
   compareMode: false,
@@ -49,6 +51,10 @@ const ReportsDetailsProvider = ({children, reports}: PropsWithChildren<{ reports
 
   const providerDistributionList = useMemo(() => {
     return reports.map(report => report.storage_provider_distribution)
+  }, [reports])
+
+  const securityChecks = useMemo(() => {
+    return reports.map(report => report.check_results)
   }, [reports])
 
   const mapsConstraints = useMemo(() => {
@@ -93,6 +99,7 @@ const ReportsDetailsProvider = ({children, reports}: PropsWithChildren<{ reports
       mapsConstraints,
       compareMode,
       cidSharingList,
+      securityChecks,
       toggleCompareMode
     }}>
     {children}
