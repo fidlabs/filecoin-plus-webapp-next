@@ -5,14 +5,9 @@ import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
 import {DataCapFlowTree} from "@/app/(dashboard)/components/datacap-flow-tree";
 import {DataCapFlowSankey} from "@/app/(dashboard)/components/datacap-flow-sankey";
 import {useState} from "react";
-import {IAllocatorsResponse} from "@/lib/interfaces/dmob/allocator.interface";
 
-interface DatacapFlowProps {
-  allocators: IAllocatorsResponse
-}
-
-const DatacapFlow = ({allocators}: DatacapFlowProps) => {
-  const {dataCapFlow, rawData} = useDataCapFlow(allocators)
+const DatacapFlow = () => {
+  const {dataCapFlow, rawData} = useDataCapFlow()
 
   const [tab, setTab] = useState('tree')
 

@@ -1,7 +1,6 @@
 import {useCallback, useMemo} from "react";
 import {useGoogleSheetFilters, useGoogleSheetsAuditReport} from "@/lib/hooks/google.hooks";
 import {IAllocatorsWithSheetInfo, IAllocatorWithSheetInfo} from "@/lib/interfaces/cdp/google.interface";
-import {IAllocatorsResponse} from "@/lib/interfaces/dmob/allocator.interface";
 
 
 export interface DataCapChild {
@@ -17,13 +16,13 @@ export interface DataCapChild {
   children: DataCapChild[] | undefined;
 }
 
-const useDataCapFlow = (allocators: IAllocatorsResponse) => {
+const useDataCapFlow = () => {
 
   const {
     activeFilter, partialFilter, failedFilter, notActiveFilter, notAuditedFilter, notWaitingFilter, passFilter
   } = useGoogleSheetFilters()
 
-  const { results, loading, loaded } = useGoogleSheetsAuditReport(allocators);
+  const { results, loading, loaded } = useGoogleSheetsAuditReport();
 
   const getElement = useCallback((nodeIdGenerator: Generator<number>, name: string, array: IAllocatorWithSheetInfo[], withSimpleChildren = false) => {
 
