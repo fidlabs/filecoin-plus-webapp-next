@@ -2,6 +2,7 @@ import {clsx, type ClassValue} from "clsx"
 import {twMerge} from "tailwind-merge"
 import isFinite from 'lodash/isFinite';
 import {filesize} from "filesize";
+import {Metadata} from "next";
 
 const mpn65 = [
   '#0091ff',
@@ -162,3 +163,22 @@ export const calculateMapScale = (locations: string[]): number => {
 
   return scale;
 };
+
+export const generatePageMetadata = (config: {
+  title: string, description: string, url: string
+}) => ({
+  title: config.title,
+  description: config.description,
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    title: config.title,
+    description: config.description,
+    url: config.url,
+    siteName: "Fil+ DataCap Stats"
+  },
+  twitter: {
+    title: config.title,
+    description: config.description,
+  }
+} as Metadata)

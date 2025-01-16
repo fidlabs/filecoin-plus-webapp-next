@@ -3,11 +3,13 @@ import {Suspense} from "react";
 import {AllocatorsCompliance} from "@/app/allocators/(pages)/compliance/components/allocators-compliance";
 import {Dataset, WithContext} from "schema-dts";
 import {JsonLd} from "@/components/json.ld";
+import {generatePageMetadata} from "@/lib/utils";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = generatePageMetadata({
   title: "Fil+ DataCap Stats | Allocators compliance",
   description: "Fil+ DataCap Stats | Allocators compliance",
-}
+  url: "https://datacapstats.io/allocators/compliance",
+})
 
 const dataset: WithContext<Dataset>[] = [
   { // Allocator Retrievability Score

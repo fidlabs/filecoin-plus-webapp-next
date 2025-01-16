@@ -1,7 +1,8 @@
 import {getStorageProviderById} from "@/lib/api";
-import {Metadata, ResolvingMetadata} from "next";
+import {Metadata} from "next";
 import {cache, PropsWithChildren, Suspense} from "react";
 import {PageHeader, PageTitle} from "@/components/ui/title";
+import {generatePageMetadata} from "@/lib/utils";
 
 const fetchData = cache(async (id: string) => {
   return await getStorageProviderById(id, {
@@ -16,7 +17,6 @@ interface IPageProps {
 
 export async function generateMetadata(
   {params}: IPageProps,
-  parent: ResolvingMetadata
 ): Promise<Metadata> {
   const {id} = params
 
@@ -28,14 +28,11 @@ export async function generateMetadata(
     }
   }
 
-  const previousImages = (await parent).openGraph?.images || []
-
-  return {
+  return generatePageMetadata({
     title: `Fil + | Storage Provider ${spResponse.providerId}`,
-    openGraph: {
-      images: [...previousImages],
-    },
-  }
+    description: `Storage Provider ${spResponse.providerId} details`,
+    url: `https://datacapstats.io/storage-providers/${id}`,
+  })
 }
 
 const AllocatorDetailsLayout = async ({children, params}: PropsWithChildren<IPageProps>) => {

@@ -5,11 +5,13 @@ import {IAllocatorsQuery} from "@/lib/interfaces/api.interface";
 import {getAllocators} from "@/lib/api";
 import {ItemList, WithContext} from "schema-dts";
 import {JsonLd} from "@/components/json.ld";
+import {generatePageMetadata} from "@/lib/utils";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = generatePageMetadata({
   title: "Fil+ DataCap Stats | Allocators",
   description: "A convenient way to browse and search for Filecoin Plus Allocators.",
-}
+  url: "https://datacapstats.io/allocators",
+})
 
 interface PageProps {
   searchParams: IAllocatorsQuery;

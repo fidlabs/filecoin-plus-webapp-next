@@ -5,11 +5,13 @@ import {CdpProvider} from "@/lib/providers/cdp.provider";
 import {Navigation} from "@/app/compliance-data-portal/components/navigation";
 import {Dataset, WithContext} from "schema-dts";
 import {JsonLd} from "@/components/json.ld";
+import {generatePageMetadata} from "@/lib/utils";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = generatePageMetadata({
   title: "Fil+ DataCap Stats | Compliance Overview",
   description: "Fil+ DataCap Stats | Compliance Overview",
-}
+  url: "https://datacapstats.io/compliance-data-portal",
+})
 
 const dataset: WithContext<Dataset>[] = [
   { // SP Retrievability Score
