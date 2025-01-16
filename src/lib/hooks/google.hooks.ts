@@ -1,4 +1,4 @@
-import {useCallback, useMemo, useState} from "react";
+import {useCallback, useEffect, useMemo, useState} from "react";
 import {useAsync} from "@/lib/hooks/useAsync";
 import {
   getAllocators,
@@ -48,29 +48,43 @@ const useGoogleSheetFilters = () => {
   }
 }
 
-const useGoogleSheetsAuditReport = (allocators: IAllocatorsResponse) => {
+const useGoogleSheetsAuditReport = () => {
 
   const [loaded, setLoaded] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [data, setData] = useState<IAllocatorsResponse | undefined>(undefined)
+  const [googleSheetsAuditHistory, setGoogleSheetsAuditHistory] = useState<IGoogleSheetResponse | undefined>(undefined)
+  const [googleSheetsAuditSizes, setGoogleSheetsAuditSizes] = useState<IGoogleSheetResponse | undefined>(undefined)
 
-  const {
-    data: googleSheetsAuditHistory,
-    loading: googleSheetsAuditHistoryLoading
-  } = useAsync<IGoogleSheetResponse>(getGoogleSheetAuditHistory);
-  const {
-    data: googleSheetsAuditSizes,
-    loading: googleSheetsAuditSizesLoading
-  } = useAsync<IGoogleSheetResponse>(getGoogleSheetAuditHistorySizes);
+  useEffect(() => {
+    setLoading(true)
+    Promise.all([
+      getAllocators({showInactive: 'false'}),
+      getGoogleSheetAuditHistory(),
+      getGoogleSheetAuditHistorySizes()
+    ]).then(([allocators, auditHistory, auditSizes]) => {
+      setData(allocators);
+      setGoogleSheetsAuditHistory(auditHistory)
+      setGoogleSheetsAuditSizes(auditSizes)
+      setLoading(false);
+    });
+  }, []);
 
-  const loading = useMemo(() => googleSheetsAuditHistoryLoading || googleSheetsAuditSizesLoading, [googleSheetsAuditHistoryLoading, googleSheetsAuditSizesLoading]);
 
   const parsedData = useMemo(() => {
+    if (!data || !googleSheetsAuditHistory || !googleSheetsAuditSizes) {
+      return {
+        audits: 0,
+        data: []
+      } as IAllocatorsWithSheetInfo;
+    }
     setLoaded(false);
     const returnData = {
       audits: 0,
       data: []
     } as IAllocatorsWithSheetInfo;
 
-    if (allocators?.data && googleSheetsAuditHistory?.values && googleSheetsAuditSizes?.values) {
+    if (data?.data && googleSheetsAuditHistory?.values && googleSheetsAuditSizes?.values) {
       const allocatorIdIndex = googleSheetsAuditHistory.values[0].indexOf('Allocator ID');
       const allocatorIdName = googleSheetsAuditHistory.values[0].indexOf('Allocator');
       const firstReviewIndex = googleSheetsAuditHistory.values[0].indexOf('1');
@@ -83,7 +97,7 @@ const useGoogleSheetsAuditReport = (allocators: IAllocatorsResponse) => {
       }
 
 
-      allocators?.data.forEach((result) => {
+      data?.data.forEach((result) => {
         const googleAuditHistoryData = googleSheetsAuditHistory?.values.find((data) => data[allocatorIdIndex] === result.addressId);
         const googleAuditSizesData = googleSheetsAuditSizes?.values.find((data) => data[allocatorIdIndex] === result.addressId);
         const auditStatuses = googleAuditHistoryData ? googleAuditHistoryData.slice(firstReviewIndex).map(item => item.toUpperCase()) : []
@@ -112,7 +126,7 @@ const useGoogleSheetsAuditReport = (allocators: IAllocatorsResponse) => {
     }
 
     return returnData;
-  }, [allocators, googleSheetsAuditHistory, googleSheetsAuditSizes]);
+  }, [data, googleSheetsAuditHistory, googleSheetsAuditSizes]);
 
   return {
     results: parsedData,
@@ -135,7 +149,7 @@ const useGoogleTrustLevels = () => {
       return [];
     }
 
-    const returnData = [] as {[key: PropertyKey]: string}[];
+    const returnData = [] as { [key: PropertyKey]: string }[];
 
     const _firstMonthInxed = data?.values[0].indexOf('March');
     const _lastMonthIndex = data?.values[0].length - 1;

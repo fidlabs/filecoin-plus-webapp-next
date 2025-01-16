@@ -45,7 +45,7 @@ export default async function Home() {
             allocationWeeklyByClient={allocationWeeklyByClient.value}
             allocators={allocators.value}
           />
-          <DatacapFlow allocators={allocators.value}/>
+          <DatacapFlow/>
         </div>
       </main>
     </JsonLd>

@@ -17,13 +17,13 @@ export interface DataCapChild {
   children: DataCapChild[] | undefined;
 }
 
-const useDataCapFlow = (allocators: IAllocatorsResponse) => {
+const useDataCapFlow = () => {
 
   const {
     activeFilter, partialFilter, failedFilter, notActiveFilter, notAuditedFilter, notWaitingFilter, passFilter
   } = useGoogleSheetFilters()
 
-  const { results, loading, loaded } = useGoogleSheetsAuditReport(allocators);
+  const { results, loading, loaded } = useGoogleSheetsAuditReport();
 
   const getElement = useCallback((nodeIdGenerator: Generator<number>, name: string, array: IAllocatorWithSheetInfo[], withSimpleChildren = false) => {
 
