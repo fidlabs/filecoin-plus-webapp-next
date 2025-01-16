@@ -1,5 +1,4 @@
 import {useCallback, useEffect, useMemo, useState} from "react";
-import {useAsync} from "@/lib/hooks/useAsync";
 import {
   getAllocators,
   getGoogleSheetAllocatorsTrust,
@@ -136,10 +135,20 @@ const useGoogleSheetsAuditReport = () => {
 };
 
 const useGoogleTrustLevels = () => {
-  const {
-    data,
-    loading
-  } = useAsync<IGoogleSheetResponse>(getGoogleSheetAllocatorsTrust);
+  const [data, setData] = useState<IGoogleSheetResponse | undefined>(undefined)
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setLoading(true);
+    getGoogleSheetAllocatorsTrust().then((response) => {
+      setData(response);
+      setLoading(false);
+    });
+  }, []);
+
+  useEffect(() => {
+
+  }, []);
 
   const [loaded, setLoaded] = useState(false);
 
