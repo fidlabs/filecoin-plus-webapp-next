@@ -1,7 +1,6 @@
 import {useCallback, useMemo} from "react";
 import {useGoogleSheetFilters, useGoogleSheetsAuditReport} from "@/lib/hooks/google.hooks";
 import {IAllocatorsWithSheetInfo, IAllocatorWithSheetInfo} from "@/lib/interfaces/cdp/google.interface";
-import {IAllocatorsResponse} from "@/lib/interfaces/dmob/allocator.interface";
 
 
 export interface DataCapChild {
