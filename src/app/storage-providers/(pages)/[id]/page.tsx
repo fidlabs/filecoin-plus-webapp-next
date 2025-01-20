@@ -13,6 +13,7 @@ const StorageProviderDetailsPage = async (pageParams: IPageProps) => {
     page: pageParams.searchParams?.page ?? '1',
     limit: pageParams.searchParams?.limit ?? '10',
     sort: pageParams.searchParams?.sort ?? '',
+    filter: pageParams.searchParams?.filter ?? ''
   }
   const data = await getStorageProviderById(pageParams.params.id, currentParams)
 

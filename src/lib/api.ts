@@ -130,8 +130,18 @@ export const getClientReports = async (clientId: string) => {
   return await fetchData(url) as IClientReportsResponse;
 }
 
+export const getAllocatorReports = async (allocatorId: string) => {
+  const url = `https://cdp.allocator.tech/alocatorReport/${allocatorId}`
+  return await fetchData(url) as IClientReportsResponse;
+}
+
 export const getClientReportById = async (clientId: string, reportId: string) => {
   const url = `https://cdp.allocator.tech/clientReport/${clientId}/${reportId}`
+  return await fetchData(url) as IClientFullReport;
+}
+
+export const getAllocatorReportById = async (allocatorId: string, reportId: string) => {
+  const url = `https://cdp.allocator.tech/alocatorReport/${allocatorId}/${reportId}`
   return await fetchData(url) as IClientFullReport;
 }
 

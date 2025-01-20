@@ -29,6 +29,7 @@ const ClientsList = ({data, params, id}: IClientsListProps) => {
   return <Card>
     <GenericContentHeader placeholder="Client ID / Address / Name"
                           fixedHeight={false}
+                          setQuery={(filter: string) => patchParams({filter})}
                           header={<div>
                             <h1 className="text-2xl text-black leading-none font-semibold flex items-center gap-2">
                               <p>
