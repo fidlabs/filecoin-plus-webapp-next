@@ -52,12 +52,7 @@ const AllocationsOverTimeChart = ({data, allocatorId}: IAllocationsOverTimeChart
   const tabs = useMemo(() => {
     return [
       {
-        label: <>
-          <p>
-            {data?.count}
-          </p>
-          <p>Verified Clients</p>
-        </>,
+        label: 'Verified Clients',
         href: `/allocators/${allocatorId}`,
         value: 'list'
       },
@@ -65,6 +60,10 @@ const AllocationsOverTimeChart = ({data, allocatorId}: IAllocationsOverTimeChart
         label: 'Allocations over time',
         href: `/allocators/${allocatorId}/over-time`,
         value: 'chart'
+      }, {
+        label: 'Reports',
+        href: `/allocators/${allocatorId}/reports`,
+        value: 'reports'
       }
     ] as ITabNavigatorTab[]
   }, [allocatorId, data])
