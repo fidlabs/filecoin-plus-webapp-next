@@ -29,7 +29,7 @@ export default function RootLayout({
       >
       <div vaul-drawer-wrapper="">
         <Header/>
-        <div className="pb-7">
+        <div className="pb-28 md:pb-10">
           {children}
         </div>
         <Toaster position="top-right"/>
