@@ -1,7 +1,7 @@
 import {Card, CardContent} from "@/components/ui/card";
 import {GenericContentHeader} from "@/components/generic-content-view";
-import {ReportsTable} from "@/app/clients/(pages)/[id]/(pages)/reports/components/reports.table";
-import {NewReportButton} from "@/app/clients/(pages)/[id]/(pages)/reports/components/new-report.button";
+import {ReportsTable} from "@/app/allocators/(pages)/[id]/(pages)/reports/components/reports.table";
+import {NewReportButton} from "@/app/allocators/(pages)/[id]/(pages)/reports/components/new-report.button";
 import {getAllocatorReports} from "@/lib/api";
 import {ITabNavigatorTab} from "@/components/ui/tab-navigator";
 import { revalidatePath } from "next/cache";
