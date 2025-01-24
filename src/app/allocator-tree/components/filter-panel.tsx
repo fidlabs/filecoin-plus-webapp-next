@@ -4,7 +4,7 @@ import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {Input} from "@/components/ui/input";
 import {Drawer, DrawerContent, DrawerTrigger} from "@/components/ui/drawer";
 import {Button} from "@/components/ui/button";
-import {SearchIcon} from "lucide-react";
+import {SearchIcon, XIcon} from "lucide-react";
 import dynamic from "next/dynamic";
 import {useState} from "react";
 import {Tabs} from "@radix-ui/react-tabs";
@@ -29,7 +29,16 @@ const Component = ({search, onSearchChange, tab, setTab}: SearchPanelProps) => {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <Input placeholder={'Search for allocator'} value={search} onChange={(e) => onSearchChange(e.target.value)}/>
+        <div className="relative">
+          <Input
+            placeholder={'Search for allocator'}
+            onKeyDown={(e) => e.key === 'Enter' && setDrawerOpened(false)}
+            value={search}
+            onChange={(e) => onSearchChange(e.target.value)}/>
+          <Button variant="ghost" size="icon" className="absolute top-0 right-0" onClick={() => onSearchChange('')}>
+            <XIcon/>
+          </Button>
+        </div>
         <div className="mt-4">
           <Tabs value={tab} className="w-full" onValueChange={setTab}>
             <TabsList>
@@ -54,11 +63,19 @@ const Component = ({search, onSearchChange, tab, setTab}: SearchPanelProps) => {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <Input
-              placeholder={'Search for allocator'}
-              onKeyDown={(e) => e.key === 'Enter' && setDrawerOpened(false)}
-              value={search}
-              onChange={(e) => onSearchChange(e.target.value)}/>
+            <div className="relative">
+              <Input
+                placeholder={'Search for allocator'}
+                onKeyDown={(e) => e.key === 'Enter' && setDrawerOpened(false)}
+                value={search}
+                onChange={(e) => onSearchChange(e.target.value)}/>
+              <Button variant="ghost" size="icon"  className="absolute top-0 right-0" onClick={() => {
+                onSearchChange('')
+                setDrawerOpened(false)
+              }}>
+                <XIcon/>
+              </Button>
+            </div>
             <div className="mt-4">
               <Tabs value={tab} className="w-full" onValueChange={setTab}>
                 <TabsList className="w-full">
