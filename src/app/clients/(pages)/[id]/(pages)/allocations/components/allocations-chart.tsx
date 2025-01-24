@@ -15,6 +15,7 @@ import {calculateDateFromHeight, convertBytesToIEC, palette} from "@/lib/utils";
 import {NameType, ValueType} from "recharts/types/component/DefaultTooltipContent";
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
 import {IClientAllocationsResponse} from "@/lib/interfaces/dmob/client.interface";
+import {useMediaQuery} from "usehooks-ts";
 
 interface IProps {
   allocationsData: IClientAllocationsResponse
@@ -37,6 +38,8 @@ const AllocationsChart = ({allocationsData}: IProps) => {
       </CardContent>
     </Card>;
   };
+
+  const isDesktop = useMediaQuery("(min-width: 768px)");
 
   const chartData = useMemo(() => {
 
@@ -69,21 +72,24 @@ const AllocationsChart = ({allocationsData}: IProps) => {
   }, [allocationsData]);
 
   return <div className="lg:max-h-[50vh] overflow-y-auto overflow-x-hidden">
-    {chartData && <ResponsiveContainer width="100%" height="100%" aspect={2.7} debounce={500}>
+    {chartData && <ResponsiveContainer width="100%" height="100%" aspect={isDesktop ? 2.7 : 1} debounce={500}>
       <ComposedChart
         width={500}
         height={400}
         data={chartData}
+        layout={!isDesktop ? "vertical" : "horizontal"}
         margin={{
           top: 20,
-          right: 20,
+          right: 30,
           bottom: 20,
           left: 20
         }}
       >
         <CartesianGrid stroke="#f5f5f5"/>
-        <XAxis dataKey="height" tickFormatter={(value) => calculateDateFromHeight(value)}/>
-        <YAxis tickFormatter={(value) => convertBytesToIEC(value)}/>
+        {isDesktop && <XAxis dataKey="height" tickFormatter={(value) => calculateDateFromHeight(value)}/>}
+        {isDesktop && <YAxis tickFormatter={(value) => convertBytesToIEC(value)}/>}
+        {!isDesktop && <YAxis dataKey="height" type="category" tickFormatter={(value) => calculateDateFromHeight(value)}/>}
+        {!isDesktop && <XAxis type="number" tickFormatter={(value) => convertBytesToIEC(value)}/>}
         <Tooltip content={renderTooltip}/>
         <Area type="monotone" dataKey="totalAllowance"
               stroke={palette(64)}

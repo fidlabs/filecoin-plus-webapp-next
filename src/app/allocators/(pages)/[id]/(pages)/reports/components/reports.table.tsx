@@ -1,5 +1,5 @@
 "use client";
-import {useReportsColumns} from "@/app/clients/(pages)/[id]/(pages)/reports/components/useReportsColumns";
+import {useReportsColumns} from "@/app/allocators/(pages)/[id]/(pages)/reports/components/useReportsColumns";
 import {DataTable} from "@/components/ui/data-table";
 import {useMemo, useState} from "react";
 import {RowSelectionState} from "@tanstack/react-table";

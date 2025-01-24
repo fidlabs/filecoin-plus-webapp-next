@@ -3,7 +3,7 @@
 import {Button} from "@/components/ui/button";
 import {LoaderCircle} from "lucide-react";
 import {useCallback, useState} from "react";
-import {generateClientReport} from "@/lib/api";
+import {generateAllocatorReport} from "@/lib/api";
 
 interface IProps {
   clientId: string
@@ -14,7 +14,7 @@ const NewReportButton = ({clientId, refetch}: IProps) => {
   const [reportGenerating, setReportGenerating] = useState(false)
   const generateNewReport = useCallback(() => {
     setReportGenerating(true);
-    generateClientReport(clientId)
+    generateAllocatorReport(clientId)
       .then(() => setReportGenerating(false))
       .then(refetch)
   }, [clientId, refetch])

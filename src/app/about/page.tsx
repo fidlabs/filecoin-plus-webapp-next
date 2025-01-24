@@ -111,13 +111,13 @@ export default function AboutPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="max-w-[100ch] mb-4">
+              <p className="mb-4">
                 Filecoin Plus is a layer of social trust on top of the Filecoin Network designed to incentivize the
                 storage of real data. Root key-holders, allocators, clients, and storage providers interact through the
                 allocation and spending of DataCap. For more details about the Fil+ program, visit
                 the {contentLink.filecoin_docs}
               </p>
-              <p className="max-w-[100ch] mb-4">
+              <p className="mb-4">
                 Clients looking to utilize storage on the network apply to receive DataCap from Allocators, which can be
                 used to incentivize storage providers to make storage deals. Allocators are community-elected trustees
                 responsible for allocating DataCap to parties storing useful data on the network. Storage Providers that
@@ -134,12 +134,12 @@ export default function AboutPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="max-w-[100ch] mb-4">
+              <p className="mb-4">
                 The goal of this site is to provide metrics, insights, and audit accountability tools for the Filecoin
                 Plus community. You can see health statistics of the overall program, along with tables of data to track
                 interactions between stakeholders (Allocators, Clients, and Storage Providers).
               </p>
-              <p className="max-w-[100ch] mb-4">
+              <p className="mb-4">
                 This site was created by {contentLink.neti} in
                 collaboration with {contentLink.dmob}, {contentLink.protocol_labs} and the {contentLink.foundation},
                 which provided development grants.
