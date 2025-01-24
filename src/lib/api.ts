@@ -58,7 +58,7 @@ export const parseQuery = (query?: IApiQuery) => {
   }
   const searchParams = new URLSearchParams();
   Object.entries(query).forEach(([key, value]) => {
-    if (value !== undefined) {
+    if (value !== undefined && value !== '') {
       searchParams.append(key, value.toString());
     }
   });
