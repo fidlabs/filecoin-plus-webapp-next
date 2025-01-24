@@ -30,7 +30,8 @@ const ReportViewProviders = () => {
     {
       providerDistributionList.map((providerDistribution, index) => {
         return <div key={index} className="border-b [&:not(:last-child)]:border-r-2">
-          <HealthCheck security={securityChecks[index].filter(item => item.check.startsWith("STORAGE_PROVIDER_DISTRIBUTION"))}/>
+          {securityChecks[index] && <HealthCheck
+            security={securityChecks[index]?.filter(item => item.check.startsWith("STORAGE_PROVIDER_DISTRIBUTION"))}/>}
           <ReportViewProviderTable providerDistribution={providerDistribution}/>
           <ReportViewProviderMap providerDistribution={providerDistribution}/>
         </div>

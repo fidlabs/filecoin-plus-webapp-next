@@ -123,7 +123,7 @@ export interface IClientReportCheckResult {
 }
 
 export interface IClientReportCheckResultMetadata {
-  msg: string
+  msg?: string
   percentage?: number
   zero_retrievability_providers?: number
   max_zero_retrievability_providers?: number

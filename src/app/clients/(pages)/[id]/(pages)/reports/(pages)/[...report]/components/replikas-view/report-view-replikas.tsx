@@ -43,7 +43,7 @@ const ReportViewReplicas = () => {
     {
       replikasList.map((replika, index) => {
         return <div key={index} className="border-b [&:not(:last-child)]:border-r-2">
-          <HealthCheck security={securityChecks[index].filter(item => item.check.startsWith("DEAL_DATA_REPLICATION"))}/>
+          {securityChecks[index] && <HealthCheck security={securityChecks[index]?.filter(item => item.check.startsWith("DEAL_DATA_REPLICATION"))}/>}
           <ReportViewReplicaTable replikaData={replika}/>
           <ReportViewReplicaChart replikaData={replika}/>
         </div>
