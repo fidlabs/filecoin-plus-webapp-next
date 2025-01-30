@@ -9,7 +9,7 @@ import {DataTable} from "@/components/ui/data-table";
 import {
   useReportsDetails
 } from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/providers/reports-details.provider";
-import {CompareIcon} from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/compare.icon";
+import {CompareIcon} from "@/components/icons/compare.icon";
 
 const comparableValues = ['up', 'down']
 

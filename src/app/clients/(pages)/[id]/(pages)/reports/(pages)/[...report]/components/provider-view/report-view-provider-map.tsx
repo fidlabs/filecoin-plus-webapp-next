@@ -21,7 +21,11 @@ const ReportViewProviderMap = ({providerDistribution}: IReportViewProviderMapPro
     mapsConstraints
   } = useReportsDetails()
 
-  const markerGroups = useMemo(() => groupBy(providerDistribution.filter(item => !item.not_found).map(item => item.location), 'loc'), [providerDistribution])
+  const markerGroups = useMemo(() => groupBy(providerDistribution.filter(item => !item.not_found && !!item.location).map(item => item.location), 'loc'), [providerDistribution])
+
+  if (!Object.keys(markerGroups).length) {
+    return undefined
+  }
 
   return <ComposableMap width={1400} projection="geoEqualEarth" projectionConfig={{
     center: mapsConstraints.center,
@@ -36,10 +40,13 @@ const ReportViewProviderMap = ({providerDistribution}: IReportViewProviderMapPro
         ))
       }
     </Geographies>
-    {Object.keys(markerGroups).map(key => {
+    {Object.keys(markerGroups).map((key, index) => {
       const location = markerGroups[key][0];
-      const names = uniq(markerGroups[key].map(location => location.org))
-      return <Marker key={`${providerDistribution[0].client_report_id}_${location.org}_${location.provider_distribution_id}`} coordinates={[+location.loc.split(',')[1], +location.loc.split(',')[0]]}>
+      const names = uniq(markerGroups[key].filter(location => !!location).map(location => location.org))
+      if (!location) {
+        return <></>
+      }
+      return <Marker key={`${providerDistribution[0].client_report_id}_${index}_${location.org}_${location.provider_distribution_id}`} coordinates={[+location.loc.split(',')[1], +location.loc.split(',')[0]]}>
         <HoverCard>
           <HoverCardTrigger>
             <circle r={10} fill="#0090FF" stroke="#fff" cursor="pointer" strokeWidth={2}/>

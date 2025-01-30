@@ -42,7 +42,7 @@ const AllocatorsPage = async ({searchParams}: PageProps) => {
   }
 
   return <JsonLd data={listJsonLD}>
-    <main className="main-content">
+    <main>
       <Suspense>
         <AllocatorsList allocators={allocators} params={currentParams}/>
       </Suspense>

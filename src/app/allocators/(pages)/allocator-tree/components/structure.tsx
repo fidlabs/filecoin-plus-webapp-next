@@ -7,11 +7,15 @@ import {
   ReactFlow,
   Node, Edge, NodeMouseHandler, Background,
 } from '@xyflow/react';
-import {IAllocatorNode} from "@/app/allocator-tree/interfaces/structure.interface";
-import {FilterPanel} from "@/app/allocator-tree/components/filter-panel";
+import {IAllocatorNode} from "@/app/allocators/(pages)/allocator-tree/interfaces/structure.interface";
 import {IAllocatorsResponse} from "@/lib/interfaces/dmob/allocator.interface";
 import {convertBytesToIEC} from "@/lib/utils";
-import {CategoryNode} from "@/app/allocator-tree/components/category.node";
+import {CategoryNode} from "@/app/allocators/(pages)/allocator-tree/components/category.node";
+import {ITabNavigatorTab} from "@/components/ui/tab-navigator";
+import {GenericContentHeader} from "@/components/generic-content-view";
+import {Card} from "@/components/ui/card";
+import {TabsList, TabsTrigger} from "@/components/ui/tabs";
+import {Tabs} from "@radix-ui/react-tabs";
 
 const nodeTypes = {
   allocatorNode: AllocatorNode,
@@ -43,6 +47,22 @@ const Structure = ({allAllocators, allocatorStatuses}: IStructureProps) => {
 
   const [search, setSearch] = useState('')
   const [tab, setTab] = useState<string>('all')
+
+  const tabs = [
+    {
+      label: 'Allocators',
+      href: '/allocators',
+      value: 'allocators'
+    }, {
+      label: 'Compliance',
+      href: '/allocators/compliance',
+      value: 'compliance'
+    }, {
+      label: 'Tree structure',
+      href: '/allocators/allocator-tree',
+      value: 'tree'
+    }
+  ] as ITabNavigatorTab[]
 
   const parseAllocatorToNode = useCallback((id: string, allocators: IAllocatorNode[], group: number) => ({
     id,
@@ -156,25 +176,38 @@ const Structure = ({allAllocators, allocatorStatuses}: IStructureProps) => {
   const onNodeClick: NodeMouseHandler = () => {
   }
 
-  return <div className="w-full h-[calc(100dvh-280px)]">
-    <ReactFlow
-      nodes={structureData}
-      edges={edges}
-      nodeTypes={nodeTypes}
-      elementsSelectable={false}
-      nodesConnectable={false}
-      nodesDraggable={false}
-      onNodeClick={onNodeClick}
-      fitView
-    >
-      <Background/>
-      <FilterPanel search={search} onSearchChange={setSearch} tab={tab} setTab={setTab}/>
-    </ReactFlow>
-  </div>
+  return <Card className="mt-[50px]">
+    <GenericContentHeader placeholder="Allocator name"
+                          setQuery={setSearch}
+                          selected={tabs[2].value}
+                          addons={[
+                            <div key="tabs-search">
+                              <Tabs value={tab} className="w-full" onValueChange={setTab}>
+                                <TabsList>
+                                  <TabsTrigger className="min-w-[80px]" value="all">All</TabsTrigger>
+                                  <TabsTrigger className="min-w-[80px]" value="active">Active</TabsTrigger>
+                                  <TabsTrigger className="min-w-[80px]" value="inactive">Inactive</TabsTrigger>
+                                </TabsList>
+                              </Tabs>
+                            </div>
+                          ]}
+                          navigation={tabs}/>
+    <div className="w-full h-[calc(100dvh-300px)]">
+      <ReactFlow
+        nodes={structureData}
+        edges={edges}
+        nodeTypes={nodeTypes}
+        elementsSelectable={false}
+        nodesConnectable={false}
+        nodesDraggable={false}
+        onNodeClick={onNodeClick}
+        fitView
+      >
+        <Background/>
+      </ReactFlow>
+    </div>
+  </Card>
 }
-
-
-
 
 
 export {Structure}

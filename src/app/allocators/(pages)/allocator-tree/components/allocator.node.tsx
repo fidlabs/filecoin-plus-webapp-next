@@ -1,6 +1,6 @@
 import React from 'react';
 import {NodeProps} from '@xyflow/react';
-import {IAllocatorNode} from "@/app/allocator-tree/interfaces/structure.interface";
+import {IAllocatorNode} from "@/app/allocators/(pages)/allocator-tree/interfaces/structure.interface";
 import Link from "next/link";
 
 const AllocatorNodeList = ({allocators}: { allocators: IAllocatorNode[] }) => {

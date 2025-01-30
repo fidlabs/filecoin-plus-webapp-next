@@ -37,7 +37,7 @@ const VerifiedClientsList = ({allocatorId, data, searchParams}: IPageProps) => {
         value: 'reports'
       }
     ] as ITabNavigatorTab[]
-  }, [allocatorId, data])
+  }, [allocatorId])
 
   const {
     columns,

@@ -1,7 +1,6 @@
 import {Metadata} from "next";
-import {PageHeader, PageTitle} from "@/components/ui/title";
 import {getAllocators, getGoogleSheetAuditSizes} from "@/lib/api";
-import {Structure} from "@/app/allocator-tree/components/structure";
+import {Structure} from "@/app/allocators/(pages)/allocator-tree/components/structure";
 import {Organization, Person, WithContext} from "schema-dts";
 import {JsonLd} from "@/components/json.ld";
 import {IGoogleSheetResponse} from "@/lib/interfaces/cdp/google.interface";
@@ -32,15 +31,8 @@ const AllocatorsTreePage = async () => {
   }
 
   return <JsonLd data={allocatorsTree}>
-    <main>
-      <div className="main-content">
-        <PageHeader>
-          <PageTitle>Allocators tree</PageTitle>
-        </PageHeader>
-      </div>
-      <div className="whitespace-pre flex gap-2">
-        <Structure allocatorStatuses={allocatorStatuses} allAllocators={allAllocators}/>
-      </div>
+    <main className="main-content">
+      <Structure allocatorStatuses={allocatorStatuses} allAllocators={allAllocators}/>
     </main>
   </JsonLd>
 };

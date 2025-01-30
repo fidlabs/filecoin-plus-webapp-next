@@ -11,6 +11,7 @@ import {groupBy} from "lodash";
 import {GenericContentHeader} from "@/components/generic-content-view";
 import {ScaleSelector} from "@/components/ui/scale-selector";
 import {ITabNavigatorTab} from "@/components/ui/tab-navigator";
+import {useMediaQuery} from "usehooks-ts";
 
 interface IAllocationsOverTimeChartProps {
   data: IAllocatorResponse
@@ -19,6 +20,7 @@ interface IAllocationsOverTimeChartProps {
 
 const AllocationsOverTimeChart = ({data, allocatorId}: IAllocationsOverTimeChartProps) => {
 
+  const isDesktop = useMediaQuery("(min-width: 768px)");
 
   const chartData = useMemo(() => {
     if (!data) return [];
@@ -66,7 +68,7 @@ const AllocationsOverTimeChart = ({data, allocatorId}: IAllocationsOverTimeChart
         value: 'reports'
       }
     ] as ITabNavigatorTab[]
-  }, [allocatorId, data])
+  }, [allocatorId])
 
   const {scale, selectedScale, setSelectedScale} = useChartScale(minValue)
 
@@ -77,12 +79,13 @@ const AllocationsOverTimeChart = ({data, allocatorId}: IAllocationsOverTimeChart
                           addons={<ScaleSelector scale={selectedScale} setScale={setSelectedScale}/>}
                           fixedHeight={false}/>
     <CardContent className="p-0">
-      <ResponsiveContainer width="100%" aspect={2} debounce={500}>
+      <ResponsiveContainer width="100%"  aspect={isDesktop ? 2 : 0.8} debounce={500}>
         <ComposedChart
           data={chartData}
+          layout={!isDesktop ? "vertical" : "horizontal"}
           margin={{ top: 40, right: 50, left: 20, bottom: 20 }}
         >
-          <XAxis
+          {isDesktop && <XAxis
             dataKey="name"
             tick={{
               fontSize: 12,
@@ -90,8 +93,8 @@ const AllocationsOverTimeChart = ({data, allocatorId}: IAllocationsOverTimeChart
               fill: 'var(--muted-foreground)'
             }}
             tickFormatter={(value) => calculateDateFromHeight(value)}
-          />
-          <YAxis
+          />}
+          {isDesktop && <YAxis
             dataKey="value"
             scale={scale}
             domain={[0, 'dataMax']}
@@ -101,7 +104,29 @@ const AllocationsOverTimeChart = ({data, allocatorId}: IAllocationsOverTimeChart
               fontWeight: 500,
               fill: 'var(--muted-foreground)'
             }}
-          />
+          />}
+          {!isDesktop && <YAxis
+            dataKey="name"
+            type="category"
+            tick={{
+              fontSize: 12,
+              fontWeight: 500,
+              fill: 'var(--muted-foreground)'
+            }}
+            tickFormatter={(value) => calculateDateFromHeight(value)}
+          />}
+          {!isDesktop && <XAxis
+            type="number"
+            dataKey="value"
+            scale={scale}
+            domain={[0, 'dataMax']}
+            tickFormatter={(value) => convertBytesToIEC(value)}
+            tick={{
+              fontSize: 12,
+              fontWeight: 500,
+              fill: 'var(--muted-foreground)'
+            }}
+          />}
           <Tooltip content={renderTooltip} />
           <Area
             name="Allocations over time"

@@ -70,11 +70,15 @@ export interface IClientReportStorageProviderDistribution {
   duplication_percentage: number
   duplication_percentage_compare: CompareType
   retrievability_success_rate: string,
+  retrievability_success_rate_http: string,
   retrievability_success_rate_compare: CompareType
-  location: IClientReportLocation
+  ipni_misreporting: boolean | undefined,
+  ipni_reported_claims_count: string | undefined,
+  claims_count: string | undefined,
+  location: IGenericReportLocation
 }
 
-export interface IClientReportLocation {
+export interface IGenericReportLocation {
   ip: string
   city: string
   region: string
@@ -134,3 +138,54 @@ export interface IClientReportCheckResultMetadata {
 }
 
 export type IClientReportsResponse = IClientReportHeader[]
+
+export interface ICDPAllocatorFullReport {
+  id: string
+  create_date: string
+  allocator: string
+  name: string
+  address: string
+  clients_number: number
+  multisig: boolean
+  avg_retrievability_success_rate: number
+  data_types: string[]
+  required_copies: string
+  required_sps: string
+  clients: ICDPAllocatorFullReportClient[]
+  client_allocations: ICDPAllocatorFullReportClientAllocationsMap
+  storage_provider_distribution: ICDPAllocatorFullReportStorageProviderDistribution[]
+}
+
+export interface ICDPAllocatorFullReportClient {
+  not_found: boolean | undefined
+  client_id: string
+  name: string
+  allocations_number: number
+  total_allocations: string
+  application_url: string
+  application_timestamp: string
+}
+
+export interface ICDPAllocatorFullReportClientAllocationsMap {
+  [key: string]: ICDPAllocatorFullReportClientAllocation
+}
+
+export interface ICDPAllocatorFullReportClientAllocation {
+  client_id: string
+  allocation: string
+  timestamp: string
+}
+
+export interface ICDPAllocatorFullReportStorageProviderDistribution {
+  not_found: boolean | undefined
+  provider: string
+  total_deal_size: string
+  total_deal_size_compare: CompareType
+  unique_data_size: string
+  unique_data_size_compare: CompareType
+  perc_of_total_datacap: number
+  perc_of_total_datacap_compare: CompareType
+  retrievability_success_rate?: number
+  retrievability_success_rate_compare: CompareType
+  location: IGenericReportLocation
+}

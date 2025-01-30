@@ -9,7 +9,7 @@ import {HoverCard, HoverCardContent, HoverCardTrigger} from "@/components/ui/hov
 import {DataTable} from "@/components/ui/data-table";
 import Link from "next/link";
 import {convertBytesToIEC} from "@/lib/utils";
-import {CompareIcon} from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/compare.icon";
+import {CompareIcon} from "@/components/icons/compare.icon";
 import {InfoIcon} from "lucide-react";
 import {ColumnDef, RowSelectionState} from "@tanstack/react-table";
 import {useMemo} from "react";
@@ -45,6 +45,9 @@ const useReportViewProvidersColumns = (compareMode: boolean) => {
       }
 
       const rawLocation = row.original.location;
+      if (!rawLocation) {
+        return <div className="h-full flex items-center justify-start gap-1">N/A</div>
+      }
       return <div className="h-[40px] flex items-center justify-start gap-1">
         <HoverCard>
           <HoverCardTrigger>
@@ -126,11 +129,52 @@ const useReportViewProvidersColumns = (compareMode: boolean) => {
       </div>
     }
   }, {
+    accessorKey: "ipni_misreporting",
+    header: () => {
+      return (
+        <div className="whitespace-nowrap">
+          IPNI Misreporting
+        </div>
+      )
+    }, cell: ({row}) => {
+      if (row.original.not_found) {
+        return <div className="h-full flex items-center justify-start gap-1">N/A</div>
+      }
+
+      const ipni_misreporting = row.getValue('ipni_misreporting') as boolean | undefined
+      const ipni_reported_claims_count = row.original.ipni_reported_claims_count as string | undefined
+
+      if (!ipni_misreporting) {
+        return <div className="h-full flex items-center justify-start gap-1">No</div>
+      } else if (ipni_reported_claims_count) {
+        return <div className="h-full flex items-center justify-start gap-1">Yes
+          ({ipni_reported_claims_count} claims)</div>
+      } else {
+        return <div className="h-full flex items-center justify-start gap-1">Yes</div>
+      }
+    }
+  }, {
+    accessorKey: "claims_count",
+    header: () => {
+      return (
+        <div className="whitespace-nowrap">
+          Total claims
+        </div>
+      )
+    }, cell: ({row}) => {
+      if (row.original.not_found) {
+        return <div className="h-full flex items-center justify-start gap-1">N/A</div>
+      }
+
+      const claims_count = row.getValue('claims_count') as boolean | undefined
+      return <div className="h-full flex items-center justify-start gap-1">{claims_count ?? 'N/A'}</div>
+    }
+  }, {
     accessorKey: 'retrievability_success_rate',
     header: () => {
       return (
         <div className="whitespace-nowrap">
-          Retrieval Rate
+          Retrieval Rate (via HTTP)
         </div>
       )
     }, cell: ({row}) => {
@@ -139,9 +183,11 @@ const useReportViewProvidersColumns = (compareMode: boolean) => {
       }
 
       const successRate = row.getValue('retrievability_success_rate') as number
+      const successRateHttp = +row.original.retrievability_success_rate_http
 
       return <div className="h-full flex items-center justify-end gap-1">
-        {(successRate * 100).toFixed(2)}%
+        <span>{(successRate * 100).toFixed(2)}%</span>
+        <span>({successRateHttp ? `${(successRateHttp * 100).toFixed(2)}%` : "0%"})</span>
         {compareMode && <CompareIcon compare={row.original.retrievability_success_rate_compare}/>}
       </div>
     }
