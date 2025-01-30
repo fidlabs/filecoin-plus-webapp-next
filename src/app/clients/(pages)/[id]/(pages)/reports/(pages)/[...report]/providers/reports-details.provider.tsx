@@ -58,7 +58,7 @@ const ReportsDetailsProvider = ({children, reports}: PropsWithChildren<{ reports
   }, [reports])
 
   const mapsConstraints = useMemo(() => {
-    const locations = providerDistributionList.flatMap(providerList => providerList.filter(provider => !provider.not_found).map(provider => provider.location));
+    const locations = providerDistributionList.flatMap(providerList => providerList.filter(provider => !provider.not_found && !!provider.location).map(provider => provider.location));
     const longitudes = locations.map(location => +location.loc.split(',')[0]);
     const latitudes = locations.map(location => +location.loc.split(',')[1]);
 

@@ -50,8 +50,8 @@ const AllocatorDetailsLayout = async ({children, params}: PropsWithChildren<IPag
   }
 
   return <JsonLd data={person}>
-    <main className="main-content">
-      <div className="flex w-full justify-between mb-4">
+    <main>
+      <div className="main-content flex w-full justify-between mb-4">
         <PageHeader>
           <PageTitle>
             {allocatorResponse?.name}

@@ -12,9 +12,11 @@ const AllocatorOverTimeDetailsPage = async (props: IPageProps) => {
 
   const data = await getAllocatorById(props.params.id)
 
-  return <Suspense>
-    <AllocationsOverTimeChart data={data} allocatorId={props.params.id}/>
-  </Suspense>
+  return <div className="main-content">
+    <Suspense>
+      <AllocationsOverTimeChart data={data} allocatorId={props.params.id}/>
+    </Suspense>
+  </div>
 }
 
 export default AllocatorOverTimeDetailsPage

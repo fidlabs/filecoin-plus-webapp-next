@@ -21,9 +21,11 @@ const AllocatorDetailsPage = async (pageParams: IPageProps) => {
 
   const data = await getAllocatorById(allocatorId, currentParams)
 
-  return <Suspense>
+  return <div className="main-content">
+    <Suspense>
       <VerifiedClientsList allocatorId={allocatorId} data={data} searchParams={currentParams}/>
     </Suspense>
+  </div>
 }
 
 export default AllocatorDetailsPage

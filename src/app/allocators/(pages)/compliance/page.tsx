@@ -98,7 +98,7 @@ const dataset: WithContext<Dataset>[] = [
 
 const AllocatorsPage = () => {
   return <JsonLd data={dataset}>
-    <main className="main-content ">
+    <main className="main-content">
       <Suspense>
         <AllocatorsCompliance/>
       </Suspense>

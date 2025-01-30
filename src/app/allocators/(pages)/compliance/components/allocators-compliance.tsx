@@ -25,6 +25,10 @@ const AllocatorsCompliance = () => {
         label: 'Compliance',
         href: '/allocators/compliance',
         value: 'compliance'
+      }, {
+        label: 'Tree structure',
+        href: '/allocators/allocator-tree',
+        value: 'tree'
       }
     ] as ITabNavigatorTab[]
   }, [])

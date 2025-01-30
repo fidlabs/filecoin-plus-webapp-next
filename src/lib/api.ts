@@ -13,7 +13,7 @@ import {
 } from "@/lib/interfaces/dmob/client.interface";
 import {IStorageProviderResponse, IStorageProvidersResponse} from "@/lib/interfaces/dmob/sp.interface";
 import {IGoogleSheetResponse} from "@/lib/interfaces/cdp/google.interface";
-import {IClientFullReport, IClientReportsResponse} from "@/lib/interfaces/cdp/cdp.interface";
+import {ICDPAllocatorFullReport, IClientFullReport, IClientReportsResponse} from "@/lib/interfaces/cdp/cdp.interface";
 
 const revalidate = 30;
 const apiUrl = 'https://api.datacapstats.io/api'
@@ -142,7 +142,7 @@ export const getClientReportById = async (clientId: string, reportId: string) =>
 
 export const getAllocatorReportById = async (allocatorId: string, reportId: string) => {
   const url = `https://cdp.allocator.tech/allocatorReport/${allocatorId}/${reportId}`
-  return await fetchData(url) as IClientFullReport;
+  return await fetchData(url) as ICDPAllocatorFullReport;
 }
 
 export const generateClientReport = async (id: string) => {

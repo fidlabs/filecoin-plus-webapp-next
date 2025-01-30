@@ -5,7 +5,7 @@ import {Button, buttonVariants} from "@/components/ui/button";
 import {ReactNode, RefObject, useCallback, useEffect, useState} from "react";
 import {Paginator, InfinitePaginator} from "@/components/ui/pagination";
 import {IApiQuery} from "@/lib/interfaces/api.interface";
-import {ChevronRight, DownloadIcon, LoaderCircle, MenuIcon} from "lucide-react";
+import {ChevronRight, DownloadIcon, LoaderCircle, MenuIcon, XIcon} from "lucide-react";
 import {cn} from "@/lib/utils";
 import {Drawer, DrawerContent, DrawerTrigger} from "@/components/ui/drawer";
 import {ITabNavigatorTab, TabNavigator} from "@/components/ui/tab-navigator";
@@ -151,10 +151,14 @@ const GenericContentHeader = ({
       </div>
     </div>
     <div className={cn("flex flex-row justify-end gap-2 sm:mt-0", !!setQuery && ' mt-3 sm:mt-0')}>
-      {!!setQuery && placeholder &&
+      {!!setQuery && placeholder && <div className="relative">
         <Input className="bg-background w-full max-w-[350px] sm:w-64 text-[18px] lg:text-base" value={searchQuery}
                placeholder={placeholder}
-               onChange={(e) => setSearchQuery(e.target.value)}/>}
+               onChange={(e) => setSearchQuery(e.target.value)}/>
+        {!!searchQuery.length && <Button variant="ghost" size="icon" className="absolute top-0 right-0" onClick={() => setSearchQuery('')}>
+          <XIcon/>
+        </Button>}
+      </div>}
       {addons && <div className="hidden lg:flex gap-2 items-center justify-center">
         {addons}
       </div>}
