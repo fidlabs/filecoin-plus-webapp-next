@@ -13,6 +13,9 @@ import {cn} from "@/lib/utils";
 import {
   ClientsView
 } from "@/app/allocators/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/clients-view/clients-view";
+import {
+  ProvidersView
+} from "@/app/allocators/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/provider-view/providers-view";
 
 const ReportsLayout = () => {
 
@@ -57,6 +60,7 @@ const ReportsLayout = () => {
           }
         </div>
         <ClientsView/>
+        <ProvidersView/>
       </CardContent>
     </Card>
   </div>
