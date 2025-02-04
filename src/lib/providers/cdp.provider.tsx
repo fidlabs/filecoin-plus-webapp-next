@@ -15,7 +15,7 @@ const allowedElements = [
   'BiggestDealsAllocator',
   'ProviderComplianceAllocator',
   'AuditStateAllocator',
-  'TrustLevelAllocator',
+  'AuditOutcomesAllocator',
 ]
 
 const CommonChartContext = createContext({

@@ -15,13 +15,13 @@ const AllocatorTrustLevels = ({currentElement, plain}: Props) => {
 
   const {results, loading} = useGoogleTrustLevels(currentScale, currentTab);
 
-  if (!!currentElement && currentElement !==  'TrustLevelAllocator') {
+  if (!!currentElement && currentElement !==  'AuditOutcomesAllocator') {
     return null;
   }
 
   return <ChartWrapper
     title="Governance Compliance Audit Outcomes"
-    id="TrustLevelAllocator"
+    id="AuditOutcomesAllocator"
     tabs={['PiB', 'allocator']}
     scales={['linear', 'percent']}
     currentTab={currentTab}

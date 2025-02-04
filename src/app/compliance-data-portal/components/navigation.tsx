@@ -63,7 +63,7 @@ const Menu = () => {
         return 16 + 150 + 24;
       case 'AuditStateAllocator':
         return 16 + 180 + 24;
-      case 'TrustLevelAllocator':
+      case 'AuditOutcomesAllocator':
         return 16 + 210 + 24;
     }
   }, [currentElement]);
@@ -111,7 +111,7 @@ const Menu = () => {
         </button>
         <button
           className="bg-transparent border-none outline-none text-left text-base leading-5 font-semibold text-theme-text h-[22px]"
-          onClick={() => scrollTo('TrustLevelAllocator')}>Audit Outcomes
+          onClick={() => scrollTo('AuditOutcomesAllocator')}>Audit Outcomes
         </button>
       </div>
     </div>
