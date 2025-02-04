@@ -134,7 +134,7 @@ const useGoogleSheetsAuditReport = () => {
   };
 };
 
-const useGoogleTrustLevels = () => {
+const useGoogleTrustLevels = (scale: string, mode: string) => {
   const [data, setData] = useState<IGoogleSheetResponse | undefined>(undefined)
   const [loading, setLoading] = useState(false);
 
@@ -146,10 +146,6 @@ const useGoogleTrustLevels = () => {
     });
   }, []);
 
-  useEffect(() => {
-
-  }, []);
-
   const [loaded, setLoaded] = useState(false);
 
   const parsedData = useMemo(() => {
@@ -158,29 +154,53 @@ const useGoogleTrustLevels = () => {
       return [];
     }
 
-    const returnData = [] as { [key: PropertyKey]: string }[];
+    const returnData = [] as { [key: PropertyKey]: number | string }[];
 
-    const _firstMonthInxed = data?.values[0].indexOf('March');
+    const _firstMonthInxed = data?.values[0].indexOf('March 2024');
     const _lastMonthIndex = data?.values[0].length - 1;
+    const isPercent = scale === 'percent';
+    const isAllocator = mode === 'allocator';
 
     for (let i = _firstMonthInxed; i <= _lastMonthIndex; i++) {
-      const name = data?.values[0][i];
+      const name = `${data?.values[0][i].split(" ")[0].substring(0, 3)} '${data?.values[0][i].split(" ")[1].substring(2, 4)}`;
+      const unknownList = data?.values.filter(row => {
+        return row[i].toUpperCase().startsWith('U-');
+      });
+      const unknown = isAllocator ? unknownList.length : unknownList.reduce((acc, row) => acc + +((row[i]).split("-")?.[1] ?? 0), 0);
+
+      const nonCompliantList = data?.values.filter(row => {
+        return row[i].toUpperCase().startsWith('NC-');
+      })
+      const nonCompliant = isAllocator ? nonCompliantList.length : nonCompliantList.reduce((acc, row) => acc + +((row[i]).split("-")?.[1] ?? 0), 0);
+
+      const likelyCompliantList = data?.values.filter(row => {
+        return row[i].toUpperCase().startsWith('LC-');
+      })
+      const likelyCompliant = isAllocator ? likelyCompliantList.length : likelyCompliantList.reduce((acc, row) => acc + +((row[i]).split("-")?.[1] ?? 0), 0);
+
+      const compliantList = data?.values.filter(row => {
+        return row[i].toUpperCase().startsWith('C-');
+      })
+      const compliant = isAllocator ? compliantList.length : compliantList.reduce((acc, row) => acc + +((row[i]).split("-")?.[1] ?? 0), 0);
+
+      const total = unknown + nonCompliant + likelyCompliant + compliant;
+
       returnData.push({
         name,
-        notAudited: data?.values[1][i],
-        notAuditedName: data?.values[1][_firstMonthInxed - 1],
-        failed: data?.values[2][i],
-        failedName: data?.values[2][_firstMonthInxed - 1],
-        partial: data?.values[3][i],
-        partialName: data?.values[3][_firstMonthInxed - 1],
-        pass: data?.values[4][i],
-        passName: data?.values[4][_firstMonthInxed - 1],
+        unknown: isPercent ? (unknown / total) * 100 : unknown,
+        unknownName: 'Unknown',
+        nonCompliant: isPercent ? (nonCompliant / total) * 100 : nonCompliant,
+        nonCompliantName: 'Non Compliant',
+        likelyCompliant: isPercent ? (likelyCompliant / total) * 100 : likelyCompliant,
+        likelyCompliantName: 'Likely Compliant',
+        compliant: isPercent ? (compliant / total) * 100 : compliant,
+        compliantName: 'Compliant'
       });
     }
 
     setLoaded(true);
     return returnData;
-  }, [data]);
+  }, [data, scale, mode]);
 
   return {
     results: parsedData,

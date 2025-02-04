@@ -166,7 +166,7 @@ export const getGoogleSheetAuditHistorySizes = async () => {
 }
 
 export const getGoogleSheetAllocatorsTrust = async () => {
-  const url = `https://cdp.allocator.tech/proxy/googleapis/allocators-overview?tab=TrustLevels-MPG`
+  const url = `https://cdp.allocator.tech/proxy/googleapis/allocators-overview?tab=Trust+per+allocator+per+month`
   return await fetchData(url) as IGoogleSheetResponse;
 }
 
