@@ -8,7 +8,6 @@ import {
   useReportsDetails
 } from "@/app/allocators/(pages)/[id]/(pages)/reports/(pages)/[...report]/providers/reports-details.provider";
 import {format} from "date-fns";
-import {useScrollObserver} from "@/lib/hooks/useScrollObserver";
 import {cn} from "@/lib/utils";
 import {
   ClientsView
@@ -23,10 +22,6 @@ const ReportsLayout = () => {
     colsStyle,
     reports
   } = useReportsDetails()
-
-  const {
-    top, ref
-  } = useScrollObserver()
 
   const parseId = (id: string) => {
     if (id.length > 10) {
@@ -46,9 +41,8 @@ const ReportsLayout = () => {
         addons={reports.length >= 2 && <EnableCompareButton/>}
         fixedHeight={true}/>
       <CardContent className="p-0">
-        <div ref={ref} className={cn(
-          "grid border-b sticky top-[90px] bg-white z-10",
-          top === 90 && "shadow-md"
+        <div className={cn(
+          "grid border-b sticky top-[90px] bg-white z-10"
         )} style={colsStyle}>
           {
             reports.map((report, index) => {

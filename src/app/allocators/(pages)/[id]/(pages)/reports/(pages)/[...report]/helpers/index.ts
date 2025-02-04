@@ -4,6 +4,7 @@ import {
   ICDPAllocatorFullReportStorageProviderDistribution,
 } from "@/lib/interfaces/cdp/cdp.interface";
 import {compareReportValue} from "@/lib/helpers/cpd.helpers";
+import {uniq} from "lodash";
 
 export const parseProviderDistribution = (providerDistribution: ICDPAllocatorFullReportStorageProviderDistribution[]) => {
   const allDealSize = providerDistribution.reduce((acc, provider) => acc + +provider.total_deal_size, 0)
@@ -56,7 +57,7 @@ export const compareReports = (reports: ICDPAllocatorFullReport[]) => {
 }
 
 export const prepareEmptyProviders = (allProviders: string[]) => {
-  return allProviders.map(provider => ({
+  return uniq(allProviders).map(provider => ({
     not_found: true,
     total_deal_size: '0',
     unique_data_size: '0',
@@ -78,7 +79,7 @@ export const prepareEmptyProviders = (allProviders: string[]) => {
 }
 
 export const prepareEmtyClients = (allClients: string[]) => {
-  return allClients.map(client_id => ({
+  return uniq(allClients).map(client_id => ({
     client_id,
     not_found: true,
     name: '',

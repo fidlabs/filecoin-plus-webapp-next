@@ -14,7 +14,6 @@ import {format} from "date-fns";
 import {
   ReportViewReplicas
 } from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/replikas-view/report-view-replikas";
-import {useScrollObserver} from "@/lib/hooks/useScrollObserver";
 import {cn} from "@/lib/utils";
 import {
   ReportViewCidSharing
@@ -29,10 +28,6 @@ const ReportsLayout = () => {
     reports
   } = useReportsDetails()
 
-  const {
-    top, ref
-  } = useScrollObserver()
-
   return <div className={cn(
     reports.length > 2 ? 'mx-4' : 'main-content'
   )}>
@@ -43,9 +38,8 @@ const ReportsLayout = () => {
         addons={reports.length >= 2 && <EnableCompareButton/>}
         fixedHeight={true}/>
       <CardContent className="p-0">
-        <div ref={ref} className={cn(
+        <div className={cn(
           "grid border-b sticky top-[90px] bg-white z-10",
-          top === 90 && "shadow-md"
         )} style={colsStyle}>
           {
             reports.map((report, index) => {

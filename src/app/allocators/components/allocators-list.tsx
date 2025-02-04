@@ -59,7 +59,7 @@ const AllocatorsList = ({allocators, params}: AllocatorsListProps) => {
                             navigation={tabs}
                             titleAddons={[
                               <div key="termsSearchCheckbox"
-                                   className="hdden md:flex items-center justify-center space-x-2">
+                                   className="hidden md:flex items-center flex-nowrap justify-center space-x-2">
                                 <label
                                   htmlFor="terms"
                                   className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed whitespace-nowrap peer-disabled:opacity-70"

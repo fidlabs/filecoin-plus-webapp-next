@@ -151,8 +151,8 @@ const GenericContentHeader = ({
       </div>
     </div>
     <div className={cn("flex flex-row justify-end gap-2 sm:mt-0", !!setQuery && ' mt-3 sm:mt-0')}>
-      {!!setQuery && placeholder && <div className="relative">
-        <Input className="bg-background w-full max-w-[350px] sm:w-64 text-[18px] lg:text-base" value={searchQuery}
+      {!!setQuery && placeholder && <div className="relative w-full md:max-w-[350px] ">
+        <Input className="bg-background w-full text-[18px] lg:text-base" value={searchQuery}
                placeholder={placeholder}
                onChange={(e) => setSearchQuery(e.target.value)}/>
         {!!searchQuery.length && <Button variant="ghost" size="icon" className="absolute top-0 right-0" onClick={() => setSearchQuery('')}>

@@ -11,6 +11,11 @@ import {
 } from "@/app/allocators/(pages)/[id]/(pages)/reports/(pages)/[...report]/providers/reports-details.provider";
 import {GithubIcon} from "@/components/icons/github.icon";
 import {convertBytesToIEC} from "@/lib/utils";
+import {format} from "date-fns";
+import {ResponsiveDialog, ResponsiveDialogContent, ResponsiveDialogTrigger} from "@/components/ui/responsive-dialog";
+import {Button} from "@/components/ui/button";
+import {InfoIcon} from "lucide-react";
+import {Table, TableCell, TableHead, TableRow} from "@/components/ui/table";
 
 // const comparableValues = ['up', 'down']
 
@@ -25,7 +30,7 @@ const useClientsViewColumns = (/*compareMode: boolean */) => {
       )
     }, cell: ({row}) => {
       const client_id = row.getValue('client_id') as string
-      const application_url = row.getValue('application_url') as string
+      const application_url = row.original.application_url as string
       return <div className="flex flex-row items-center justify-start gap-1">
         <Link className="table-link" href={`/clients/${client_id}`}>{client_id}</Link>
         {application_url && <Link
@@ -69,7 +74,51 @@ const useClientsViewColumns = (/*compareMode: boolean */) => {
       )
     }, cell: ({row}) => {
       const allocations_number = row.getValue('allocations_number') as number
-      return <span>{allocations_number}</span>
+      return <div className="flex gap-1 items-center justify-start">
+        <span>{allocations_number}</span>
+        <ResponsiveDialog>
+          <ResponsiveDialogTrigger asChild>
+            <Button variant="ghost" size="icon" className="w-7 h-7"><InfoIcon
+              className="text-muted-foreground w-4 h-4"/></Button>
+          </ResponsiveDialogTrigger>
+          <ResponsiveDialogContent>
+            <div className="p-4">
+              <Table>
+                <TableRow>
+                  <TableHead>
+                    Date
+                  </TableHead>
+                  <TableHead>
+                    DataCap
+                  </TableHead>
+                </TableRow>
+                {row.original.allocations.map((allocation, index) => {
+                  return <TableRow key={index}>
+                    <TableCell>
+                      {format(allocation.timestamp, 'dd/MM/yyyy HH:mm')}
+                    </TableCell>
+                    <TableCell>
+                      {convertBytesToIEC(allocation.allocation)}
+                    </TableCell>
+                  </TableRow>
+                })}
+              </Table>
+            </div>
+          </ResponsiveDialogContent>
+        </ResponsiveDialog>
+      </div>
+    }
+  }, {
+    accessorKey: "application_timestamp",
+    header: () => {
+      return (
+        <div className="whitespace-nowrap">
+          Date of application
+        </div>
+      )
+    }, cell: ({row}) => {
+      const application_timestamp = row.getValue('application_timestamp') as string
+      return <span>{format(application_timestamp, 'dd/MM/yyyy HH:mm')}</span>
     }
   }] as ColumnDef<ICDPAllocatorFullReportClient>[]
 

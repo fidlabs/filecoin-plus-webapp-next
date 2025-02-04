@@ -152,7 +152,6 @@ export interface ICDPAllocatorFullReport {
   required_copies: string
   required_sps: string
   clients: ICDPAllocatorFullReportClient[]
-  client_allocations: ICDPAllocatorFullReportClientAllocationsMap
   storage_provider_distribution: ICDPAllocatorFullReportStorageProviderDistribution[]
 }
 
@@ -164,14 +163,11 @@ export interface ICDPAllocatorFullReportClient {
   total_allocations: string
   application_url: string
   application_timestamp: string
+  allocations: ICDPAllocatorFullReportClientAllocation[]
 }
 
-export interface ICDPAllocatorFullReportClientAllocationsMap {
-  [key: string]: ICDPAllocatorFullReportClientAllocation
-}
 
 export interface ICDPAllocatorFullReportClientAllocation {
-  client_id: string
   allocation: string
   timestamp: string
 }
