@@ -1,3 +1,4 @@
+
 "use client"
 import {StackedBarGraph} from "@/components/charts/compliance/graphs/stacked-bar-graph";
 import {ChartWrapper} from "@/app/compliance-data-portal/components/chart-wrapper";
@@ -6,6 +7,14 @@ import {useChartScale} from "@/lib/hooks/useChartScale";
 import {useEffect, useState} from "react";
 import {Slider} from "@/components/ui/slider";
 import {gradientPalette} from "@/lib/utils";
+import {StatsLink} from "@/components/ui/stats-link";
+import {usePathname} from "next/navigation";
+import {
+  ResponsiveHoverCard,
+  ResponsiveHoverCardContent,
+  ResponsiveHoverCardTrigger
+} from "@/components/ui/responsive-hover-card";
+import {InfoIcon} from "lucide-react";
 
 
 interface Props {
@@ -14,6 +23,8 @@ interface Props {
 }
 
 const ProviderComplianceAllocator = ({currentElement, plain}: Props) => {
+
+  const pathName = usePathname()
 
   const [threshold, setThreshold] = useState(50)
   const [usePercentage, setUsePercentage] = useState(false);
@@ -28,12 +39,12 @@ const ProviderComplianceAllocator = ({currentElement, plain}: Props) => {
     setUsePercentage(calcPercentage);
   }, [calcPercentage]);
 
-  if (!!currentElement && currentElement !==  'ProviderComplianceAllocator') {
+  if (!!currentElement && currentElement !== 'ProviderComplianceAllocator') {
     return null;
   }
 
   return <ChartWrapper
-    title="SPs Compliance"
+    title="Allocator Compliance based on % SP Compliance"
     id="ProviderComplianceAllocator"
     plain={plain}
     selectedScale={selectedScale}
@@ -41,25 +52,45 @@ const ProviderComplianceAllocator = ({currentElement, plain}: Props) => {
       {
         name: 'What are the metrics',
         size: 2,
-        value: <ul className="list-disc">
-          <p>Allocator is complaint when it&apos;s SPs:</p>
-          <li className="ml-4">Have retrievability score above average</li>
-          <li className="ml-4">Have at least 3 clients</li>
-          <li className="ml-4">Biggest client accounts for less than 30%</li>
-        </ul>
+        value: <div>
+          <ul className="list-disc">
+            <p className="font-medium text-sm text-muted-foreground">Allocator is complaint when it&apos;s SPs:</p>
+            <li className="ml-4">
+              Have retrievability score above average
+              <StatsLink className="ml-2" href={`${pathName.split('?')[0]}?chart=RetrievabilityScoreAllocator`}>Retrievability</StatsLink>
+            </li>
+            <li className="ml-4">Have at least 3 clients</li>
+            <li className="ml-4">
+              Has at most 30% of the DC coming from a single client
+              <StatsLink className="ml-2" href={`${pathName.split('?')[0]}?chart=BiggestDealsAllocator`}>Biggest allocation</StatsLink>
+            </li>
+          </ul>
+        </div>
       },
     ]}
     setSelectedScale={setSelectedScale}
     additionalFilters={[<ThresholdSelector key="threshold" threshold={threshold} setThreshold={setThreshold}/>]}>
-    <StackedBarGraph customPalette={gradientPalette('#FF5722', '#4CAF50', 3)} usePercentage={usePercentage} data={chartData} scale={scale} isLoading={isLoading} unit="allocator"/>
+    <StackedBarGraph customPalette={gradientPalette('#FF5722', '#4CAF50', 3)} usePercentage={usePercentage}
+                     data={chartData} scale={scale} isLoading={isLoading} unit="allocator"/>
   </ChartWrapper>
 
 }
 
 const ThresholdSelector = ({threshold, setThreshold}: { threshold: number, setThreshold: (val: number) => void }) => {
   return <div className="flex flex-col gap-2">
-    <div>Threshold: {threshold}%</div>
-    <Slider className="min-w-[150px]" value={[threshold]} max={100} min={5} step={5} onValueChange={(values) => setThreshold(values[0])}/>
+    <div className="flex gap-1 items-center">
+      Threshold: {threshold}%
+      <ResponsiveHoverCard>
+        <ResponsiveHoverCardTrigger>
+          <InfoIcon className="w-5 h-5 text-muted-foreground"/>
+        </ResponsiveHoverCardTrigger>
+        <ResponsiveHoverCardContent>
+          <p className="p-4 md:p-2">Use this slider to adjust the threshold of SPs that need to be in compliance, eg. 50% means that half of the SPs receiving DC through this allocator meet the compliance metrics</p>
+        </ResponsiveHoverCardContent>
+      </ResponsiveHoverCard>
+    </div>
+    <Slider className="min-w-[150px]" value={[threshold]} max={100} min={5} step={5}
+            onValueChange={(values) => setThreshold(values[0])}/>
   </div>
 }
 

@@ -8,8 +8,8 @@ type StatsLinkProps = PropsWithChildren<LinkProps & AnchorHTMLAttributes<HTMLAnc
   simple?: boolean
 }>
 
-const StatsLink = ({href, children, simple, ...props}: StatsLinkProps) => {
-  return <Link href={href} className={cn(buttonVariants({variant: simple ? "linkSimple" : "link"}), "group !pr-[20px]")} {...props}>
+const StatsLink = ({href, children, className, simple, ...props}: StatsLinkProps) => {
+  return <Link href={href} className={cn(buttonVariants({variant: simple ? "linkSimple" : "link"}), "relative group !pr-[20px]", className)} {...props}>
     {children}
     <ChevronRight size={16}
                   className="absolute right-[3px] transition-all group-hover:right-0"/>

@@ -1,10 +1,22 @@
 "use client";
 
-import {createContext, PropsWithChildren, useCallback, useContext, useState} from 'react';
+import {createContext, PropsWithChildren, useCallback, useContext, useEffect, useState} from 'react';
 import {ICDPRange} from "@/lib/interfaces/cdp/cdp.interface";
+import {usePathname, useRouter, useSearchParams} from "next/navigation";
 
 const barTabs = ['3 groups', '6 groups', 'All'];
 const scaleTabs = ['Linear scale', 'Log scale'];
+
+const allowedElements = [
+  'RetrievabilityScoreSP',
+  'NumberOfDealsSP',
+  'BiggestDealsSP',
+  'RetrievabilityScoreAllocator',
+  'BiggestDealsAllocator',
+  'ProviderComplianceAllocator',
+  'AuditStateAllocator',
+  'TrustLevelAllocator',
+]
 
 const CommonChartContext = createContext({
   barTabs,
@@ -35,16 +47,27 @@ const CommonChartContext = createContext({
   },
 });
 
-const CdpProvider = ({ children }: PropsWithChildren) => {
+const CdpProvider = ({children}: PropsWithChildren) => {
 
+  const searchParams = useSearchParams();
+  const router = useRouter()
+  const pathName = usePathname()
 
   const [globalBarTab, setGlobalBarTab] = useState('6 groups');
   const [globalScaleTab, setGlobalScaleTab] = useState('linear');
   const [currentElement, setCurrentElement] = useState('RetrievabilityScoreSP');
 
+  useEffect(() => {
+    const element = searchParams.get('chart');
+    if (element && allowedElements.includes(element)) {
+      setCurrentElement(element);
+    }
+  }, [searchParams])
+
   const scrollTo = useCallback((element: string) => {
-    setCurrentElement(element);
-  }, []);
+    const newPath = `${pathName}?chart=${element}`
+    router.replace(newPath);
+  }, [pathName, router]);
 
   const groupData = useCallback((data: ICDPRange[], groupCount: number) => {
 
@@ -114,4 +137,4 @@ const useCDPUtils = () => {
   return useContext(CommonChartContext);
 }
 
-export { CdpProvider, useCDPUtils };
+export {CdpProvider, useCDPUtils};

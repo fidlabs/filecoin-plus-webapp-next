@@ -1,6 +1,6 @@
 import {useCDPUtils} from "@/lib/providers/cdp.provider";
 import {useEffect, useMemo, useState} from "react";
-import {format} from "date-fns";
+import {endOfWeek, format} from "date-fns";
 import {uniq} from "lodash";
 import {ICDPWeek} from "@/lib/interfaces/cdp/cdp.interface";
 import {gradientPalette} from "@/lib/utils";
@@ -43,7 +43,12 @@ const useWeeklyChartData = ({data, unit = '', defaultTab = '6 groups', paletteDi
     }
 
     return data?.map((bucket) => {
-      const name = `w${format(new Date(bucket.week), 'ww yyyy')}`
+      let name = `w${format(new Date(bucket.week), 'ww yyyy')}`;
+
+      if (+format(new Date(bucket.week), 'ww') === 1) {
+        name = `w${format(endOfWeek(new Date(bucket.week)), 'ww yyyy')}`;
+      }
+
       const mappedData = {
         name
       } as { [key: PropertyKey]: string | number };
