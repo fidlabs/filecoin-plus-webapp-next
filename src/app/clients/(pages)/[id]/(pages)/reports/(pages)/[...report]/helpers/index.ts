@@ -4,6 +4,7 @@ import {
   IClientReportReplicaDistribution,
   IClientReportStorageProviderDistribution
 } from "@/lib/interfaces/cdp/cdp.interface";
+import {uniq} from "lodash";
 
 export const parseProviderDistribution = (providerDistribution: IClientReportStorageProviderDistribution[]) => {
   const allDealSize = providerDistribution.reduce((acc, provider) => acc + +provider.total_deal_size, 0)
@@ -90,7 +91,7 @@ const compare = (value: number, compareValue: number) => {
 }
 
 export const prepareEmptyProviders = (allProviders: string[]) => {
-  return allProviders.map(provider => ({
+  return uniq(allProviders).map(provider => ({
     not_found: true,
     total_deal_size: '0',
     total_deal_percentage: 0,
@@ -113,7 +114,7 @@ export const prepareEmptyProviders = (allProviders: string[]) => {
 }
 
 export const prepareEmptyReplicas = (allReplicas: string[]) => {
-  return allReplicas.map(num => ({
+  return uniq(allReplicas).map(num => ({
     not_found: true,
     client_report_id: '',
     num_of_replicas: num,
@@ -124,7 +125,7 @@ export const prepareEmptyReplicas = (allReplicas: string[]) => {
 }
 
 export const prepareEmptyCIDSharing = (allCidShares: string[]) => {
-  return allCidShares.map(other_client => ({
+  return uniq(allCidShares).map(other_client => ({
     client: '',
     not_found: true,
     other_client,

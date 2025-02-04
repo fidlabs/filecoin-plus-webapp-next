@@ -31,7 +31,7 @@ const AllocatorRetrievability = ({currentElement, plain}: Props) => {
     id="RetrievabilityScoreAllocator"
     selectedScale={selectedScale}
     setSelectedScale={setSelectedScale}>
-    <StackedBarGraph customPalette={palette} data={chartData} usePercentage={usePercentage} scale={scale} isLoading={isLoading} unit="provider"/>
+    <StackedBarGraph customPalette={palette} data={chartData} usePercentage={usePercentage} scale={scale} isLoading={isLoading} unit="allocator"/>
   </ChartWrapper>
 
 }

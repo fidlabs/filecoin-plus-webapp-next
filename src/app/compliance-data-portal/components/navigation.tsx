@@ -52,19 +52,19 @@ const Menu = () => {
       case 'RetrievabilityScoreSP':
         return 16;
       case 'NumberOfDealsSP':
-        return 16 + 22 + 8;
+        return 16 + 30;
       case 'BiggestDealsSP':
-        return 16 + 22 + 22 + 16;
+        return 16 + 60;
       case 'RetrievabilityScoreAllocator':
-        return 16 + 22 + 22 + 22 + 48;
+        return 16 + 90 + 24;
       case 'BiggestDealsAllocator':
-        return 16 + 22 + 22 + 22 + 22 + 56;
+        return 16 + 120 + 24;
       case 'ProviderComplianceAllocator':
-        return 16 + 22 + 22 + 22 + 22 + 22 + 64;
+        return 16 + 150 + 24;
       case 'AuditStateAllocator':
-        return 16 + 22 + 22 + 22 + 22 + 22 + 22 + 72;
-      case 'TrustLevelAllocator':
-        return 16 + 22 + 22 + 22 + 22 + 22 + 22 + 22 + 80;
+        return 16 + 180 + 24;
+      case 'AuditOutcomesAllocator':
+        return 16 + 210 + 24;
     }
   }, [currentElement]);
 
@@ -111,7 +111,7 @@ const Menu = () => {
         </button>
         <button
           className="bg-transparent border-none outline-none text-left text-base leading-5 font-semibold text-theme-text h-[22px]"
-          onClick={() => scrollTo('TrustLevelAllocator')}>Trust level
+          onClick={() => scrollTo('AuditOutcomesAllocator')}>Audit Outcomes
         </button>
       </div>
     </div>

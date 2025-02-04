@@ -6,12 +6,15 @@ import {convertBytesToIEC, palette} from "@/lib/utils";
 import {NameType, ValueType} from "recharts/types/component/DefaultTooltipContent";
 import {ChartTooltip} from "@/components/ui/chart";
 import {IFilDCAllocationsWeekly} from "@/lib/interfaces/dmob/dmob.interface";
+import {useMediaQuery} from "usehooks-ts";
 
 interface Props {
   data: IFilDCAllocationsWeekly
 }
 
 const Component = ({data}: Props) => {
+
+  const isDesktop = useMediaQuery("(min-width: 768px)");
 
   const chartData = useMemo(() => {
     const normalData: {
@@ -42,18 +45,19 @@ const Component = ({data}: Props) => {
       {
         !chartData && <p>Error loading data</p>
       }
-      {chartData && <ResponsiveContainer width="100%" aspect={1.77} debounce={500}>
+      {chartData && <ResponsiveContainer width="100%" aspect={isDesktop ? 1.77 : 16 / chartData.length} debounce={500}>
         <LineChart
           data={chartData}
-          margin={{top: 20, right: 50, left: 20, bottom: 50}}
+          layout={!isDesktop ? "vertical" : "horizontal"}
+          margin={{right: 50, left: 20, bottom: 50}}
         >
-          <XAxis
+          {isDesktop && <XAxis
             dataKey="name"
             interval={0}
             minTickGap={0}
             tick={<CustomizedAxisTick/>}
-          />
-          <YAxis
+          />}
+          {isDesktop && <YAxis
             dataKey="value"
             domain={['dataMin', 'dataMax']}
             tickFormatter={(value) => convertBytesToIEC(value)}
@@ -62,7 +66,25 @@ const Component = ({data}: Props) => {
               fontWeight: 500,
               fill: 'var(--muted-foreground)'
             }}
-          />
+          />}
+          {!isDesktop && <YAxis
+            dataKey="name"
+            type="category"
+            interval={0}
+            minTickGap={0}
+            tick={<CustomizedAxisTickMobile/>}
+          />}
+          {!isDesktop && <XAxis
+            dataKey="value"
+            type="number"
+            domain={['dataMin', 'dataMax']}
+            tickFormatter={(value) => convertBytesToIEC(value)}
+            tick={{
+              fontSize: 12,
+              fontWeight: 500,
+              fill: 'var(--muted-foreground)'
+            }}
+          />}
           <ChartTooltip content={(props: TooltipProps<ValueType, NameType>) => {
             return <Card>
               <CardHeader>
@@ -98,6 +120,26 @@ const CustomizedAxisTick = (props: {
   return (
     <g transform={`translate(${x},${y})`}>
       <text x={0} y={0} dx={5} dy={10} fontSize={13} textAnchor="start" fill="#666" transform="rotate(65)">
+        {payload.value.substring(0, 25)}{payload.value.length > 25 ? '...' : ''}
+      </text>
+    </g>
+  );
+};
+
+const CustomizedAxisTickMobile = (props: {
+  x?: number,
+  y?: number,
+  stroke?: string,
+  payload?: { value: string }
+}) => {
+  const {
+    x, y, payload = {
+      value: ''
+    }
+  } = props;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <text x={0} y={0} dx={-5} dy={5} fontSize={13} textAnchor="end" fill="#666">
         {payload.value.substring(0, 25)}{payload.value.length > 25 ? '...' : ''}
       </text>
     </g>

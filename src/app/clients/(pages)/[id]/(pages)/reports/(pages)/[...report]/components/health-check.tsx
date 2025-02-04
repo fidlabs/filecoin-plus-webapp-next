@@ -7,6 +7,8 @@ import {HoverCard, HoverCardContent, HoverCardTrigger} from "@/components/ui/hov
 import {Badge} from "@/components/ui/badge";
 import {ShieldCheckIcon, ShieldXIcon} from "lucide-react";
 import {cn} from "@/lib/utils";
+import {useMediaQuery} from "usehooks-ts";
+import {Drawer, DrawerContent, DrawerTrigger} from "@/components/ui/drawer";
 
 interface IReportViewProviderHealthProps {
   security: IClientReportCheckResult[]
@@ -20,7 +22,7 @@ const defaultMessages = {
     "Storage provider distribution looks healthy" :
     "Storage provider distribution looks unhealthy",
   "STORAGE_PROVIDER_DISTRIBUTION_PROVIDERS_EXCEED_MAX_DUPLICATION": (status: boolean) => status ?
-    "Storage provider duplication looks healthy":
+    "Storage provider duplication looks healthy" :
     "Storage provider duplication looks unhealthy",
   "STORAGE_PROVIDER_DISTRIBUTION_PROVIDERS_UNKNOWN_LOCATION": (status: boolean) => status ?
     "Storage provider locations looks healthy" :
@@ -47,33 +49,63 @@ const getDefaultMessage = (key: DefaultMessageKeys, status: boolean) => {
 
 const HealthCheck = ({security}: IReportViewProviderHealthProps) => {
 
+  const isDesktop = useMediaQuery('(min-width: 768px)');
+
   const healthCheck = useMemo(() => {
     return security.filter(item => !item.result).length
   }, [security])
 
-  return <div className="p-4">
-    <HoverCard>
-      <HoverCardTrigger>
-        <div className="flex gap-2 items-center cursor-help">
-          Status:
-          <Badge variant={!!healthCheck ? 'destructive' : 'secondary'}>
-            {!!healthCheck ? `${healthCheck} issue${healthCheck > 1 ? 's' : ''}` : 'Healthy'}
-          </Badge>
+  if (isDesktop) {
+    return <div className="p-4">
+      <HoverCard>
+        <HoverCardTrigger>
+          <div className="flex gap-2 items-center cursor-help">
+            Status:
+            <Badge variant={!!healthCheck ? 'destructive' : 'secondary'}>
+              {!!healthCheck ? `${healthCheck} issue${healthCheck > 1 ? 's' : ''}` : 'Healthy'}
+            </Badge>
+          </div>
+        </HoverCardTrigger>
+        <HoverCardContent className="w-full flex flex-col gap-1 items-start justify-start">
+          <ChecksContent security={security}/>
+        </HoverCardContent>
+      </HoverCard>
+    </div>
+  }
+
+  return <div className="p-4"><Drawer>
+    <DrawerTrigger>
+      <div className="flex gap-2 items-center cursor-help">
+        Status:
+        <Badge variant={!!healthCheck ? 'destructive' : 'secondary'}>
+          {!!healthCheck ? `${healthCheck} issue${healthCheck > 1 ? 's' : ''}` : 'Healthy'}
+        </Badge>
+      </div>
+    </DrawerTrigger>
+    <DrawerContent>
+      <ChecksContent security={security}/>
+    </DrawerContent>
+  </Drawer>
+  </div>
+}
+
+const ChecksContent = ({security}: IReportViewProviderHealthProps) => {
+  const isDesktop = useMediaQuery('(min-width: 768px)');
+  return <div className={cn(
+    !isDesktop && "p-4"
+  )}>
+    {
+      security.map((item, index) => {
+        return <div key={index} className={cn(
+          isDesktop && "flex gap-1 items-center justify-center whitespace-nowrap",
+          !isDesktop && "flex gap-1 items-center justify-start mb-1",
+          !item.result && "text-destructive"
+        )}>
+          {item.result ? <ShieldCheckIcon className="min-w-8"/> : <ShieldXIcon className="min-w-8"/>}
+          {item?.metadata?.msg ?? getDefaultMessage(item.check as DefaultMessageKeys, item.result)}
         </div>
-      </HoverCardTrigger>
-      <HoverCardContent className="w-full flex flex-col gap-1 items-start justify-start">
-        {
-          security.map((item, index) => {
-            return <div key={index} className={cn(
-              "flex gap-1 items-center justify-center whitespace-nowrap",
-              !item.result && "text-destructive"
-            )}>
-              {item.result ? <ShieldCheckIcon/> : <ShieldXIcon/>}{item?.metadata?.msg ?? getDefaultMessage(item.check as DefaultMessageKeys, item.result)}
-            </div>
-          })
-        }
-      </HoverCardContent>
-    </HoverCard>
+      })
+    }
   </div>
 }
 

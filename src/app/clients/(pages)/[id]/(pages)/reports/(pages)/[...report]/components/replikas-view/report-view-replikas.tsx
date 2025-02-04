@@ -11,6 +11,8 @@ import {
   ReportViewReplicaTable
 } from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/replikas-view/report-view-replika-table";
 import {HealthCheck} from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/health-check";
+import {useScrollObserver} from "@/lib/hooks/useScrollObserver";
+import {cn} from "@/lib/utils";
 
 
 
@@ -22,8 +24,16 @@ const ReportViewReplicas = () => {
     securityChecks
   } = useReportsDetails()
 
+  const {
+    top, ref
+  } = useScrollObserver()
+
   return <div className="grid" style={colsStyle}>
-    <div className="p-4 border-b" style={colsSpanStyle}>
+    <div ref={ref} className={cn(
+      "p-4 border-b sticky top-[147px] bg-white",
+      top > 90 && "z-[5]",
+      top === 147 && "shadow-md"
+    )} style={colsSpanStyle}>
       <div className="flex gap-2 items-center">
         <h2 className="font-semibold text-lg">Deal Data Replication</h2>
         <HoverCard>

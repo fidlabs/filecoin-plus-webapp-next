@@ -138,8 +138,7 @@ export const gradientPalette = (colorA: string, colorB: string, steps: number) =
 }
 
 export const calculateAverage = (numbers: number[], decimalPlaces?: number): number => {
-  const sum = numbers.reduce((acc, num) => acc + num, 0);
-  const average = sum / numbers.length;
+  const average = (Math.max(...numbers) + Math.min(...numbers)) / 2;
   return decimalPlaces !== undefined ? parseFloat(average.toFixed(decimalPlaces)) : average;
 };
 

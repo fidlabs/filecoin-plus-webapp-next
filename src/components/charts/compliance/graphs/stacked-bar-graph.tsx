@@ -1,5 +1,5 @@
 "use client";
-import {Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, TooltipProps, XAxis, YAxis} from 'recharts';
+import {Bar, BarChart, CartesianGrid, Label, ResponsiveContainer, Tooltip, TooltipProps, XAxis, YAxis} from 'recharts';
 import {palette} from "@/lib/utils";
 import {useMemo} from "react";
 import {uniq} from "lodash";
@@ -84,20 +84,24 @@ const StackedBarGraph = ({data, scale = 'linear', isLoading, customPalette, useP
       <BarChart
         layout={!isDesktop ? "vertical" : "horizontal"}
         data={data}
-        margin={{bottom: isDesktop ? (data.length > 6 ? 75 : 20) : 1, right: isDesktop ? 30 : 1}}
+        margin={{bottom: isDesktop ? (data.length > 6 ? 75 : 30) : 1, right: isDesktop ? 30 : 1, left: 10}}
       >
         <CartesianGrid strokeDasharray="3 3"/>
         <Tooltip content={renderTooltip}/>
         {isDesktop && <XAxis dataKey="name" angle={data.length > 6 ? 90 : 0} interval={0} minTickGap={0}
-                tick={data.length > 6 ? <CustomizedAxisTick/> : true}/>}
-        {isDesktop && <YAxis domain={[0, usePercentage ? 100 : parseDataMax]} scale={usePercentage ? 'linear' : scale}/>}
+                tick={data.length > 6 ? <CustomizedAxisTick/> : true} />}
+        {isDesktop && <YAxis domain={[0, usePercentage ? 100 : parseDataMax]} scale={usePercentage ? 'linear' : scale}>
+          <Label value={`${usePercentage ? '%' : '#'} ${String(unit).charAt(0).toUpperCase() + String(unit).slice(1)}s`} position="left" offset={-10} angle={270} fill="#666"/>
+        </YAxis>}
         <Tooltip/>
         {dataKeys.map((key, index) => <Bar layout={!isDesktop ? "vertical" : "horizontal"} key={key} dataKey={key}
                                            stackId="a" fill={customPalette ? customPalette[index % customPalette.length ]  : palette(index)}/>)}
         ))
         {!isDesktop && <YAxis dataKey="name" type="category" interval={0} minTickGap={0} stroke="#fff" mirror tick={<CustomizedAxisTick />}/>}
         {!isDesktop && <XAxis type="number" scale={usePercentage ? 'linear' : scale}
-                              name="PiB" domain={[0, usePercentage ? 100 : parseDataMax]}/>}
+                              name="PiB" domain={[0, usePercentage ? 100 : parseDataMax]}>
+          <Label value={`${usePercentage ? '%' : '#'} ${String(unit).charAt(0).toUpperCase() + String(unit).slice(1)}s`} position="bottom" offset={-10} fill="#666"/>
+        </XAxis>}
       </BarChart>
     </ResponsiveContainer>
   </div>

@@ -5,7 +5,7 @@ import {
   ICDPHistogramResult,
   ICDPUnifiedHistogram
 } from "@/lib/interfaces/cdp/cdp.interface";
-import {format} from "date-fns";
+import {endOfWeek, format} from "date-fns";
 
 type AllocatorSPSComplianceMetric = 'compliant' | 'partiallyCompliant' | 'nonCompliant';
 
@@ -183,8 +183,14 @@ const useAllocatorSPSComplaince = (threshold: number, usePercentage?: boolean) =
         }
       }) ?? [];
 
+      let name = `w${format(new Date(week), 'ww yyyy')}`;
+
+      if (+format(new Date(week), 'ww') === 1) {
+        name = `w${format(endOfWeek(new Date(week)), 'ww yyyy')}`;
+      }
+
       chartData.push({
-        name: `w${format(new Date(week), 'ww yyyy')}`,
+        name,
         nonCompliant: modifier(allocatorComplaincy.filter(item => item === 'nonCompliant').length),
         nonCompliantName: 'Non compliant',
         partiallyCompliant: modifier(allocatorComplaincy.filter(item => item === 'partiallyCompliant').length),

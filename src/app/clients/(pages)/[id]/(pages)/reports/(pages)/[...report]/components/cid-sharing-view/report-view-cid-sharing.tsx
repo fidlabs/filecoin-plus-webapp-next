@@ -5,6 +5,8 @@ import {
 import {
   ReportViewCidSharingTable
 } from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/cid-sharing-view/report-view-cid-sharing-table";
+import {useScrollObserver} from "@/lib/hooks/useScrollObserver";
+import {cn} from "@/lib/utils";
 
 const ReportViewCidSharing = () => {
   const {
@@ -13,8 +15,16 @@ const ReportViewCidSharing = () => {
     colsSpanStyle
   } = useReportsDetails()
 
+  const {
+    top, ref
+  } = useScrollObserver()
+
   return <div className="grid" style={colsStyle}>
-    <div className="p-4 border-b" style={colsSpanStyle}>
+    <div ref={ref} className={cn(
+      "p-4 border-b sticky top-[147px] bg-white",
+      top > 90 && "z-[5]",
+      top === 147 && "shadow-md"
+    )} style={colsSpanStyle}>
       <h2 className="font-semibold text-lg">Deal Data Shared with other Clients</h2>
       <p>The below table shows how many unique data are shared with other clients. Usually different applications owns
         different data and should not resolve to the same CID.</p>
