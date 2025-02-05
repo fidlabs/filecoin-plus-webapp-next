@@ -16,7 +16,7 @@ const DatacapFlow = () => {
     <CardHeader>
       <CardTitle>Datacap Flow</CardTitle>
     </CardHeader>
-    <CardContent className="px-0">
+    <CardContent className="px-0 min-h-[900px]">
       <Tabs value={tab} className="w-full" onValueChange={setTab}>
         <div className="flex items-center px-6 pb-4 border-b">
           <TabsList>

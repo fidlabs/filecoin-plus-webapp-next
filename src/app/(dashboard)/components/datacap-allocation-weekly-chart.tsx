@@ -95,6 +95,7 @@ const Component = ({data}: Props) => {
           }}/>
           <Legend align="center" verticalAlign="top"/>
           <Line
+            isAnimationActive={false}
             name="DataCap used per week"
             type="monotone"
             dataKey="value"
