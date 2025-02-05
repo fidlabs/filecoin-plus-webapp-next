@@ -3,6 +3,7 @@ import {useAllocatorBiggestDeal} from "@/lib/hooks/cdp.hooks";
 import {StackedBarGraph} from "@/components/charts/compliance/graphs/stacked-bar-graph";
 import {ChartWrapper} from "@/app/compliance-data-portal/components/chart-wrapper";
 import {useCDPChartDataEngine} from "@/app/compliance-data-portal/hooks/useCDPChartDataEngine";
+import {barTabs, dataTabs} from "@/lib/providers/cdp.provider";
 
 interface Props {
   currentElement?: string;
@@ -12,7 +13,18 @@ interface Props {
 const AllocatorBiggestAllocation = ({currentElement, plain}: Props) => {
 
   const {
-    isLoading, usePercentage, chartData, currentTab, setCurrentTab, tabs, scale, selectedScale, setSelectedScale, data, palette
+    isLoading,
+    usePercentage,
+    chartData,
+    currentTab,
+    setCurrentTab,
+    scale,
+    selectedScale,
+    setSelectedScale,
+    data,
+    palette,
+    currentDataTab,
+    setCurrentDataTab,
   } = useCDPChartDataEngine({
     fetchMethod: useAllocatorBiggestDeal,
     unit: ' %',
@@ -23,9 +35,14 @@ const AllocatorBiggestAllocation = ({currentElement, plain}: Props) => {
     return null;
   }
 
+  const unit = currentDataTab === 'Count' ? 'allocator' : currentDataTab;
+
   return <ChartWrapper
     title="Size Of The Biggest client allocation"
-    tabs={tabs}
+    tabs={barTabs}
+    dataTabs={dataTabs}
+    currentDataTab={currentDataTab}
+    setCurrentDataTab={setCurrentDataTab}
     plain={plain}
     currentTab={currentTab}
     setCurrentTab={setCurrentTab}
@@ -40,7 +57,8 @@ const AllocatorBiggestAllocation = ({currentElement, plain}: Props) => {
       size: 2,
       value: "What % of the total data cap used comes from the single client"
     }]}>
-    <StackedBarGraph customPalette={palette} data={chartData} usePercentage={usePercentage} scale={scale} isLoading={isLoading} unit="allocator"/>
+    <StackedBarGraph customPalette={palette} data={chartData} usePercentage={usePercentage} scale={scale}
+                     isLoading={isLoading} unit={unit}/>
   </ChartWrapper>
 
 }

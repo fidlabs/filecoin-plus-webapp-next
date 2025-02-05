@@ -20,6 +20,7 @@ const Header = () => {
         <TextLogoIcon className="w-auto h-[30px]"/>
       </Link>
       <NavMenu className="hidden md:flex"/>
+      {/*<GlobalSearchBox/>*/}
       <div className="md:hidden">
         <Sheet open={menuOpened} onOpenChange={setMenuOpened}>
           <SheetTrigger aria-label="Mobile nav menu trigegr">

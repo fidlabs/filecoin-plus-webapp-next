@@ -28,7 +28,7 @@ const Component = ({data}: Props) => {
         Object.keys(yearObj).forEach((weekKey) => {
           if (+yearKey === 2024 && +weekKey < 17) return;
           normalData.push({
-            name: `w${weekKey} '${yearKey.substr(2)}`,
+            name: `w${weekKey} '${yearKey.substring(2, 4)}`,
             value: yearObj[weekKey]
           });
         });

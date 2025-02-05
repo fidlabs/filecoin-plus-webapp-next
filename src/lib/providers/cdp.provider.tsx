@@ -4,8 +4,9 @@ import {createContext, PropsWithChildren, useCallback, useContext, useEffect, us
 import {ICDPRange} from "@/lib/interfaces/cdp/cdp.interface";
 import {usePathname, useRouter, useSearchParams} from "next/navigation";
 
-const barTabs = ['3 groups', '6 groups', 'All'];
-const scaleTabs = ['Linear scale', 'Log scale'];
+export const barTabs = ['3 groups', '6 groups', 'All'];
+export const dataTabs = ['PiB', 'Count'];
+export const scaleTabs = ['Linear scale', 'Log scale'];
 
 const allowedElements = [
   'RetrievabilityScoreSP',
@@ -19,12 +20,6 @@ const allowedElements = [
 ]
 
 const CommonChartContext = createContext({
-  barTabs,
-  scaleTabs,
-  globalBarTab: '6 groups',
-  setGlobalBarTab: (v: string) => console.log(v),
-  globalScaleTab: '',
-  setGlobalScaleTab: (v: string) => console.log(v),
   currentElement: 'RetrievabilityScoreSP',
   scrollTo: (element: string) => console.log(element),
   groupData: (data: ICDPRange[], groupCount: number) => {
@@ -53,8 +48,6 @@ const CdpProvider = ({children}: PropsWithChildren) => {
   const router = useRouter()
   const pathName = usePathname()
 
-  const [globalBarTab, setGlobalBarTab] = useState('6 groups');
-  const [globalScaleTab, setGlobalScaleTab] = useState('linear');
   const [currentElement, setCurrentElement] = useState('RetrievabilityScoreSP');
 
   useEffect(() => {
@@ -116,12 +109,6 @@ const CdpProvider = ({children}: PropsWithChildren) => {
 
   return (
     <CommonChartContext.Provider value={{
-      barTabs,
-      scaleTabs,
-      globalBarTab,
-      globalScaleTab,
-      setGlobalBarTab,
-      setGlobalScaleTab,
       currentElement,
       scrollTo,
       groupData,

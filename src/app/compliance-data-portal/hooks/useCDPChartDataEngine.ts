@@ -22,7 +22,15 @@ const useCDPChartDataEngine = ({fetchMethod, paletteDirection = 'asc', unit}: Ch
     data, isLoading
   } = fetchMethod()
 
-  const {chartData, currentTab, setCurrentTab, tabs, minValue, palette} = useWeeklyChartData({
+  const {
+    chartData,
+    currentTab,
+    setCurrentTab,
+    minValue,
+    palette,
+    currentDataTab,
+    setCurrentDataTab,
+  } = useWeeklyChartData({
     data: data?.buckets,
     unit,
     paletteDirection,
@@ -39,7 +47,6 @@ const useCDPChartDataEngine = ({fetchMethod, paletteDirection = 'asc', unit}: Ch
     chartData,
     currentTab,
     setCurrentTab,
-    tabs,
     selectedScale,
     setSelectedScale,
     scale,
@@ -47,7 +54,9 @@ const useCDPChartDataEngine = ({fetchMethod, paletteDirection = 'asc', unit}: Ch
     calcPercentage,
     isLoading: isLoading || !data,
     data,
-    palette
+    palette,
+    currentDataTab,
+    setCurrentDataTab,
   }
 
 }

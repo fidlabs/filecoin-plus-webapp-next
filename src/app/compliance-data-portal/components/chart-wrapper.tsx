@@ -12,12 +12,16 @@ import {Drawer, DrawerContent, DrawerTrigger} from "@/components/ui/drawer";
 interface Props extends PropsWithChildren, HTMLAttributes<HTMLDivElement> {
   title: string
   tabs?: string[]
+  dataTabs?: string[]
   scales?: string[]
   plain?: boolean
+  unit?: string,
   additionalFilters?: ReactNode[]
   currentTab?: string
+  currentDataTab?: string
   selectedScale?: string
   setCurrentTab?: (val: string) => void
+  setCurrentDataTab?: (val: string) => void
   setSelectedScale?: (val: string) => void
   addons?: {
     name: string
@@ -34,8 +38,11 @@ const ChartWrapper = forwardRef<
 >(({
      title,
      tabs,
+     dataTabs,
+     currentDataTab,
      currentTab,
      setCurrentTab,
+     setCurrentDataTab,
      children,
      addons,
      selectedScale,
@@ -65,6 +72,8 @@ const ChartWrapper = forwardRef<
               <ScaleSelector selectedScale={selectedScale} setSelectedScale={setSelectedScale} scales={scales}/>}
             {(tabs && currentTab && setCurrentTab) &&
               <TabsSelector tabs={tabs} currentTab={currentTab} setCurrentTab={setCurrentTab}/>}
+            {(dataTabs && currentDataTab && setCurrentDataTab) &&
+              <TabsSelector tabs={dataTabs} currentTab={currentDataTab} setCurrentTab={setCurrentDataTab}/>}
           </div>
         </CardTitle>
       </CardHeader>

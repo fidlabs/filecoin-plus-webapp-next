@@ -5,7 +5,7 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
-  Cell,
+  Cell, Label,
   Legend,
   ResponsiveContainer,
   Tooltip,
@@ -201,7 +201,7 @@ const AuditHistoryBarGraph = ({data, isLoading, audits, showAudited, showActive,
     <BarChart
       data={chartData}
       layout="vertical"
-      margin={{left: isDesktop ? 150 : 0}}
+      margin={{left: isDesktop ? 150 : 0, bottom: 20}}
     >
       <CartesianGrid strokeDasharray="3 3"/>
       <Tooltip content={renderTooltip}/>
@@ -228,7 +228,9 @@ const AuditHistoryBarGraph = ({data, isLoading, audits, showAudited, showActive,
              mirror={!isDesktop}
              orientation={isDesktop ? 'left' : 'right'}
              tick={<CustomizedAxisTick/>}/>
-      <XAxis type="number" name="PiB" domain={[0, maxValue]} tickCount={Math.floor(maxValue / 10) + 1}/>
+      <XAxis type="number" name="PiB" domain={[0, maxValue]} tickCount={Math.floor(maxValue / 10) + 1}>
+        <Label value="# PiBs" position="bottom" fill="#666"/>
+      </XAxis>
       ))
     </BarChart>
   </ResponsiveContainer>
