@@ -6,11 +6,10 @@ import {useCDPChartDataEngine} from "@/app/compliance-data-portal/hooks/useCDPCh
 import {barTabs, dataTabs} from "@/lib/providers/cdp.provider";
 
 interface Props {
-  currentElement?: string;
   plain?: boolean;
 }
 
-const AllocatorBiggestAllocation = ({currentElement, plain}: Props) => {
+const AllocatorBiggestAllocation = ({plain}: Props) => {
 
   const {
     isLoading,
@@ -30,10 +29,6 @@ const AllocatorBiggestAllocation = ({currentElement, plain}: Props) => {
     unit: ' %',
     paletteDirection: 'dsc'
   })
-
-  if (!!currentElement && currentElement !== 'BiggestDealsAllocator') {
-    return null;
-  }
 
   const unit = currentDataTab === 'Count' ? 'allocator' : currentDataTab;
 

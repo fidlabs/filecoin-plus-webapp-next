@@ -19,11 +19,10 @@ import {dataTabs} from "@/lib/providers/cdp.provider";
 
 
 interface Props {
-  currentElement?: string;
   plain?: boolean;
 }
 
-const ProviderComplianceAllocator = ({currentElement, plain}: Props) => {
+const ProviderComplianceAllocator = ({plain}: Props) => {
 
   const pathName = usePathname()
 
@@ -40,10 +39,6 @@ const ProviderComplianceAllocator = ({currentElement, plain}: Props) => {
   useEffect(() => {
     setUsePercentage(calcPercentage);
   }, [calcPercentage]);
-
-  if (!!currentElement && currentElement !== 'ProviderComplianceAllocator') {
-    return null;
-  }
 
   const unit = currentDataTab === 'Count' ? 'allocator' : currentDataTab;
 

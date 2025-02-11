@@ -6,11 +6,10 @@ import {useCDPChartDataEngine} from "@/app/compliance-data-portal/hooks/useCDPCh
 import {barTabs, dataTabs} from "@/lib/providers/cdp.provider";
 
 interface Props {
-  currentElement?: string;
   plain?: boolean;
 }
 
-const StorageProviderNumberOfAllocations = ({currentElement, plain}: Props) => {
+const StorageProviderNumberOfAllocations = ({plain}: Props) => {
 
   const {
     isLoading,
@@ -29,10 +28,6 @@ const StorageProviderNumberOfAllocations = ({currentElement, plain}: Props) => {
     fetchMethod: useStorageProviderNumberOfDeals,
     unit: ' clients'
   })
-
-  if (!!currentElement && currentElement !== 'NumberOfDealsSP') {
-    return null;
-  }
 
   const unit = currentDataTab === 'Count' ? 'provider' : currentDataTab;
 

@@ -8,6 +8,7 @@ import {
 } from "@/components/charts/compliance/storage-providers";
 import {CdpProvider} from "@/lib/providers/cdp.provider";
 import {Separator} from "@/components/ui/separator";
+import {StorageProviderCompliance} from "@/components/charts/compliance/storage-providers/compliance";
 
 
 const StorageProvidersCompliance = () => {
@@ -38,6 +39,8 @@ const StorageProvidersCompliance = () => {
         <StorageProviderBiggestAllocation plain/>
         <Separator orientation="horizontal"/>
         <StorageProviderNumberOfAllocations plain/>
+        <Separator orientation="horizontal"/>
+        <StorageProviderCompliance plain/>
       </CdpProvider>
     </div>
   </Card>

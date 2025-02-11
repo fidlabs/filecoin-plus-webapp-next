@@ -6,11 +6,10 @@ import {useStorageProviderRetrievability} from "@/lib/hooks/cdp.hooks";
 import {barTabs, dataTabs} from "@/lib/providers/cdp.provider";
 
 interface Props {
-  currentElement?: string;
   plain?: boolean;
 }
 
-const StorageProviderRetrievability = ({currentElement, plain}: Props) => {
+const StorageProviderRetrievability = ({plain}: Props) => {
 
   const {
     isLoading,
@@ -28,10 +27,6 @@ const StorageProviderRetrievability = ({currentElement, plain}: Props) => {
     fetchMethod: useStorageProviderRetrievability,
     unit: ' %',
   })
-
-  if (!!currentElement && currentElement !==  'RetrievabilityScoreSP') {
-    return null;
-  }
 
   const unit = currentDataTab === 'Count' ? 'provider' : currentDataTab;
 

@@ -41,7 +41,7 @@ export function StorageProviderCompliance({ plain }: Props) {
                     className="ml-2"
                     href={`${
                       pathName.split("?")[0]
-                    }?chart=RetrievabilityScoreAllocator`}
+                    }?chart=RetrievabilityScoreSP`}
                   >
                     Retrievability
                   </StatsLink>
@@ -53,7 +53,7 @@ export function StorageProviderCompliance({ plain }: Props) {
                     className="ml-2"
                     href={`${
                       pathName.split("?")[0]
-                    }?chart=BiggestDealsAllocator`}
+                    }?chart=BiggestDealsSP`}
                   >
                     Biggest allocation
                   </StatsLink>

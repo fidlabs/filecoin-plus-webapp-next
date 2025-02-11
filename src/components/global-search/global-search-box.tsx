@@ -1,7 +1,7 @@
 "use client";
 import {useEffect, useLayoutEffect, useMemo, useRef, useState} from "react";
 import {CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem} from "@/components/ui/command";
-import {CommandList, CommandSeparator} from "cmdk";
+import {CommandList} from "cmdk";
 import {useRouter} from "next/navigation";
 import {getAllocators, getClients, getStorageProviders} from "@/lib/api";
 import {IAllocatorsResponse} from "@/lib/interfaces/dmob/allocator.interface";

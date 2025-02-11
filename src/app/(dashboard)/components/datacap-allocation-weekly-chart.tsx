@@ -29,7 +29,7 @@ const Component = ({data}: Props) => {
           if (+yearKey === 2024 && +weekKey < 17) return;
           normalData.push({
             name: `w${weekKey} '${yearKey.substring(2, 4)}`,
-            value: yearObj[weekKey]
+            value: +yearObj[weekKey]
           });
         });
       });
@@ -48,7 +48,7 @@ const Component = ({data}: Props) => {
       {chartData && <ResponsiveContainer width="100%" aspect={isDesktop ? 1.77 : 16 / chartData.length} debounce={500}>
         <LineChart
           data={chartData}
-          layout={!isDesktop ? "vertical" : "horizontal"}
+          layout={isDesktop ? "horizontal" : "vertical"}
           margin={{right: 50, left: 20, bottom: 50}}
         >
           {isDesktop && <XAxis
@@ -96,6 +96,7 @@ const Component = ({data}: Props) => {
           <Legend align="center" verticalAlign="top"/>
           <Line
             isAnimationActive={false}
+            layout={isDesktop ? "horizontal" : "vertical"}
             name="DataCap used per week"
             type="monotone"
             dataKey="value"

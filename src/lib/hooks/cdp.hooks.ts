@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {useCallback, useEffect, useMemo, useState} from "react";
 import {
   CDPProvidersComplianceData,
   IAllocatorSPSComplainceResult,
@@ -6,8 +6,8 @@ import {
   ICDPHistogramResult,
   ICDPUnifiedHistogram,
 } from "@/lib/interfaces/cdp/cdp.interface";
-import { endOfWeek, format, getWeek } from "date-fns";
-import { isPlainObject } from "../utils";
+import {endOfWeek, format, getWeek} from "date-fns";
+import {isPlainObject} from "../utils";
 
 type AllocatorSPSComplianceMetric =
   | "compliant"
@@ -215,21 +215,21 @@ const useAllocatorSPSComplaince = (
         data.results
           .find((item) => item.week === week)
           ?.allocators.map((allocator) => {
-            const compliantSpsPercentage =
-              allocator.compliantSpsPercentage ?? 0;
-            const partiallyCompliantSpsPercentage =
-              allocator.partiallyCompliantSpsPercentage ?? 0;
-            if (compliantSpsPercentage >= threshold) {
-              return "compliant" as AllocatorSPSComplianceMetric;
-            } else if (
-              partiallyCompliantSpsPercentage + compliantSpsPercentage >=
-              threshold
-            ) {
-              return "partiallyCompliant" as AllocatorSPSComplianceMetric;
-            } else {
-              return "nonCompliant" as AllocatorSPSComplianceMetric;
-            }
-          }) ?? [];
+          const compliantSpsPercentage =
+            allocator.compliantSpsPercentage ?? 0;
+          const partiallyCompliantSpsPercentage =
+            allocator.partiallyCompliantSpsPercentage ?? 0;
+          if (compliantSpsPercentage >= threshold) {
+            return "compliant" as AllocatorSPSComplianceMetric;
+          } else if (
+            partiallyCompliantSpsPercentage + compliantSpsPercentage >=
+            threshold
+          ) {
+            return "partiallyCompliant" as AllocatorSPSComplianceMetric;
+          } else {
+            return "nonCompliant" as AllocatorSPSComplianceMetric;
+          }
+        }) ?? [];
 
       let name = `w${format(new Date(week), "ww yyyy")}`;
 
@@ -270,12 +270,12 @@ export function useProvidersComplianceChartData(options?: {
   type ProvidersComplianceChartData =
     ChartDataItem<AllocatorSPSComplianceMetric>[];
 
-  const { mode = "default" } = options ?? {};
+  const {mode = "default"} = options ?? {};
   const [data, setData] = useState<CDPProvidersComplianceData>();
   const [error, setError] = useState<Error>();
   const [isLoading, setIsLoading] = useState(false);
 
-  const loadData = useCallback(async () => {
+  const loadData = async () => {
     setError(undefined);
     setIsLoading(true);
 
@@ -293,7 +293,7 @@ export function useProvidersComplianceChartData(options?: {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  };
 
   useEffect(() => {
     loadData();

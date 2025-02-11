@@ -34,7 +34,7 @@ const useWeeklyChartData = ({data, unit = '', defaultTab = '6 groups', paletteDi
     } else {
       return gradientPalette(defaultPalette[paletteDirection][0], defaultPalette[paletteDirection][1], barTabs.indexOf(currentTab) * 3 + 3);
     }
-  }, [barTabs, currentTab, data?.length, paletteDirection])
+  }, [currentTab, data?.length, paletteDirection])
 
   const chartData = useMemo(() => {
     if (!data?.length) {

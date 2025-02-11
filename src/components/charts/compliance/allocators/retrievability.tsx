@@ -6,11 +6,10 @@ import {useAllocatorRetrievability} from "@/lib/hooks/cdp.hooks";
 import {barTabs, dataTabs} from "@/lib/providers/cdp.provider";
 
 interface Props {
-  currentElement?: string;
   plain?: boolean;
 }
 
-const AllocatorRetrievability = ({currentElement, plain}: Props) => {
+const AllocatorRetrievability = ({plain}: Props) => {
 
   const {
     isLoading,
@@ -28,10 +27,6 @@ const AllocatorRetrievability = ({currentElement, plain}: Props) => {
     fetchMethod: useAllocatorRetrievability,
     unit: ' %'
   })
-
-  if (!!currentElement && currentElement !== 'RetrievabilityScoreAllocator') {
-    return null;
-  }
 
   const unit = currentDataTab === 'Count' ? 'allocator' : currentDataTab;
 

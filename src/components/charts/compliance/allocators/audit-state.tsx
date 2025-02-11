@@ -6,20 +6,15 @@ import {AuditHistoryBarGraph} from "@/components/charts/compliance/graphs/audits
 import {Checkbox} from "@/components/ui/checkbox";
 
 interface Props {
-  currentElement?: string;
   plain?: boolean;
 }
 
-const AllocatorAuditState = ({currentElement, plain}: Props) => {
+const AllocatorAuditState = ({plain}: Props) => {
   const {results, loading} = useGoogleSheetsAuditReport();
 
   const [showActive, setShowActive] = useState(true);
   const [showAudited, setShowAudited] = useState(true);
   const [hideWaiting, setHideWaiting] = useState(false);
-
-  if (!!currentElement && currentElement !==  'AuditStateAllocator') {
-    return null;
-  }
 
   return <ChartWrapper
     title="Audit state of the allocators"
