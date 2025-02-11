@@ -7,6 +7,7 @@ import {cn} from "@/lib/utils";
 import {Sheet, SheetContent, SheetTrigger} from "@/components/ui/sheet";
 import {MenuIcon} from "lucide-react";
 import {useState} from "react";
+import {GlobalSearchBox} from "@/components/global-search/global-search-box";
 
 const Header = () => {
 
@@ -20,6 +21,7 @@ const Header = () => {
         <TextLogoIcon className="w-auto h-[30px]"/>
       </Link>
       <NavMenu className="hidden md:flex"/>
+      <GlobalSearchBox/>
       <div className="md:hidden">
         <Sheet open={menuOpened} onOpenChange={setMenuOpened}>
           <SheetTrigger aria-label="Mobile nav menu trigegr">

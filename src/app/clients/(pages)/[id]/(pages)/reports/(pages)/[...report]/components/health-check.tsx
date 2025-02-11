@@ -49,14 +49,12 @@ const getDefaultMessage = (key: DefaultMessageKeys, status: boolean) => {
 
 const HealthCheck = ({security}: IReportViewProviderHealthProps) => {
 
-  const isDesktop = useMediaQuery('(min-width: 768px)');
-
   const healthCheck = useMemo(() => {
     return security.filter(item => !item.result).length
   }, [security])
 
-  if (isDesktop) {
-    return <div className="p-4">
+  return <>
+    <div className="p-4 hidden md:block">
       <HoverCard>
         <HoverCardTrigger>
           <div className="flex gap-2 items-center cursor-help">
@@ -71,22 +69,21 @@ const HealthCheck = ({security}: IReportViewProviderHealthProps) => {
         </HoverCardContent>
       </HoverCard>
     </div>
-  }
-
-  return <div className="p-4"><Drawer>
-    <DrawerTrigger>
-      <div className="flex gap-2 items-center cursor-help">
-        Status:
-        <Badge variant={!!healthCheck ? 'destructive' : 'secondary'}>
-          {!!healthCheck ? `${healthCheck} issue${healthCheck > 1 ? 's' : ''}` : 'Healthy'}
-        </Badge>
-      </div>
-    </DrawerTrigger>
-    <DrawerContent>
-      <ChecksContent security={security}/>
-    </DrawerContent>
-  </Drawer>
-  </div>
+    <div className="p-4 md:hidden"><Drawer>
+      <DrawerTrigger>
+        <div className="flex gap-2 items-center cursor-help">
+          Status:
+          <Badge variant={!!healthCheck ? 'destructive' : 'secondary'}>
+            {!!healthCheck ? `${healthCheck} issue${healthCheck > 1 ? 's' : ''}` : 'Healthy'}
+          </Badge>
+        </div>
+      </DrawerTrigger>
+      <DrawerContent>
+        <ChecksContent security={security}/>
+      </DrawerContent>
+    </Drawer>
+    </div>
+  </>
 }
 
 const ChecksContent = ({security}: IReportViewProviderHealthProps) => {
@@ -99,7 +96,7 @@ const ChecksContent = ({security}: IReportViewProviderHealthProps) => {
         return <div key={index} className={cn(
           isDesktop && "flex gap-1 items-center justify-center whitespace-nowrap",
           !isDesktop && "flex gap-1 items-center justify-start mb-1",
-          !item.result && "text-destructive"
+        !item.result && "text-destructive"
         )}>
           {item.result ? <ShieldCheckIcon className="min-w-8"/> : <ShieldXIcon className="min-w-8"/>}
           {item?.metadata?.msg ?? getDefaultMessage(item.check as DefaultMessageKeys, item.result)}

@@ -82,6 +82,7 @@ const Component = ({data}: Props) => {
       {chartData && <ResponsiveContainer width={'100%'} aspect={1} debounce={100}>
         <PieChart>
           <Pie
+            isAnimationActive={false}
             data={chartData}
             cx="50%"
             cy="50%"

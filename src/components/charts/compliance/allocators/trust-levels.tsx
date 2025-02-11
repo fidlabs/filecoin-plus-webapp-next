@@ -5,19 +5,14 @@ import {StackedBarGraph} from "@/components/charts/compliance/graphs/stacked-bar
 import {useState} from "react";
 
 interface Props {
-  currentElement?: string;
   plain?: boolean;
 }
 
-const AllocatorTrustLevels = ({currentElement, plain}: Props) => {
+const AllocatorTrustLevels = ({plain}: Props) => {
   const [currentScale, setCurrentScale] = useState('linear')
   const [currentTab, setCurrentTab] = useState('PiB')
 
   const {results, loading} = useGoogleTrustLevels(currentScale, currentTab);
-
-  if (!!currentElement && currentElement !==  'AuditOutcomesAllocator') {
-    return null;
-  }
 
   return <ChartWrapper
     title="Governance Compliance Audit Outcomes"

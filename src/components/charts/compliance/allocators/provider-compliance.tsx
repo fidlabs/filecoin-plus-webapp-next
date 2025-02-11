@@ -15,19 +15,20 @@ import {
   ResponsiveHoverCardTrigger
 } from "@/components/ui/responsive-hover-card";
 import {InfoIcon} from "lucide-react";
+import {dataTabs} from "@/lib/providers/cdp.provider";
 
 
 interface Props {
-  currentElement?: string;
   plain?: boolean;
 }
 
-const ProviderComplianceAllocator = ({currentElement, plain}: Props) => {
+const ProviderComplianceAllocator = ({plain}: Props) => {
 
   const pathName = usePathname()
 
   const [threshold, setThreshold] = useState(50)
   const [usePercentage, setUsePercentage] = useState(false);
+  const [currentDataTab, setCurrentDataTab] = useState('Count');
 
   const {
     chartData, isLoading
@@ -39,14 +40,15 @@ const ProviderComplianceAllocator = ({currentElement, plain}: Props) => {
     setUsePercentage(calcPercentage);
   }, [calcPercentage]);
 
-  if (!!currentElement && currentElement !== 'ProviderComplianceAllocator') {
-    return null;
-  }
+  const unit = currentDataTab === 'Count' ? 'allocator' : currentDataTab;
 
   return <ChartWrapper
     title="Allocator Compliance based on % SP Compliance"
     id="ProviderComplianceAllocator"
     plain={plain}
+    dataTabs={dataTabs}
+    currentDataTab={currentDataTab}
+    setCurrentDataTab={setCurrentDataTab}
     selectedScale={selectedScale}
     addons={[
       {
@@ -71,21 +73,24 @@ const ProviderComplianceAllocator = ({currentElement, plain}: Props) => {
     setSelectedScale={setSelectedScale}
     additionalFilters={[<ThresholdSelector key="threshold" threshold={threshold} setThreshold={setThreshold}/>]}>
     <StackedBarGraph customPalette={gradientPalette('#FF5722', '#4CAF50', 3)} usePercentage={usePercentage}
-                     data={chartData} scale={scale} isLoading={isLoading} unit="allocator"/>
+                     data={chartData} scale={scale} isLoading={isLoading} unit={unit}/>
   </ChartWrapper>
 
 }
 
 const ThresholdSelector = ({threshold, setThreshold}: { threshold: number, setThreshold: (val: number) => void }) => {
-  return <div className="flex flex-col gap-2">
-    <div className="flex gap-1 items-center">
+  return <div className="flex flex-col">
+    <div className="flex gap-1 items-center justify-between">
       Threshold: {threshold}%
       <ResponsiveHoverCard>
         <ResponsiveHoverCardTrigger>
           <InfoIcon className="w-5 h-5 text-muted-foreground"/>
         </ResponsiveHoverCardTrigger>
         <ResponsiveHoverCardContent>
-          <p className="p-4 md:p-2">Use this slider to adjust the threshold of SPs that need to be in compliance, eg. 50% means that half of the SPs receiving DC through this allocator meet the compliance metrics</p>
+          <p className="p-4 md:p-2 font-normal">Use this slider to adjust the threshold of SPs that need to be in compliance,
+            <br/>
+            <p className="text-muted-foreground">eg. 50% means that half of the SPs receiving DC through this allocator meet the compliance metrics</p>
+          </p>
         </ResponsiveHoverCardContent>
       </ResponsiveHoverCard>
     </div>

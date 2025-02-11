@@ -1,5 +1,5 @@
-import {useCDPUtils} from "@/lib/providers/cdp.provider";
-import {useEffect, useMemo, useState} from "react";
+import {barTabs, useCDPUtils} from "@/lib/providers/cdp.provider";
+import {useMemo, useState} from "react";
 import {endOfWeek, format} from "date-fns";
 import {uniq} from "lodash";
 import {ICDPWeek} from "@/lib/interfaces/cdp/cdp.interface";
@@ -20,14 +20,13 @@ const defaultPalette = {
 
 const useWeeklyChartData = ({data, unit = '', defaultTab = '6 groups', paletteDirection = 'asc', usePercentage}: WeeklyChartDataOptions) => {
   const {
-    barTabs,
-    globalBarTab,
     groupData,
     parseSingleBucketWeek,
     parseBucketGroupWeek
   } = useCDPUtils();
 
   const [currentTab, setCurrentTab] = useState(defaultTab);
+  const [currentDataTab, setCurrentDataTab] = useState('Count');
 
   const palette = useMemo(() => {
     if (currentTab === barTabs[barTabs.length - 1]) {
@@ -35,7 +34,7 @@ const useWeeklyChartData = ({data, unit = '', defaultTab = '6 groups', paletteDi
     } else {
       return gradientPalette(defaultPalette[paletteDirection][0], defaultPalette[paletteDirection][1], barTabs.indexOf(currentTab) * 3 + 3);
     }
-  }, [barTabs, currentTab, data?.length, paletteDirection])
+  }, [currentTab, data?.length, paletteDirection])
 
   const chartData = useMemo(() => {
     if (!data?.length) {
@@ -73,22 +72,19 @@ const useWeeklyChartData = ({data, unit = '', defaultTab = '6 groups', paletteDi
       return mappedData;
     })
 
-  }, [data, currentTab, barTabs, parseSingleBucketWeek, unit, groupData, parseBucketGroupWeek, usePercentage]);
+  }, [data, currentTab, parseSingleBucketWeek, unit, groupData, parseBucketGroupWeek, usePercentage]);
 
   const minValue = useMemo(() => {
     const dataKeys = uniq(chartData.flatMap(d => Object.values(d)).filter(val => !isNaN(+val))).map(item => +item);
     return Math.min(...dataKeys);
   }, [chartData]);
 
-  useEffect(() => {
-    setCurrentTab(globalBarTab);
-  }, [globalBarTab]);
-
   return {
     chartData,
     currentTab,
     setCurrentTab,
-    tabs: barTabs,
+    currentDataTab,
+    setCurrentDataTab,
     minValue,
     palette
   };
