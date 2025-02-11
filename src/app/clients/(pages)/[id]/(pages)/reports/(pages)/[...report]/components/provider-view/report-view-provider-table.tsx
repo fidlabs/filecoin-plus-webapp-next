@@ -1,6 +1,6 @@
 "use client"
 import {
-  IClientReportStorageProviderDistribution
+  IClientReportStorageProviderDistribution, IPNIReportingStatus
 } from "@/lib/interfaces/cdp/cdp.interface";
 import {
   useReportsDetails
@@ -129,7 +129,7 @@ const useReportViewProvidersColumns = (compareMode: boolean) => {
       </div>
     }
   }, {
-    accessorKey: "ipni_misreporting",
+    accessorKey: "ipni_reporting_status",
     header: () => {
       return (
         <div className="whitespace-nowrap">
@@ -141,16 +141,19 @@ const useReportViewProvidersColumns = (compareMode: boolean) => {
         return <div className="h-full flex items-center justify-start gap-1">N/A</div>
       }
 
-      const ipni_misreporting = row.getValue('ipni_misreporting') as boolean | undefined
+      const ipni_reporting_status = row.getValue('ipni_reporting_status') as IPNIReportingStatus
       const ipni_reported_claims_count = row.original.ipni_reported_claims_count as string | undefined
 
-      if (!ipni_misreporting) {
-        return <div className="h-full flex items-center justify-start gap-1">No</div>
-      } else if (ipni_reported_claims_count) {
-        return <div className="h-full flex items-center justify-start gap-1">Yes
-          ({ipni_reported_claims_count} claims)</div>
-      } else {
-        return <div className="h-full flex items-center justify-start gap-1">Yes</div>
+      switch (ipni_reporting_status) {
+        case "MISREPORTING":
+          return <div className="h-full flex items-center justify-start gap-1">
+            <span>Yes</span>
+            {ipni_reported_claims_count && <span>({ipni_reported_claims_count} claims)</span>}
+          </div>
+        case "NOT_REPORTING":
+          return <div className="h-full flex items-center justify-start gap-1">Not reporting</div>
+        case "OK":
+          return <div className="h-full flex items-center justify-start gap-1">OK</div>
       }
     }
   }, {

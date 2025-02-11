@@ -55,6 +55,8 @@ export interface IClientReportHeader {
 
 export type CompareType = "up" | "down" | "equal" | undefined
 
+export type IPNIReportingStatus = 'MISREPORTING' | 'NOT_REPORTING' | 'OK'
+
 export interface IClientReportStorageProviderDistribution {
   not_found: boolean | undefined
   client_report_id: string
@@ -72,7 +74,7 @@ export interface IClientReportStorageProviderDistribution {
   retrievability_success_rate: string,
   retrievability_success_rate_http: string,
   retrievability_success_rate_compare: CompareType
-  ipni_misreporting: boolean | undefined,
+  ipni_reporting_status: IPNIReportingStatus,
   ipni_reported_claims_count: string | undefined,
   claims_count: string | undefined,
   location: IGenericReportLocation
@@ -184,4 +186,11 @@ export interface ICDPAllocatorFullReportStorageProviderDistribution {
   retrievability_success_rate?: number
   retrievability_success_rate_compare: CompareType
   location: IGenericReportLocation
+}
+
+export interface ICDPAgregatedIPNIReport {
+  misreporting: number
+  notReporting: number
+  ok: number
+  total: number
 }
