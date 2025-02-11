@@ -8,6 +8,7 @@ import {IAllocatorsResponse} from "@/lib/interfaces/dmob/allocator.interface";
 import {IClientsResponse} from "@/lib/interfaces/dmob/client.interface";
 import {IStorageProvidersResponse} from "@/lib/interfaces/dmob/sp.interface";
 import {Separator} from "@/components/ui/separator";
+import {groupBy} from "lodash";
 
 interface Action {
   group: string
@@ -221,7 +222,7 @@ const GlobalSearchBox = () => {
 
   const printActions = useMemo(() => {
     if (!availableActions) return {}
-    return Object.groupBy(availableActions, item => item.group)
+    return groupBy(availableActions, item => item.group)
   }, [availableActions])
 
   useLayoutEffect(() => {
