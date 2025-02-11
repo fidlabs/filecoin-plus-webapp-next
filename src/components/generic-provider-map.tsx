@@ -8,6 +8,7 @@ import {
   ResponsiveDialogTrigger
 } from "@/components/ui/responsive-dialog";
 import {IGenericReportLocation} from "@/lib/interfaces/cdp/cdp.interface";
+import dynamic from "next/dynamic";
 
 interface IGenericProviderMapProps {
   markerGroups: {  [key: string]: IGenericReportLocation[] }
@@ -17,7 +18,7 @@ interface IGenericProviderMapProps {
   }
 }
 
-const GenericProviderMap = ({markerGroups, mapsConstraints}: IGenericProviderMapProps) => {
+const Map = ({markerGroups, mapsConstraints}: IGenericProviderMapProps) => {
   if (!Object.keys(markerGroups).length) {
     return undefined
   }
@@ -64,5 +65,7 @@ const GenericProviderMap = ({markerGroups, mapsConstraints}: IGenericProviderMap
     })}
   </ComposableMap>
 }
+
+const GenericProviderMap = dynamic(() => Promise.resolve(Map), {ssr: false})
 
 export {GenericProviderMap}
