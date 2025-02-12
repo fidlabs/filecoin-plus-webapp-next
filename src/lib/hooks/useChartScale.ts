@@ -1,5 +1,5 @@
 import {ScaleSymLog, scaleSymlog} from 'd3-scale';
-import {useMemo, useState} from 'react';
+import {useLayoutEffect, useMemo, useState} from 'react';
 import {ScaleType} from "recharts/types/util/types";
 
 export type Scale = ScaleType | ScaleSymLog<number, number, never> | undefined;
@@ -20,6 +20,18 @@ const useChartScale = (minValue: number, defaultValue = 'linear') => {
     }
   }, [selectedScale, minValue])
 
+  useLayoutEffect(() => {
+    const cacheScale = localStorage.getItem('complianceDataPortalChartScale');
+    if (cacheScale) {
+      setSelectedScale(cacheScale);
+    }
+  }, []);
+
+  const setSelectedScaleCache = (value: string) => {
+    setSelectedScale(value);
+    localStorage.setItem('complianceDataPortalChartScale', value);
+  }
+
   const calcPercentage = useMemo(() => {
     return selectedScale === 'percent'
   }, [selectedScale])
@@ -28,7 +40,7 @@ const useChartScale = (minValue: number, defaultValue = 'linear') => {
     scale,
     selectedScale,
     calcPercentage,
-    setSelectedScale
+    setSelectedScale: setSelectedScaleCache
   }
 }
 

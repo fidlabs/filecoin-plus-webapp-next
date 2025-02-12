@@ -184,6 +184,7 @@ const useGoogleTrustLevels = (scale: string, mode: string) => {
       const compliant = isAllocator ? compliantList.length : compliantList.reduce((acc, row) => acc + +((row[i]).split("-")?.[1] ?? 0), 0);
 
       const total = unknown + nonCompliant + likelyCompliant + compliant;
+      console.log(name)
 
       returnData.push({
         name,

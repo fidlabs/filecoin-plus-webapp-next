@@ -51,7 +51,7 @@ const AllocatorTrustLevels = ({plain}: Props) => {
     ]}
     plain={plain}
   >
-    <StackedBarGraph usePercentage={currentScale === 'percent'} data={results} unit={currentTab} isLoading={loading} customPalette={[
+    <StackedBarGraph currentDataTab={currentTab} usePercentage={currentScale === 'percent'} data={results} unit={currentTab} isLoading={loading} customPalette={[
       '#525252', '#ff0029', '#cf8c00', '#66a61e'
     ]}/>
   </ChartWrapper>;

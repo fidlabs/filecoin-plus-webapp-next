@@ -12,12 +12,14 @@ export interface ICDPWeek {
   week: string;
   results: ICDPRange[];
   total: number;
+  averageSuccessRate?: number;
 }
 
 export interface ICDPRange {
   valueFromExclusive: number;
   valueToInclusive: number;
   count: number;
+  totalDatacap: number;
 }
 
 export interface ICDPUnifiedHistogram {

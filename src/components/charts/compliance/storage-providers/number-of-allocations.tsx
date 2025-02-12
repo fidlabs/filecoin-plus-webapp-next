@@ -52,7 +52,8 @@ const StorageProviderNumberOfAllocations = ({plain}: Props) => {
       value: "Chart is showing how many client each provider has"
     }]}>
     <StackedBarGraph customPalette={palette} usePercentage={usePercentage} data={chartData} scale={scale}
-                     isLoading={isLoading} unit={unit}/>
+                     isLoading={isLoading} unit={unit}
+                     currentDataTab={currentDataTab}/>
   </ChartWrapper>
 
 }

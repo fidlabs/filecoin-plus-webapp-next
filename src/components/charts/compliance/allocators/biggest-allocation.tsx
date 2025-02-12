@@ -52,7 +52,7 @@ const AllocatorBiggestAllocation = ({plain}: Props) => {
       size: 2,
       value: "What % of the total data cap used comes from the single client"
     }]}>
-    <StackedBarGraph customPalette={palette} data={chartData} usePercentage={usePercentage} scale={scale}
+    <StackedBarGraph currentDataTab={currentDataTab} customPalette={palette} data={chartData} usePercentage={usePercentage} scale={scale}
                      isLoading={isLoading} unit={unit}/>
   </ChartWrapper>
 

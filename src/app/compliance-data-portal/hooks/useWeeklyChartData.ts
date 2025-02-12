@@ -1,5 +1,5 @@
 import {barTabs, useCDPUtils} from "@/lib/providers/cdp.provider";
-import {useMemo, useState} from "react";
+import {useLayoutEffect, useMemo, useState} from "react";
 import {endOfWeek, format} from "date-fns";
 import {uniq} from "lodash";
 import {ICDPWeek} from "@/lib/interfaces/cdp/cdp.interface";
@@ -26,11 +26,33 @@ const useWeeklyChartData = ({data, unit = '', defaultTab = '6 groups', paletteDi
   } = useCDPUtils();
 
   const [currentTab, setCurrentTab] = useState(defaultTab);
-  const [currentDataTab, setCurrentDataTab] = useState('Count');
+  const [currentDataTab, setCurrentDataTab] = useState('PiB');
+
+  useLayoutEffect(() => {
+    const cacheTab = localStorage.getItem('complianceDataPortalChartTab');
+    const cacheDataTab = localStorage.getItem('complianceDataPortalChartDataTab');
+    if (cacheTab) {
+      setCurrentTab(cacheTab);
+    }
+    if (cacheDataTab) {
+      setCurrentDataTab(cacheDataTab);
+    }
+  }, []);
+
+  const setCurrentTabCache = (tab: string) => {
+    setCurrentTab(tab);
+    localStorage.setItem('complianceDataPortalChartTab', tab);
+  }
+
+  const setCurrentDataTabCache = (tab: string) => {
+    setCurrentDataTab(tab);
+    localStorage.setItem('complianceDataPortalChartDataTab', tab);
+  }
 
   const palette = useMemo(() => {
     if (currentTab === barTabs[barTabs.length - 1]) {
-      return gradientPalette(defaultPalette[paletteDirection][0], defaultPalette[paletteDirection][1], data?.length || 1);
+      const length = Math.max(...data?.map(bucket => bucket.results.length) || [0]);
+      return gradientPalette(defaultPalette[paletteDirection][0], defaultPalette[paletteDirection][1], length);
     } else {
       return gradientPalette(defaultPalette[paletteDirection][0], defaultPalette[paletteDirection][1], barTabs.indexOf(currentTab) * 3 + 3);
     }
@@ -52,17 +74,23 @@ const useWeeklyChartData = ({data, unit = '', defaultTab = '6 groups', paletteDi
         name
       } as { [key: PropertyKey]: string | number };
 
+      if (bucket.averageSuccessRate) {
+        mappedData['avgSuccessRate'] = bucket.averageSuccessRate * 100;
+      }
+
       let results;
 
       const modifier = (val: number) => {
-        return usePercentage ? val / bucket.total * 100 : val;
+        const total = currentDataTab === 'Count' ? bucket.total : bucket.results.reduce((acc, curr) => acc + curr.totalDatacap, 0);
+
+        return usePercentage ? val / total * 100 : val;
       }
 
       if (currentTab === barTabs[barTabs.length - 1]) {
-        results = bucket.results.map((bucket, index) => parseSingleBucketWeek(bucket, index, data?.length, unit));
+        results = bucket.results.map((bucket, index) => parseSingleBucketWeek(bucket, index, data?.length, unit, currentDataTab));
       } else {
         const groupedBuckets = groupData(bucket.results, barTabs.indexOf(currentTab) * 3 + 3);
-        results = groupedBuckets.map((group, index) => parseBucketGroupWeek(group, index, groupedBuckets.length, unit));
+        results = groupedBuckets.map((group, index) => parseBucketGroupWeek(group, index, groupedBuckets.length, unit, currentDataTab));
       }
 
       Object.values(results).forEach((value, index) => {
@@ -72,7 +100,7 @@ const useWeeklyChartData = ({data, unit = '', defaultTab = '6 groups', paletteDi
       return mappedData;
     })
 
-  }, [data, currentTab, parseSingleBucketWeek, unit, groupData, parseBucketGroupWeek, usePercentage]);
+  }, [data, currentTab, currentDataTab, parseSingleBucketWeek, unit, groupData, parseBucketGroupWeek, usePercentage]);
 
   const minValue = useMemo(() => {
     const dataKeys = uniq(chartData.flatMap(d => Object.values(d)).filter(val => !isNaN(+val))).map(item => +item);
@@ -82,9 +110,9 @@ const useWeeklyChartData = ({data, unit = '', defaultTab = '6 groups', paletteDi
   return {
     chartData,
     currentTab,
-    setCurrentTab,
+    setCurrentTab: setCurrentTabCache,
     currentDataTab,
-    setCurrentDataTab,
+    setCurrentDataTab: setCurrentDataTabCache,
     minValue,
     palette
   };

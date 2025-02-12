@@ -66,6 +66,7 @@ export function StorageProviderCompliance({ plain }: Props) {
       setSelectedScale={setSelectedScale}
     >
       <StackedBarGraph
+        currentDataTab={'Count'}
         customPalette={gradientPalette("#4CAF50", "#FF5722", 3)}
         usePercentage={calcPercentage}
         data={chartData}

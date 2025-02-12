@@ -38,9 +38,10 @@ const CommonChartContext = createContext({
     bucket: ICDPRange,
     index: number,
     length: number,
-    unit: string
+    unit: string,
+    dataMode: string
   ) => {
-    console.log(bucket, index, length, unit);
+    console.log(bucket, index, length, unit, dataMode);
     return {
       name: "",
       value: 0,
@@ -50,9 +51,10 @@ const CommonChartContext = createContext({
     group: ICDPRange[],
     index: number,
     length: number,
-    unit: string
+    unit: string,
+    dataMode: string
   ) => {
-    console.log(group, index, length, unit);
+    console.log(group, index, length, unit, dataMode);
     return {
       name: "",
       value: 0,
@@ -97,7 +99,7 @@ const CdpProvider = ({ children }: PropsWithChildren) => {
   }, []);
 
   const parseSingleBucketWeek = useCallback(
-    (bucket: ICDPRange, index: number, length: number, unit = "") => {
+    (bucket: ICDPRange, index: number, length: number, unit = "", dataMode = 'PiB') => {
       let name = `${bucket.valueFromExclusive + 1} - ${
         bucket.valueToInclusive
       }${unit}`;
@@ -116,14 +118,14 @@ const CdpProvider = ({ children }: PropsWithChildren) => {
       }
       return {
         name,
-        value: bucket.count,
+        value: (dataMode === 'PiB' ? bucket.totalDatacap : bucket.count),
       };
     },
     []
   );
 
   const parseBucketGroupWeek = useCallback(
-    (group: ICDPRange[], index: number, length: number, unit = "") => {
+    (group: ICDPRange[], index: number, length: number, unit = "", dataMode = 'PiB') => {
       let name = `${group[0].valueFromExclusive + 1} - ${
         group[group.length - 1].valueToInclusive
       }${unit}`;
@@ -134,7 +136,7 @@ const CdpProvider = ({ children }: PropsWithChildren) => {
       }
       return {
         name,
-        value: group.reduce((acc, bucket) => acc + bucket.count, 0),
+        value: group.reduce((acc, bucket) => acc + (dataMode === 'PiB' ? bucket.totalDatacap : bucket.count), 0),
       };
     },
     []

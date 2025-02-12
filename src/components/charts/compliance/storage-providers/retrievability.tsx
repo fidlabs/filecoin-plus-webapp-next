@@ -42,7 +42,7 @@ const StorageProviderRetrievability = ({plain}: Props) => {
     id="RetrievabilityScoreSP"
     selectedScale={selectedScale}
     setSelectedScale={setSelectedScale}>
-    <StackedBarGraph customPalette={palette} usePercentage={usePercentage} data={chartData} scale={scale} isLoading={isLoading} unit={unit}/>
+    <StackedBarGraph currentDataTab={currentDataTab} customPalette={palette} usePercentage={usePercentage} data={chartData} scale={scale} isLoading={isLoading} unit={unit}/>
   </ChartWrapper>
 
 }
