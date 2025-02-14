@@ -291,10 +291,8 @@ const FlowSankey = ({
       </Tooltip>
     </TooltipProvider>
 
-    {sankeyData && <ResponsiveContainer width="100%" aspect={expanded ? 1.5 : 2} debounce={100}>
+    {sankeyData && <ResponsiveContainer width="100%" aspect={expanded ? 1.2 : 2} debounce={100}>
       <Sankey
-        width={960}
-        height={500}
         data={sankeyData}
         nodePadding={50}
         node={expanded ? ExpandedNode : Node}

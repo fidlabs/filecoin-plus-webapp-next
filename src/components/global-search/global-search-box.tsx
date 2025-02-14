@@ -40,10 +40,10 @@ const defaultActions = [
     tags: ['storage', 'provider', 'providers', 'sp', 'sps', 'list'],
     link: '/storage-providers'
   }, {
-    name: 'Storage providers compliance',
+    name: 'Storage providers compliance overview',
     group: 'storage providers',
     tags: ['storage', 'provider', 'providers', 'sp', 'sps', 'compliance'],
-    link: '/storage-providers/compliabnce'
+    link: '/storage-providers/compliance'
   }, {
     name: 'Allocators compliance',
     group: 'allocators',
@@ -56,47 +56,52 @@ const defaultActions = [
     link: '/allocators/allocator-tree'
   }, {
     name: "Compliance Data Portal",
-    group: 'compliance',
+    group: 'Compliance Data Porta',
     tags: ['compliance', 'data', 'portal', 'chart', 'cdp'],
     link: '/compliance-data-portal'
   }, {
     name: "Storage providers Retrievability Score",
-    group: 'compliance',
+    group: 'Compliance Data Porta',
     tags: ['compliance', 'data', 'portal', 'chart', 'cdp', 'storage', 'provider', 'providers', 'sp', 'sps', 'compliance', 'retrievability', 'score'],
     link: '/compliance-data-portal?chart=RetrievabilityScoreSP'
   }, {
     name: "Storage providers Number of allocations",
-    group: 'compliance',
+    group: 'Compliance Data Porta',
     tags: ['compliance', 'data', 'portal', 'chart', 'cdp', 'storage', 'provider', 'providers', 'sp', 'sps', 'compliance', 'number', 'of', 'allocations'],
     link: '/compliance-data-portal?chart=NumberOfDealsSP'
   }, {
     name: "Storage providers Biggest allocation",
-    group: 'compliance',
+    group: 'Compliance Data Porta',
     tags: ['compliance', 'data', 'portal', 'chart', 'cdp', 'storage', 'provider', 'providers', 'sp', 'sps', 'compliance', 'biggest', 'deal', 'deals', 'allocation', 'allocations'],
     link: '/compliance-data-portal?chart=BiggestDealsSP'
   }, {
+    name: "Storage providers compliance",
+    group: 'Compliance Data Porta',
+    tags: ['compliance', 'data', 'portal', 'chart', 'cdp', 'storage', 'provider', 'providers', 'sp', 'sps', 'compliance'],
+    link: '/compliance-data-portal?chart=ComplianceSP'
+  }, {
     name: "Allocators Retrievability Score",
-    group: 'compliance',
+    group: 'Compliance Data Porta',
     tags: ['compliance', 'data', 'portal', 'chart', 'cdp', 'allocator', 'allocators', 'compliance', 'retrievability', 'score'],
     link: '/compliance-data-portal?chart=RetrievabilityScoreAllocator'
   }, {
     name: "Allocator's Size Of The Biggest client allocation",
-    group: 'compliance',
+    group: 'Compliance Data Porta',
     tags: ['compliance', 'data', 'portal', 'chart', 'cdp', 'allocator', 'allocators', 'compliance', 'biggest', 'deal', 'deals', 'allocation', 'allocations'],
     link: '/compliance-data-portal?chart=BiggestDealsAllocator'
   }, {
     name: "Allocator Compliance based on % SP Compliance",
-    group: 'compliance',
+    group: 'Compliance Data Porta',
     tags: ['compliance', 'data', 'portal', 'chart', 'cdp', 'allocator', 'allocators', 'compliance', 'biggest', 'provider', 'providers', 'sp', 'sps', 'compliance'],
     link: '/compliance-data-portal?chart=ProviderComplianceAllocator'
   }, {
     name: "Audit state of the allocators",
-    group: 'compliance',
+    group: 'Compliance Data Porta',
     tags: ['compliance', 'data', 'portal', 'chart', 'cdp', 'allocator', 'allocators', 'audit', 'state', 'compliance'],
     link: '/compliance-data-portal?chart=AuditStateAllocator'
   }, {
     name: "Governance Compliance Audit Outcomes",
-    group: 'compliance',
+    group: 'Compliance Data Porta',
     tags: ['compliance', 'data', 'portal', 'chart', 'cdp', 'allocator', 'allocators', 'audit', 'outcomes', 'trust', 'compliance'],
     link: '/compliance-data-portal?chart=AuditOutcomesAllocator'
   }, {
