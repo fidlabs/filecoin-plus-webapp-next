@@ -67,7 +67,7 @@ const CdpProvider = ({ children }: PropsWithChildren) => {
   const router = useRouter();
   const pathName = usePathname();
 
-  const [currentElement, setCurrentElement] = useState("RetrievabilityScoreSP");
+  const [currentElement, setCurrentElement] = useState("ComplianceSP");
 
   useEffect(() => {
     const element = searchParams.get("chart");

@@ -12,6 +12,10 @@ const nav = [
     group: "SPs",
     links: [
       {
+        id: 'ComplianceSP',
+        label: 'Compliance'
+      },
+      {
         id: 'RetrievabilityScoreSP',
         label: 'Retrievability Score'
       },
@@ -23,10 +27,6 @@ const nav = [
         id: 'BiggestDealsSP',
         label: 'Biggest allocation'
       },
-      {
-        id: 'ComplianceSP',
-        label: 'Compliance'
-      }
     ]
   }, {
     group: "Allocators",
