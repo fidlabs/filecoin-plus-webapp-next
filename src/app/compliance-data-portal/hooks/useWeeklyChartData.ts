@@ -1,36 +1,41 @@
-import {barTabs, useCDPUtils} from "@/lib/providers/cdp.provider";
-import {useLayoutEffect, useMemo, useState} from "react";
-import {endOfWeek, format} from "date-fns";
-import {uniq} from "lodash";
-import {ICDPWeek} from "@/lib/interfaces/cdp/cdp.interface";
-import {gradientPalette} from "@/lib/utils";
+import { barTabs, useCDPUtils } from "@/lib/providers/cdp.provider";
+import { useLayoutEffect, useMemo, useState } from "react";
+import { endOfWeek, format } from "date-fns";
+import { uniq } from "lodash";
+import { ICDPWeek } from "@/lib/interfaces/cdp/cdp.interface";
+import { gradientPalette } from "@/lib/utils";
 
 interface WeeklyChartDataOptions {
   data: ICDPWeek[] | undefined;
   unit?: string;
   defaultTab?: string;
-  paletteDirection?: 'dsc' | 'asc';
+  paletteDirection?: "dsc" | "asc";
   usePercentage?: boolean;
 }
 
 const defaultPalette = {
-  'asc': ['#FF5722', '#4CAF50'],
-  'dsc': ['#4CAF50', '#FF5722']
+  asc: ["#FF5722", "#4CAF50"],
+  dsc: ["#4CAF50", "#FF5722"],
 };
 
-const useWeeklyChartData = ({data, unit = '', defaultTab = '6 groups', paletteDirection = 'asc', usePercentage}: WeeklyChartDataOptions) => {
-  const {
-    groupData,
-    parseSingleBucketWeek,
-    parseBucketGroupWeek
-  } = useCDPUtils();
+const useWeeklyChartData = ({
+  data,
+  unit = "",
+  defaultTab = "6 groups",
+  paletteDirection = "asc",
+  usePercentage,
+}: WeeklyChartDataOptions) => {
+  const { groupData, parseSingleBucketWeek, parseBucketGroupWeek } =
+    useCDPUtils();
 
   const [currentTab, setCurrentTab] = useState(defaultTab);
-  const [currentDataTab, setCurrentDataTab] = useState('PiB');
+  const [currentDataTab, setCurrentDataTab] = useState("PiB");
 
   useLayoutEffect(() => {
-    const cacheTab = localStorage.getItem('complianceDataPortalChartTab');
-    const cacheDataTab = localStorage.getItem('complianceDataPortalChartDataTab');
+    const cacheTab = localStorage.getItem("complianceDataPortalChartTab");
+    const cacheDataTab = localStorage.getItem(
+      "complianceDataPortalChartDataTab"
+    );
     if (cacheTab) {
       setCurrentTab(cacheTab);
     }
@@ -41,22 +46,32 @@ const useWeeklyChartData = ({data, unit = '', defaultTab = '6 groups', paletteDi
 
   const setCurrentTabCache = (tab: string) => {
     setCurrentTab(tab);
-    localStorage.setItem('complianceDataPortalChartTab', tab);
-  }
+    localStorage.setItem("complianceDataPortalChartTab", tab);
+  };
 
   const setCurrentDataTabCache = (tab: string) => {
     setCurrentDataTab(tab);
-    localStorage.setItem('complianceDataPortalChartDataTab', tab);
-  }
+    localStorage.setItem("complianceDataPortalChartDataTab", tab);
+  };
 
   const palette = useMemo(() => {
     if (currentTab === barTabs[barTabs.length - 1]) {
-      const length = Math.max(...data?.map(bucket => bucket.results.length) || [0]);
-      return gradientPalette(defaultPalette[paletteDirection][0], defaultPalette[paletteDirection][1], length);
+      const length = Math.max(
+        ...(data?.map((bucket) => bucket.results.length) || [0])
+      );
+      return gradientPalette(
+        defaultPalette[paletteDirection][0],
+        defaultPalette[paletteDirection][1],
+        length
+      );
     } else {
-      return gradientPalette(defaultPalette[paletteDirection][0], defaultPalette[paletteDirection][1], barTabs.indexOf(currentTab) * 3 + 3);
+      return gradientPalette(
+        defaultPalette[paletteDirection][0],
+        defaultPalette[paletteDirection][1],
+        barTabs.indexOf(currentTab) * 3 + 3
+      );
     }
-  }, [currentTab, data?.length, paletteDirection])
+  }, [currentTab, data?.length, paletteDirection]);
 
   const chartData = useMemo(() => {
     if (!data?.length) {
@@ -64,33 +79,55 @@ const useWeeklyChartData = ({data, unit = '', defaultTab = '6 groups', paletteDi
     }
 
     return data?.map((bucket) => {
-      let name = `w${format(new Date(bucket.week), 'ww yyyy')}`;
+      let name = `w${format(new Date(bucket.week), "ww yyyy")}`;
 
-      if (+format(new Date(bucket.week), 'ww') === 1) {
-        name = `w${format(endOfWeek(new Date(bucket.week)), 'ww yyyy')}`;
+      if (+format(new Date(bucket.week), "ww") === 1) {
+        name = `w${format(endOfWeek(new Date(bucket.week)), "ww yyyy")}`;
       }
 
       const mappedData = {
-        name
+        name,
       } as { [key: PropertyKey]: string | number };
 
       if (bucket.averageSuccessRate) {
-        mappedData['avgSuccessRate'] = bucket.averageSuccessRate * 100;
+        mappedData["avgSuccessRate"] = bucket.averageSuccessRate;
       }
 
       let results;
 
       const modifier = (val: number) => {
-        const total = currentDataTab === 'Count' ? bucket.total : bucket.results.reduce((acc, curr) => acc + curr.totalDatacap, 0);
+        const total =
+          currentDataTab === "Count"
+            ? bucket.total
+            : bucket.results.reduce((acc, curr) => acc + curr.totalDatacap, 0);
 
-        return usePercentage ? val / total * 100 : val;
-      }
+        return usePercentage ? (val / total) * 100 : val;
+      };
 
       if (currentTab === barTabs[barTabs.length - 1]) {
-        results = bucket.results.map((bucket, index) => parseSingleBucketWeek(bucket, index, data?.length, unit, currentDataTab));
+        results = bucket.results.map((bucket, index) =>
+          parseSingleBucketWeek(
+            bucket,
+            index,
+            data?.length,
+            unit,
+            currentDataTab
+          )
+        );
       } else {
-        const groupedBuckets = groupData(bucket.results, barTabs.indexOf(currentTab) * 3 + 3);
-        results = groupedBuckets.map((group, index) => parseBucketGroupWeek(group, index, groupedBuckets.length, unit, currentDataTab));
+        const groupedBuckets = groupData(
+          bucket.results,
+          barTabs.indexOf(currentTab) * 3 + 3
+        );
+        results = groupedBuckets.map((group, index) =>
+          parseBucketGroupWeek(
+            group,
+            index,
+            groupedBuckets.length,
+            unit,
+            currentDataTab
+          )
+        );
       }
 
       Object.values(results).forEach((value, index) => {
@@ -98,12 +135,22 @@ const useWeeklyChartData = ({data, unit = '', defaultTab = '6 groups', paletteDi
         mappedData[`group${index}Name`] = value.name;
       });
       return mappedData;
-    })
-
-  }, [data, currentTab, currentDataTab, parseSingleBucketWeek, unit, groupData, parseBucketGroupWeek, usePercentage]);
+    });
+  }, [
+    data,
+    currentTab,
+    currentDataTab,
+    parseSingleBucketWeek,
+    unit,
+    groupData,
+    parseBucketGroupWeek,
+    usePercentage,
+  ]);
 
   const minValue = useMemo(() => {
-    const dataKeys = uniq(chartData.flatMap(d => Object.values(d)).filter(val => !isNaN(+val))).map(item => +item);
+    const dataKeys = uniq(
+      chartData.flatMap((d) => Object.values(d)).filter((val) => !isNaN(+val))
+    ).map((item) => +item);
     return Math.min(...dataKeys);
   }, [chartData]);
 
@@ -114,7 +161,7 @@ const useWeeklyChartData = ({data, unit = '', defaultTab = '6 groups', paletteDi
     currentDataTab,
     setCurrentDataTab: setCurrentDataTabCache,
     minValue,
-    palette
+    palette,
   };
 };
 
