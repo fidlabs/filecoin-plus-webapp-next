@@ -201,3 +201,50 @@ export function isPlainObject(
 ): input is Record<string, unknown> {
   return !!input && typeof input === "object" && !Array.isArray(input);
 }
+
+export function groupBy<
+  T,
+  Key extends string,
+  Keys extends readonly Key[] | void
+>(
+  input: readonly T[],
+  groupFn: (item: T) => Key,
+  keys?: Keys
+): Keys extends void ? Partial<Record<Key, T[]>> : Record<Key, T[]> {
+  type Result = Keys extends void
+    ? Partial<Record<Key, T[]>>
+    : Record<Key, T[]>;
+
+  const initialValue =
+    keys?.reduce((result, key) => {
+      return {
+        ...result,
+        [key]: [],
+      };
+    }, {}) ?? {};
+
+  return input.reduce((result, item) => {
+    const itemGroup = groupFn(item);
+
+    return {
+      ...result,
+      [itemGroup]: [...(result[itemGroup] ?? []), item],
+    };
+  }, initialValue as Result);
+}
+
+export function mapObject<InputType, MappedType, Key extends string>(
+  input: Record<Key, InputType>,
+  mapFn: (item: InputType) => MappedType
+): Record<Key, MappedType> {
+  const keys = Object.keys(input) as Key[];
+
+  return keys.reduce((result, key) => {
+    const item = input[key] as InputType;
+
+    return {
+      ...result,
+      [key]: mapFn(item),
+    };
+  }, {}) as Record<Key, MappedType>; // All keys will be populated eventually so we can cast the type here
+}

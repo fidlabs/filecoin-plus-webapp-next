@@ -1,18 +1,16 @@
-import {useEffect, useMemo, useState} from "react";
 import {
+  CDPAllocatorsSPsComplianceData,
   CDPProvidersComplianceData,
-  IAllocatorSPSComplainceResult,
   ICDPHistogram,
   ICDPHistogramResult,
   ICDPUnifiedHistogram,
 } from "@/lib/interfaces/cdp/cdp.interface";
-import {endOfWeek, format, getWeek} from "date-fns";
-import {isPlainObject} from "../utils";
+import { getWeek } from "date-fns";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { groupBy, isPlainObject, mapObject } from "../utils";
 
 type AllocatorSPSComplianceMetric =
-  | "compliant"
-  | "partiallyCompliant"
-  | "nonCompliant";
+  (typeof allocatorSPsComplianceMetrics)[number];
 
 type ChartDataItem<T extends string> = {
   name: string;
@@ -23,6 +21,11 @@ type ChartDataItem<T extends string> = {
 };
 
 const CDP_API = `https://cdp.allocator.tech`;
+const allocatorSPsComplianceMetrics = [
+  "compliant",
+  "partiallyCompliant",
+  "nonCompliant",
+] as const;
 
 const useStorageProviderRetrievability = () => {
   const fetchData = async () => {
@@ -164,105 +167,149 @@ const useAllocatorBiggestDeal = () => {
   };
 };
 
-const useAllocatorSPSComplaince = (
-  threshold: number,
-  usePercentage?: boolean
-) => {
-  const fetchData = async () => {
-    const response = await fetch(
-      `${CDP_API}/stats/acc/allocators/sps-compliance-data`
-    );
-    return (await response.json()) as IAllocatorSPSComplainceResult;
+export function useAllocatorSPComplianceChartData(options: {
+  mode?: "count" | "dc";
+  threshold: number;
+  asPercentage?: boolean;
+}) {
+  type CharItem = ChartDataItem<AllocatorSPSComplianceMetric>;
+  type ChartData = CharItem[];
+  type WeekResult = CDPAllocatorsSPsComplianceData["results"][number];
+  type AllocatorData = WeekResult["allocators"][number];
+
+  const { threshold, mode = "count", asPercentage = false } = options;
+  const [data, setData] = useState<CDPAllocatorsSPsComplianceData>();
+  const [error, setError] = useState<Error>();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const loadData = async () => {
+    setError(undefined);
+    setIsLoading(true);
+
+    try {
+      const response = await fetch(
+        `${CDP_API}/stats/acc/allocators/sps-compliance-data`
+      );
+
+      const json = await response.json();
+      assertIsAllocatorsSPsComplianceData(json);
+
+      setData(json);
+    } catch (error) {
+      setError(error instanceof Error ? error : new Error(String(error)));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const [data, setData] = useState<IAllocatorSPSComplainceResult | undefined>(
-    undefined
-  );
-  const [isLoading, setIsLoading] = useState(true);
-
   useEffect(() => {
-    fetchData()
-      .then(setData)
-      .then(() => setIsLoading(false));
+    loadData();
   }, []);
 
-  const chartData = useMemo(() => {
-    if (!data || isLoading) {
+  const getComplianceByTreshold = useCallback(
+    (allocatorData: AllocatorData): AllocatorSPSComplianceMetric => {
+      const { compliantSpsPercentage, partiallyCompliantSpsPercentage } =
+        allocatorData;
+
+      if (compliantSpsPercentage >= threshold) {
+        return "compliant";
+      } else if (
+        partiallyCompliantSpsPercentage + compliantSpsPercentage >=
+        threshold
+      ) {
+        return "partiallyCompliant" as AllocatorSPSComplianceMetric;
+      } else {
+        return "nonCompliant" as AllocatorSPSComplianceMetric;
+      }
+    },
+    [threshold]
+  );
+
+  const getChartValue = useCallback(
+    (allocatorsData: AllocatorData[], total: number) => {
+      const value =
+        mode === "count"
+          ? allocatorsData.length
+          : allocatorsData.reduce(
+              (sumOfDatacap, allocator) =>
+                sumOfDatacap + allocator.totalDatacap,
+              0
+            );
+      return asPercentage ? (value / total) * 100 : value;
+    },
+    [asPercentage, mode]
+  );
+
+  const chartData = useMemo<ChartData>(() => {
+    if (!data) {
       return [];
     }
 
-    const chartData = [] as {
-      name: string;
-      nonCompliant: number;
-      nonCompliantName: string;
-      partiallyCompliant: number;
-      partiallyCompliantName: string;
-      compliant: number;
-      compliantName: string;
-    }[];
+    return data.results.map((result) => {
+      const date = new Date(result.week);
+      const total =
+        mode === "count"
+          ? result.allocators.length
+          : result.allocators.reduce(
+              (sumOfDatacap, allocator) =>
+                sumOfDatacap + allocator.totalDatacap,
+              0
+            );
+      const grouped = groupBy(
+        result.allocators,
+        getComplianceByTreshold,
+        allocatorSPsComplianceMetrics
+      );
+      const values = mapObject(grouped, (allocators) =>
+        getChartValue(allocators, total)
+      );
 
-    const weeks = data.results
-      .map((item) => item.week)
-      ?.sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
-
-    for (const week of weeks) {
-      const total = data.results.find((item) => item.week === week)?.total ?? 0;
-      const modifier = (val: number) => {
-        return usePercentage ? (val / total) * 100 : val;
-      };
-
-      const allocatorComplaincy =
-        data.results
-          .find((item) => item.week === week)
-          ?.allocators.map((allocator) => {
-          const compliantSpsPercentage =
-            allocator.compliantSpsPercentage ?? 0;
-          const partiallyCompliantSpsPercentage =
-            allocator.partiallyCompliantSpsPercentage ?? 0;
-          if (compliantSpsPercentage >= threshold) {
-            return "compliant" as AllocatorSPSComplianceMetric;
-          } else if (
-            partiallyCompliantSpsPercentage + compliantSpsPercentage >=
-            threshold
-          ) {
-            return "partiallyCompliant" as AllocatorSPSComplianceMetric;
-          } else {
-            return "nonCompliant" as AllocatorSPSComplianceMetric;
-          }
-        }) ?? [];
-
-      let name = `w${format(new Date(week), "ww yyyy")}`;
-
-      if (+format(new Date(week), "ww") === 1) {
-        name = `w${format(endOfWeek(new Date(week)), "ww yyyy")}`;
-      }
-
-      chartData.push({
-        name,
-        nonCompliant: modifier(
-          allocatorComplaincy.filter((item) => item === "nonCompliant").length
-        ),
-        nonCompliantName: "Non compliant",
-        partiallyCompliant: modifier(
-          allocatorComplaincy.filter((item) => item === "partiallyCompliant")
-            .length
-        ),
-        partiallyCompliantName: "Partially compliant",
-        compliant: modifier(
-          allocatorComplaincy.filter((item) => item === "compliant").length
-        ),
+      return {
+        name: `W${getWeek(date)} ${date.getFullYear()}`,
+        ...values,
         compliantName: "Compliant",
-      });
-    }
-
-    return chartData;
-  }, [data, isLoading, threshold, usePercentage]);
+        partiallyCompliantName: "Partially Compliant",
+        nonCompliantName: "Non Compliant",
+      };
+    });
+  }, [data, getChartValue, getComplianceByTreshold, mode]);
 
   return {
     chartData,
+    error,
     isLoading,
   };
-};
+}
+
+function assertIsAllocatorsSPsComplianceData(
+  input: unknown
+): asserts input is CDPAllocatorsSPsComplianceData {
+  const isAllocatorsSPsComplianceData =
+    isPlainObject(input) &&
+    Array.isArray(input.results) &&
+    input.results.every((result) => {
+      return (
+        isPlainObject(result) &&
+        typeof result.week === "string" &&
+        Array.isArray(result.allocators) &&
+        result.allocators.every((allocator) => {
+          return (
+            typeof allocator.compliantSpsPercentage === "number" &&
+            typeof allocator.partiallyCompliantSpsPercentage === "number" &&
+            typeof allocator.nonCompliantSpsPercentage === "number" &&
+            typeof allocator.totalSps === "number" &&
+            typeof allocator.totalDatacap === "number"
+          );
+        })
+      );
+    });
+
+  if (!isAllocatorsSPsComplianceData) {
+    throw new TypeError(
+      "Invalid response from CDP when fetching allocators SPs compliance data"
+    );
+  }
+}
 
 export function useProvidersComplianceChartData(options?: {
   mode: "default" | "percentage";
@@ -270,7 +317,7 @@ export function useProvidersComplianceChartData(options?: {
   type ProvidersComplianceChartData =
     ChartDataItem<AllocatorSPSComplianceMetric>[];
 
-  const {mode = "default"} = options ?? {};
+  const { mode = "default" } = options ?? {};
   const [data, setData] = useState<CDPProvidersComplianceData>();
   const [error, setError] = useState<Error>();
   const [isLoading, setIsLoading] = useState(false);
@@ -358,10 +405,9 @@ function assertIsProvidersComplianceData(
 }
 
 export {
-  useStorageProviderRetrievability,
-  useStorageProviderNumberOfDeals,
-  useStorageProviderBiggestDeal,
-  useAllocatorRetrievability,
   useAllocatorBiggestDeal,
-  useAllocatorSPSComplaince,
+  useAllocatorRetrievability,
+  useStorageProviderBiggestDeal,
+  useStorageProviderNumberOfDeals,
+  useStorageProviderRetrievability,
 };
