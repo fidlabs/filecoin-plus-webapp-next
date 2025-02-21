@@ -312,12 +312,13 @@ function assertIsAllocatorsSPsComplianceData(
 }
 
 export function useProvidersComplianceChartData(options?: {
-  mode: "default" | "percentage";
+  mode?: "count" | "dc";
+  asPercentage?: boolean;
 }) {
-  type ProvidersComplianceChartData =
-    ChartDataItem<AllocatorSPSComplianceMetric>[];
+  type Item = ChartDataItem<AllocatorSPSComplianceMetric>;
+  type ChartData = Item[];
 
-  const { mode = "default" } = options ?? {};
+  const { mode = "count", asPercentage = false } = options ?? {};
   const [data, setData] = useState<CDPProvidersComplianceData>();
   const [error, setError] = useState<Error>();
   const [isLoading, setIsLoading] = useState(false);
@@ -346,36 +347,49 @@ export function useProvidersComplianceChartData(options?: {
     loadData();
   }, []);
 
-  const chartData = useMemo<ProvidersComplianceChartData>(() => {
+  const chartData = useMemo<ChartData>(() => {
     if (!data) {
       return [];
     }
 
     return data.results.map((result) => {
       const date = new Date(result.week);
+      const name = `W${getWeek(date)} ${date.getFullYear()}`;
+      const totalDatacap =
+        result.compliantSpsTotalDatacap +
+        result.partiallyCompliantSpsTotalDatacap +
+        result.nonCompliantSpsTotalDatacap;
+      const divider = mode === "count" ? result.totalSps : totalDatacap;
+      const values: [number, number, number] =
+        mode === "count"
+          ? [
+              result.compliantSps,
+              result.partiallyCompliantSps,
+              result.nonCompliantSps,
+            ]
+          : [
+              result.compliantSpsTotalDatacap,
+              result.partiallyCompliantSpsTotalDatacap,
+              result.nonCompliantSpsTotalDatacap,
+            ];
+      const [compliant, partiallyCompliant, nonCompliant] = asPercentage
+        ? values.map((value) => (value / divider) * 100)
+        : values;
 
       return {
-        name: `W${getWeek(date)} ${date.getFullYear()}`,
-        compliant:
-          mode === "default"
-            ? result.compliantSps
-            : (result.compliantSps / result.totalSps) * 100,
+        name,
+        compliant,
         compliantName: "Compliant",
-        partiallyCompliant:
-          mode === "default"
-            ? result.partiallyCompliantSps
-            : (result.partiallyCompliantSps / result.totalSps) * 100,
+        partiallyCompliant,
         partiallyCompliantName: "Partially Compliant",
-        nonCompliant:
-          mode === "default"
-            ? result.nonCompliantSps
-            : (result.nonCompliantSps / result.totalSps) * 100,
+        nonCompliant,
         nonCompliantName: "Non Compliant",
       };
     });
-  }, [data, mode]);
+  }, [asPercentage, data, mode]);
 
   return {
+    averageSuccessRate: data?.averageSuccessRate,
     chartData,
     error,
     isLoading,
@@ -387,15 +401,20 @@ function assertIsProvidersComplianceData(
 ): asserts input is CDPProvidersComplianceData {
   const isProvidersComplianceData =
     isPlainObject(input) &&
+    typeof input.averageSuccessRate === "number" &&
     Array.isArray(input.results) &&
     input.results.every((result) => {
       return (
         isPlainObject(result) &&
         typeof result.week === "string" &&
+        typeof result.averageSuccessRate === "number" &&
         typeof result.compliantSps === "number" &&
         typeof result.partiallyCompliantSps === "number" &&
         typeof result.nonCompliantSps === "number" &&
-        typeof result.totalSps === "number"
+        typeof result.totalSps === "number" &&
+        typeof result.compliantSpsTotalDatacap === "number" &&
+        typeof result.partiallyCompliantSpsTotalDatacap === "number" &&
+        typeof result.nonCompliantSpsTotalDatacap === "number"
       );
     });
 
