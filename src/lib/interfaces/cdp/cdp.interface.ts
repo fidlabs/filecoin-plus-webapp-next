@@ -212,9 +212,11 @@ export interface CDPProvidersComplianceData {
 }
 
 export interface CDPAllocatorsSPsComplianceData {
+  averageSuccessRate: number;
   results: Array<{
     /** ISO8601 */
     week: string;
+    averageSuccessRate: number;
     allocators: Array<{
       id: string;
       compliantSpsPercentage: number;

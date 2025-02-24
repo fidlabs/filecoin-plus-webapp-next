@@ -47,7 +47,7 @@ export function StorageProviderCompliance({ plain }: Props) {
                 <li className="ml-4">
                   Have retrievability score above average{" "}
                   {averageSuccessRate
-                    ? `(${averageSuccessRate.toFixed(2)}%)`
+                    ? `(last week average: ${averageSuccessRate.toFixed(2)}%)`
                     : ""}
                   <StatsLink
                     className="ml-2"

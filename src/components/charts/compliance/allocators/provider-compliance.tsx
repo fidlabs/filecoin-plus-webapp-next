@@ -27,11 +27,12 @@ const ProviderComplianceAllocator = ({ plain }: Props) => {
   const [usePercentage, setUsePercentage] = useState(false);
   const [currentDataTab, setCurrentDataTab] = useState(dataTabs[0]);
 
-  const { chartData, isLoading } = useAllocatorSPComplianceChartData({
-    threshold,
-    asPercentage: usePercentage,
-    mode: currentDataTab === "PiB" ? "dc" : "count",
-  });
+  const { averageSuccessRate, chartData, isLoading } =
+    useAllocatorSPComplianceChartData({
+      threshold,
+      asPercentage: usePercentage,
+      mode: currentDataTab === "PiB" ? "dc" : "count",
+    });
 
   const { scale, selectedScale, calcPercentage, setSelectedScale } =
     useChartScale(10);
@@ -62,7 +63,10 @@ const ProviderComplianceAllocator = ({ plain }: Props) => {
                   Allocator is complaint when it&apos;s SPs:
                 </p>
                 <li className="ml-4">
-                  Have retrievability score above average
+                  Have retrievability score above average{" "}
+                  {averageSuccessRate
+                    ? `(last week average: ${averageSuccessRate.toFixed(2)}%)`
+                    : ""}
                   <StatsLink
                     className="ml-2"
                     href={`${

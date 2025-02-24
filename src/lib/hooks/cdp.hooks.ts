@@ -275,6 +275,7 @@ export function useAllocatorSPComplianceChartData(options: {
   }, [data, getChartValue, getComplianceByTreshold, mode]);
 
   return {
+    averageSuccessRate: data?.averageSuccessRate,
     chartData,
     error,
     isLoading,
@@ -286,11 +287,13 @@ function assertIsAllocatorsSPsComplianceData(
 ): asserts input is CDPAllocatorsSPsComplianceData {
   const isAllocatorsSPsComplianceData =
     isPlainObject(input) &&
+    typeof input.averageSuccessRate === "number" &&
     Array.isArray(input.results) &&
     input.results.every((result) => {
       return (
         isPlainObject(result) &&
         typeof result.week === "string" &&
+        typeof result.averageSuccessRate === "number" &&
         Array.isArray(result.allocators) &&
         result.allocators.every((allocator) => {
           return (
