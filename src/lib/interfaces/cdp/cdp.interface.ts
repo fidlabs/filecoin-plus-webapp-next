@@ -56,29 +56,29 @@ export interface IClientReportHeader {
 
 export type CompareType = "up" | "down" | "equal" | undefined;
 
-export type IPNIReportingStatus = 'MISREPORTING' | 'NOT_REPORTING' | 'OK'
+export type IPNIReportingStatus = "MISREPORTING" | "NOT_REPORTING" | "OK";
 
 export interface IClientReportStorageProviderDistribution {
-  not_found: boolean | undefined
-  client_report_id: string
-  provider: string
-  total_deal_size: string
-  total_deal_size_compare: CompareType
-  total_deal_percentage: number
-  total_deal_percentage_compare: CompareType
-  unique_data_size: string
-  unique_data_size_compare: CompareType
-  duplicated_data_size: number
-  duplicated_data_size_compare: CompareType
-  duplication_percentage: number
-  duplication_percentage_compare: CompareType
-  retrievability_success_rate: string,
-  retrievability_success_rate_http: string,
-  retrievability_success_rate_compare: CompareType
-  ipni_reporting_status: IPNIReportingStatus,
-  ipni_reported_claims_count: string | undefined,
-  claims_count: string | undefined,
-  location: IGenericReportLocation
+  not_found: boolean | undefined;
+  client_report_id: string;
+  provider: string;
+  total_deal_size: string;
+  total_deal_size_compare: CompareType;
+  total_deal_percentage: number;
+  total_deal_percentage_compare: CompareType;
+  unique_data_size: string;
+  unique_data_size_compare: CompareType;
+  duplicated_data_size: number;
+  duplicated_data_size_compare: CompareType;
+  duplication_percentage: number;
+  duplication_percentage_compare: CompareType;
+  retrievability_success_rate: string;
+  retrievability_success_rate_http: string;
+  retrievability_success_rate_compare: CompareType;
+  ipni_reporting_status: IPNIReportingStatus;
+  ipni_reported_claims_count: string | undefined;
+  claims_count: string | undefined;
+  location: IGenericReportLocation;
 }
 
 export interface IGenericReportLocation {
@@ -189,20 +189,41 @@ export interface ICDPAllocatorFullReportStorageProviderDistribution {
 }
 
 export interface ICDPAgregatedIPNIReport {
-  misreporting: number
-  notReporting: number
-  ok: number
-  total: number
+  misreporting: number;
+  notReporting: number;
+  ok: number;
+  total: number;
 }
 
-
 export interface CDPProvidersComplianceData {
+  averageSuccessRate: number;
   results: Array<{
     /** ISO8601 */
     week: string;
+    averageSuccessRate: number;
     compliantSps: number;
     partiallyCompliantSps: number;
     nonCompliantSps: number;
     totalSps: number;
+    compliantSpsTotalDatacap: number;
+    partiallyCompliantSpsTotalDatacap: number;
+    nonCompliantSpsTotalDatacap: number;
+  }>;
+}
+
+export interface CDPAllocatorsSPsComplianceData {
+  averageSuccessRate: number;
+  results: Array<{
+    /** ISO8601 */
+    week: string;
+    averageSuccessRate: number;
+    allocators: Array<{
+      id: string;
+      compliantSpsPercentage: number;
+      partiallyCompliantSpsPercentage: number;
+      nonCompliantSpsPercentage: number;
+      totalSps: number;
+      totalDatacap: number;
+    }>;
   }>;
 }
