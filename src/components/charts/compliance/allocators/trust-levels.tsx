@@ -14,10 +14,12 @@ const AllocatorTrustLevels = ({plain}: Props) => {
 
   const {results, loading} = useGoogleTrustLevels(currentScale, currentTab);
 
+  const unit = currentTab === 'Count' ? 'allocator' : currentTab;
+
   return <ChartWrapper
     title="Governance Compliance Audit Outcomes"
     id="AuditOutcomesAllocator"
-    tabs={['PiB', 'allocator']}
+    tabs={['PiB', 'Count']}
     scales={['linear', 'percent']}
     currentTab={currentTab}
     selectedScale={currentScale}
@@ -51,7 +53,8 @@ const AllocatorTrustLevels = ({plain}: Props) => {
     ]}
     plain={plain}
   >
-    <StackedBarGraph currentDataTab={currentTab} usePercentage={currentScale === 'percent'} data={results} unit={currentTab} isLoading={loading} customPalette={[
+    <StackedBarGraph currentDataTab={currentTab} usePercentage={currentScale === 'percent'}
+                     data={results} unit={unit} isLoading={loading} customPalette={[
       '#525252', '#ff0029', '#cf8c00', '#66a61e'
     ]}/>
   </ChartWrapper>;

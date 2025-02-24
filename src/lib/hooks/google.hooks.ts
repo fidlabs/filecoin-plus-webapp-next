@@ -12,6 +12,8 @@ import {
   IGoogleSheetResponse
 } from "@/lib/interfaces/cdp/google.interface";
 
+const PIB = 1024 * 1024 * 1024 * 1024 * 1024;
+
 const useGoogleSheetFilters = () => {
 
   const [FAILED_STATUSES] = useState(['REJECT']);
@@ -159,32 +161,31 @@ const useGoogleTrustLevels = (scale: string, mode: string) => {
     const _firstMonthInxed = data?.values[0].indexOf('March 2024');
     const _lastMonthIndex = data?.values[0].length - 1;
     const isPercent = scale === 'percent';
-    const isAllocator = mode === 'allocator';
+    const isAllocator = mode === 'Count';
 
     for (let i = _firstMonthInxed; i <= _lastMonthIndex; i++) {
       const name = `${data?.values[0][i].split(" ")[0].substring(0, 3)} '${data?.values[0][i].split(" ")[1].substring(2, 4)}`;
       const unknownList = data?.values.filter(row => {
         return row[i].toUpperCase().startsWith('U-');
       });
-      const unknown = isAllocator ? unknownList.length : unknownList.reduce((acc, row) => acc + +((row[i]).split("-")?.[1] ?? 0), 0);
+      const unknown = isAllocator ? unknownList.length : unknownList.reduce((acc, row) => acc + +((row[i]).split("-")?.[1] ?? 0), 0) * PIB;
 
       const nonCompliantList = data?.values.filter(row => {
         return row[i].toUpperCase().startsWith('NC-');
       })
-      const nonCompliant = isAllocator ? nonCompliantList.length : nonCompliantList.reduce((acc, row) => acc + +((row[i]).split("-")?.[1] ?? 0), 0);
+      const nonCompliant = isAllocator ? nonCompliantList.length : nonCompliantList.reduce((acc, row) => acc + +((row[i]).split("-")?.[1] ?? 0), 0) * PIB;
 
       const likelyCompliantList = data?.values.filter(row => {
         return row[i].toUpperCase().startsWith('LC-');
       })
-      const likelyCompliant = isAllocator ? likelyCompliantList.length : likelyCompliantList.reduce((acc, row) => acc + +((row[i]).split("-")?.[1] ?? 0), 0);
+      const likelyCompliant = isAllocator ? likelyCompliantList.length : likelyCompliantList.reduce((acc, row) => acc + +((row[i]).split("-")?.[1] ?? 0), 0) * PIB;
 
       const compliantList = data?.values.filter(row => {
         return row[i].toUpperCase().startsWith('C-');
       })
-      const compliant = isAllocator ? compliantList.length : compliantList.reduce((acc, row) => acc + +((row[i]).split("-")?.[1] ?? 0), 0);
+      const compliant = isAllocator ? compliantList.length : compliantList.reduce((acc, row) => acc + +((row[i]).split("-")?.[1] ?? 0), 0) * PIB;
 
       const total = unknown + nonCompliant + likelyCompliant + compliant;
-      console.log(name)
 
       returnData.push({
         name,
