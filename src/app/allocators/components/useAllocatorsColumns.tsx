@@ -170,7 +170,7 @@ export const useAllocatorsColumns = (filterCallback: FilterCallback) => {
         const allowanceArray =  row.original.allowanceArray;
         return <div className="whitespace-nowrap flex gap-1 items-center">
           {convertBytesToIEC(initialAllowance)}
-          {allowanceArray?.length && <HoverCard openDelay={100} closeDelay={50}>
+          {!!allowanceArray?.length && <HoverCard openDelay={100} closeDelay={50}>
             <HoverCardTrigger>
               <InfoIcon size={15} className="text-muted-foreground cursor-help"/>
             </HoverCardTrigger>

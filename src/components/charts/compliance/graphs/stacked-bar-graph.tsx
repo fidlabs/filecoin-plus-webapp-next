@@ -164,6 +164,7 @@ const StackedBarGraph = ({
               layout={!isDesktop ? "vertical" : "horizontal"}
               key={key}
               dataKey={key}
+              style={{stroke: 'black', strokeWidth: 1}}
               barSize={haveAverageSuccessRate ? 20 : undefined}
               stackId="a"
               fill={
@@ -178,6 +179,7 @@ const StackedBarGraph = ({
             <Bar
               layout={!isDesktop ? "vertical" : "horizontal"}
               dataKey="avgSuccessRate"
+              style={{stroke: 'black', strokeWidth: 1}}
               fill="#252525"
               barSize={5}
             />
