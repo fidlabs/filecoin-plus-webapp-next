@@ -171,7 +171,7 @@ export const calculateMapScale = (locations: string[]): number => {
   const baseScale = 180;
   const scale = (100 * baseScale) / Math.min(latDiff, lonDiff);
 
-  return scale;
+  return Math.min(scale, 2000);
 };
 
 export const generatePageMetadata = (config: {
