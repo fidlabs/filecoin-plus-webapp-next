@@ -19,6 +19,7 @@ const allowedElements = [
   "RetrievabilityScoreSP",
   "NumberOfDealsSP",
   "BiggestDealsSP",
+  "IpniMissreporting",
   "ComplianceSP",
   "RetrievabilityScoreAllocator",
   "BiggestDealsAllocator",

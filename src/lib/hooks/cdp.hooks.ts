@@ -1,13 +1,14 @@
 import {
   CDPAllocatorsSPsComplianceData,
-  CDPProvidersComplianceData,
+  CDPProvidersComplianceData, CPDAggregatedIPNIReport,
   ICDPHistogram,
   ICDPHistogramResult,
   ICDPUnifiedHistogram,
 } from "@/lib/interfaces/cdp/cdp.interface";
-import { getWeek } from "date-fns";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { groupBy, isPlainObject, mapObject } from "../utils";
+import {getWeek} from "date-fns";
+import {useCallback, useEffect, useMemo, useState} from "react";
+import {groupBy, isPlainObject, mapObject} from "../utils";
+import {getAggregatedIPNI} from "@/lib/api";
 
 type AllocatorSPSComplianceMetric =
   (typeof allocatorSPsComplianceMetrics)[number];
@@ -177,7 +178,7 @@ export function useAllocatorSPComplianceChartData(options: {
   type WeekResult = CDPAllocatorsSPsComplianceData["results"][number];
   type AllocatorData = WeekResult["allocators"][number];
 
-  const { threshold, mode = "count", asPercentage = false } = options;
+  const {threshold, mode = "count", asPercentage = false} = options;
   const [data, setData] = useState<CDPAllocatorsSPsComplianceData>();
   const [error, setError] = useState<Error>();
   const [isLoading, setIsLoading] = useState(false);
@@ -208,7 +209,7 @@ export function useAllocatorSPComplianceChartData(options: {
 
   const getComplianceByTreshold = useCallback(
     (allocatorData: AllocatorData): AllocatorSPSComplianceMetric => {
-      const { compliantSpsPercentage, partiallyCompliantSpsPercentage } =
+      const {compliantSpsPercentage, partiallyCompliantSpsPercentage} =
         allocatorData;
 
       if (compliantSpsPercentage >= threshold) {
@@ -231,10 +232,10 @@ export function useAllocatorSPComplianceChartData(options: {
         mode === "count"
           ? allocatorsData.length
           : allocatorsData.reduce(
-              (sumOfDatacap, allocator) =>
-                sumOfDatacap + allocator.totalDatacap,
-              0
-            );
+            (sumOfDatacap, allocator) =>
+              sumOfDatacap + allocator.totalDatacap,
+            0
+          );
       return asPercentage ? (value / total) * 100 : value;
     },
     [asPercentage, mode]
@@ -251,10 +252,10 @@ export function useAllocatorSPComplianceChartData(options: {
         mode === "count"
           ? result.allocators.length
           : result.allocators.reduce(
-              (sumOfDatacap, allocator) =>
-                sumOfDatacap + allocator.totalDatacap,
-              0
-            );
+            (sumOfDatacap, allocator) =>
+              sumOfDatacap + allocator.totalDatacap,
+            0
+          );
       const grouped = groupBy(
         result.allocators,
         getComplianceByTreshold,
@@ -282,38 +283,6 @@ export function useAllocatorSPComplianceChartData(options: {
   };
 }
 
-function assertIsAllocatorsSPsComplianceData(
-  input: unknown
-): asserts input is CDPAllocatorsSPsComplianceData {
-  const isAllocatorsSPsComplianceData =
-    isPlainObject(input) &&
-    typeof input.averageSuccessRate === "number" &&
-    Array.isArray(input.results) &&
-    input.results.every((result) => {
-      return (
-        isPlainObject(result) &&
-        typeof result.week === "string" &&
-        typeof result.averageSuccessRate === "number" &&
-        Array.isArray(result.allocators) &&
-        result.allocators.every((allocator) => {
-          return (
-            typeof allocator.compliantSpsPercentage === "number" &&
-            typeof allocator.partiallyCompliantSpsPercentage === "number" &&
-            typeof allocator.nonCompliantSpsPercentage === "number" &&
-            typeof allocator.totalSps === "number" &&
-            typeof allocator.totalDatacap === "number"
-          );
-        })
-      );
-    });
-
-  if (!isAllocatorsSPsComplianceData) {
-    throw new TypeError(
-      "Invalid response from CDP when fetching allocators SPs compliance data"
-    );
-  }
-}
-
 export function useProvidersComplianceChartData(options?: {
   mode?: "count" | "dc";
   asPercentage?: boolean;
@@ -321,7 +290,7 @@ export function useProvidersComplianceChartData(options?: {
   type Item = ChartDataItem<AllocatorSPSComplianceMetric>;
   type ChartData = Item[];
 
-  const { mode = "count", asPercentage = false } = options ?? {};
+  const {mode = "count", asPercentage = false} = options ?? {};
   const [data, setData] = useState<CDPProvidersComplianceData>();
   const [error, setError] = useState<Error>();
   const [isLoading, setIsLoading] = useState(false);
@@ -366,15 +335,15 @@ export function useProvidersComplianceChartData(options?: {
       const values: [number, number, number] =
         mode === "count"
           ? [
-              result.compliantSps,
-              result.partiallyCompliantSps,
-              result.nonCompliantSps,
-            ]
+            result.compliantSps,
+            result.partiallyCompliantSps,
+            result.nonCompliantSps,
+          ]
           : [
-              result.compliantSpsTotalDatacap,
-              result.partiallyCompliantSpsTotalDatacap,
-              result.nonCompliantSpsTotalDatacap,
-            ];
+            result.compliantSpsTotalDatacap,
+            result.partiallyCompliantSpsTotalDatacap,
+            result.nonCompliantSpsTotalDatacap,
+          ];
       const [compliant, partiallyCompliant, nonCompliant] = asPercentage
         ? values.map((value) => (value / divider) * 100)
         : values;
@@ -397,6 +366,52 @@ export function useProvidersComplianceChartData(options?: {
     error,
     isLoading,
   };
+}
+
+export const useAggregatedIPNIMisreporting = () => {
+  const [data, setData] = useState<CPDAggregatedIPNIReport>();
+  const [error, setError] = useState<Error>();
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    setIsLoading(true);
+    getAggregatedIPNI()
+      .then(setData)
+      .catch(setError)
+      .finally(() => setIsLoading(false))
+  }, []);
+
+  const chartData = useMemo(() => {
+    if (!data) {
+      return [];
+    }
+
+    const total = data.notReporting + data.misreporting + data.ok;
+
+    return [
+      {
+        name: "IPNI Not Reporting",
+        value: data.notReporting,
+        valueString: `${data.notReporting} (${(data.notReporting / total * 100).toFixed(2)}%)`,
+      },
+      {
+        name: "IPNI Misreporting",
+        value: data.misreporting,
+        valueString: `${data.misreporting} (${(data.misreporting / total * 100).toFixed(2)}%)`,
+      },
+      {
+        name: "IPNI OK",
+        value: data.ok,
+        valueString: `${data.ok} (${(data.ok / total * 100).toFixed(2)}%)`,
+      },
+    ]
+  }, [data]);
+
+  return {
+    chartData,
+    error,
+    isLoading,
+  }
 }
 
 function assertIsProvidersComplianceData(
@@ -423,6 +438,38 @@ function assertIsProvidersComplianceData(
 
   if (!isProvidersComplianceData) {
     throw new TypeError("Invalid response from CDP");
+  }
+}
+
+function assertIsAllocatorsSPsComplianceData(
+  input: unknown
+): asserts input is CDPAllocatorsSPsComplianceData {
+  const isAllocatorsSPsComplianceData =
+    isPlainObject(input) &&
+    typeof input.averageSuccessRate === "number" &&
+    Array.isArray(input.results) &&
+    input.results.every((result) => {
+      return (
+        isPlainObject(result) &&
+        typeof result.week === "string" &&
+        typeof result.averageSuccessRate === "number" &&
+        Array.isArray(result.allocators) &&
+        result.allocators.every((allocator) => {
+          return (
+            typeof allocator.compliantSpsPercentage === "number" &&
+            typeof allocator.partiallyCompliantSpsPercentage === "number" &&
+            typeof allocator.nonCompliantSpsPercentage === "number" &&
+            typeof allocator.totalSps === "number" &&
+            typeof allocator.totalDatacap === "number"
+          );
+        })
+      );
+    });
+
+  if (!isAllocatorsSPsComplianceData) {
+    throw new TypeError(
+      "Invalid response from CDP when fetching allocators SPs compliance data"
+    );
   }
 }
 

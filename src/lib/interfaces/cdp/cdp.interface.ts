@@ -227,3 +227,11 @@ export interface CDPAllocatorsSPsComplianceData {
     }>;
   }>;
 }
+
+export interface CPDAggregatedIPNIReport {
+  misreporting: number
+  notReporting: number
+  ok: number
+  total: number
+}
+

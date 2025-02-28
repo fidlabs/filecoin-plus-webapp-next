@@ -216,7 +216,7 @@ const AuditHistoryBarGraph = ({data, isLoading, audits, showAudited, showActive,
               }}
               content={renderLegend}/>
       {dataKeys.map((key) => <Bar layout="vertical" key={key} dataKey={key}
-                                  style={{ stroke: '#fff', strokeWidth: 2 }}
+                                  style={{ stroke: '#fff', strokeWidth: 1 }}
                                   stackId="a">
         {
           chartData.map((entry, index) => (

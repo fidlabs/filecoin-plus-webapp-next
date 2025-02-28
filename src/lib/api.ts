@@ -21,6 +21,7 @@ import {
 } from "@/lib/interfaces/dmob/sp.interface";
 import { IGoogleSheetResponse } from "@/lib/interfaces/cdp/google.interface";
 import {
+  CPDAggregatedIPNIReport,
   ICDPAllocatorFullReport,
   IClientFullReport,
   IClientReportsResponse,
@@ -163,6 +164,11 @@ export const getAllocatorReportById = async (
 ) => {
   const url = `https://cdp.allocator.tech/allocator-report/${allocatorId}/${reportId}`;
   return (await fetchData(url)) as ICDPAllocatorFullReport;
+};
+
+export const getAggregatedIPNI = async () => {
+  const url = `https://cdp.allocator.tech/stats/providers/aggregated-ipni-status`;
+  return (await fetchData(url)) as CPDAggregatedIPNIReport;
 };
 
 export const generateClientReport = async (id: string) => {

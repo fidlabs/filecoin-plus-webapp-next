@@ -115,7 +115,7 @@ const Component = ({data, allocators}: Props) => {
               <XAxis dataKey="name" angle={90} interval={0} minTickGap={0} tick={<CustomizedAxisTick/>}/>}
             <YAxis tickFormatter={formatYAxisTick} scale={scale}/>
             <Tooltip content={renderTooltip}/>
-            {valuesToDisplay.map((key) => <Bar onClick={handleClick} key={key} style={{cursor: 'pointer', stroke: 'black', strokeWidth: 1}}
+            {valuesToDisplay.map((key) => <Bar onClick={handleClick} key={key} style={{cursor: 'pointer', stroke: '#212121', strokeWidth: 1}}
                                                dataKey={key}
                                                maxBarSize={50} stackId="a" fill={palette(valueKeys.indexOf(key))}/>)}
           </BarChart>

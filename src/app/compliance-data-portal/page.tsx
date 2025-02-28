@@ -3,7 +3,7 @@
 import {
   StorageProviderRetrievability,
   StorageProviderNumberOfAllocations,
-  StorageProviderBiggestAllocation,
+  StorageProviderBiggestAllocation, IpniMisreporting,
 } from "@/components/charts/compliance/storage-providers";
 import {
   AllocatorAuditState,
@@ -24,6 +24,7 @@ const CompliancePage = () => {
       {currentElement === 'NumberOfDealsSP' && <StorageProviderNumberOfAllocations/>}
       {currentElement === 'BiggestDealsSP' && <StorageProviderBiggestAllocation/>}
       {currentElement === "ComplianceSP" && <StorageProviderCompliance/>}
+      {currentElement === "IpniMissreporting" && <IpniMisreporting/>}
       {currentElement === 'RetrievabilityScoreAllocator' && <AllocatorRetrievability/>}
       {currentElement === 'BiggestDealsAllocator' && <AllocatorBiggestAllocation/>}
       {currentElement === 'ProviderComplianceAllocator' && <ProviderComplianceAllocator/>}

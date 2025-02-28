@@ -27,6 +27,10 @@ const nav = [
         id: 'BiggestDealsSP',
         label: 'Biggest allocation'
       },
+      {
+        id: 'IpniMissreporting',
+        label: 'IPNI missreporting'
+      },
     ]
   }, {
     group: "Allocators",

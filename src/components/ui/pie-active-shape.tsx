@@ -4,7 +4,7 @@ import {ReactNode} from "react";
 
 
 
-const ActiveShape = (props: PieSectorDataItem) => {
+const ActiveShape = (props: PieSectorDataItem, foreignObject?: ReactNode) => {
   const RADIAN = Math.PI / 180;
   const {name, cx = 0, cy = 0, midAngle = 0, innerRadius, outerRadius = 0, startAngle, endAngle, fill, payload } = props;
   const sin = Math.sin(-RADIAN * midAngle);
@@ -19,6 +19,9 @@ const ActiveShape = (props: PieSectorDataItem) => {
 
   return (
     <g>
+      {foreignObject && <foreignObject x={cx - 75} y={cy - 75}  width="150" height="150">
+        {foreignObject}
+      </foreignObject>}
       <Sector
         cx={cx}
         cy={cy}
