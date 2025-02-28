@@ -45,7 +45,8 @@
     "tailwind-merge": "^2.5.2",
     "tailwindcss-animate": "^1.0.7",
     "usehooks-ts": "^3.1.0",
-    "vaul": "^1.0.0"
+    "vaul": "^1.0.0",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@types/filesize": "^5.0.0",
