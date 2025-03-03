@@ -1,7 +1,6 @@
 import { GenericContentHeader } from "@/components/generic-content-view";
 import { JsonLd } from "@/components/json.ld";
 import { Card } from "@/components/ui/card";
-import { ITabNavigatorTab } from "@/components/ui/tab-navigator";
 import { getAllocators, getGoogleSheetAuditSizes } from "@/lib/api";
 import { generatePageMetadata, groupBy } from "@/lib/utils";
 import { Metadata } from "next";
@@ -44,22 +43,14 @@ async function loadSankeyData(): Promise<SankeyData> {
     }),
   ]);
 
-  const [, ...rows] = sheetData.values;
+  const [headerRow, ...rows] = sheetData.values;
+  const _allocatorIdIndex = headerRow.indexOf("Allocator ID");
+  const _typeOfAllocatorIndex = headerRow.indexOf("Type of Allocator");
 
   const allocators = rows
     .map((row) => {
-      const [
-        _applicationId,
-        allocatorId,
-        _pathwayName,
-        _allocatorOrg,
-        typeOfAllocator,
-        _countryOfOperation,
-        _region,
-        _estimateUsageYTD,
-        _approvalRound,
-        _status,
-      ] = row;
+      const allocatorId = row[_allocatorIdIndex];
+      const typeOfAllocator = row[_typeOfAllocatorIndex];
 
       const allocatorData = allocatorsData.data.find(
         (candidateAllocator) => candidateAllocator.addressId === allocatorId

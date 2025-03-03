@@ -158,9 +158,10 @@ const useGoogleTrustLevels = (scale: string, mode: string) => {
     }
 
     const returnData = [] as { [key: PropertyKey]: number | string }[];
+    const [header] = data.values;
 
-    const _firstMonthInxed = data?.values[0].indexOf('March 2024');
-    const _lastMonthIndex = data?.values[0].length - 1;
+    const _firstMonthInxed = header.indexOf('March 2024');
+    const _lastMonthIndex = header.length - 1;
     const isPercent = scale === 'percent';
     const isAllocator = mode === 'Count';
 
@@ -234,13 +235,15 @@ const useAuditTimeline = (scale: string) => {
 
     const returnData = [] as { [key: PropertyKey]: number | string }[];
 
-    const _reviewIndex = data?.values[0].indexOf('Review');
-    const _reviewName = data?.values[0].indexOf('Review Stage');
-    const _conversationLengthIndex = data?.values[0].indexOf('Conversation Length');
-    const _auditTimeIndex = data?.values[0].indexOf('Audit Time');
-    const _outcomeIndex = data?.values[0].indexOf('Outcome');
+    const [header, ...rows] = data.values;
 
-    const dataArray = data.values.slice(1).filter(item => item[_outcomeIndex].toLowerCase() !== 'waiting').map(item => ({
+    const _reviewIndex = header.indexOf('Review');
+    const _reviewName = header.indexOf('Review Stage');
+    const _conversationLengthIndex = header.indexOf('Conversation Length');
+    const _auditTimeIndex = header.indexOf('Audit Time');
+    const _outcomeIndex = header.indexOf('Outcome');
+
+    const dataArray = rows.filter(item => item[_outcomeIndex].toLowerCase() !== 'waiting').map(item => ({
       reviewIndex: item[_reviewIndex],
       reviewName: item[_reviewName],
       conversationLength: item[_conversationLengthIndex],

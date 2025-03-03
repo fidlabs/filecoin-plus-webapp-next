@@ -10,8 +10,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useAllocatorsColumns } from "@/app/allocators/components/useAllocatorsColumns";
 import { getAllocators } from "@/lib/api";
 import { useParamsQuery } from "@/lib/hooks/useParamsQuery";
-import { useMemo } from "react";
-import { ITabNavigatorTab } from "@/components/ui/tab-navigator";
 import { IAllocatorsResponse } from "@/lib/interfaces/dmob/allocator.interface";
 import { allocatorsTabs } from "../constants";
 

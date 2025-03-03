@@ -11,7 +11,7 @@ interface Props {
 export const IpniMisreporting = ({plain}: Props) => {
 
   const {
-    chartData, isLoading
+    chartData
   } = useAggregatedIPNIMisreporting()
 
 

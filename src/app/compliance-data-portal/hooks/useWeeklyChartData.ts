@@ -71,7 +71,7 @@ const useWeeklyChartData = ({
         barTabs.indexOf(currentTab) * 3 + 3
       );
     }
-  }, [currentTab, data?.length, paletteDirection]);
+  }, [currentTab, data, paletteDirection]);
 
   const chartData = useMemo(() => {
     if (!data?.length) {
