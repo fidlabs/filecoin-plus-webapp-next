@@ -200,3 +200,8 @@ export const getGoogleSheetAuditSizes = async () => {
   const url = `https://cdp.allocator.tech/proxy/googleapis/allocators-overview?tab=Raw+Data`;
   return (await fetchData(url)) as IGoogleSheetResponse;
 };
+
+export const getGoogleSheetAuditTimeline = async () => {
+  const url = `https://cdp.allocator.tech/proxy/googleapis/allocators-overview?tab=Charts`;
+  return (await fetchData(url)) as IGoogleSheetResponse;
+};

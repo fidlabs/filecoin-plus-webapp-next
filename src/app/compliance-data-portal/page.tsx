@@ -14,6 +14,7 @@ import {
 } from "@/components/charts/compliance/allocators/";
 import {useCDPUtils} from "@/lib/providers/cdp.provider";
 import {StorageProviderCompliance} from "@/components/charts/compliance/storage-providers/compliance";
+import {AllocatorAuditTimeline} from "@/components/charts/compliance/allocators/allocation-timeline";
 
 const CompliancePage = () => {
   const {currentElement} = useCDPUtils();
@@ -30,6 +31,7 @@ const CompliancePage = () => {
       {currentElement === 'ProviderComplianceAllocator' && <ProviderComplianceAllocator/>}
       {currentElement === 'AuditStateAllocator' && <AllocatorAuditState/>}
       {currentElement === 'AuditOutcomesAllocator' && <AllocatorTrustLevels/>}
+      {currentElement === 'AuditTimelineAllocator' && <AllocatorAuditTimeline/>}
     </div>
   );
 };

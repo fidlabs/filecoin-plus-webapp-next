@@ -3,7 +3,7 @@ import {
   getAllocators,
   getGoogleSheetAllocatorsTrust,
   getGoogleSheetAuditHistory,
-  getGoogleSheetAuditHistorySizes
+  getGoogleSheetAuditHistorySizes, getGoogleSheetAuditTimeline
 } from "@/lib/api";
 import {IAllocatorsResponse} from "@/lib/interfaces/dmob/allocator.interface";
 import {
@@ -11,6 +11,7 @@ import {
   IAllocatorWithSheetInfo,
   IGoogleSheetResponse
 } from "@/lib/interfaces/cdp/google.interface";
+import {groupBy} from "lodash";
 
 const PIB = 1024 * 1024 * 1024 * 1024 * 1024;
 
@@ -211,4 +212,70 @@ const useGoogleTrustLevels = (scale: string, mode: string) => {
   };
 }
 
-export {useGoogleSheetsAuditReport, useGoogleSheetFilters, useGoogleTrustLevels};
+const useAuditTimeline = (scale: string) => {
+  const [data, setData] = useState<IGoogleSheetResponse | undefined>(undefined)
+  const [loading, setLoading] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    setLoading(true);
+    getGoogleSheetAuditTimeline().then((response) => {
+      setData(response);
+      setLoading(false);
+    });
+  }, []);
+
+  const parsedData = useMemo(() => {
+    const isPercent = scale === 'percent';
+
+    if (!data?.values) {
+      return [];
+    }
+
+    const returnData = [] as { [key: PropertyKey]: number | string }[];
+
+    const _reviewIndex = data?.values[0].indexOf('Review');
+    const _reviewName = data?.values[0].indexOf('Review Stage');
+    const _conversationLengthIndex = data?.values[0].indexOf('Conversation Length');
+    const _auditTimeIndex = data?.values[0].indexOf('Audit Time');
+    const _outcomeIndex = data?.values[0].indexOf('Outcome');
+
+    const dataArray = data.values.slice(1).filter(item => item[_outcomeIndex].toLowerCase() !== 'waiting').map(item => ({
+      reviewIndex: item[_reviewIndex],
+      reviewName: item[_reviewName],
+      conversationLength: item[_conversationLengthIndex],
+      auditTime: item[_auditTimeIndex],
+    }));
+
+    const groupedArray = groupBy(dataArray, (item) => item.reviewIndex);
+
+    Object.values(groupedArray).forEach((children) => {
+      const reviewName = children[0].reviewName;
+      const avgConversationLength = children.reduce((acc, row) => acc + +(row.conversationLength || 0), 0) / children.length;
+      const avgAuditTime =  children.reduce((acc, row) => acc + +(row.auditTime || 0), 0) / children.length
+
+      const total = avgAuditTime + avgConversationLength;
+
+      returnData.push({
+        name: reviewName,
+        avgConversationLength: isPercent ? Math.round(avgConversationLength / total * 100) : Math.round(avgConversationLength),
+        avgConversationLengthName: 'Average Conversation Length',
+        avgAuditTime: isPercent ? Math.round(avgAuditTime / total * 100) : Math.round(avgAuditTime),
+        avgAuditTimeName: 'Average Audit Length'
+      });
+    })
+
+    setLoaded(true);
+
+    return returnData;
+  }, [data, scale]);
+
+  return {
+    results: parsedData,
+    loading,
+    loaded
+  };
+}
+
+
+export {useGoogleSheetsAuditReport, useGoogleSheetFilters, useGoogleTrustLevels, useAuditTimeline};

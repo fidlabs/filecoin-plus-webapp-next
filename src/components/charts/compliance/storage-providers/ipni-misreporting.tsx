@@ -1,10 +1,8 @@
 import {useAggregatedIPNIMisreporting} from "@/lib/hooks/cdp.hooks";
 import {ChartWrapper} from "@/app/compliance-data-portal/components/chart-wrapper";
 import {Cell, Pie, PieChart, ResponsiveContainer} from "recharts";
-import {ActiveShape, ActiveShapeSimple} from "@/components/ui/pie-active-shape";
+import {ActiveShape} from "@/components/ui/pie-active-shape";
 import {palette} from "@/lib/utils";
-import {useState} from "react";
-import {PieSectorDataItem} from "recharts/types/polar/Pie";
 
 interface Props {
   plain?: boolean;

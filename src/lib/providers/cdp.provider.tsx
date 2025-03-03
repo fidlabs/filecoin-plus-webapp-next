@@ -26,6 +26,7 @@ const allowedElements = [
   "ProviderComplianceAllocator",
   "AuditStateAllocator",
   "AuditOutcomesAllocator",
+  "AuditTimelineAllocator"
 ];
 
 const CommonChartContext = createContext({

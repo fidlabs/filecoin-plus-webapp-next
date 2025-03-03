@@ -54,6 +54,10 @@ const nav = [
       {
         id: 'AuditOutcomesAllocator',
         label: 'Audit Outcomes'
+      },
+      {
+        id: 'AuditTimelineAllocator',
+        label: 'Audit Times'
       }
     ]
   }
