@@ -3,16 +3,22 @@ import { ChartWrapper } from "@/app/compliance-data-portal/components/chart-wrap
 import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts";
 import { ActiveShape } from "@/components/ui/pie-active-shape";
 import { palette } from "@/lib/utils";
+import {ChartLoader} from "@/components/ui/chart-loader";
 
 interface Props {
   plain?: boolean;
 }
 
 export const IpniMisreporting = ({ plain }: Props) => {
-  const { chartData } = useAggregatedIPNIMisreporting();
+  const { chartData, isLoading } = useAggregatedIPNIMisreporting();
 
   return (
     <ChartWrapper title="IPNI Misreporting" id="IpniMisreporting" plain={plain}>
+      {
+        isLoading && <div className="flex w-full min-h-[350px] justify-center items-center">
+          <ChartLoader/>
+        </div>
+      }
       <ResponsiveContainer
         width={"100%"}
         maxHeight={800}
