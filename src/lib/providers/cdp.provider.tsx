@@ -19,14 +19,14 @@ const allowedElements = [
   "RetrievabilityScoreSP",
   "NumberOfDealsSP",
   "BiggestDealsSP",
-  "IpniMissreporting",
+  "IpniMisreporting",
   "ComplianceSP",
   "RetrievabilityScoreAllocator",
   "BiggestDealsAllocator",
   "ProviderComplianceAllocator",
   "AuditStateAllocator",
   "AuditOutcomesAllocator",
-  "AuditTimelineAllocator"
+  "AuditTimelineAllocator",
 ];
 
 const CommonChartContext = createContext({
@@ -101,7 +101,13 @@ const CdpProvider = ({ children }: PropsWithChildren) => {
   }, []);
 
   const parseSingleBucketWeek = useCallback(
-    (bucket: ICDPRange, index: number, length: number, unit = "", dataMode = 'PiB') => {
+    (
+      bucket: ICDPRange,
+      index: number,
+      length: number,
+      unit = "",
+      dataMode = "PiB"
+    ) => {
       let name = `${bucket.valueFromExclusive + 1} - ${
         bucket.valueToInclusive
       }${unit}`;
@@ -120,14 +126,20 @@ const CdpProvider = ({ children }: PropsWithChildren) => {
       }
       return {
         name,
-        value: (dataMode === 'PiB' ? bucket.totalDatacap : bucket.count),
+        value: dataMode === "PiB" ? bucket.totalDatacap : bucket.count,
       };
     },
     []
   );
 
   const parseBucketGroupWeek = useCallback(
-    (group: ICDPRange[], index: number, length: number, unit = "", dataMode = 'PiB') => {
+    (
+      group: ICDPRange[],
+      index: number,
+      length: number,
+      unit = "",
+      dataMode = "PiB"
+    ) => {
       let name = `${group[0].valueFromExclusive + 1} - ${
         group[group.length - 1].valueToInclusive
       }${unit}`;
@@ -138,7 +150,11 @@ const CdpProvider = ({ children }: PropsWithChildren) => {
       }
       return {
         name,
-        value: group.reduce((acc, bucket) => acc + (dataMode === 'PiB' ? bucket.totalDatacap : bucket.count), 0),
+        value: group.reduce(
+          (acc, bucket) =>
+            acc + (dataMode === "PiB" ? bucket.totalDatacap : bucket.count),
+          0
+        ),
       };
     },
     []
