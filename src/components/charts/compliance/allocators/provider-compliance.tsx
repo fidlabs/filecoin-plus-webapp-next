@@ -1,40 +1,47 @@
 "use client";
-import { ChartWrapper } from "@/app/compliance-data-portal/components/chart-wrapper";
-import { StackedBarGraph } from "@/components/charts/compliance/graphs/stacked-bar-graph";
+import {ChartWrapper} from "@/app/compliance-data-portal/components/chart-wrapper";
+import {StackedBarGraph} from "@/components/charts/compliance/graphs/stacked-bar-graph";
 import {
   ResponsiveHoverCard,
   ResponsiveHoverCardContent,
   ResponsiveHoverCardTrigger,
 } from "@/components/ui/responsive-hover-card";
-import { Slider } from "@/components/ui/slider";
-import { StatsLink } from "@/components/ui/stats-link";
-import { useAllocatorSPComplianceChartData } from "@/lib/hooks/cdp.hooks";
-import { useChartScale } from "@/lib/hooks/useChartScale";
-import { dataTabs } from "@/lib/providers/cdp.provider";
-import { gradientPalette } from "@/lib/utils";
-import { InfoIcon } from "lucide-react";
-import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import {Slider} from "@/components/ui/slider";
+import {StatsLink} from "@/components/ui/stats-link";
+import {useAllocatorSPComplianceChartData} from "@/lib/hooks/cdp.hooks";
+import {useChartScale} from "@/lib/hooks/useChartScale";
+import {dataTabs} from "@/lib/providers/cdp.provider";
+import {gradientPalette} from "@/lib/utils";
+import {InfoIcon} from "lucide-react";
+import {usePathname} from "next/navigation";
+import {useEffect, useState} from "react";
+import {Checkbox} from "@/components/ui/checkbox";
 
 interface Props {
   plain?: boolean;
 }
 
-const ProviderComplianceAllocator = ({ plain }: Props) => {
+const ProviderComplianceAllocator = ({plain}: Props) => {
   const pathName = usePathname();
 
   const [threshold, setThreshold] = useState(50);
   const [usePercentage, setUsePercentage] = useState(false);
   const [currentDataTab, setCurrentDataTab] = useState(dataTabs[0]);
+  const [retrievabilityMetric, setRetrievabilityMetric] = useState(true)
+  const [numberOfClientsMetric, setNumberOfClientsMetric] = useState(true)
+  const [totalDealSizeMetric, setTotalDealSizeMetric] = useState(true)
 
-  const { averageSuccessRate, chartData, isLoading } =
+  const {averageSuccessRate, chartData, isLoading} =
     useAllocatorSPComplianceChartData({
       threshold,
       asPercentage: usePercentage,
       mode: currentDataTab === "PiB" ? "dc" : "count",
+      retrievabilityMetric,
+      numberOfClientsMetric,
+      totalDealSizeMetric
     });
 
-  const { scale, selectedScale, calcPercentage, setSelectedScale } =
+  const {scale, selectedScale, calcPercentage, setSelectedScale} =
     useChartScale(10);
 
   useEffect(() => {
@@ -58,35 +65,49 @@ const ProviderComplianceAllocator = ({ plain }: Props) => {
           size: 2,
           value: (
             <div>
-              <ul className="list-disc">
+              <ul>
                 <p className="font-medium text-sm text-muted-foreground">
                   Allocator is complaint when it&apos;s SPs:
                 </p>
-                <li className="ml-4">
-                  Have retrievability score above average{" "}
-                  {averageSuccessRate
-                    ? `(last week average: ${averageSuccessRate.toFixed(2)}%)`
-                    : ""}
-                  <StatsLink
-                    className="ml-2"
-                    href={`${
-                      pathName.split("?")[0]
-                    }?chart=RetrievabilityScoreAllocator`}
-                  >
-                    Retrievability
-                  </StatsLink>
+                <li className="flex gap-1 items-center">
+                  <Checkbox checked={retrievabilityMetric}
+                            onCheckedChange={checked => setRetrievabilityMetric(!!checked)}/>
+                  <p>
+                    Have retrievability score above average{" "}
+                    {averageSuccessRate
+                      ? `(last week average: ${averageSuccessRate.toFixed(2)}%)`
+                      : ""}
+                    <StatsLink
+                      className="ml-2"
+                      href={`${
+                        pathName.split("?")[0]
+                      }?chart=RetrievabilityScoreAllocator`}
+                    >
+                      Retrievability
+                    </StatsLink>
+                  </p>
                 </li>
-                <li className="ml-4">Have at least 3 clients</li>
-                <li className="ml-4">
-                  Has at most 30% of the DC coming from a single client
-                  <StatsLink
-                    className="ml-2"
-                    href={`${
-                      pathName.split("?")[0]
-                    }?chart=BiggestDealsAllocator`}
-                  >
-                    Biggest allocation
-                  </StatsLink>
+                <li className="flex gap-1 items-center">
+                  <Checkbox checked={numberOfClientsMetric}
+                            onCheckedChange={checked => setNumberOfClientsMetric(!!checked)}/>
+                  <p>
+                    Have at least 3 clients
+                  </p>
+                </li>
+                <li className="flex gap-1 items-center">
+                  <Checkbox checked={totalDealSizeMetric}
+                            onCheckedChange={checked => setTotalDealSizeMetric(!!checked)}/>
+                  <p>
+                    Has at most 30% of the DC coming from a single client
+                    <StatsLink
+                      className="ml-2"
+                      href={`${
+                        pathName.split("?")[0]
+                      }?chart=BiggestDealsAllocator`}
+                    >
+                      Biggest allocation
+                    </StatsLink>
+                  </p>
                 </li>
               </ul>
             </div>
@@ -116,9 +137,9 @@ const ProviderComplianceAllocator = ({ plain }: Props) => {
 };
 
 const ThresholdSelector = ({
-  threshold,
-  setThreshold,
-}: {
+                             threshold,
+                             setThreshold,
+                           }: {
   threshold: number;
   setThreshold: (val: number) => void;
 }) => {
@@ -128,13 +149,13 @@ const ThresholdSelector = ({
         Threshold: {threshold}%
         <ResponsiveHoverCard>
           <ResponsiveHoverCardTrigger>
-            <InfoIcon className="w-5 h-5 text-muted-foreground" />
+            <InfoIcon className="w-5 h-5 text-muted-foreground"/>
           </ResponsiveHoverCardTrigger>
           <ResponsiveHoverCardContent>
             <p className="p-4 md:p-2 font-normal">
               Use this slider to adjust the threshold of SPs that need to be in
               compliance,
-              <br />
+              <br/>
               <p className="text-muted-foreground">
                 eg. 50% means that half of the SPs receiving DC through this
                 allocator meet the compliance metrics
@@ -155,4 +176,4 @@ const ThresholdSelector = ({
   );
 };
 
-export { ProviderComplianceAllocator };
+export {ProviderComplianceAllocator};

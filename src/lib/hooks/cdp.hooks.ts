@@ -172,6 +172,9 @@ export function useAllocatorSPComplianceChartData(options: {
   mode?: "count" | "dc";
   threshold: number;
   asPercentage?: boolean;
+  retrievabilityMetric: boolean
+  numberOfClientsMetric: boolean
+  totalDealSizeMetric: boolean
 }) {
   type CharItem = ChartDataItem<AllocatorSPSComplianceMetric>;
   type ChartData = CharItem[];
@@ -187,9 +190,14 @@ export function useAllocatorSPComplianceChartData(options: {
     setError(undefined);
     setIsLoading(true);
 
+    const fetchOptions = new URLSearchParams();
+    fetchOptions.append('retrievability', options?.retrievabilityMetric ? 'true' : 'false')
+    fetchOptions.append('numberOfClients', options?.numberOfClientsMetric ? 'true' : 'false')
+    fetchOptions.append('totalDealSize', options?.totalDealSizeMetric ? 'true' : 'false')
+
     try {
       const response = await fetch(
-        `${CDP_API}/stats/acc/allocators/sps-compliance-data`
+        `${CDP_API}/stats/acc/allocators/sps-compliance?${fetchOptions.toString()}`
       );
 
       const json = await response.json();
@@ -205,7 +213,7 @@ export function useAllocatorSPComplianceChartData(options: {
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [options?.totalDealSizeMetric, options?.numberOfClientsMetric, options?.retrievabilityMetric]);
 
   const getComplianceByTreshold = useCallback(
     (allocatorData: AllocatorData): AllocatorSPSComplianceMetric => {
@@ -286,6 +294,9 @@ export function useAllocatorSPComplianceChartData(options: {
 export function useProvidersComplianceChartData(options?: {
   mode?: "count" | "dc";
   asPercentage?: boolean;
+  retrievabilityMetric: boolean
+  numberOfClientsMetric: boolean
+  totalDealSizeMetric: boolean
 }) {
   type Item = ChartDataItem<AllocatorSPSComplianceMetric>;
   type ChartData = Item[];
@@ -299,9 +310,14 @@ export function useProvidersComplianceChartData(options?: {
     setError(undefined);
     setIsLoading(true);
 
+    const fetchOptions = new URLSearchParams();
+    fetchOptions.append('retrievability', options?.retrievabilityMetric ? 'true' : 'false')
+    fetchOptions.append('numberOfClients', options?.numberOfClientsMetric ? 'true' : 'false')
+    fetchOptions.append('totalDealSize', options?.totalDealSizeMetric ? 'true' : 'false')
+
     try {
       const response = await fetch(
-        `${CDP_API}/stats/acc/providers/compliance-data`
+        `${CDP_API}/stats/acc/providers/compliance-data?${fetchOptions.toString()}`
       );
 
       const json = await response.json();
@@ -317,7 +333,7 @@ export function useProvidersComplianceChartData(options?: {
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [options?.totalDealSizeMetric, options?.numberOfClientsMetric, options?.retrievabilityMetric]);
 
   const chartData = useMemo<ChartData>(() => {
     if (!data) {

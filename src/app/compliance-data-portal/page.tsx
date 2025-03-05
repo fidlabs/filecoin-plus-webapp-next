@@ -13,39 +13,39 @@ import {
   ProviderComplianceAllocator,
   AllocatorTrustLevels,
 } from "@/components/charts/compliance/allocators/";
-import { useCDPUtils } from "@/lib/providers/cdp.provider";
-import { StorageProviderCompliance } from "@/components/charts/compliance/storage-providers/compliance";
-import { AllocatorAuditTimeline } from "@/components/charts/compliance/allocators/allocation-timeline";
+import {useCDPUtils} from "@/lib/providers/cdp.provider";
+import {StorageProviderCompliance} from "@/components/charts/compliance/storage-providers/compliance";
+import {AllocatorAuditTimeline} from "@/components/charts/compliance/allocators/allocation-timeline";
 
 const CompliancePage = () => {
-  const { currentElement } = useCDPUtils();
+  const {currentElement} = useCDPUtils();
 
   return (
     <div className="w-full">
       {currentElement === "RetrievabilityScoreSP" && (
-        <StorageProviderRetrievability />
+        <StorageProviderRetrievability/>
       )}
       {currentElement === "NumberOfDealsSP" && (
-        <StorageProviderNumberOfAllocations />
+        <StorageProviderNumberOfAllocations/>
       )}
       {currentElement === "BiggestDealsSP" && (
-        <StorageProviderBiggestAllocation />
+        <StorageProviderBiggestAllocation/>
       )}
-      {currentElement === "ComplianceSP" && <StorageProviderCompliance />}
-      {currentElement === "IpniMisreporting" && <IpniMisreporting />}
+      {currentElement === "ComplianceSP" && <StorageProviderCompliance/>}
+      {currentElement === "IpniMisreporting" && <IpniMisreporting/>}
       {currentElement === "RetrievabilityScoreAllocator" && (
-        <AllocatorRetrievability />
+        <AllocatorRetrievability/>
       )}
       {currentElement === "BiggestDealsAllocator" && (
-        <AllocatorBiggestAllocation />
+        <AllocatorBiggestAllocation/>
       )}
       {currentElement === "ProviderComplianceAllocator" && (
-        <ProviderComplianceAllocator />
+        <ProviderComplianceAllocator/>
       )}
-      {currentElement === "AuditStateAllocator" && <AllocatorAuditState />}
-      {currentElement === "AuditOutcomesAllocator" && <AllocatorTrustLevels />}
+      {currentElement === "AuditStateAllocator" && <AllocatorAuditState/>}
+      {currentElement === "AuditOutcomesAllocator" && <AllocatorTrustLevels/>}
       {currentElement === "AuditTimelineAllocator" && (
-        <AllocatorAuditTimeline />
+        <AllocatorAuditTimeline/>
       )}
     </div>
   );
