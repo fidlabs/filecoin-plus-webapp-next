@@ -99,7 +99,7 @@ const useWeeklyChartData = ({
         const total =
           currentDataTab === "Count"
             ? bucket.total
-            : bucket.results.reduce((acc, curr) => acc + curr.totalDatacap, 0);
+            : bucket.results.reduce((acc, curr) => acc + +curr.totalDatacap, 0);
 
         return usePercentage ? (val / total) * 100 : val;
       };
