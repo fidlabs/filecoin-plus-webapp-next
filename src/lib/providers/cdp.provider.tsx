@@ -152,7 +152,7 @@ const CdpProvider = ({ children }: PropsWithChildren) => {
         name,
         value: group.reduce(
           (acc, bucket) =>
-            acc + (dataMode === "PiB" ? bucket.totalDatacap : bucket.count),
+            acc + (dataMode === "PiB" ? +bucket.totalDatacap : bucket.count),
           0
         ),
       };
