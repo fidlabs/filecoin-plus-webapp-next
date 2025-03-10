@@ -69,7 +69,7 @@ const useClientsViewColumns = (/*compareMode: boolean */) => {
     header: () => {
       return (
         <div className="whitespace-nowrap">
-          Number of allcoations
+          Number of allocations
         </div>
       )
     }, cell: ({row}) => {
