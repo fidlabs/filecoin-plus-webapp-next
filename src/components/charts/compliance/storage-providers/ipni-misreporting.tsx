@@ -15,7 +15,7 @@ export const IpniMisreporting = ({ plain }: Props) => {
   return (
     <ChartWrapper title="IPNI Misreporting" id="IpniMisreporting" plain={plain}>
       {
-        isLoading && <div className="flex w-full min-h-[350px] justify-center items-center">
+        isLoading && <div className="flex w-full aspect-square justify-center items-center">
           <ChartLoader/>
         </div>
       }

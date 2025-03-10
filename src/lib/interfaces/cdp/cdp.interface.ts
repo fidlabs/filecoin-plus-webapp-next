@@ -228,6 +228,20 @@ export interface CDPAllocatorsSPsComplianceData {
   }>;
 }
 
+export interface CDPAllocatorsClientsData {
+  total: number
+  results: {
+    week: string
+    total: number
+    results: {
+      valueFromExclusive: number
+      valueToInclusive: number
+      count: number
+      totalDatacap: string
+    }[]
+  }[]
+}
+
 export interface CPDAggregatedIPNIReport {
   misreporting: number
   notReporting: number
