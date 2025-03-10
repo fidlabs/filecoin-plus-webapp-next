@@ -8,8 +8,9 @@ import {
 import { calculateDateFromHeight, convertBytesToIEC } from "@/lib/utils";
 import { InfoIcon } from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
-import { IClient } from "@/lib/interfaces/dmob/client.interface";
+import { type IClient } from "@/lib/interfaces/dmob/client.interface";
 import { GithubIcon } from "@/components/icons/github.icon";
+import { type IAllowanceArray } from "@/lib/interfaces/dmob/dmob.interface";
 
 type FilterCallback = (key: string, direction: string) => void;
 
@@ -26,9 +27,13 @@ export const useClientsColumns = (filterCallback: FilterCallback) => {
       },
       cell: ({ row }) => {
         const addressId = row.getValue("addressId") as string;
-        const githubLink = row.original.allowanceArray.sort(
+        const allowanceArraySorted = row.original.allowanceArray.sort(
           (a, b) => +b.height - +a.height
-        )[0].auditTrail;
+        );
+        const allowanceArrayHead: IAllowanceArray | undefined =
+          allowanceArraySorted[0];
+        const githubLink = allowanceArrayHead?.auditTrail;
+
         return (
           <div className="flex gap-1 items-center">
             <Link className="table-link" href={`clients/${addressId}`}>
@@ -97,7 +102,7 @@ export const useClientsColumns = (filterCallback: FilterCallback) => {
         return (
           <div className="whitespace-nowrap flex gap-1 items-center">
             {convertBytesToIEC(initialAllowance)}
-            {allowanceArray?.length && (
+            {allowanceArray?.length > 0 && (
               <HoverCard openDelay={100} closeDelay={50}>
                 <HoverCardTrigger asChild>
                   <InfoIcon
