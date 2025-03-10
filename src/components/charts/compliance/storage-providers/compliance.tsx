@@ -47,7 +47,7 @@ export function StorageProviderCompliance({plain}: Props) {
       addons={[
         {
           name: "What are the metrics",
-          size: 2,
+          size: 3,
           value: (
             <div>
               <ul>
@@ -75,6 +75,14 @@ export function StorageProviderCompliance({plain}: Props) {
                   <Checkbox checked={numberOfClientsMetric} onCheckedChange={checked => setNumberOfClientsMetric(!!checked)}/>
                   <p>
                     Have at least 3 clients
+                    <StatsLink
+                      className="ml-2"
+                      href={`${
+                        pathName.split("?")[0]
+                      }?chart=ClientDiversitySP`}
+                    >
+                      Client Diversity
+                    </StatsLink>
                   </p>
                 </li>
                 <li className="flex gap-1 items-center">

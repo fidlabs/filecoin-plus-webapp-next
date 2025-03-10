@@ -31,6 +31,10 @@ const nav = [
         id: "IpniMisreporting",
         label: "IPNI misreporting",
       },
+      {
+        id: "ClientDiversitySP",
+        label: "Client Diversity",
+      },
     ],
   },
   {
@@ -59,6 +63,10 @@ const nav = [
       {
         id: "AuditTimelineAllocator",
         label: "Audit Times",
+      },
+      {
+        id: "ClientDiversityAllocator",
+        label: "Client Diversity",
       },
     ],
   },

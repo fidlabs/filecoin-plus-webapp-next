@@ -126,7 +126,9 @@ const StackedBarGraph = ({
 
   if (isLoading) {
     return (
-      <div className="flex w-full min-h-[350px] justify-center items-center">
+      <div className="flex w-full justify-center items-center" style={{
+        aspectRatio: isDesktop ? '1.8' : '0.5'
+      }}>
         <ChartLoader />
       </div>
     );
