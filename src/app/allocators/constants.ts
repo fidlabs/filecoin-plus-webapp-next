@@ -7,11 +7,6 @@ export const allocatorsTabs = [
     value: "allocators",
   },
   {
-    label: "Compliance",
-    href: "/allocators/compliance",
-    value: "compliance",
-  },
-  {
     label: "Tree Structure",
     href: "/allocators/allocator-tree",
     value: "tree",

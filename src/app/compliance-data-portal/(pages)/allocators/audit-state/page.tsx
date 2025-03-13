@@ -2,14 +2,10 @@
 import {useGoogleSheetsAuditReport} from "@/lib/hooks/google.hooks";
 import {useState} from "react";
 import {ChartWrapper} from "@/app/compliance-data-portal/components/chart-wrapper";
-import {AuditHistoryBarGraph} from "@/components/charts/compliance/graphs/audits-history-graph";
+import {AuditHistoryBarGraph} from "@/app/compliance-data-portal/components/graphs/audits-history-graph";
 import {Checkbox} from "@/components/ui/checkbox";
 
-interface Props {
-  plain?: boolean;
-}
-
-const AllocatorAuditState = ({plain}: Props) => {
+const AllocatorAuditState = () => {
   const {results, loading} = useGoogleSheetsAuditReport();
 
   const [showActive, setShowActive] = useState(true);
@@ -19,7 +15,6 @@ const AllocatorAuditState = ({plain}: Props) => {
   return <ChartWrapper
     title="Audit state of the allocators"
     id="AuditStateAllocator"
-    plain={plain}
     addons={[{
       name: 'Filters',
       value: <div>
@@ -54,4 +49,4 @@ const AllocatorAuditState = ({plain}: Props) => {
   </ChartWrapper>;
 };
 
-export {AllocatorAuditState};
+export default AllocatorAuditState

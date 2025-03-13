@@ -1,14 +1,10 @@
 "use client"
 import {useGoogleTrustLevels} from "@/lib/hooks/google.hooks";
 import {ChartWrapper} from "@/app/compliance-data-portal/components/chart-wrapper";
-import {StackedBarGraph} from "@/components/charts/compliance/graphs/stacked-bar-graph";
+import {StackedBarGraph} from "@/app/compliance-data-portal/components/graphs/stacked-bar-graph";
 import {useState} from "react";
 
-interface Props {
-  plain?: boolean;
-}
-
-const AllocatorTrustLevels = ({plain}: Props) => {
+const AllocatorTrustLevels = () => {
   const [currentScale, setCurrentScale] = useState('linear')
   const [currentTab, setCurrentTab] = useState('PiB')
 
@@ -51,7 +47,6 @@ const AllocatorTrustLevels = ({plain}: Props) => {
         </div>
       },
     ]}
-    plain={plain}
   >
     <StackedBarGraph currentDataTab={currentTab} usePercentage={currentScale === 'percent'}
                      data={results} unit={unit} isLoading={loading} customPalette={[
@@ -60,4 +55,4 @@ const AllocatorTrustLevels = ({plain}: Props) => {
   </ChartWrapper>;
 };
 
-export {AllocatorTrustLevels};
+export default AllocatorTrustLevels

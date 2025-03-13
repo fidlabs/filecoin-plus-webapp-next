@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useCDPUtils } from "@/lib/providers/cdp.provider";
+import { useMemo, useState } from "react";
 import { useMediaQuery } from "usehooks-ts";
 import { Button } from "@/components/ui/button";
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 import dynamic from "next/dynamic";
+import Link from "next/link";
+import {usePathname} from "next/navigation";
 
 const nav = [
   {
@@ -13,26 +14,32 @@ const nav = [
     links: [
       {
         id: "ComplianceSP",
+        link: "/compliance-data-portal/storage-providers/compliance",
         label: "Compliance",
       },
       {
         id: "RetrievabilityScoreSP",
+        link: "/compliance-data-portal/storage-providers/retrievability",
         label: "Retrievability Score",
       },
       {
         id: "NumberOfDealsSP",
+        link: "/compliance-data-portal/storage-providers/number-of-deals",
         label: "Number of allocations",
       },
       {
         id: "BiggestDealsSP",
+        link: "/compliance-data-portal/storage-providers/biggest-deals",
         label: "Biggest allocation",
       },
       {
         id: "IpniMisreporting",
+        link: "/compliance-data-portal/storage-providers/ipni-misreporting",
         label: "IPNI misreporting",
       },
       {
         id: "ClientDiversitySP",
+        link: "/compliance-data-portal/storage-providers/client-diversity",
         label: "Client Diversity",
       },
     ],
@@ -42,30 +49,37 @@ const nav = [
     links: [
       {
         id: "RetrievabilityScoreAllocator",
+        link: "/compliance-data-portal/allocators/retrievability",
         label: "Retrievability Score",
       },
       {
         id: "BiggestDealsAllocator",
+        link: "/compliance-data-portal/allocators/biggest-deals",
         label: "Biggest allocation",
       },
       {
         id: "ProviderComplianceAllocator",
+        link: "/compliance-data-portal/allocators/providers-compliance",
         label: "SP Compliance",
       },
       {
         id: "AuditStateAllocator",
+        link: "/compliance-data-portal/allocators/audit-state",
         label: "Audit state",
       },
       {
         id: "AuditOutcomesAllocator",
+        link: "/compliance-data-portal/allocators/audit-outcomes",
         label: "Audit Outcomes",
       },
       {
         id: "AuditTimelineAllocator",
+        link: "/compliance-data-portal/allocators/audit-timeline",
         label: "Audit Times",
       },
       {
         id: "ClientDiversityAllocator",
+        link: "/compliance-data-portal/allocators/client-diversity",
         label: "Client Diversity",
       },
     ],
@@ -73,17 +87,11 @@ const nav = [
 ];
 
 const NavComponent = () => {
-  const { currentElement } = useCDPUtils();
 
   const [drawerOpened, setDrawerOpened] = useState(false);
-
   const isDesktop = useMediaQuery("(min-width: 768px)", {
     initializeWithValue: true,
   });
-
-  useEffect(() => {
-    setDrawerOpened(false);
-  }, [currentElement]);
 
   if (!isDesktop) {
     return (
@@ -115,22 +123,23 @@ const NavComponent = () => {
 };
 
 const Menu = () => {
-  const { currentElement, scrollTo } = useCDPUtils();
 
-  const getOffset = (id: string) => {
+  const pathname = usePathname()
+
+  const getOffset = (path: string) => {
     const groupOrder = nav.findIndex((group) =>
-      group.links.some((link) => link.id === id)
+      group.links.some((link) => link.link === path)
     );
     const itemFlatIndex = nav
       .flatMap((group) => group.links)
-      .findIndex((link) => link.id === id);
+      .findIndex((link) => link.link === path);
 
     return 16 + groupOrder * 24 + itemFlatIndex * 30;
   };
 
   const top = useMemo(() => {
-    return getOffset(currentElement);
-  }, [currentElement]);
+    return getOffset(pathname);
+  }, [pathname]);
 
   return (
     <div className="min-w-[250px] relative flex flex-col text-xs leading-4 font-medium text-theme-text-secondary gap-4">
@@ -143,13 +152,13 @@ const Menu = () => {
           <div>{group.group}</div>
           <div className="flex flex-col ml-4 gap-2">
             {group.links.map((link) => (
-              <button
+              <Link
                 key={link.id}
                 className="bg-transparent border-none outline-none text-left text-base leading-5 font-semibold text-theme-text h-[22px]"
-                onClick={() => scrollTo(link.id)}
+                href={link.link}
               >
                 {link.label}
-              </button>
+              </Link>
             ))}
           </div>
         </div>

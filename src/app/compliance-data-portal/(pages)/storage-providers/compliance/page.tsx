@@ -1,7 +1,7 @@
 "use client";
 
 import {ChartWrapper} from "@/app/compliance-data-portal/components/chart-wrapper";
-import {StackedBarGraph} from "@/components/charts/compliance/graphs/stacked-bar-graph";
+import {StackedBarGraph} from "@/app/compliance-data-portal/components/graphs/stacked-bar-graph";
 import {StatsLink} from "@/components/ui/stats-link";
 import {useProvidersComplianceChartData} from "@/lib/hooks/cdp.hooks";
 import {useChartScale} from "@/lib/hooks/useChartScale";
@@ -11,11 +11,7 @@ import {usePathname} from "next/navigation";
 import {useState} from "react";
 import {Checkbox} from "@/components/ui/checkbox";
 
-interface Props {
-  plain?: boolean;
-}
-
-export function StorageProviderCompliance({plain}: Props) {
+const StorageProviderCompliance = () => {
   const pathName = usePathname();
 
   const {scale, selectedScale, calcPercentage, setSelectedScale} =
@@ -39,7 +35,6 @@ export function StorageProviderCompliance({plain}: Props) {
     <ChartWrapper
       setSelectedScale={setSelectedScale}
       title="SPs Compliance"
-      plain={plain}
       selectedScale={selectedScale}
       dataTabs={dataTabs}
       currentDataTab={dataTab}
@@ -115,3 +110,5 @@ export function StorageProviderCompliance({plain}: Props) {
     </ChartWrapper>
   );
 }
+
+export default StorageProviderCompliance;

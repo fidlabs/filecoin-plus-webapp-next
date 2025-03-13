@@ -1,3 +1,4 @@
+"use client"
 import { useAggregatedIPNIMisreporting } from "@/lib/hooks/cdp.hooks";
 import { ChartWrapper } from "@/app/compliance-data-portal/components/chart-wrapper";
 import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts";
@@ -5,17 +6,13 @@ import { ActiveShape } from "@/components/ui/pie-active-shape";
 import { palette } from "@/lib/utils";
 import {ChartLoader} from "@/components/ui/chart-loader";
 
-interface Props {
-  plain?: boolean;
-}
-
-export const IpniMisreporting = ({ plain }: Props) => {
+const IPNIMisreporting = () => {
   const { chartData, isLoading } = useAggregatedIPNIMisreporting();
 
   return (
-    <ChartWrapper title="IPNI Misreporting" id="IpniMisreporting" plain={plain}>
+    <ChartWrapper title="IPNI Misreporting" id="IpniMisreporting">
       {
-        isLoading && <div className="flex w-full aspect-square justify-center items-center">
+        isLoading && <div className="flex w-full aspect-square mah-h-[800px] justify-center items-center">
           <ChartLoader/>
         </div>
       }
@@ -52,3 +49,5 @@ export const IpniMisreporting = ({ plain }: Props) => {
     </ChartWrapper>
   );
 };
+
+export default IPNIMisreporting
