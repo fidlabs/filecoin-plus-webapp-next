@@ -8,13 +8,11 @@ import {ChevronDownIcon} from "lucide-react";
 import {useMediaQuery} from "usehooks-ts";
 import {Drawer, DrawerContent, DrawerTrigger} from "@/components/ui/drawer";
 
-
 interface Props extends PropsWithChildren, HTMLAttributes<HTMLDivElement> {
   title: string
   tabs?: string[]
   dataTabs?: string[]
   scales?: string[]
-  plain?: boolean
   unit?: string,
   additionalFilters?: ReactNode[]
   currentTab?: string
@@ -49,7 +47,6 @@ const ChartWrapper = forwardRef<
      scales,
      setSelectedScale,
      additionalFilters,
-     plain,
      ...props
    }, ref) => {
 
@@ -62,7 +59,7 @@ const ChartWrapper = forwardRef<
   }
 
   return <div className="w-full" ref={ref} {...props}>
-    <Card className={cn(plain && "bg-transparent shadow-none rounded-none")}>
+    <Card>
       <CardHeader>
         <CardTitle className="flex w-full flex-col gap-2 md:flex-row flex-wrap justify-between">
           <div>{title}</div>

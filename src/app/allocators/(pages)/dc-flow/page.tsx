@@ -124,7 +124,7 @@ async function AllocatorsDatacapFlowPage() {
       <main className="main-content">
         <Card className="mt-[50px]">
           <GenericContentHeader
-            selected={allocatorsTabs[3].value}
+            selected={allocatorsTabs[2].value}
             navigation={allocatorsTabs}
           />
           <DCFlowSankey data={sankeyData} />

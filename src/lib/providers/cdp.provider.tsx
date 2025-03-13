@@ -5,33 +5,14 @@ import {
   PropsWithChildren,
   useCallback,
   useContext,
-  useEffect,
-  useState,
 } from "react";
 import { ICDPRange } from "@/lib/interfaces/cdp/cdp.interface";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 export const barTabs = ["3 groups", "6 groups", "All"];
 export const dataTabs = ["PiB", "Count"];
 export const scaleTabs = ["Linear scale", "Log scale"];
 
-const allowedElements = [
-  "RetrievabilityScoreSP",
-  "NumberOfDealsSP",
-  "BiggestDealsSP",
-  "IpniMisreporting",
-  "ComplianceSP",
-  "RetrievabilityScoreAllocator",
-  "BiggestDealsAllocator",
-  "ProviderComplianceAllocator",
-  "AuditStateAllocator",
-  "AuditOutcomesAllocator",
-  "AuditTimelineAllocator",
-];
-
 const CommonChartContext = createContext({
-  currentElement: "RetrievabilityScoreSP",
-  scrollTo: (element: string) => console.log(element),
   groupData: (data: ICDPRange[], groupCount: number) => {
     console.log(data, groupCount);
     return [] as ICDPRange[][];
@@ -65,27 +46,6 @@ const CommonChartContext = createContext({
 });
 
 const CdpProvider = ({ children }: PropsWithChildren) => {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const pathName = usePathname();
-
-  const [currentElement, setCurrentElement] = useState("ComplianceSP");
-
-  useEffect(() => {
-    const element = searchParams.get("chart");
-    if (element && allowedElements.includes(element)) {
-      setCurrentElement(element);
-    }
-  }, [searchParams]);
-
-  const scrollTo = useCallback(
-    (element: string) => {
-      const newPath = `${pathName}?chart=${element}`;
-      router.replace(newPath);
-    },
-    [pathName, router]
-  );
-
   const groupData = useCallback((data: ICDPRange[], groupCount: number) => {
     if (!data || !data.length || !groupCount) {
       return [];
@@ -163,8 +123,6 @@ const CdpProvider = ({ children }: PropsWithChildren) => {
   return (
     <CommonChartContext.Provider
       value={{
-        currentElement,
-        scrollTo,
         groupData,
         parseSingleBucketWeek,
         parseBucketGroupWeek,

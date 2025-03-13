@@ -1,15 +1,11 @@
 "use client"
-import {useStorageProviderNumberOfDeals} from "@/lib/hooks/cdp.hooks";
-import {StackedBarGraph} from "@/components/charts/compliance/graphs/stacked-bar-graph";
+import {useStorageProviderBiggestDeal} from "@/lib/hooks/cdp.hooks";
+import {StackedBarGraph} from "@/app/compliance-data-portal/components/graphs/stacked-bar-graph";
 import {ChartWrapper} from "@/app/compliance-data-portal/components/chart-wrapper";
 import {useCDPChartDataEngine} from "@/app/compliance-data-portal/hooks/useCDPChartDataEngine";
 import {barTabs, dataTabs} from "@/lib/providers/cdp.provider";
 
-interface Props {
-  plain?: boolean;
-}
-
-const StorageProviderNumberOfAllocations = ({plain}: Props) => {
+const StorageProviderBiggestAllocation = () => {
 
   const {
     isLoading,
@@ -25,37 +21,38 @@ const StorageProviderNumberOfAllocations = ({plain}: Props) => {
     currentDataTab,
     setCurrentDataTab,
   } = useCDPChartDataEngine({
-    fetchMethod: useStorageProviderNumberOfDeals,
-    unit: ' clients'
+    fetchMethod: useStorageProviderBiggestDeal,
+    unit: ' %',
+    paletteDirection: 'dsc'
   })
 
   const unit = currentDataTab === 'Count' ? 'provider' : currentDataTab;
 
+
   return <ChartWrapper
-    title="Number of allocations"
+    title="Size Of The Biggest client allocation"
     tabs={barTabs}
     dataTabs={dataTabs}
     currentDataTab={currentDataTab}
     setCurrentDataTab={setCurrentDataTab}
-    plain={plain}
     currentTab={currentTab}
     setCurrentTab={setCurrentTab}
-    id="NumberOfDealsSP"
+    id="BiggestDealsSP"
     selectedScale={selectedScale}
     setSelectedScale={setSelectedScale}
+
     addons={[{
       name: 'Total number of providers',
       value: data?.count
     }, {
       name: "What's here?",
       size: 2,
-      value: "Chart is showing how many client each provider has"
+      value: "What % of the total data cap used comes from the single client"
     }]}>
-    <StackedBarGraph customPalette={palette} usePercentage={usePercentage} data={chartData} scale={scale}
-                     isLoading={isLoading} unit={unit}
-                     currentDataTab={currentDataTab}/>
+    <StackedBarGraph currentDataTab={currentDataTab} customPalette={palette} data={chartData} usePercentage={usePercentage} scale={scale}
+                     isLoading={isLoading} unit={unit}/>
   </ChartWrapper>
 
 }
 
-export {StorageProviderNumberOfAllocations};
+export default StorageProviderBiggestAllocation

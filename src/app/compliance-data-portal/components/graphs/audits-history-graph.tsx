@@ -192,7 +192,9 @@ const AuditHistoryBarGraph = ({data, isLoading, audits, showAudited, showActive,
   }
 
   if (isLoading) {
-    return <div className="flex w-full min-h-[350px] justify-center items-center">
+    return <div className="flex w-full justify-center items-center" style={{
+      aspectRatio: aspect.toString()
+    }}>
       <ChartLoader/>
     </div>
   }

@@ -1,6 +1,6 @@
 "use client";
 import {ChartWrapper} from "@/app/compliance-data-portal/components/chart-wrapper";
-import {StackedBarGraph} from "@/components/charts/compliance/graphs/stacked-bar-graph";
+import {StackedBarGraph} from "@/app/compliance-data-portal/components/graphs/stacked-bar-graph";
 import {
   ResponsiveHoverCard,
   ResponsiveHoverCardContent,
@@ -17,11 +17,7 @@ import {usePathname} from "next/navigation";
 import {useEffect, useState} from "react";
 import {Checkbox} from "@/components/ui/checkbox";
 
-interface Props {
-  plain?: boolean;
-}
-
-const ProviderComplianceAllocator = ({plain}: Props) => {
+const ProviderComplianceAllocator = () => {
   const pathName = usePathname();
 
   const [threshold, setThreshold] = useState(50);
@@ -54,7 +50,6 @@ const ProviderComplianceAllocator = ({plain}: Props) => {
     <ChartWrapper
       title="Allocator Compliance based on % SP Compliance"
       id="ProviderComplianceAllocator"
-      plain={plain}
       dataTabs={dataTabs}
       currentDataTab={currentDataTab}
       setCurrentDataTab={setCurrentDataTab}
@@ -62,7 +57,7 @@ const ProviderComplianceAllocator = ({plain}: Props) => {
       addons={[
         {
           name: "What are the metrics",
-          size: 2,
+          size: 3,
           value: (
             <div>
               <ul>
@@ -92,6 +87,14 @@ const ProviderComplianceAllocator = ({plain}: Props) => {
                             onCheckedChange={checked => setNumberOfClientsMetric(!!checked)}/>
                   <p>
                     Have at least 3 clients
+                    <StatsLink
+                      className="ml-2"
+                      href={`${
+                        pathName.split("?")[0]
+                      }?chart=ClientDiversityAllocator`}
+                    >
+                      Client Diversity
+                    </StatsLink>
                   </p>
                 </li>
                 <li className="flex gap-1 items-center">
@@ -176,4 +179,4 @@ const ThresholdSelector = ({
   );
 };
 
-export {ProviderComplianceAllocator};
+export default ProviderComplianceAllocator

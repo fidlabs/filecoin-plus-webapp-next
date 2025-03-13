@@ -1,15 +1,11 @@
 "use client"
-import {StackedBarGraph} from "@/components/charts/compliance/graphs/stacked-bar-graph";
+import {StackedBarGraph} from "@/app/compliance-data-portal/components/graphs/stacked-bar-graph";
 import {ChartWrapper} from "@/app/compliance-data-portal/components/chart-wrapper";
 import {useCDPChartDataEngine} from "@/app/compliance-data-portal/hooks/useCDPChartDataEngine";
 import {useAllocatorRetrievability} from "@/lib/hooks/cdp.hooks";
 import {barTabs, dataTabs} from "@/lib/providers/cdp.provider";
 
-interface Props {
-  plain?: boolean;
-}
-
-const AllocatorRetrievability = ({plain}: Props) => {
+const AllocatorRetrievability = () => {
 
   const {
     isLoading,
@@ -37,7 +33,6 @@ const AllocatorRetrievability = ({plain}: Props) => {
     dataTabs={dataTabs}
     currentDataTab={currentDataTab}
     setCurrentDataTab={setCurrentDataTab}
-    plain={plain}
     currentTab={currentTab}
     setCurrentTab={setCurrentTab}
     id="RetrievabilityScoreAllocator"
@@ -50,4 +45,4 @@ const AllocatorRetrievability = ({plain}: Props) => {
 
 }
 
-export {AllocatorRetrievability};
+export default AllocatorRetrievability;

@@ -168,6 +168,76 @@ const useAllocatorBiggestDeal = () => {
   };
 };
 
+export const useAllocatorAndSPClientDiversity = (options: {
+  mode?: "count" | "dc";
+  apiMode: "allocators" | "providers";
+  threshold: number[];
+  asPercentage?: boolean;
+}) => {
+
+  const {threshold, mode = "count", asPercentage = false, apiMode} = options;
+
+  const [data, setData] = useState<ICDPUnifiedHistogram | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const fetchData = useCallback(async () => {
+    const response = await fetch(
+      `${CDP_API}/stats/acc/${apiMode}/clients`
+    );
+    const data = (await response.json()) as ICDPHistogram;
+    return {
+      count: data?.total,
+      buckets: data?.results,
+    } as ICDPUnifiedHistogram;
+  }, [apiMode]);
+
+  useEffect(() => {
+    setIsLoading(true);
+    fetchData()
+      .then(setData)
+      .then(() => setIsLoading(false));
+  }, [fetchData]);
+
+  const chartData = useMemo(() => {
+    if (!data) {
+      return [];
+    }
+
+    return data.buckets.map((result) => {
+      const date = new Date(result.week);
+
+      const nonCompliant = result.results.filter(
+        (range) => range.valueToInclusive <= threshold[0]
+      ).reduce((sum, range) => sum + (mode === "count" ?  range.count : +range.totalDatacap), 0);
+
+      const partiallyCompliant = result.results.filter(
+        (range) => threshold[0] < range.valueFromExclusive && range.valueToInclusive <= threshold[1]
+      ).reduce((sum, range) => sum + (mode === "count" ?  range.count : +range.totalDatacap), 0);
+
+      const compliant = result.results.filter(
+        (range) => range.valueFromExclusive > threshold[1]
+      ).reduce((sum, range) => sum + (mode === "count" ?  range.count : +range.totalDatacap), 0);
+
+      const total = nonCompliant + partiallyCompliant + compliant;
+
+      return {
+        name: `w${getWeek(date)} '${date.getFullYear().toString().substring(2, 4)}`,
+        nonCompliant : asPercentage ? (nonCompliant / total) * 100 : nonCompliant,
+        partiallyCompliant: asPercentage ? (partiallyCompliant / total) * 100 : partiallyCompliant,
+        compliant: asPercentage ? (compliant / total) * 100 : compliant,
+        compliantName: "Big clients count",
+        partiallyCompliantName: "Average clients count",
+        nonCompliantName: "Low clients count",
+      };
+    });
+  }, [data, mode, asPercentage, threshold]);
+
+  return {
+    chartData, isLoading
+  }
+
+}
+
 export function useAllocatorSPComplianceChartData(options: {
   mode?: "count" | "dc";
   threshold: number;
@@ -186,7 +256,7 @@ export function useAllocatorSPComplianceChartData(options: {
   const [error, setError] = useState<Error>();
   const [isLoading, setIsLoading] = useState(false);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setError(undefined);
     setIsLoading(true);
 
@@ -209,11 +279,11 @@ export function useAllocatorSPComplianceChartData(options: {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [options?.numberOfClientsMetric, options?.retrievabilityMetric, options?.totalDealSizeMetric]);
 
   useEffect(() => {
     loadData();
-  }, [options?.totalDealSizeMetric, options?.numberOfClientsMetric, options?.retrievabilityMetric]);
+  }, [loadData]);
 
   const getComplianceByTreshold = useCallback(
     (allocatorData: AllocatorData): AllocatorSPSComplianceMetric => {
@@ -274,7 +344,7 @@ export function useAllocatorSPComplianceChartData(options: {
       );
 
       return {
-        name: `W${getWeek(date)} ${date.getFullYear()}`,
+        name: `w${getWeek(date)} '${date.getFullYear().toString().substring(2, 4)}`,
         ...values,
         compliantName: "Compliant",
         partiallyCompliantName: "Partially Compliant",
@@ -306,7 +376,7 @@ export function useProvidersComplianceChartData(options?: {
   const [error, setError] = useState<Error>();
   const [isLoading, setIsLoading] = useState(false);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setError(undefined);
     setIsLoading(true);
 
@@ -329,11 +399,11 @@ export function useProvidersComplianceChartData(options?: {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [options?.numberOfClientsMetric, options?.retrievabilityMetric, options?.totalDealSizeMetric])
 
   useEffect(() => {
     loadData();
-  }, [options?.totalDealSizeMetric, options?.numberOfClientsMetric, options?.retrievabilityMetric]);
+  }, [loadData]);
 
   const chartData = useMemo<ChartData>(() => {
     if (!data) {
@@ -342,7 +412,7 @@ export function useProvidersComplianceChartData(options?: {
 
     return data.results.map((result) => {
       const date = new Date(result.week);
-      const name = `W${getWeek(date)} ${date.getFullYear()}`;
+      const name = `w${getWeek(date)} '${date.getFullYear().toString().substring(2, 4)}`;
       const totalDatacap =
         result.compliantSpsTotalDatacap +
         result.partiallyCompliantSpsTotalDatacap +
