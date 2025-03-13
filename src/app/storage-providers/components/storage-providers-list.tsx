@@ -19,10 +19,6 @@ const tabs = [
       label: 'Storage Providers',
       href: '/storage-providers',
       value: 'list'
-    }, {
-      label: 'Compliance',
-      href: '/storage-providers/compliance',
-      value: 'compliance'
     }
   ] as ITabNavigatorTab[];
 

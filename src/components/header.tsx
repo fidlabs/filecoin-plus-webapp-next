@@ -52,31 +52,31 @@ const NavMenu = ({className, onClick}: {
     </Link>
     <Link href="/allocators" onClick={onClick} className={cn(
       "nav-link",
-      {"active": path.indexOf('allocators') > -1},
+      {"active": path.startsWith('/allocators')},
     )}>
       Allocators
     </Link>
     <Link href="/clients" onClick={onClick} className={cn(
       "nav-link",
-      {"active": path.indexOf('clients') > -1},
+      {"active": path.startsWith('/clients')},
     )}>
       Clients
     </Link>
     <Link href="/storage-providers" onClick={onClick} className={cn(
       "nav-link",
-      {"active": path.indexOf('storage-providers') > -1},
+      {"active": path.startsWith('/storage-providers')},
     )}>
       Storage Providers
     </Link>
     <Link href="/compliance-data-portal" onClick={onClick} className={cn(
       "nav-link",
-      {"active": path.indexOf('compliance-data-portal') > -1},
+      {"active": path.startsWith('/compliance-data-portal')},
     )}>
       Compliance
     </Link>
     <Link href="/about" onClick={onClick} className={cn(
       "nav-link",
-      {"active": path.indexOf('about') > -1},
+      {"active": path.startsWith('/about')},
     )}>
       About
     </Link>

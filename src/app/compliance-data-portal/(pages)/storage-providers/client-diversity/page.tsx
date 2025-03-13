@@ -1,6 +1,6 @@
 "use client";
 import {ChartWrapper} from "@/app/compliance-data-portal/components/chart-wrapper";
-import {StackedBarGraph} from "@/components/charts/compliance/graphs/stacked-bar-graph";
+import {StackedBarGraph} from "@/app/compliance-data-portal/components/graphs/stacked-bar-graph";
 import {
   ResponsiveHoverCard,
   ResponsiveHoverCardContent,
@@ -14,11 +14,7 @@ import {gradientPalette} from "@/lib/utils";
 import {InfoIcon} from "lucide-react";
 import {useEffect, useState} from "react";
 
-interface Props {
-  plain?: boolean;
-}
-
-const ClientDiversitySP = ({plain}: Props) => {
+const ClientDiversitySP = () => {
   const [threshold, setThreshold] = useState([3, 15]);
   const [usePercentage, setUsePercentage] = useState(false);
   const [currentDataTab, setCurrentDataTab] = useState(dataTabs[0]);
@@ -43,7 +39,6 @@ const ClientDiversitySP = ({plain}: Props) => {
     <ChartWrapper
       title="SP Client Diversity"
       id="ClientDiversitySP"
-      plain={plain}
       dataTabs={dataTabs}
       currentDataTab={currentDataTab}
       setCurrentDataTab={setCurrentDataTab}
@@ -114,4 +109,4 @@ const ThresholdSelector = ({
   );
 };
 
-export {ClientDiversitySP};
+export default ClientDiversitySP

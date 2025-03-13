@@ -1,15 +1,11 @@
 "use client"
 import {useAllocatorBiggestDeal} from "@/lib/hooks/cdp.hooks";
-import {StackedBarGraph} from "@/components/charts/compliance/graphs/stacked-bar-graph";
+import {StackedBarGraph} from "@/app/compliance-data-portal/components/graphs/stacked-bar-graph";
 import {ChartWrapper} from "@/app/compliance-data-portal/components/chart-wrapper";
 import {useCDPChartDataEngine} from "@/app/compliance-data-portal/hooks/useCDPChartDataEngine";
 import {barTabs, dataTabs} from "@/lib/providers/cdp.provider";
 
-interface Props {
-  plain?: boolean;
-}
-
-const AllocatorBiggestAllocation = ({plain}: Props) => {
+const AllocatorBiggestAllocation = () => {
 
   const {
     isLoading,
@@ -38,7 +34,6 @@ const AllocatorBiggestAllocation = ({plain}: Props) => {
     dataTabs={dataTabs}
     currentDataTab={currentDataTab}
     setCurrentDataTab={setCurrentDataTab}
-    plain={plain}
     currentTab={currentTab}
     setCurrentTab={setCurrentTab}
     id="BiggestDealsAllocator"
@@ -58,4 +53,4 @@ const AllocatorBiggestAllocation = ({plain}: Props) => {
 
 }
 
-export {AllocatorBiggestAllocation};
+export default AllocatorBiggestAllocation;

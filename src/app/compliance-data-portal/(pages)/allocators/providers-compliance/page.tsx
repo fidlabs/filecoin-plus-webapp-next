@@ -1,6 +1,6 @@
 "use client";
 import {ChartWrapper} from "@/app/compliance-data-portal/components/chart-wrapper";
-import {StackedBarGraph} from "@/components/charts/compliance/graphs/stacked-bar-graph";
+import {StackedBarGraph} from "@/app/compliance-data-portal/components/graphs/stacked-bar-graph";
 import {
   ResponsiveHoverCard,
   ResponsiveHoverCardContent,
@@ -17,11 +17,7 @@ import {usePathname} from "next/navigation";
 import {useEffect, useState} from "react";
 import {Checkbox} from "@/components/ui/checkbox";
 
-interface Props {
-  plain?: boolean;
-}
-
-const ProviderComplianceAllocator = ({plain}: Props) => {
+const ProviderComplianceAllocator = () => {
   const pathName = usePathname();
 
   const [threshold, setThreshold] = useState(50);
@@ -54,7 +50,6 @@ const ProviderComplianceAllocator = ({plain}: Props) => {
     <ChartWrapper
       title="Allocator Compliance based on % SP Compliance"
       id="ProviderComplianceAllocator"
-      plain={plain}
       dataTabs={dataTabs}
       currentDataTab={currentDataTab}
       setCurrentDataTab={setCurrentDataTab}
@@ -184,4 +179,4 @@ const ThresholdSelector = ({
   );
 };
 
-export {ProviderComplianceAllocator};
+export default ProviderComplianceAllocator

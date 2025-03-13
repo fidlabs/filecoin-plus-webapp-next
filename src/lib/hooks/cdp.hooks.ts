@@ -256,7 +256,7 @@ export function useAllocatorSPComplianceChartData(options: {
   const [error, setError] = useState<Error>();
   const [isLoading, setIsLoading] = useState(false);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setError(undefined);
     setIsLoading(true);
 
@@ -279,11 +279,11 @@ export function useAllocatorSPComplianceChartData(options: {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [options?.numberOfClientsMetric, options?.retrievabilityMetric, options?.totalDealSizeMetric]);
 
   useEffect(() => {
     loadData();
-  }, [options?.totalDealSizeMetric, options?.numberOfClientsMetric, options?.retrievabilityMetric]);
+  }, [loadData]);
 
   const getComplianceByTreshold = useCallback(
     (allocatorData: AllocatorData): AllocatorSPSComplianceMetric => {
@@ -376,7 +376,7 @@ export function useProvidersComplianceChartData(options?: {
   const [error, setError] = useState<Error>();
   const [isLoading, setIsLoading] = useState(false);
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setError(undefined);
     setIsLoading(true);
 
@@ -399,11 +399,11 @@ export function useProvidersComplianceChartData(options?: {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [options?.numberOfClientsMetric, options?.retrievabilityMetric, options?.totalDealSizeMetric])
 
   useEffect(() => {
     loadData();
-  }, [options?.totalDealSizeMetric, options?.numberOfClientsMetric, options?.retrievabilityMetric]);
+  }, [loadData]);
 
   const chartData = useMemo<ChartData>(() => {
     if (!data) {
