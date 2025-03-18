@@ -157,8 +157,8 @@ const dataset: WithContext<Dataset>[] = [
     // Allocator SPs Compliance
     "@context": "https://schema.org",
     "@type": "Dataset",
-    name: "Fil+ DataCap Stats | Audit state of the Allocators",
-    description: "Data representing the Audit state of the Allocators",
+    name: "Fil+ DataCap Stats | Audit State of the Allocators",
+    description: "Data representing the Audit State of the Allocators",
     url: "https://datacapstats.io/compliance-data-portal",
     creator: {
       "@type": "Organization",

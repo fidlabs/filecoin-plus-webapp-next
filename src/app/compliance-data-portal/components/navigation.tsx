@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import {usePathname} from "next/navigation";
+import { usePathname } from "next/navigation";
 
 const nav = [
   {
@@ -25,12 +25,12 @@ const nav = [
       {
         id: "NumberOfDealsSP",
         link: "/compliance-data-portal/storage-providers/number-of-deals",
-        label: "Number of allocations",
+        label: "Number of Allocations",
       },
       {
         id: "BiggestDealsSP",
         link: "/compliance-data-portal/storage-providers/biggest-deals",
-        label: "Biggest allocation",
+        label: "Biggest Allocation",
       },
       {
         id: "IpniMisreporting",
@@ -55,7 +55,7 @@ const nav = [
       {
         id: "BiggestDealsAllocator",
         link: "/compliance-data-portal/allocators/biggest-deals",
-        label: "Biggest allocation",
+        label: "Biggest Allocation",
       },
       {
         id: "ProviderComplianceAllocator",
@@ -65,7 +65,7 @@ const nav = [
       {
         id: "AuditStateAllocator",
         link: "/compliance-data-portal/allocators/audit-state",
-        label: "Audit state",
+        label: "Audit State",
       },
       {
         id: "AuditOutcomesAllocator",
@@ -87,7 +87,6 @@ const nav = [
 ];
 
 const NavComponent = () => {
-
   const [drawerOpened, setDrawerOpened] = useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)", {
     initializeWithValue: true,
@@ -123,8 +122,7 @@ const NavComponent = () => {
 };
 
 const Menu = () => {
-
-  const pathname = usePathname()
+  const pathname = usePathname();
 
   const getOffset = (path: string) => {
     const groupOrder = nav.findIndex((group) =>

@@ -1,35 +1,35 @@
 "use client";
 
-import {ChartWrapper} from "@/app/compliance-data-portal/components/chart-wrapper";
-import {StackedBarGraph} from "@/app/compliance-data-portal/components/graphs/stacked-bar-graph";
-import {StatsLink} from "@/components/ui/stats-link";
-import {useProvidersComplianceChartData} from "@/lib/hooks/cdp.hooks";
-import {useChartScale} from "@/lib/hooks/useChartScale";
-import {dataTabs} from "@/lib/providers/cdp.provider";
-import {gradientPalette} from "@/lib/utils";
-import {usePathname} from "next/navigation";
-import {useState} from "react";
-import {Checkbox} from "@/components/ui/checkbox";
+import { ChartWrapper } from "@/app/compliance-data-portal/components/chart-wrapper";
+import { StackedBarGraph } from "@/app/compliance-data-portal/components/graphs/stacked-bar-graph";
+import { StatsLink } from "@/components/ui/stats-link";
+import { useProvidersComplianceChartData } from "@/lib/hooks/cdp.hooks";
+import { useChartScale } from "@/lib/hooks/useChartScale";
+import { dataTabs } from "@/lib/providers/cdp.provider";
+import { gradientPalette } from "@/lib/utils";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const StorageProviderCompliance = () => {
   const pathName = usePathname();
 
-  const {scale, selectedScale, calcPercentage, setSelectedScale} =
+  const { scale, selectedScale, calcPercentage, setSelectedScale } =
     useChartScale(10);
 
   const [dataTab, setDataTab] = useState(dataTabs[0]);
-  const [retrievabilityMetric, setRetrievabilityMetric] = useState(true)
-  const [numberOfClientsMetric, setNumberOfClientsMetric] = useState(true)
-  const [totalDealSizeMetric, setTotalDealSizeMetric] = useState(true)
+  const [retrievabilityMetric, setRetrievabilityMetric] = useState(true);
+  const [numberOfClientsMetric, setNumberOfClientsMetric] = useState(true);
+  const [totalDealSizeMetric, setTotalDealSizeMetric] = useState(true);
 
-
-  const {averageSuccessRate, chartData, isLoading} = useProvidersComplianceChartData({
-    mode: dataTab === "PiB" ? "dc" : "count",
-    asPercentage: calcPercentage,
-    retrievabilityMetric,
-    numberOfClientsMetric,
-    totalDealSizeMetric
-  });
+  const { averageSuccessRate, chartData, isLoading } =
+    useProvidersComplianceChartData({
+      mode: dataTab === "PiB" ? "dc" : "count",
+      asPercentage: calcPercentage,
+      retrievabilityMetric,
+      numberOfClientsMetric,
+      totalDealSizeMetric,
+    });
 
   return (
     <ChartWrapper
@@ -50,7 +50,12 @@ const StorageProviderCompliance = () => {
                   SP is considered complaint when they:
                 </p>
                 <li className="flex gap-1 items-center">
-                  <Checkbox checked={retrievabilityMetric} onCheckedChange={checked => setRetrievabilityMetric(!!checked)}/>
+                  <Checkbox
+                    checked={retrievabilityMetric}
+                    onCheckedChange={(checked) =>
+                      setRetrievabilityMetric(!!checked)
+                    }
+                  />
                   <p>
                     Have retrievability score above average{" "}
                     {averageSuccessRate
@@ -67,28 +72,36 @@ const StorageProviderCompliance = () => {
                   </p>
                 </li>
                 <li className="flex gap-1 items-center">
-                  <Checkbox checked={numberOfClientsMetric} onCheckedChange={checked => setNumberOfClientsMetric(!!checked)}/>
+                  <Checkbox
+                    checked={numberOfClientsMetric}
+                    onCheckedChange={(checked) =>
+                      setNumberOfClientsMetric(!!checked)
+                    }
+                  />
                   <p>
                     Have at least 3 clients
                     <StatsLink
                       className="ml-2"
-                      href={`${
-                        pathName.split("?")[0]
-                      }?chart=ClientDiversitySP`}
+                      href={`${pathName.split("?")[0]}?chart=ClientDiversitySP`}
                     >
                       Client Diversity
                     </StatsLink>
                   </p>
                 </li>
                 <li className="flex gap-1 items-center">
-                  <Checkbox checked={totalDealSizeMetric} onCheckedChange={checked => setTotalDealSizeMetric(!!checked)}/>
+                  <Checkbox
+                    checked={totalDealSizeMetric}
+                    onCheckedChange={(checked) =>
+                      setTotalDealSizeMetric(!!checked)
+                    }
+                  />
                   <p>
                     Has at most 30% of the DC coming from a single client
                     <StatsLink
                       className="ml-2"
                       href={`${pathName.split("?")[0]}?chart=BiggestDealsSP`}
                     >
-                      Biggest allocation
+                      Biggest Allocation
                     </StatsLink>
                   </p>
                 </li>
@@ -109,6 +122,6 @@ const StorageProviderCompliance = () => {
       />
     </ChartWrapper>
   );
-}
+};
 
 export default StorageProviderCompliance;
