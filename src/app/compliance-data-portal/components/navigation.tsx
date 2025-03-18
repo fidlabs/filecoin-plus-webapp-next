@@ -35,7 +35,7 @@ const nav = [
       {
         id: "IpniMisreporting",
         link: "/compliance-data-portal/storage-providers/ipni-misreporting",
-        label: "IPNI misreporting",
+        label: "IPNI Misreporting",
       },
       {
         id: "ClientDiversitySP",
