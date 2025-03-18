@@ -56,7 +56,7 @@ export function DimensionsBox({
     return () => {
       window.removeEventListener("resize", handleWindowResizeDebounced);
     };
-  }, []);
+  }, [handleWindowResizeDebounced]);
 
   return (
     <div {...rest} ref={handleRef}>

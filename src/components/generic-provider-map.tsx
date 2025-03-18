@@ -1,6 +1,24 @@
 "use client";
 
 import {
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTrigger,
+} from "@/components/ui/responsive-dialog";
+import { IGenericReportLocation } from "@/lib/interfaces/cdp/cdp.interface";
+import countriesGeo from "@/lib/map-assets/countries.json";
+import { uniq } from "lodash";
+import {
+  ExpandIcon,
+  LocateFixedIcon,
+  ShrinkIcon,
+  ZoomInIcon,
+  ZoomOutIcon,
+} from "lucide-react";
+import dynamic from "next/dynamic";
+import { useCallback, useState } from "react";
+import {
   ComposableMap,
   Geographies,
   Geography,
@@ -9,27 +27,8 @@ import {
   ZoomableGroup,
   ZoomableGroupProps,
 } from "react-simple-maps";
-import countriesGeo from "@/lib/map-assets/countries.json";
-import { uniq } from "lodash";
-import {
-  ResponsiveDialog,
-  ResponsiveDialogContent,
-  ResponsiveDialogHeader,
-  ResponsiveDialogTrigger,
-} from "@/components/ui/responsive-dialog";
-import { IGenericReportLocation } from "@/lib/interfaces/cdp/cdp.interface";
-import dynamic from "next/dynamic";
 import { DimensionsBox } from "./dimensions-box";
 import { Button } from "./ui/button";
-import {
-  ExpandIcon,
-  FullscreenIcon,
-  LocateFixedIcon,
-  ShrinkIcon,
-  ZoomInIcon,
-  ZoomOutIcon,
-} from "lucide-react";
-import { useCallback, useState } from "react";
 import { Dialog, DialogClose, DialogContent, DialogTrigger } from "./ui/dialog";
 
 type MoveEndHandler = NonNullable<ZoomableGroupProps["onMoveEnd"]>;
