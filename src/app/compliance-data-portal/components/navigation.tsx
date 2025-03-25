@@ -35,7 +35,7 @@ const nav = [
       {
         id: "IpniMisreporting",
         link: "/compliance-data-portal/storage-providers/ipni-misreporting",
-        label: "IPNI misreporting",
+        label: "IPNI Misreporting",
       },
       {
         id: "ClientDiversitySP",
@@ -81,6 +81,31 @@ const nav = [
         id: "ClientDiversityAllocator",
         link: "/compliance-data-portal/allocators/client-diversity",
         label: "Client Diversity",
+      },
+    ],
+  },
+  {
+    group: "Old Datacap",
+    links: [
+      {
+        id: "OldDatacapOwnedByEntities",
+        link: "/compliance-data-portal/old-datacap/owned-by-entities",
+        label: "Owned by Entities",
+      },
+      {
+        id: "OldDatacapAllocatedToClients",
+        link: "/compliance-data-portal/old-datacap/allocated-to-clients",
+        label: "Allocated to Clients",
+      },
+      {
+        id: "OldDatacapOwnedByClients",
+        link: "/compliance-data-portal/old-datacap/owned-by-clients",
+        label: "Owned by Clients",
+      },
+      {
+        id: "OldDatacapSpentByClients",
+        link: "/compliance-data-portal/old-datacap/spent-by-clients",
+        label: "Spent by Clients",
       },
     ],
   },
