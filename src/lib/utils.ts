@@ -3,6 +3,7 @@ import { twMerge } from "tailwind-merge";
 import isFinite from "lodash/isFinite";
 import { filesize } from "filesize";
 import { Metadata } from "next";
+import { getWeek } from "date-fns";
 
 const mpn65 = [
   "#0091ff",
@@ -247,4 +248,16 @@ export function mapObject<InputType, MappedType, Key extends string>(
       [key]: mapFn(item),
     };
   }, {}) as Record<Key, MappedType>; // All keys will be populated eventually so we can cast the type here
+}
+
+export function capitalize(input: string): string {
+  return input
+    .split(" ")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+export function dateToYearWeek(input: Date | string): string {
+  const date = new Date(input);
+  return `W${getWeek(date)}'${date.getFullYear().toString().substring(2, 4)}`;
 }

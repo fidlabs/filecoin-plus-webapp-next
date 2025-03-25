@@ -26,9 +26,13 @@ import {
   IClientFullReport,
   IClientReportsResponse,
 } from "@/lib/interfaces/cdp/cdp.interface";
+import * as z from "zod";
+import { CDP_API_URL } from "./constants";
 
 const revalidate = 30;
 const apiUrl = "https://api.datacapstats.io/api";
+
+type NumericalString = `${number}`;
 
 export const fetchData = async (url: string) => {
   const headers = new Headers();
@@ -205,3 +209,103 @@ export const getGoogleSheetAuditTimeline = async () => {
   const url = `https://cdp.allocator.tech/proxy/googleapis/allocators-overview?tab=Charts`;
   return (await fetchData(url)) as IGoogleSheetResponse;
 };
+
+const numericalStringRegex = /^[0-9]{1,}$/;
+const numericalStringSchema = z
+  .string()
+  .refine((input): input is NumericalString => {
+    return numericalStringRegex.test(input);
+  });
+
+// Entities old datacap
+const allocatorsOldDatacapResponseSchema = z.object({
+  results: z.array(
+    z.object({
+      week: z.string().datetime(),
+      allocators: z.number(),
+      oldDatacap: numericalStringSchema,
+      allocations: numericalStringSchema,
+      drilldown: z.array(
+        z.object({
+          allocator: z.string(),
+          oldDatacap: numericalStringSchema,
+          allocations: numericalStringSchema,
+        })
+      ),
+    })
+  ),
+});
+
+export type AllocatorsOldDatacapResponse = z.infer<
+  typeof allocatorsOldDatacapResponseSchema
+>;
+
+function assertIsAllocatorsOldDatacapResponse(
+  input: unknown
+): asserts input is AllocatorsOldDatacapResponse {
+  const result = allocatorsOldDatacapResponseSchema.safeParse(input);
+
+  if (!result.success) {
+    throw new TypeError(
+      "Invalid response from CDP API when fetching allocators old datacap"
+    );
+  }
+}
+
+export async function fetchAllocatorsOldDatacap(): Promise<AllocatorsOldDatacapResponse> {
+  const endpoint = `${CDP_API_URL}/stats/old-datacap/allocator-balance`;
+  const response = await fetch(endpoint);
+
+  if (!response.ok) {
+    throw new Error(
+      `CDP API returned status ${response.status} when fetching allocators' old datacap`
+    );
+  }
+
+  const data = await response.json();
+  assertIsAllocatorsOldDatacapResponse(data);
+  return data;
+}
+
+// Clients old datacap
+const clientsOldDatacapResponseSchema = z.object({
+  results: z.array(
+    z.object({
+      week: z.string().datetime(),
+      clients: z.number(),
+      oldDatacap: numericalStringSchema,
+      claims: numericalStringSchema,
+    })
+  ),
+});
+
+export type ClientsOldDatacapResponse = z.infer<
+  typeof clientsOldDatacapResponseSchema
+>;
+
+function assertIsClientsOldDatacapResponse(
+  input: unknown
+): asserts input is ClientsOldDatacapResponse {
+  const result = clientsOldDatacapResponseSchema.safeParse(input);
+
+  if (!result.success) {
+    throw new TypeError(
+      "Invalid response from CDP API when fetching clients old datacap"
+    );
+  }
+}
+
+export async function fetchClientsOldDatacap(): Promise<ClientsOldDatacapResponse> {
+  const endpoint = `${CDP_API_URL}/stats/old-datacap/client-balance`;
+  const response = await fetch(endpoint);
+
+  if (!response.ok) {
+    throw new Error(
+      `CDP API returned status ${response.status} when fetching allocators' old datacap`
+    );
+  }
+
+  const data = await response.json();
+  assertIsClientsOldDatacapResponse(data);
+  return data;
+}
