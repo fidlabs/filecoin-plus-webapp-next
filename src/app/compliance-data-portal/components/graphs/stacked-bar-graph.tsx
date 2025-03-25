@@ -1,4 +1,11 @@
 "use client";
+
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ChartLoader } from "@/components/ui/chart-loader";
+import { Scale } from "@/lib/hooks/useChartScale";
+import { convertBytesToIEC, palette } from "@/lib/utils";
+import { uniq } from "lodash";
+import { useMemo } from "react";
 import {
   Bar,
   BarChart,
@@ -11,32 +18,25 @@ import {
   YAxis,
 } from "recharts";
 import {
-  convertBytesToIEC,
-  convertBytesToIECSimple,
-  palette,
-} from "@/lib/utils";
-import { useMemo } from "react";
-import { uniq } from "lodash";
-import {
   NameType,
   ValueType,
 } from "recharts/types/component/DefaultTooltipContent";
-import { Scale } from "@/lib/hooks/useChartScale";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChartLoader } from "@/components/ui/chart-loader";
 import { useMediaQuery } from "usehooks-ts";
 
-interface Props {
-  data: { [key: PropertyKey]: string | number }[];
+type DataItem = Record<string, string | number>;
+
+interface Props<T extends DataItem = DataItem> {
+  data: T[];
   scale?: Scale;
   isLoading: boolean;
   unit?: string;
   customPalette?: string[];
   usePercentage?: boolean;
   currentDataTab: string;
+  onBarClick?(dataItem: T): void;
 }
 
-const StackedBarGraph = ({
+export function StackedBarGraph({
   data,
   scale = "linear",
   isLoading,
@@ -44,7 +44,8 @@ const StackedBarGraph = ({
   usePercentage,
   unit = "",
   currentDataTab,
-}: Props) => {
+  onBarClick,
+}: Props) {
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
   const renderTooltip = (props: TooltipProps<ValueType, NameType>) => {
@@ -63,21 +64,25 @@ const StackedBarGraph = ({
             const color = customPalette
               ? customPalette[index % customPalette.length]
               : palette(index);
-            if (!value) {
+            if (typeof value === "undefined") {
               return null;
             }
             const name =
               payload[`group${index}Name`] ?? payload[`${key}Name`] ?? key;
-            const valueText =
-              usePercentage || currentDataTab === "Count"
-                ? value
-                : convertBytesToIECSimple(value);
+            const isRegularValue = usePercentage || currentDataTab === "Count";
+            const valueText = isRegularValue ? value : convertBytesToIEC(value);
             return (
               <div key={key} className="chartTooltipRow">
                 {!usePercentage && (
                   <div style={{ color }}>
-                    {name} - {valueText} {unit}
-                    {value !== 1 && "s"}
+                    {name} - {valueText}
+                    {isRegularValue && (
+                      <>
+                        {" "}
+                        {unit}
+                        {value !== 1 && "s"}
+                      </>
+                    )}
                   </div>
                 )}
                 {usePercentage && (
@@ -126,9 +131,12 @@ const StackedBarGraph = ({
 
   if (isLoading) {
     return (
-      <div className="flex w-full justify-center items-center" style={{
-        aspectRatio: isDesktop ? '1.8' : '0.5'
-      }}>
+      <div
+        className="flex w-full justify-center items-center"
+        style={{
+          aspectRatio: isDesktop ? "1.8" : "0.5",
+        }}
+      >
         <ChartLoader />
       </div>
     );
@@ -166,7 +174,11 @@ const StackedBarGraph = ({
               layout={!isDesktop ? "vertical" : "horizontal"}
               key={key}
               dataKey={key}
-              style={{stroke: '#212121', strokeWidth: 1}}
+              style={{
+                stroke: "#212121",
+                strokeWidth: 1,
+                cursor: onBarClick ? "pointer" : "default",
+              }}
               barSize={haveAverageSuccessRate ? 20 : undefined}
               stackId="a"
               fill={
@@ -174,6 +186,7 @@ const StackedBarGraph = ({
                   ? customPalette[index % customPalette.length]
                   : palette(index)
               }
+              onClick={onBarClick}
             />
           ))}
           ))
@@ -181,7 +194,7 @@ const StackedBarGraph = ({
             <Bar
               layout={!isDesktop ? "vertical" : "horizontal"}
               dataKey="avgSuccessRate"
-              style={{stroke: '#212121', strokeWidth: 1}}
+              style={{ stroke: "#212121", strokeWidth: 1 }}
               fill="#252525"
               barSize={5}
             />
@@ -257,7 +270,7 @@ const StackedBarGraph = ({
       </ResponsiveContainer>
     </div>
   );
-};
+}
 
 const CustomizedAxisTick = (props: {
   x?: number;
@@ -286,5 +299,3 @@ const CustomizedAxisTick = (props: {
     </g>
   );
 };
-
-export { StackedBarGraph };

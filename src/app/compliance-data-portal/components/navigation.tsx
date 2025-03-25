@@ -84,6 +84,31 @@ const nav = [
       },
     ],
   },
+  {
+    group: "Old Datacap",
+    links: [
+      {
+        id: "OldDatacapOwnedByEntities",
+        link: "/compliance-data-portal/old-datacap/owned-by-entities",
+        label: "Owned by Entities",
+      },
+      {
+        id: "OldDatacapAllocatedToClients",
+        link: "/compliance-data-portal/old-datacap/allocated-to-clients",
+        label: "Allocated to Clients",
+      },
+      {
+        id: "OldDatacapOwnedByClients",
+        link: "/compliance-data-portal/old-datacap/owned-by-clients",
+        label: "Owned by Clients",
+      },
+      {
+        id: "OldDatacapSpentByClients",
+        link: "/compliance-data-portal/old-datacap/spent-by-clients",
+        label: "Spent by Clients",
+      },
+    ],
+  },
 ];
 
 const NavComponent = () => {
