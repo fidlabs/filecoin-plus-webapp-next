@@ -12,8 +12,13 @@ export const allocatorsTabs = [
     value: "tree",
   },
   {
-    label: "DataCap Flow",
-    href: "/allocators/dc-flow",
-    value: "dc-flow",
+    label: "Audits Flow",
+    href: "/allocators/audit-flow",
+    value: "audit-flow",
+  },
+  {
+    label: "Audits Tree",
+    href: "/allocators/audit-tree",
+    value: "audit-tree",
   },
 ] satisfies ITabNavigatorTab[];
