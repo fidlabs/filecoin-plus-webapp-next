@@ -10,9 +10,22 @@ import {
   IFilPlusStats
 } from "@/lib/interfaces/dmob/dmob.interface";
 import {IAllocatorsResponse} from "@/lib/interfaces/dmob/allocator.interface";
-import {getAllocators, getDataCapAllocationsWeekly, getDataCapAllocationsWeeklyByClient, getStats} from "@/lib/api";
+import {
+  getAllocators,
+  getDataCapAllocationsWeekly,
+  getDataCapAllocationsWeeklyByClient,
+  getGoogleSheetAuditSizes,
+  getStats
+} from "@/lib/api";
+import {IGoogleSheetResponse} from "@/lib/interfaces/cdp/google.interface";
 
-type AllSettledResult = [PromiseFulfilledResult<IFilPlusStats>, PromiseFulfilledResult<IFilDCAllocationsWeekly>, PromiseFulfilledResult<IFilDCAllocationsWeeklyByClient>, PromiseFulfilledResult<IAllocatorsResponse>]
+type AllSettledResult = [
+  PromiseFulfilledResult<IFilPlusStats>,
+  PromiseFulfilledResult<IFilDCAllocationsWeekly>,
+  PromiseFulfilledResult<IFilDCAllocationsWeeklyByClient>,
+  PromiseFulfilledResult<IGoogleSheetResponse>,
+  PromiseFulfilledResult<IAllocatorsResponse>
+]
 
 
 const page: WithContext<WebPage> = {
@@ -25,7 +38,13 @@ const page: WithContext<WebPage> = {
 
 export default async function Home() {
 
-  const [stats, allocationWeekly, allocationWeeklyByClient, allocators] = await Promise.allSettled([await getStats(), await getDataCapAllocationsWeekly(), await getDataCapAllocationsWeeklyByClient(), await getAllocators({
+  const [stats, allocationWeekly, allocationWeeklyByClient, sheetData, allocators] =
+    await Promise.allSettled([
+      await getStats(),
+      await getDataCapAllocationsWeekly(),
+      await getDataCapAllocationsWeeklyByClient(),
+      await getGoogleSheetAuditSizes(),
+      await getAllocators({
     page: '1',
     showInactive: 'true',
   })]) as AllSettledResult
@@ -45,7 +64,7 @@ export default async function Home() {
             allocationWeeklyByClient={allocationWeeklyByClient.value}
             allocators={allocators.value}
           />
-          <DatacapFlow/>
+          <DatacapFlow allocatorsData={allocators.value} sheetData={sheetData.value}/>
         </div>
       </main>
     </JsonLd>
