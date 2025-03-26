@@ -3,7 +3,7 @@ import { twMerge } from "tailwind-merge";
 import isFinite from "lodash/isFinite";
 import { filesize } from "filesize";
 import { Metadata } from "next";
-import { getWeek } from "date-fns";
+import { getWeek, getWeekYear } from "date-fns";
 
 const mpn65 = [
   "#0091ff",
@@ -258,6 +258,5 @@ export function capitalize(input: string): string {
 }
 
 export function dateToYearWeek(input: Date | string): string {
-  const date = new Date(input);
-  return `W${getWeek(date)}'${date.getFullYear().toString().substring(2, 4)}`;
+  return `W${getWeek(input)}'${getWeekYear(input).toString().slice(-2)}`;
 }
