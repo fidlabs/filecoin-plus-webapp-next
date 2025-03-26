@@ -214,7 +214,7 @@ const Structure = ({ allAllocators, allocatorStatuses }: IStructureProps) => {
       <GenericContentHeader
         placeholder="Allocator name"
         setQuery={setSearch}
-        selected={allocatorsTabs[2].value}
+        selected={allocatorsTabs[1].value}
         addons={[
           <div key="tabs-search">
             <Tabs value={tab} className="w-full" onValueChange={setTab}>
