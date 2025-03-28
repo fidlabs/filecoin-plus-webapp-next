@@ -2,12 +2,12 @@ import { ChartWrapper } from "@/app/compliance-data-portal/components/chart-wrap
 import { fetchAllocatorsOldDatacap, getAllocators } from "@/lib/api";
 import { dateToYearWeek } from "@/lib/utils";
 import {
-  AllocatorsOldDatacapBreakdownChart,
-  AllocatorsOldDatacapBreakdownChartProps,
-} from "../components/allocators-old-datacap-breakdown-chart";
+  OldDatacapBreakdownChart,
+  OldDatacapBreakdownChartProps,
+} from "../components/old-datacap-breakdown-chart";
 
-type ChartData = AllocatorsOldDatacapBreakdownChartProps["chartData"];
-type Drilldown = AllocatorsOldDatacapBreakdownChartProps["drilldown"];
+type ChartData = OldDatacapBreakdownChartProps["chartData"];
+type Drilldown = OldDatacapBreakdownChartProps["drilldown"];
 
 interface PageData {
   chartData: ChartData;
@@ -69,10 +69,11 @@ export default async function OldDatacapOwnedByAllocatorsPage() {
       title="Old Datacap Owned by Entities"
       id="OldDatacapOwnedByEntities"
     >
-      <AllocatorsOldDatacapBreakdownChart
+      <OldDatacapBreakdownChart
         chartData={chartData}
         drilldown={drilldown}
         drilldownItemLabel="Old Datacap Owned: "
+        variant="allocator"
       />
       <p className="text-sm text-center text-muted-foreground">
         Click on bars to see per week breakdown
