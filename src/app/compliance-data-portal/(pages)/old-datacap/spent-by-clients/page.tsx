@@ -97,11 +97,24 @@ export default async function OldDatacapSpentByClientsPage() {
       id="OldDatacapSpentByClients"
       addons={[
         {
+          name: "What's here?",
+          size: 2,
+          value: (
+            <p>
+              A chart showing how much &quot;Old Datacap&quot; was used by
+              clients each week, with a per client breakdown for each week.
+            </p>
+          ),
+        },
+        {
           name: spentTotal.label,
           value: filesize(spentTotal.value, { standard: "iec" }),
         },
       ]}
     >
+      <p className="text-sm text-center text-muted-foreground mb-4">
+        Click on the bar to see which clients
+      </p>
       <OldDatacapBreakdownChart
         chartData={chartData}
         drilldown={drilldown}
