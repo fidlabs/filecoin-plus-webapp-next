@@ -275,6 +275,13 @@ const clientsOldDatacapResponseSchema = z.object({
       clients: z.number(),
       oldDatacap: numericalStringSchema,
       claims: numericalStringSchema,
+      drilldown: z.array(
+        z.object({
+          client: z.string(),
+          oldDatacap: numericalStringSchema,
+          claims: numericalStringSchema,
+        })
+      ),
     })
   ),
 });

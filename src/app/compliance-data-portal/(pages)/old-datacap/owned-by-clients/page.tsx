@@ -23,6 +23,18 @@ export default async function OldDatacapOwnedByClientsPage() {
     <ChartWrapper
       title="Old Datacap Owned by Clients"
       id="OldDatacapOwnedByClients"
+      addons={[
+        {
+          name: "What's here?",
+          size: 3,
+          value: (
+            <p>
+              A chart showing how much &quot;Old Datacap&quot; is owned by
+              clients over time.
+            </p>
+          ),
+        },
+      ]}
     >
       <StackedBarGraph
         currentDataTab="PiB"

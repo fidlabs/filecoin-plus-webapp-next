@@ -20,7 +20,7 @@ interface ChartDataItem {
 
 type StackedBarGraphProps = ComponentProps<typeof StackedBarGraph>;
 
-export interface AllocatorsOldDatacapBreakdownChartProps
+export interface OldDatacapBreakdownChartProps
   extends Omit<
     StackedBarGraphProps,
     "currentDataTab" | "data" | "isLoading" | "unit" | "onBarClick"
@@ -35,14 +35,16 @@ export interface AllocatorsOldDatacapBreakdownChartProps
     }>
   >;
   drilldownItemLabel: string;
+  variant: "allocator" | "client";
 }
 
-export function AllocatorsOldDatacapBreakdownChart({
+export function OldDatacapBreakdownChart({
   chartData,
   drilldown,
   drilldownItemLabel,
+  variant,
   ...rest
-}: AllocatorsOldDatacapBreakdownChartProps) {
+}: OldDatacapBreakdownChartProps) {
   const [selectedDataKey, setSelectedDataKey] = useState<string>();
 
   const selectedDrilldown = useMemo(() => {
@@ -79,14 +81,22 @@ export function AllocatorsOldDatacapBreakdownChart({
           <DialogHeader className="px-6">
             <DialogTitle>{selectedDataKey} Breakdown</DialogTitle>
             <DialogDescription>
-              {selectedDrilldown?.length} entities
+              {selectedDrilldown?.length}{" "}
+              {variant === "allocator" ? "entities" : "clients"}
             </DialogDescription>
           </DialogHeader>
           <div className="max-h-[500px] grid gap-2 px-6 overflow-y-auto overflow-x-hidden">
             {selectedDrilldown?.map((item) => (
               <div key={item.id}>
                 <Button variant="link" asChild className="max-w-full truncate">
-                  <Link href={`/allocators/${item.id}`} target="_blank">
+                  <Link
+                    href={
+                      variant === "allocator"
+                        ? `/allocators/${item.id}`
+                        : `/clients/${item.id}`
+                    }
+                    target="_blank"
+                  >
                     {item.name}
                   </Link>
                 </Button>

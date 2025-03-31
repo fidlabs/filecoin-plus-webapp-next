@@ -2,12 +2,12 @@ import { ChartWrapper } from "@/app/compliance-data-portal/components/chart-wrap
 import { fetchAllocatorsOldDatacap, getAllocators } from "@/lib/api";
 import { dateToYearWeek } from "@/lib/utils";
 import {
-  AllocatorsOldDatacapBreakdownChart,
-  AllocatorsOldDatacapBreakdownChartProps,
-} from "../components/allocators-old-datacap-breakdown-chart";
+  OldDatacapBreakdownChart,
+  OldDatacapBreakdownChartProps,
+} from "../components/old-datacap-breakdown-chart";
 
-type ChartData = AllocatorsOldDatacapBreakdownChartProps["chartData"];
-type Drilldown = AllocatorsOldDatacapBreakdownChartProps["drilldown"];
+type ChartData = OldDatacapBreakdownChartProps["chartData"];
+type Drilldown = OldDatacapBreakdownChartProps["drilldown"];
 
 interface PageData {
   chartData: ChartData;
@@ -68,15 +68,28 @@ export default async function OldDatacapOwnedByAllocatorsPage() {
     <ChartWrapper
       title="Old Datacap Owned by Entities"
       id="OldDatacapOwnedByEntities"
+      addons={[
+        {
+          name: "What's here?",
+          size: 3,
+          value: (
+            <p>
+              A chart showing how much &quot;Old Datacap&quot; is owned by
+              entites over time, with a per entitity breakdown for each week.
+            </p>
+          ),
+        },
+      ]}
     >
-      <AllocatorsOldDatacapBreakdownChart
+      <p className="text-sm text-center text-muted-foreground mb-4">
+        Click on the bar to see which entities
+      </p>
+      <OldDatacapBreakdownChart
         chartData={chartData}
         drilldown={drilldown}
         drilldownItemLabel="Old Datacap Owned: "
+        variant="allocator"
       />
-      <p className="text-sm text-center text-muted-foreground">
-        Click on bars to see per week breakdown
-      </p>
     </ChartWrapper>
   );
 }
