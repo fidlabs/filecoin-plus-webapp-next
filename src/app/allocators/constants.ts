@@ -7,8 +7,8 @@ export const allocatorsTabs = [
     value: "allocators",
   },
   {
-    label: "Tree Structure",
-    href: "/allocators/allocator-tree",
+    label: "Datacap Flow",
+    href: "/allocators/datacap-flow",
     value: "tree",
   },
   {
