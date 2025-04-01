@@ -1,63 +1,72 @@
-import {getClientById} from "@/lib/api";
-import {Metadata} from "next";
-import {PropsWithChildren, Suspense} from "react";
-import {cache} from 'react';
-import {PageHeader, PageSubTitle, PageTitle} from "@/components/ui/title";
-import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card";
-import {convertBytesToIEC, generatePageMetadata} from "@/lib/utils";
-import {ResponsiveView} from "@/components/ui/responsive-view";
-import {Person, WithContext} from "schema-dts";
-import {JsonLd} from "@/components/json.ld";
+import { FilecoinPulseButton } from "@/components/filecoin-pulse-button";
+import { JsonLd } from "@/components/json.ld";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ResponsiveView } from "@/components/ui/responsive-view";
+import { PageHeader, PageSubTitle, PageTitle } from "@/components/ui/title";
+import { getClientById } from "@/lib/api";
+import { createClientLink } from "@/lib/filecoin-pulse";
+import { convertBytesToIEC, generatePageMetadata } from "@/lib/utils";
+import { Metadata } from "next";
+import { cache, PropsWithChildren, Suspense } from "react";
+import { Person, WithContext } from "schema-dts";
 
 const fetchData = cache(async (id: string) => {
   return await getClientById(id, {
-    page: '1',
-    limit: '1',
+    page: "1",
+    limit: "1",
     sort: `[["createdAt", 0]]`,
-    filter: ''
-  })
+    filter: "",
+  });
 });
 
 interface IPageProps {
-  params: { id: string }
+  params: { id: string };
 }
 
-export async function generateMetadata(
-  {params}: IPageProps,
-): Promise<Metadata> {
-  const {id} = params
+export async function generateMetadata({
+  params,
+}: IPageProps): Promise<Metadata> {
+  const { id } = params;
 
-  const clientResponse = await fetchData(id)
+  const clientResponse = await fetchData(id);
 
   if (!clientResponse) {
     return {
-      title: '404'
-    }
+      title: "404",
+    };
   }
   return generatePageMetadata({
     title: `Fil+ DataCap Stats | ${clientResponse.name}`,
-    description: 'Fil+ Client',
+    description: "Fil+ Client",
     url: `https://datacapstats.io/clients/${id}`,
-  })
+  });
 }
 
-const ClientDetailsLayout = async ({children, params}: PropsWithChildren<IPageProps>) => {
-  const clientResponse = await fetchData(params.id)
+const ClientDetailsLayout = async ({
+  children,
+  params,
+}: PropsWithChildren<IPageProps>) => {
+  const clientResponse = await fetchData(params.id);
 
   const person: WithContext<Person> = {
     "@context": "https://schema.org",
     "@type": "Person",
-    "name": clientResponse?.name,
-    "description": 'Fil+ Client',
-    "url": `https://datacapstats.io/clients/${params.id}`,
-  }
+    name: clientResponse?.name,
+    description: "Fil+ Client",
+    url: `https://datacapstats.io/clients/${params.id}`,
+  };
 
-  return <JsonLd data={person}>
+  return (
+    <JsonLd data={person}>
       <div className="flex w-full justify-between mb-4 main-content">
         <PageHeader>
-          <PageTitle>
-            {clientResponse?.name}
-          </PageTitle>
+          <div className="flex gap-4 items-end">
+            <PageTitle>{clientResponse.name}</PageTitle>
+            <FilecoinPulseButton
+              className="mb-1"
+              url={createClientLink(params.id)}
+            />
+          </div>
           <PageSubTitle>Client ID: {params.id}</PageSubTitle>
         </PageHeader>
         <ResponsiveView>
@@ -81,10 +90,9 @@ const ClientDetailsLayout = async ({children, params}: PropsWithChildren<IPagePr
           </div>
         </ResponsiveView>
       </div>
-      <Suspense>
-        {children}
-      </Suspense>
+      <Suspense>{children}</Suspense>
     </JsonLd>
-}
+  );
+};
 
 export default ClientDetailsLayout;
