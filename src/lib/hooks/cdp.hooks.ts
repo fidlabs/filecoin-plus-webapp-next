@@ -242,7 +242,7 @@ export const useAllocatorAndSPClientDiversity = (options: {
           ? (partiallyCompliant / total) * 100
           : partiallyCompliant,
         compliant: asPercentage ? (compliant / total) * 100 : compliant,
-        compliantName: "Big clients count",
+        compliantName: "High clients count",
         partiallyCompliantName: "Average clients count",
         nonCompliantName: "Low clients count",
       };
