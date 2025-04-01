@@ -16,9 +16,4 @@ export const allocatorsTabs = [
     href: "/allocators/audit-flow",
     value: "audit-flow",
   },
-  {
-    label: "Audits Tree",
-    href: "/allocators/audit-tree",
-    value: "audit-tree",
-  },
 ] satisfies ITabNavigatorTab[];
