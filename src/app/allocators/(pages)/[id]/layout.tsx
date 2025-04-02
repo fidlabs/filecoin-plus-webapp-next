@@ -60,7 +60,11 @@ const AllocatorDetailsLayout = async ({
         <div className="main-content flex w-full justify-between mb-4">
           <PageHeader>
             <div className="flex gap-4 items-end">
-              <PageTitle>{allocatorResponse.name}</PageTitle>
+              <PageTitle>
+                {allocatorResponse.name.length > 0
+                  ? allocatorResponse.name
+                  : allocatorResponse.addressId}{" "}
+              </PageTitle>
               <FilecoinPulseButton
                 className="mb-1"
                 url={createAllocatorLink(params.id)}

@@ -1,11 +1,7 @@
-import { ChartWrapper } from "@/app/compliance-data-portal/components/chart-wrapper";
 import { fetchClientsOldDatacap, getClients } from "@/lib/api";
 import { dateToYearWeek } from "@/lib/utils";
-import { filesize } from "filesize";
-import {
-  OldDatacapBreakdownChart,
-  OldDatacapBreakdownChartProps,
-} from "../components/old-datacap-breakdown-chart";
+import { OldDatacapBreakdownChartProps } from "../components/old-datacap-breakdown-chart";
+import { OldDatacapSpentByClientsChart } from "./components/old-datacap-spent-by-clients-chart";
 
 type ChartData = OldDatacapBreakdownChartProps["chartData"];
 type Drilldown = OldDatacapBreakdownChartProps["drilldown"];
@@ -92,35 +88,10 @@ export default async function OldDatacapSpentByClientsPage() {
   const { chartData, drilldown, spentTotal } = await loadChartData();
 
   return (
-    <ChartWrapper
-      title="Old Datacap Spent by Clients"
-      id="OldDatacapSpentByClients"
-      addons={[
-        {
-          name: "What's here?",
-          size: 2,
-          value: (
-            <p>
-              A chart showing how much &quot;Old Datacap&quot; was used by
-              clients each week, with a per client breakdown for each week.
-            </p>
-          ),
-        },
-        {
-          name: spentTotal.label,
-          value: filesize(spentTotal.value, { standard: "iec" }),
-        },
-      ]}
-    >
-      <p className="text-sm text-center text-muted-foreground mb-4">
-        Click on the bar to see which clients
-      </p>
-      <OldDatacapBreakdownChart
-        chartData={chartData}
-        drilldown={drilldown}
-        drilldownItemLabel="Old Datacap Spent: "
-        variant="client"
-      />
-    </ChartWrapper>
+    <OldDatacapSpentByClientsChart
+      chartData={chartData}
+      drilldown={drilldown}
+      spentTotal={spentTotal}
+    />
   );
 }
