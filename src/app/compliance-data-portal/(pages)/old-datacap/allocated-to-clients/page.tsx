@@ -1,11 +1,7 @@
-import { ChartWrapper } from "@/app/compliance-data-portal/components/chart-wrapper";
 import { fetchAllocatorsOldDatacap, getAllocators } from "@/lib/api";
 import { dateToYearWeek } from "@/lib/utils";
-import { filesize } from "filesize";
-import {
-  OldDatacapBreakdownChart,
-  OldDatacapBreakdownChartProps,
-} from "../components/old-datacap-breakdown-chart";
+import { OldDatacapBreakdownChartProps } from "../components/old-datacap-breakdown-chart";
+import { OldDatacapAllocatedToClientsChart } from "./components/old-datacap-allocated-to-clients-chart";
 
 type ChartData = OldDatacapBreakdownChartProps["chartData"];
 type Drilldown = OldDatacapBreakdownChartProps["drilldown"];
@@ -92,35 +88,10 @@ export default async function OldDatacapAllocatedToClientsPage() {
   const { allocationsTotal, chartData, drilldown } = await loadPageData();
 
   return (
-    <ChartWrapper
-      title="Old Datacap Allocated to Clients"
-      id="OldDatacapAllocatedToClients"
-      addons={[
-        {
-          name: "What's here?",
-          size: 2,
-          value: (
-            <p>
-              A chart showing how much &quot;Old Datacap&quot; was allocated to
-              clients each week, with a per entitity breakdown for each week.
-            </p>
-          ),
-        },
-        {
-          name: allocationsTotal.label,
-          value: filesize(allocationsTotal.value, { standard: "iec" }),
-        },
-      ]}
-    >
-      <p className="text-sm text-center text-muted-foreground mb-4">
-        Click on the bar to see which entites
-      </p>
-      <OldDatacapBreakdownChart
-        chartData={chartData}
-        drilldown={drilldown}
-        drilldownItemLabel="Old Datacap Allocated to Clients: "
-        variant="allocator"
-      />
-    </ChartWrapper>
+    <OldDatacapAllocatedToClientsChart
+      allocationsTotal={allocationsTotal}
+      chartData={chartData}
+      drilldown={drilldown}
+    />
   );
 }

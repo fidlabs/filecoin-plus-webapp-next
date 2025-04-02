@@ -164,6 +164,7 @@ export function StackedBarGraph({
             bottom: isDesktop ? (data.length > 6 ? 75 : 30) : 1,
             right: isDesktop ? 30 : 1,
             left: 20,
+            top: 20,
           }}
         >
           <CartesianGrid strokeDasharray="3 3" />
