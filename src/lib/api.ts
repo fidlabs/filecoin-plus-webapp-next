@@ -33,6 +33,8 @@ const revalidate = 30;
 const apiUrl = "https://api.datacapstats.io/api";
 
 type NumericalString = `${number}`;
+type Bigintish = string | number | bigint;
+type AllowanceArrayItemLike = { allowance: Bigintish };
 
 export const fetchData = async (url: string) => {
   const headers = new Headers();
@@ -315,4 +317,15 @@ export async function fetchClientsOldDatacap(): Promise<ClientsOldDatacapRespons
   const data = await response.json();
   assertIsClientsOldDatacapResponse(data);
   return data;
+}
+
+export function calculateTotalDatacap(
+  initialAllowance: Bigintish,
+  allowanceArray?: AllowanceArrayItemLike[]
+): bigint {
+  return allowanceArray
+    ? allowanceArray.reduce((sum, item) => {
+        return sum + BigInt(item.allowance);
+      }, BigInt(0))
+    : BigInt(initialAllowance);
 }
