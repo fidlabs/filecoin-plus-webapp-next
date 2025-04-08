@@ -1,7 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from "react";
 
 const useScrollObserver = () => {
-
   const [top, setTop] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -12,16 +11,16 @@ const useScrollObserver = () => {
       }
     };
 
-    window.addEventListener('resize', handleScroll);
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener("resize", handleScroll);
+    window.addEventListener("scroll", handleScroll);
 
     return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleScroll);
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
     };
   }, [ref]);
 
   return { top, ref };
 };
 
-export {useScrollObserver};
+export { useScrollObserver };

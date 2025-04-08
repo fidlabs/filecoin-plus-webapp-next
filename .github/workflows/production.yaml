@@ -19,7 +19,7 @@ jobs:
         id: set-timestamp
         run: |
           echo "timestamp=$(date +%s)" >> $GITHUB_OUTPUT
-    
+
       - uses: cristi-mb/build-be@main
         id: build-be
         with:

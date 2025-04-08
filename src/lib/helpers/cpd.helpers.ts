@@ -1,12 +1,12 @@
-import {CompareType} from "@/lib/interfaces/cdp/cdp.interface";
+import { CompareType } from "@/lib/interfaces/cdp/cdp.interface";
 
 export const compareReportValue = (value: number, compareValue: number) => {
   if (value === compareValue) {
-    return 'equal' as CompareType;
+    return "equal" as CompareType;
   }
   if (value < compareValue) {
-    return 'down' as CompareType;
+    return "down" as CompareType;
   } else {
-    return 'up' as CompareType;
+    return "up" as CompareType;
   }
-}
+};

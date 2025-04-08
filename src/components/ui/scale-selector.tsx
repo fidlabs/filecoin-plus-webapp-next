@@ -1,5 +1,5 @@
-import {Tabs} from "@radix-ui/react-tabs";
-import {TabsList, TabsTrigger} from "@/components/ui/tabs";
+import { Tabs } from "@radix-ui/react-tabs";
+import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface IProps {
   scale: string;
@@ -7,10 +7,12 @@ interface IProps {
 }
 
 export const ScaleSelector = ({ scale, setScale }: IProps) => {
-  return <Tabs value={scale} onValueChange={setScale}>
-    <TabsList>
-      <TabsTrigger value="linear">Linear</TabsTrigger>
-      <TabsTrigger value="log">Log</TabsTrigger>
-    </TabsList>
-  </Tabs>
-}
+  return (
+    <Tabs value={scale} onValueChange={setScale}>
+      <TabsList>
+        <TabsTrigger value="linear">Linear</TabsTrigger>
+        <TabsTrigger value="log">Log</TabsTrigger>
+      </TabsList>
+    </Tabs>
+  );
+};
