@@ -99,7 +99,9 @@ export default function AboutPage() {
               Are you a Client hoping to get verified and receive DataCap?
             </CardContent>
             <CardFooter>
-              <StatsLink href="https://plus.fil.org/">Get verified</StatsLink>
+              <StatsLink href="https://kyc.allocator.tech/">
+                Get verified
+              </StatsLink>
             </CardFooter>
           </Card>
           <Card className="flex flex-col">
@@ -113,7 +115,7 @@ export default function AboutPage() {
             </CardContent>
             <CardFooter>
               <StatsLink
-                href="https://github.com/filecoin-project/allocator-governance"
+                href="https://fil.org/filecoin-plus/allocators"
                 target="_blank"
               >
                 Learn more about allocators
@@ -131,7 +133,7 @@ export default function AboutPage() {
             </CardContent>
             <CardFooter>
               <StatsLink
-                href="https://github.com/filecoin-project/filecoin-plus-client-onboarding/blob/main/miners.md"
+                href="https://new-interface-afcc10.zapier.app/page"
                 target="_blank"
               >
                 Join the Fil+ SP registry
