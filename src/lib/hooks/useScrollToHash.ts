@@ -1,8 +1,7 @@
-import { useCallback } from 'react';
+import { useCallback } from "react";
 
 const useScrollToHash = () => {
   return useCallback((elementId: string, offset: number = 100) => {
-
     const scroll = () => {
       const element = document.getElementById(elementId);
       if (!element) {
@@ -16,7 +15,7 @@ const useScrollToHash = () => {
 
       window.scrollTo({
         top: offsetPosition,
-        behavior: 'smooth',
+        behavior: "smooth",
       });
     };
 

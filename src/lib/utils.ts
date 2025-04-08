@@ -195,7 +195,7 @@ export const generatePageMetadata = (config: {
       title: config.title,
       description: config.description,
     },
-  } as Metadata);
+  }) as Metadata;
 
 export function isPlainObject(
   input: unknown
@@ -206,7 +206,7 @@ export function isPlainObject(
 export function groupBy<
   T,
   Key extends string,
-  Keys extends readonly Key[] | void
+  Keys extends readonly Key[] | void,
 >(
   input: readonly T[],
   groupFn: (item: T) => Key,

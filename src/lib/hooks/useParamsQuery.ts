@@ -1,30 +1,31 @@
-import {useCallback} from "react";
-import {IApiQuery} from "@/lib/interfaces/api.interface";
-import {usePathname, useRouter} from "next/navigation";
-
+import { useCallback } from "react";
+import { IApiQuery } from "@/lib/interfaces/api.interface";
+import { usePathname, useRouter } from "next/navigation";
 
 const useParamsQuery = (initialParams?: IApiQuery) => {
-  const pathName = usePathname()
-  const router = useRouter()
+  const pathName = usePathname();
+  const router = useRouter();
 
-  const patchParams = useCallback((newParams: IApiQuery) => {
-    const paramsToUpdate = {
-      ...(initialParams ?? {}),
-      ...newParams
-    } as IApiQuery;
+  const patchParams = useCallback(
+    (newParams: IApiQuery) => {
+      const paramsToUpdate = {
+        ...(initialParams ?? {}),
+        ...newParams,
+      } as IApiQuery;
 
-    const searchParams = new URLSearchParams();
-    for (const [key, value] of Object.entries(paramsToUpdate)) {
-      searchParams.set(key, value?.toString() ?? '')
-    }
-    const newPath = `${pathName}?${searchParams.toString()}`
-    router.replace(newPath)
-
-  }, [initialParams, pathName, router]);
+      const searchParams = new URLSearchParams();
+      for (const [key, value] of Object.entries(paramsToUpdate)) {
+        searchParams.set(key, value?.toString() ?? "");
+      }
+      const newPath = `${pathName}?${searchParams.toString()}`;
+      router.replace(newPath);
+    },
+    [initialParams, pathName, router]
+  );
 
   return {
-    patchParams
-  }
-}
+    patchParams,
+  };
+};
 
-export {useParamsQuery};
+export { useParamsQuery };
