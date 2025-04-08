@@ -33,6 +33,8 @@ const revalidate = 30;
 const apiUrl = "https://api.datacapstats.io/api";
 
 type NumericalString = `${number}`;
+type Bigintish = string | number | bigint;
+type AllowanceArrayItemLike = { allowance: Bigintish };
 
 export const fetchData = async (url: string) => {
   const headers = new Headers();
@@ -315,4 +317,59 @@ export async function fetchClientsOldDatacap(): Promise<ClientsOldDatacapRespons
   const data = await response.json();
   assertIsClientsOldDatacapResponse(data);
   return data;
+}
+
+// IPNI Mistreporting Historical
+const ipniMisreportingHistoricalSchema = z.object({
+  results: z.array(
+    z.object({
+      week: z.string().datetime(),
+      misreporting: z.number(),
+      notReporting: z.number(),
+      ok: z.number(),
+      total: z.number(),
+    })
+  ),
+});
+
+export type IPNIMisreportingHistoricalReponse = z.infer<
+  typeof ipniMisreportingHistoricalSchema
+>;
+
+function assertIsIPNIMisreportingHistoricalReponse(
+  input: unknown
+): asserts input is IPNIMisreportingHistoricalReponse {
+  const result = ipniMisreportingHistoricalSchema.safeParse(input);
+
+  if (!result.success) {
+    throw new TypeError(
+      "Invalid response from CDP API when fetching SPs historical IPNI status"
+    );
+  }
+}
+
+export async function fetchIPNIMisreportingHistoricalData(): Promise<IPNIMisreportingHistoricalReponse> {
+  const endpoint = `${CDP_API_URL}/stats/acc/providers/aggregated-ipni-status-weekly`;
+  const response = await fetch(endpoint);
+
+  if (!response.ok) {
+    throw new Error(
+      `CDP API returned status ${response.status} when fetching SPs historical IPNI status`
+    );
+  }
+
+  const data = await response.json();
+  assertIsIPNIMisreportingHistoricalReponse(data);
+  return data;
+}
+
+export function calculateTotalDatacap(
+  initialAllowance: Bigintish,
+  allowanceArray?: AllowanceArrayItemLike[]
+): bigint {
+  return allowanceArray
+    ? allowanceArray.reduce((sum, item) => {
+        return sum + BigInt(item.allowance);
+      }, BigInt(0))
+    : BigInt(initialAllowance);
 }
