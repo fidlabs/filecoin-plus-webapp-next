@@ -217,8 +217,8 @@ export function StackedBarGraph({
                 usePercentage
                   ? `${value}%`
                   : currentDataTab === "Count"
-                  ? value
-                  : convertBytesToIEC(value)
+                    ? value
+                    : convertBytesToIEC(value)
               }
             >
               <Label
@@ -251,8 +251,8 @@ export function StackedBarGraph({
                 usePercentage
                   ? `${value}%`
                   : currentDataTab === "Count"
-                  ? value
-                  : convertBytesToIEC(value)
+                    ? value
+                    : convertBytesToIEC(value)
               }
               name="PiB"
               domain={[0, usePercentage ? 100 : parseDataMax]}

@@ -1,3 +1,3 @@
-const CompliancePage = () => <></>
+const CompliancePage = () => <></>;
 
 export default CompliancePage;
