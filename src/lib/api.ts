@@ -319,6 +319,50 @@ export async function fetchClientsOldDatacap(): Promise<ClientsOldDatacapRespons
   return data;
 }
 
+// IPNI Mistreporting Historical
+const ipniMisreportingHistoricalSchema = z.object({
+  results: z.array(
+    z.object({
+      week: z.string().datetime(),
+      misreporting: z.number(),
+      notReporting: z.number(),
+      ok: z.number(),
+      total: z.number(),
+    })
+  ),
+});
+
+export type IPNIMisreportingHistoricalReponse = z.infer<
+  typeof ipniMisreportingHistoricalSchema
+>;
+
+function assertIsIPNIMisreportingHistoricalReponse(
+  input: unknown
+): asserts input is IPNIMisreportingHistoricalReponse {
+  const result = ipniMisreportingHistoricalSchema.safeParse(input);
+
+  if (!result.success) {
+    throw new TypeError(
+      "Invalid response from CDP API when fetching SPs historical IPNI status"
+    );
+  }
+}
+
+export async function fetchIPNIMisreportingHistoricalData(): Promise<IPNIMisreportingHistoricalReponse> {
+  const endpoint = `${CDP_API_URL}/stats/acc/providers/aggregated-ipni-status-weekly`;
+  const response = await fetch(endpoint);
+
+  if (!response.ok) {
+    throw new Error(
+      `CDP API returned status ${response.status} when fetching SPs historical IPNI status`
+    );
+  }
+
+  const data = await response.json();
+  assertIsIPNIMisreportingHistoricalReponse(data);
+  return data;
+}
+
 export function calculateTotalDatacap(
   initialAllowance: Bigintish,
   allowanceArray?: AllowanceArrayItemLike[]
