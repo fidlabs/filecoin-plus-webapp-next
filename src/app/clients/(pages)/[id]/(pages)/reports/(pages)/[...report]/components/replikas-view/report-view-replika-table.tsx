@@ -6,6 +6,7 @@ import { ColumnDef, RowSelectionState } from "@tanstack/react-table";
 import { DataTable } from "@/components/ui/data-table";
 import { useReportsDetails } from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/providers/reports-details.provider";
 import { CompareIcon } from "@/components/icons/compare.icon";
+import { TableCell, TableRow } from "@/components/ui/table";
 
 const comparableValues = ["up", "down"];
 
@@ -127,13 +128,26 @@ const ReportViewReplicaTable = ({ replikaData }: IReportViewReplicaTable) => {
     return selection;
   }, [replikaData, compareMode]);
 
+  const uniqueDataSum = replikaData.reduce((sum, item) => {
+    return item.not_found ? sum : sum + BigInt(item.unique_data_size);
+  }, BigInt(0));
+
   return (
     <div className="border-b border-t table-select-warning">
       <DataTable
         columns={columns}
         data={replikaData}
         rowSelection={rowSelection}
-      />
+      >
+        <TableRow>
+          <TableCell />
+          <TableCell className="items-center h-full font-semibold">
+            {convertBytesToIEC(uniqueDataSum.toString())} Total
+          </TableCell>
+          <TableCell />
+          <TableCell />
+        </TableRow>
+      </DataTable>
     </div>
   );
 };
