@@ -1,8 +1,6 @@
-import { getAggregatedIPNI } from "@/lib/api";
 import {
   CDPAllocatorsSPsComplianceData,
   CDPProvidersComplianceData,
-  CPDAggregatedIPNIReport,
   ICDPHistogram,
   ICDPHistogramResult,
   ICDPUnifiedHistogram,
@@ -495,58 +493,6 @@ export function useProvidersComplianceChartData(options?: {
     isLoading,
   };
 }
-
-export const useAggregatedIPNIMisreporting = () => {
-  const [data, setData] = useState<CPDAggregatedIPNIReport>();
-  const [error, setError] = useState<Error>();
-  const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    setIsLoading(true);
-    getAggregatedIPNI()
-      .then(setData)
-      .catch(setError)
-      .finally(() => setIsLoading(false));
-  }, []);
-
-  const chartData = useMemo(() => {
-    if (!data) {
-      return [];
-    }
-
-    const total = data.notReporting + data.misreporting + data.ok;
-
-    return [
-      {
-        name: "IPNI Not Reporting",
-        value: data.notReporting,
-        valueString: `${data.notReporting} (${(
-          (data.notReporting / total) *
-          100
-        ).toFixed(2)}%)`,
-      },
-      {
-        name: "IPNI Misreporting",
-        value: data.misreporting,
-        valueString: `${data.misreporting} (${(
-          (data.misreporting / total) *
-          100
-        ).toFixed(2)}%)`,
-      },
-      {
-        name: "IPNI OK",
-        value: data.ok,
-        valueString: `${data.ok} (${((data.ok / total) * 100).toFixed(2)}%)`,
-      },
-    ];
-  }, [data]);
-
-  return {
-    chartData,
-    error,
-    isLoading,
-  };
-};
 
 function assertIsProvidersComplianceData(
   input: unknown
