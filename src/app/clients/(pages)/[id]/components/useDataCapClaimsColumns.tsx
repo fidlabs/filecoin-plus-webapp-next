@@ -64,12 +64,23 @@ export const useDataCapClaimsColumns = () => {
         return <p>{convertBytesToIEC(pieceSize)}</p>;
       },
     },
+    {
+      accessorKey: "createdAt",
+      header: () => {
+        return <div>Date</div>;
+      },
+      cell: ({ row }) => {
+        const createDate = new Date(row.getValue("createdAt"));
+        return <p>{createDate.toLocaleString()}</p>;
+      },
+    },
   ] as ColumnDef<IClientDeal>[];
 
   const csvHeaders = [
     { label: "Piece CID", key: "pieceCid" },
     { label: "Storage Provider ID", key: "providerId" },
     { label: "Size", key: "pieceSize" },
+    { label: "Date", key: "createdAt" },
   ];
 
   return { columns, csvHeaders };
