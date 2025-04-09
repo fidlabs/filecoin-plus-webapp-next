@@ -362,14 +362,3 @@ export async function fetchIPNIMisreportingHistoricalData(): Promise<IPNIMisrepo
   assertIsIPNIMisreportingHistoricalReponse(data);
   return data;
 }
-
-export function calculateTotalDatacap(
-  initialAllowance: Bigintish,
-  allowanceArray?: AllowanceArrayItemLike[]
-): bigint {
-  return allowanceArray
-    ? allowanceArray.reduce((sum, item) => {
-        return sum + BigInt(item.allowance);
-      }, BigInt(0))
-    : BigInt(initialAllowance);
-}
