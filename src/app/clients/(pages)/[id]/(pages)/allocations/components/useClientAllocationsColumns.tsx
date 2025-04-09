@@ -8,8 +8,13 @@ import { calculateDateFromHeight, convertBytesToIEC } from "@/lib/utils";
 import { InfoIcon } from "lucide-react";
 import { ColumnDef } from "@tanstack/react-table";
 import { IAllowanceArray } from "@/lib/interfaces/dmob/dmob.interface";
+import { DataTableSort } from "@/components/ui/data-table";
 
-export const useClientAllocationsColumns = () => {
+interface Options {
+  onSort(key: string, direction: string): void;
+}
+
+export const useClientAllocationsColumns = ({ onSort }: Options) => {
   const columns = [
     {
       accessorKey: "verifierAddressId",
@@ -41,7 +46,11 @@ export const useClientAllocationsColumns = () => {
     {
       accessorKey: "height",
       header: () => {
-        return <div>Allocation date</div>;
+        return (
+          <DataTableSort property="height" setSorting={onSort}>
+            Allocation date
+          </DataTableSort>
+        );
       },
       cell: ({ row }) => {
         const height = row.getValue("height") as string;
