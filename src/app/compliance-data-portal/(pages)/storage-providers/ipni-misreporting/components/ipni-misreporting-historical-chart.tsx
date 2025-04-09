@@ -41,7 +41,7 @@ export function IPNIMisreportingHistoricalChart({
         ok: (item.ok / total) * 100,
       };
     });
-  }, [data, scale]);
+  }, [calcPercentage, data, scale]);
 
   return (
     <ChartWrapper

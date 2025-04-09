@@ -26,16 +26,17 @@ import { PropsWithChildren, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 
-interface DataTableProps<TData, TValue> {
+type DataTableProps<TData, TValue> = PropsWithChildren<{
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   setTable?: (table: TenstackTable<TData>) => void;
   rowSelection?: RowSelectionState;
   setRowSelection?: OnChangeFn<RowSelectionState>;
-}
+}>;
 
 export function DataTable<TData, TValue>(props: DataTableProps<TData, TValue>) {
-  const { columns, data, setTable, rowSelection, setRowSelection } = props;
+  const { children, columns, data, setTable, rowSelection, setRowSelection } =
+    props;
   const [sorting, setSorting] = useState<SortingState>([]);
 
   const table = useReactTable({
@@ -83,26 +84,29 @@ export function DataTable<TData, TValue>(props: DataTableProps<TData, TValue>) {
       </TableHeader>
       <TableBody>
         {table.getRowModel().rows?.length ? (
-          table.getRowModel().rows.map((row) => (
-            <TableRow
-              key={row.id}
-              data-state={row?.getIsSelected() && "selected"}
-            >
-              {row.getVisibleCells().map((cell) => (
-                <TableCell
-                  key={cell.id}
-                  width={
-                    !Number.isNaN(cell.column.getSize())
-                      ? cell.column.getSize()
-                      : undefined
-                  }
-                  className="last-of-type:text-end items-center h-full"
-                >
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </TableCell>
-              ))}
-            </TableRow>
-          ))
+          <>
+            {table.getRowModel().rows.map((row) => (
+              <TableRow
+                key={row.id}
+                data-state={row?.getIsSelected() && "selected"}
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell
+                    key={cell.id}
+                    width={
+                      !Number.isNaN(cell.column.getSize())
+                        ? cell.column.getSize()
+                        : undefined
+                    }
+                    className="last-of-type:text-end items-center h-full"
+                  >
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+            {children}
+          </>
         ) : (
           <TableRow>
             <TableCell colSpan={columns.length} className="h-24 text-center">
