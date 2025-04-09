@@ -38,11 +38,6 @@ const nav = [
         label: "IPNI Misreporting",
       },
       {
-        id: "IPNIMisreportingOverTime",
-        link: "/compliance-data-portal/storage-providers/ipni-misreporting-historical",
-        label: "IPNI Misreporting Over Time",
-      },
-      {
         id: "ClientDiversitySP",
         link: "/compliance-data-portal/storage-providers/client-diversity",
         label: "Client Diversity",
