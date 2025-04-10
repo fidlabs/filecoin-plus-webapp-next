@@ -1,41 +1,87 @@
-import {cn, generatePageMetadata} from "@/lib/utils";
-import {Card, CardContent, CardFooter, CardHeader, CardTitle} from "@/components/ui/card";
-import {buttonVariants} from "@/components/ui/button";
-import {PageTitle} from "@/components/ui/title";
-import {BookIcon, CodeIcon, DatabaseIcon, ShieldCheckIcon} from "lucide-react";
-import {StatsLink} from "@/components/ui/stats-link";
+import { cn, generatePageMetadata } from "@/lib/utils";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { buttonVariants } from "@/components/ui/button";
+import { PageTitle } from "@/components/ui/title";
+import {
+  BookIcon,
+  CodeIcon,
+  DatabaseIcon,
+  ShieldCheckIcon,
+} from "lucide-react";
+import { StatsLink } from "@/components/ui/stats-link";
 import Link from "next/link";
-import {WebPage, WithContext} from "schema-dts";
-import {JsonLd} from "@/components/json.ld";
+import { WebPage, WithContext } from "schema-dts";
+import { JsonLd } from "@/components/json.ld";
 
 const page: WithContext<WebPage> = {
-  '@context': 'https://schema.org',
-  '@type': 'WebPage',
-  name: 'Fil+ DataCap Stats | About',
-  image: 'https://cryptologos.cc/logos/filecoin-fil-logo.png?v=040',
-  description: 'Your entry place into statistics and metrics about the Filecoin Plus program.',
-}
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  name: "Fil+ DataCap Stats | About",
+  image: "https://cryptologos.cc/logos/filecoin-fil-logo.png?v=040",
+  description:
+    "Your entry place into statistics and metrics about the Filecoin Plus program.",
+};
 
 export const metadata = generatePageMetadata({
-  title: 'Fil+ DataCap Stats | About',
-  description: 'Your entry place into statistics and metrics about the Filecoin Plus program.',
-  url: "https://datacapsts.io/about"
-})
+  title: "Fil+ DataCap Stats | About",
+  description:
+    "Your entry place into statistics and metrics about the Filecoin Plus program.",
+  url: "https://datacapsts.io/about",
+});
 
 const contentLink = {
-  'filecoin_docs': <Link
-    className={cn(buttonVariants({variant: "link"}), "text-base")}
-    href="https://docs.filecoin.io/store/filecoin-plus/" target="_blank">Filecoin Plus
-    section in the Filecoin Docs</Link>,
-  neti: <Link className={cn(buttonVariants({variant: "link"}), "text-base")}
-              href="https://neti-soft.com" target="_blank">Neti-Soft</Link>,
-  dmob: <Link className={cn(buttonVariants({variant: "link"}), "text-base")}
-              href="https://digitalmob.ro/" target="_blank">Digital M.O.B.</Link>,
-  protocol_labs: <Link className={cn(buttonVariants({variant: "link"}), "text-base")}
-                       href="https://protocol.ai/" target="_blank">Protocol Labs</Link>,
-  foundation: <Link className={cn(buttonVariants({variant: "link"}), "text-base")}
-                    href="https://www.fil.org/" target="_blank">Filecoin Foundation</Link>,
-}
+  filecoin_docs: (
+    <Link
+      className={cn(buttonVariants({ variant: "link" }), "text-base")}
+      href="https://docs.filecoin.io/store/filecoin-plus/"
+      target="_blank"
+    >
+      Filecoin Plus section in the Filecoin Docs
+    </Link>
+  ),
+  neti: (
+    <Link
+      className={cn(buttonVariants({ variant: "link" }), "text-base")}
+      href="https://neti-soft.com"
+      target="_blank"
+    >
+      Neti-Soft
+    </Link>
+  ),
+  dmob: (
+    <Link
+      className={cn(buttonVariants({ variant: "link" }), "text-base")}
+      href="https://digitalmob.ro/"
+      target="_blank"
+    >
+      Digital M.O.B.
+    </Link>
+  ),
+  protocol_labs: (
+    <Link
+      className={cn(buttonVariants({ variant: "link" }), "text-base")}
+      href="https://protocol.ai/"
+      target="_blank"
+    >
+      Protocol Labs
+    </Link>
+  ),
+  foundation: (
+    <Link
+      className={cn(buttonVariants({ variant: "link" }), "text-base")}
+      href="https://www.fil.org/"
+      target="_blank"
+    >
+      Filecoin Foundation
+    </Link>
+  ),
+};
 
 export default function AboutPage() {
   return (
@@ -46,14 +92,14 @@ export default function AboutPage() {
           <Card className="flex flex-col">
             <CardHeader>
               <div className="bg-blue-100 rounded-full p-4">
-                <ShieldCheckIcon className="text-dodger-blue w-7 h-7"/>
+                <ShieldCheckIcon className="text-dodger-blue w-7 h-7" />
               </div>
             </CardHeader>
             <CardContent className="flex-1">
               Are you a Client hoping to get verified and receive DataCap?
             </CardContent>
             <CardFooter>
-              <StatsLink href="https://plus.fil.org/">
+              <StatsLink href="https://kyc.allocator.tech/">
                 Get verified
               </StatsLink>
             </CardFooter>
@@ -61,14 +107,17 @@ export default function AboutPage() {
           <Card className="flex flex-col">
             <CardHeader>
               <div className="bg-blue-100 rounded-full p-4">
-                <BookIcon className="text-dodger-blue w-7 h-7"/>
+                <BookIcon className="text-dodger-blue w-7 h-7" />
               </div>
             </CardHeader>
             <CardContent className="flex-1">
               Interested in learning more about Allocators or becoming one?
             </CardContent>
             <CardFooter>
-              <StatsLink href="https://github.com/filecoin-project/allocator-governance" target="_blank">
+              <StatsLink
+                href="https://fil.org/filecoin-plus/allocators"
+                target="_blank"
+              >
                 Learn more about allocators
               </StatsLink>
             </CardFooter>
@@ -76,15 +125,17 @@ export default function AboutPage() {
           <Card className="flex flex-col">
             <CardHeader>
               <div className="bg-blue-100 rounded-full p-4">
-                <DatabaseIcon className="text-dodger-blue w-7 h-7"/>
+                <DatabaseIcon className="text-dodger-blue w-7 h-7" />
               </div>
             </CardHeader>
             <CardContent className="flex-1">
               Need to query our APIs for specific data?
             </CardContent>
             <CardFooter>
-              <StatsLink href="https://github.com/filecoin-project/filecoin-plus-client-onboarding/blob/main/miners.md"
-                         target="_blank">
+              <StatsLink
+                href="https://new-interface-afcc10.zapier.app/page"
+                target="_blank"
+              >
                 Join the Fil+ SP registry
               </StatsLink>
             </CardFooter>
@@ -92,14 +143,20 @@ export default function AboutPage() {
           <Card className="flex flex-col">
             <CardHeader>
               <div className="bg-blue-100 rounded-full p-4">
-                <CodeIcon className="text-dodger-blue w-7 h-7"/>
+                <CodeIcon className="text-dodger-blue w-7 h-7" />
               </div>
             </CardHeader>
             <CardContent className="flex-1">
-              <p>Are you a SP hoping to store verified data and increase your quality-adjusted power?</p>
+              <p>
+                Are you a SP hoping to store verified data and increase your
+                quality-adjusted power?
+              </p>
             </CardContent>
             <CardFooter>
-              <StatsLink href="https://documenter.getpostman.com/view/131998/Tzsim4NU#intro" target="_blank">
+              <StatsLink
+                href="https://documenter.getpostman.com/view/131998/Tzsim4NU#intro"
+                target="_blank"
+              >
                 Read the Documentation
               </StatsLink>
             </CardFooter>
@@ -112,18 +169,23 @@ export default function AboutPage() {
             </CardHeader>
             <CardContent>
               <p className="mb-4">
-                Filecoin Plus is a layer of social trust on top of the Filecoin Network designed to incentivize the
-                storage of real data. Root key-holders, allocators, clients, and storage providers interact through the
-                allocation and spending of DataCap. For more details about the Fil+ program, visit
-                the {contentLink.filecoin_docs}
+                Filecoin Plus is a layer of social trust on top of the Filecoin
+                Network designed to incentivize the storage of real data. Root
+                key-holders, allocators, clients, and storage providers interact
+                through the allocation and spending of DataCap. For more details
+                about the Fil+ program, visit the {contentLink.filecoin_docs}
               </p>
               <p className="mb-4">
-                Clients looking to utilize storage on the network apply to receive DataCap from Allocators, which can be
-                used to incentivize storage providers to make storage deals. Allocators are community-elected trustees
-                responsible for allocating DataCap to parties storing useful data on the network. Storage Providers that
-                receive DataCap get a 10x boost to their quality-adjusted power for the storage space offered in that
-                deal, increasing their block reward share in the network. This creates a mechanism that incentivizes all
-                participants to make Filecoin more useful.
+                Clients looking to utilize storage on the network apply to
+                receive DataCap from Allocators, which can be used to
+                incentivize storage providers to make storage deals. Allocators
+                are community-elected trustees responsible for allocating
+                DataCap to parties storing useful data on the network. Storage
+                Providers that receive DataCap get a 10x boost to their
+                quality-adjusted power for the storage space offered in that
+                deal, increasing their block reward share in the network. This
+                creates a mechanism that incentivizes all participants to make
+                Filecoin more useful.
               </p>
             </CardContent>
           </Card>
@@ -135,14 +197,16 @@ export default function AboutPage() {
             </CardHeader>
             <CardContent>
               <p className="mb-4">
-                The goal of this site is to provide metrics, insights, and audit accountability tools for the Filecoin
-                Plus community. You can see health statistics of the overall program, along with tables of data to track
-                interactions between stakeholders (Allocators, Clients, and Storage Providers).
+                The goal of this site is to provide metrics, insights, and audit
+                accountability tools for the Filecoin Plus community. You can
+                see health statistics of the overall program, along with tables
+                of data to track interactions between stakeholders (Allocators,
+                Clients, and Storage Providers).
               </p>
               <p className="mb-4">
-                This site was created by {contentLink.neti} in
-                collaboration with {contentLink.dmob}, {contentLink.protocol_labs} and the {contentLink.foundation},
-                which provided development grants.
+                This site was created by {contentLink.neti} in collaboration
+                with {contentLink.dmob}, {contentLink.protocol_labs} and the{" "}
+                {contentLink.foundation}, which provided development grants.
               </p>
             </CardContent>
           </Card>

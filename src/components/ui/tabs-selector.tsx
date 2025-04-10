@@ -1,20 +1,23 @@
-import {Tabs, TabsList, TabsTrigger} from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface Props {
-  tabs: string[],
-  currentTab: string,
-  setCurrentTab: (tab: string) => void
+  tabs: string[];
+  currentTab: string;
+  setCurrentTab: (tab: string) => void;
 }
 
-const TabsSelector = ({tabs, currentTab, setCurrentTab}: Props) => {
+const TabsSelector = ({ tabs, currentTab, setCurrentTab }: Props) => {
+  return (
+    <Tabs value={currentTab} onValueChange={setCurrentTab}>
+      <TabsList>
+        {tabs.map((item) => (
+          <TabsTrigger className="capitalize" value={item} key={item}>
+            {item}
+          </TabsTrigger>
+        ))}
+      </TabsList>
+    </Tabs>
+  );
+};
 
-  return <Tabs value={currentTab} onValueChange={setCurrentTab}>
-    <TabsList>
-      {tabs.map((item) => (
-        <TabsTrigger className="capitalize" value={item} key={item}>{item}</TabsTrigger>
-      ))}
-    </TabsList>
-  </Tabs>
-}
-
-export {TabsSelector};
+export { TabsSelector };

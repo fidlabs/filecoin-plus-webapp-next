@@ -26,7 +26,7 @@ interface Action {
 type AllSettledResult = [
   PromiseFulfilledResult<IAllocatorsResponse>,
   PromiseFulfilledResult<IClientsResponse>,
-  PromiseFulfilledResult<IStorageProvidersResponse>
+  PromiseFulfilledResult<IStorageProvidersResponse>,
 ];
 
 function compareTags(arr1: string[], arr2: string[]) {

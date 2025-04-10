@@ -4,7 +4,7 @@
 
 @layer utilities {
   .text-balance {
-    @apply text-balance
+    @apply text-balance;
   }
 }
 
@@ -64,42 +64,44 @@
   }
 
   .button-link::after {
-    @apply md:content-[''] p-0 left-0 bottom-0 absolute w-full h-[1px] transition-transform border-b border-b-current rounded-none transform -translate-x-full
+    @apply md:content-[''] p-0 left-0 bottom-0 absolute w-full h-[1px] transition-transform border-b border-b-current rounded-none transform -translate-x-full;
   }
   .button-link:hover::after {
-    @apply transform translate-x-0
+    @apply transform translate-x-0;
   }
 
   .card-transition-width {
-    transition: width 0.25s cubic-bezier(0, 0.55, 0.45, 1)
+    transition: width 0.25s cubic-bezier(0, 0.55, 0.45, 1);
   }
 
   .card-transition-inner {
-    transition: max-height 0.25s 0.1s cubic-bezier(0, 0.55, 0.45, 1), opacity 0.2s ease-in-out;
+    transition:
+      max-height 0.25s 0.1s cubic-bezier(0, 0.55, 0.45, 1),
+      opacity 0.2s ease-in-out;
   }
 
   .main-content {
-    @apply w-full max-w-[1700px] mx-auto px-4 md:px-12
+    @apply w-full max-w-[1700px] mx-auto px-4 md:px-12;
   }
 
   .active + .active {
-    @apply rounded-t-none
+    @apply rounded-t-none;
   }
 
   .active:has(+ .active) {
-    @apply rounded-b-none
+    @apply rounded-b-none;
   }
 
   .nav-link {
-    @apply text-sm leading-4 font-bold opacity-75 hover:opacity-100 mb-3 whitespace-nowrap relative
+    @apply text-sm leading-4 font-bold opacity-75 hover:opacity-100 mb-3 whitespace-nowrap relative;
   }
 
   .nav-link.active {
-    @apply opacity-100 underline underline-offset-4 md:no-underline md:after:content-[''] md:after:absolute md:after:-bottom-2 md:after:-translate-x-1/2 md:after:left-1/2 md:after:h-1 md:after:bg-white md:after:w-4 md:after:rounded-sm
+    @apply opacity-100 underline underline-offset-4 md:no-underline md:after:content-[''] md:after:absolute md:after:-bottom-2 md:after:-translate-x-1/2 md:after:left-1/2 md:after:h-1 md:after:bg-white md:after:w-4 md:after:rounded-sm;
   }
 
   .table-link {
-    @apply underline underline-offset-2 hover:text-dodger-blue
+    @apply underline underline-offset-2 hover:text-dodger-blue;
   }
 
   @keyframes loading {

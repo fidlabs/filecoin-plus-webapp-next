@@ -1,4 +1,4 @@
-import {CSSProperties} from "react";
+import { CSSProperties } from "react";
 
 export default interface IBaseIconProps {
   width?: number;

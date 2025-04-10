@@ -1,13 +1,13 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 
-import { cn } from "@/lib/utils"
+import { cn } from "@/lib/utils";
 import {
   HoverCard,
   HoverCardTrigger,
   HoverCardContent,
-} from "@/components/ui/hover-card"
+} from "@/components/ui/hover-card";
 import {
   Drawer,
   DrawerClose,
@@ -16,21 +16,21 @@ import {
   DrawerFooter,
   DrawerTitle,
   DrawerTrigger,
-} from "@/components/ui/drawer"
-import {useMediaQuery} from "usehooks-ts";
+} from "@/components/ui/drawer";
+import { useMediaQuery } from "usehooks-ts";
 
 interface BaseProps {
-  children: React.ReactNode
+  children: React.ReactNode;
 }
 
 interface RootResponsiveHoverCardProps extends BaseProps {
-  open?: boolean
-  onOpenChange?: (open: boolean) => void
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 interface ResponsiveHoverCardProps extends BaseProps {
-  className?: string
-  asChild?: true
+  className?: string;
+  asChild?: true;
 }
 
 const ResponsiveHoverCardContext = React.createContext<{ isDesktop: boolean }>({
@@ -41,13 +41,16 @@ const useResponsiveHoverCardContext = () => {
   const context = React.useContext(ResponsiveHoverCardContext);
   if (!context) {
     throw new Error(
-      "ResponsiveHoverCard components cannot be rendered outside the ResponsiveHoverCard Context",
+      "ResponsiveHoverCard components cannot be rendered outside the ResponsiveHoverCard Context"
     );
   }
   return context;
 };
 
-const ResponsiveHoverCard = ({ children, ...props }: RootResponsiveHoverCardProps) => {
+const ResponsiveHoverCard = ({
+  children,
+  ...props
+}: RootResponsiveHoverCardProps) => {
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const ResponsiveHoverCard = isDesktop ? HoverCard : Drawer;
 
@@ -60,10 +63,15 @@ const ResponsiveHoverCard = ({ children, ...props }: RootResponsiveHoverCardProp
   );
 };
 
-
-const ResponsiveHoverCardTrigger = ({ className, children, ...props }: ResponsiveHoverCardProps) => {
+const ResponsiveHoverCardTrigger = ({
+  className,
+  children,
+  ...props
+}: ResponsiveHoverCardProps) => {
   const { isDesktop } = useResponsiveHoverCardContext();
-  const ResponsiveHoverCardTrigger = isDesktop ? HoverCardTrigger : DrawerTrigger;
+  const ResponsiveHoverCardTrigger = isDesktop
+    ? HoverCardTrigger
+    : DrawerTrigger;
 
   return (
     <ResponsiveHoverCardTrigger className={className} {...props}>
@@ -72,7 +80,11 @@ const ResponsiveHoverCardTrigger = ({ className, children, ...props }: Responsiv
   );
 };
 
-const ResponsiveHoverCardClose = ({ className, children, ...props }: ResponsiveHoverCardProps) => {
+const ResponsiveHoverCardClose = ({
+  className,
+  children,
+  ...props
+}: ResponsiveHoverCardProps) => {
   const { isDesktop } = useResponsiveHoverCardContext();
 
   if (!isDesktop) {
@@ -86,9 +98,15 @@ const ResponsiveHoverCardClose = ({ className, children, ...props }: ResponsiveH
   );
 };
 
-const ResponsiveHoverCardContent = ({ className, children, ...props }: ResponsiveHoverCardProps) => {
+const ResponsiveHoverCardContent = ({
+  className,
+  children,
+  ...props
+}: ResponsiveHoverCardProps) => {
   const { isDesktop } = useResponsiveHoverCardContext();
-  const ResponsiveHoverCardContent = isDesktop ? HoverCardContent : DrawerContent;
+  const ResponsiveHoverCardContent = isDesktop
+    ? HoverCardContent
+    : DrawerContent;
 
   return (
     <ResponsiveHoverCardContent className={className} {...props}>
@@ -98,10 +116,10 @@ const ResponsiveHoverCardContent = ({ className, children, ...props }: Responsiv
 };
 
 const ResponsiveHoverCardDescription = ({
-                               className,
-                               children,
-                               ...props
-                             }: ResponsiveHoverCardProps) => {
+  className,
+  children,
+  ...props
+}: ResponsiveHoverCardProps) => {
   const { isDesktop } = useResponsiveHoverCardContext();
 
   if (!isDesktop) {
@@ -115,7 +133,11 @@ const ResponsiveHoverCardDescription = ({
   );
 };
 
-const ResponsiveHoverCardHeader = ({ className, children, ...props }: ResponsiveHoverCardProps) => {
+const ResponsiveHoverCardHeader = ({
+  className,
+  children,
+  ...props
+}: ResponsiveHoverCardProps) => {
   const { isDesktop } = useResponsiveHoverCardContext();
 
   if (!isDesktop) {
@@ -129,7 +151,11 @@ const ResponsiveHoverCardHeader = ({ className, children, ...props }: Responsive
   );
 };
 
-const ResponsiveHoverCardTitle = ({ className, children, ...props }: ResponsiveHoverCardProps) => {
+const ResponsiveHoverCardTitle = ({
+  className,
+  children,
+  ...props
+}: ResponsiveHoverCardProps) => {
   const { isDesktop } = useResponsiveHoverCardContext();
 
   if (!isDesktop) {
@@ -143,7 +169,11 @@ const ResponsiveHoverCardTitle = ({ className, children, ...props }: ResponsiveH
   );
 };
 
-const ResponsiveHoverCardBody = ({ className, children, ...props }: ResponsiveHoverCardProps) => {
+const ResponsiveHoverCardBody = ({
+  className,
+  children,
+  ...props
+}: ResponsiveHoverCardProps) => {
   return (
     <div className={cn("px-4 md:px-0", className)} {...props}>
       {children}
@@ -151,7 +181,11 @@ const ResponsiveHoverCardBody = ({ className, children, ...props }: ResponsiveHo
   );
 };
 
-const ResponsiveHoverCardFooter = ({ className, children, ...props }: ResponsiveHoverCardProps) => {
+const ResponsiveHoverCardFooter = ({
+  className,
+  children,
+  ...props
+}: ResponsiveHoverCardProps) => {
   const { isDesktop } = useResponsiveHoverCardContext();
 
   if (!isDesktop) {
@@ -175,4 +209,4 @@ export {
   ResponsiveHoverCardTitle,
   ResponsiveHoverCardBody,
   ResponsiveHoverCardFooter,
-}
+};
