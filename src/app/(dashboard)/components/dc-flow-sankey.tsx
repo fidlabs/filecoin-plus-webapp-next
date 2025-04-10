@@ -1,14 +1,13 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { IGoogleSheetResponse } from "@/lib/interfaces/cdp/google.interface";
+import { IAllocatorsResponse } from "@/lib/interfaces/dmob/allocator.interface";
 import { convertBytesToIEC, isPlainObject } from "@/lib/utils";
 import Link from "next/link";
 import { ReactNode, useCallback, useMemo, useState } from "react";
 import { ResponsiveContainer, Sankey, Tooltip, TooltipProps } from "recharts";
 import * as z from "zod";
-import { IGoogleSheetResponse } from "@/lib/interfaces/cdp/google.interface";
-import { IAllocatorsResponse } from "@/lib/interfaces/dmob/allocator.interface";
-import { calculateTotalDatacap } from "@/lib/api";
 
 interface Node {
   allocators: Array<{
@@ -358,10 +357,7 @@ function loadSankyData(
         type,
         pathway,
         datacap: allocatorData
-          ? calculateTotalDatacap(
-              allocatorData.initialAllowance,
-              allocatorData.allowanceArray
-            )
+          ? BigInt(allocatorData.initialAllowance)
           : BigInt(0),
       };
 
