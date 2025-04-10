@@ -33,8 +33,6 @@ const revalidate = 30;
 const apiUrl = "https://api.datacapstats.io/api";
 
 type NumericalString = `${number}`;
-type Bigintish = string | number | bigint;
-type AllowanceArrayItemLike = { allowance: Bigintish };
 
 export const fetchData = async (url: string) => {
   const headers = new Headers();
