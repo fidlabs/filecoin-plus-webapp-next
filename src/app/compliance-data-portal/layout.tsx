@@ -13,6 +13,8 @@ export const metadata: Metadata = generatePageMetadata({
   url: "https://datacapstats.io/compliance-data-portal",
 });
 
+export const revalidate = 300; // 5 minutes
+
 const dataset: WithContext<Dataset>[] = [
   {
     // SP Retrievability Score
