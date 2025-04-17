@@ -206,6 +206,69 @@ function prepareAutomaticSankeyData(
   return sankeyData;
 }
 
+function prepareExperimentalSankeyData(
+  allocatorsData: IAllocatorsResponse,
+  generator: Generator<number>,
+  openedSection: OpenedSection) {
+
+  const experimentalPathwayMetaAllocator = allocatorsData.data.find(allocator => allocator.addressId = 'f03521515')
+
+  const experinemtalPathwayId = generator.next().value as number;
+  const experinemtalPathwayChildId = generator.next().value as number;
+
+  const sankeyData = {
+    nodes: [
+      {
+        name: "Experimental Pathway MetaAllocator",
+        allocators: [],
+        isHidden: false,
+        totalDatacap: BigInt(experimentalPathwayMetaAllocator?.initialAllowance || 0),
+        last: false,
+      }, {
+        name: "Experimental Pathway MetaAllocator Child",
+        isHidden: true,
+        allocators: [],
+        totalDatacap: BigInt(1),
+        last: false,
+      }
+    ],
+    links: [
+      {
+        source: 0,
+        target: experinemtalPathwayId,
+        value: Number(experimentalPathwayMetaAllocator?.initialAllowance || 0),
+      },
+      {
+        source: experinemtalPathwayId,
+        target: experinemtalPathwayChildId,
+        value: 1,
+      }
+    ],
+  };
+
+  if (openedSection !== undefined) {
+    const experinemtalPathwayChildForOpenedId = generator.next().value as number;
+
+    sankeyData.nodes.push({
+      name: "Experimental Pathway MetaAllocator Child Nested",
+      isHidden: true,
+      allocators: [],
+      totalDatacap: BigInt(1),
+      last: false,
+    });
+
+    sankeyData.links.push({
+      source: experinemtalPathwayChildId,
+      target: experinemtalPathwayChildForOpenedId,
+      value: 1,
+    })
+  }
+
+
+  return sankeyData;
+
+}
+
 function prepareManualSankeyData(
   allocators: Allocator[],
   generator: Generator<number>,
@@ -389,9 +452,15 @@ function loadSankyData(
     openedSection
   );
 
+  const experimentalData = prepareExperimentalSankeyData(
+    allocatorsData,
+    indexGenerator,
+    openedSection
+  );
+
   return {
-    nodes: [...sankeyData.nodes, ...automaticData.nodes, ...manualData.nodes],
-    links: [...sankeyData.links, ...automaticData.links, ...manualData.links],
+    nodes: [...sankeyData.nodes, ...automaticData.nodes, ...manualData.nodes, ...experimentalData.nodes],
+    links: [...sankeyData.links, ...automaticData.links, ...manualData.links, ...experimentalData.links],
   };
 }
 
