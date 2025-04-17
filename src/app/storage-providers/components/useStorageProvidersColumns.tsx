@@ -61,7 +61,9 @@ export const useStorageProvidersColumns = (filterCallback: FilterCallback) => {
         return <p>Total Deals Size</p>;
       },
       cell: ({ row }) => {
-        const verifiedDealsTotalSize = row.getValue("lastDealHeight") as number;
+        const verifiedDealsTotalSize = row.getValue(
+          "verifiedDealsTotalSize"
+        ) as number;
         return convertBytesToIEC(+verifiedDealsTotalSize);
       },
     },
