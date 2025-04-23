@@ -86,10 +86,11 @@ export const convertBytesToIEC = (bytes?: string | number | boolean) => {
 };
 
 export const convertBytesToIECSimple = (bytes?: string | number | boolean) => {
+  const converted = filesize(Number(bytes), {
+    standard: "iec",
+  });
   return bytes !== undefined && !isNaN(Number(bytes)) && isFinite(Number(bytes))
-    ? +filesize(Number(bytes), {
-        standard: "iec",
-      }).split(" ")[0]
+    ? (+converted.split(" ")[0]) * (converted.split(" ")[1] === 'EiB' ? 1000 : 1)
     : 0;
 };
 
