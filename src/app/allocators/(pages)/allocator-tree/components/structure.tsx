@@ -20,10 +20,12 @@ import {
 import "@xyflow/react/dist/style.css";
 import { useCallback, useMemo, useState } from "react";
 import { AllocatorNode } from "./allocator.node";
+import {CategoryParentNode} from "@/app/allocators/(pages)/allocator-tree/components/category-parent.node";
 
 const nodeTypes = {
   allocatorNode: AllocatorNode,
   categoryNode: CategoryNode,
+  categoryParentNode: CategoryParentNode,
 };
 
 const edges: Edge[] = [
@@ -38,9 +40,39 @@ const edges: Edge[] = [
     target: "automaticAllocators",
   },
   {
-    id: "rkh-marketAllocators",
+    id: "rkh-other",
     source: "rkh",
-    target: "marketAllocators",
+    target: "other",
+  },
+  {
+    id: 'manual-direct',
+    source: 'manualAllocators',
+    target: 'manualAllocatorsDirect',
+  },
+  {
+    id: 'manual-mpma',
+    source: 'manualAllocators',
+    target: 'manualAllocatorsMPMA',
+  },
+  {
+    id: 'auto-direct',
+    source: 'automaticAllocators',
+    target: 'automaticAllocatorsDirect',
+  },
+  {
+    id: 'auto-mpma',
+    source: 'automaticAllocators',
+    target: 'automaticAllocatorsFaucet',
+  },
+  {
+    id: 'other-market',
+    source: 'other',
+    target: 'marketAllocators',
+  },
+  {
+    id: 'other-experimentalPathwayMetaAllocator',
+    source: 'other',
+    target: 'experimentalPathwayMetaAllocator',
   },
 ];
 
@@ -64,7 +96,7 @@ const Structure = ({ allAllocators, allocatorStatuses }: IStructureProps) => {
         clickable: true,
         width: 200,
         height: 22,
-        position: { x: 50 + 125 * group, y: 165 },
+        position: { x: 225 * group + 25 * Math.floor(group/2), y: 285 },
       } as Node),
     []
   );
@@ -81,11 +113,14 @@ const Structure = ({ allAllocators, allocatorStatuses }: IStructureProps) => {
   }, []);
 
   const parsedAllocators = useMemo(() => {
-    const _allocatorId = allocatorStatuses.values[0].indexOf("Allocator ID");
-    const _allocatorName = allocatorStatuses.values[0].indexOf("Allocator Org");
-    const _allocatorType =
-      allocatorStatuses.values[0].indexOf("Type of Allocator");
-    const _allocatorStatus = allocatorStatuses.values[0].indexOf("status");
+    const [header, ...values] = allocatorStatuses.values;
+
+    const _allocatorId = header.indexOf("Allocator ID");
+    const _allocatorName = header.indexOf("Allocator Org");
+    const _allocatorType = header.indexOf("Type of Allocator");
+    const _pathwayIndex = header.indexOf("Pathway");
+
+    const _allocatorStatus = header.indexOf("status");
 
     if (_allocatorId < 0) {
       return [];
@@ -93,8 +128,8 @@ const Structure = ({ allAllocators, allocatorStatuses }: IStructureProps) => {
 
     const allocatorsMap = [] as IAllocatorNode[];
 
-    for (let i = 1; i < allocatorStatuses.values.length; i++) {
-      const currentStatusRow = allocatorStatuses.values[i];
+    for (let i = 0; i < values.length; i++) {
+      const currentStatusRow = values[i];
 
       if (!currentStatusRow[_allocatorId]) {
         continue;
@@ -110,7 +145,8 @@ const Structure = ({ allAllocators, allocatorStatuses }: IStructureProps) => {
         isActive:
           !!currentStatusRow[_allocatorStatus] &&
           currentStatusRow[_allocatorStatus].toLowerCase() === "active",
-        allocatorType: currentStatusRow![_allocatorType],
+        allocatorType: currentStatusRow[_allocatorType],
+        pathway: currentStatusRow[_pathwayIndex],
         datacap: allocator?.initialAllowance || "0",
       });
     }
@@ -119,24 +155,41 @@ const Structure = ({ allAllocators, allocatorStatuses }: IStructureProps) => {
   }, [allocatorStatuses.values, allAllocators.data]);
 
   const structureData = useMemo(() => {
+
+    const experimentalPathwayMetaAllocator = allAllocators.data.find(allocator => allocator.addressId = 'f03521515')
+
     const filteredAllocators = parsedAllocators.filter((item) =>
       item.allocatorName?.toLowerCase().includes(search.toLowerCase() || "")
     );
 
-    const manualAllocatorsNodes = parseAllocatorToNode(
-      "manualAllocators-Active-List",
+    const manualDirectAllocatorsNodes = parseAllocatorToNode(
+      "manualAllocators-Direct-List",
       filteredAllocators.filter(
         (item) =>
           item.allocatorType === "Manual" &&
+          item.pathway === 'Manual' &&
           pareIsActiveToBool(tab, item.isActive)
       ),
       0
     );
+
+    const manualMPMAAllocatorsNodes = parseAllocatorToNode(
+      "manualAllocators-MPMA-List",
+      filteredAllocators.filter(
+        (item) =>
+          item.allocatorType === "Manual Pathway MetaAllocator" &&
+          item.pathway === 'Manual' &&
+          pareIsActiveToBool(tab, item.isActive)
+      ),
+      1
+    );
+
     const automaticAllocatorsNodes = parseAllocatorToNode(
       "automaticAllocators-Active-List",
       filteredAllocators.filter(
         (item) =>
           item.allocatorType === "Automatic" &&
+          item.pathway === "Automatic" &&
           pareIsActiveToBool(tab, item.isActive)
       ),
       2
@@ -157,7 +210,7 @@ const Structure = ({ allAllocators, allocatorStatuses }: IStructureProps) => {
         type: "input",
         data: { label: "Root Key Holders" },
         width: 300,
-        position: { x: 250, y: 5 },
+        position: { x: 540, y: 5 },
       },
       {
         id: "manualAllocators",
@@ -165,13 +218,13 @@ const Structure = ({ allAllocators, allocatorStatuses }: IStructureProps) => {
           label: "Manual Allocators",
           datacap: convertBytesToIEC(
             filteredAllocators
-              .filter((item) => item.allocatorType === "Manual")
+              .filter((item) => item.pathway === "Manual")
               .reduce((acc, curr) => acc + +curr.datacap, 0)
           ),
         },
         width: 200,
-        type: "categoryNode",
-        position: { x: 50, y: 100 },
+        type: "categoryParentNode",
+        position: { x: 115, y: 100 },
       },
       {
         id: "automaticAllocators",
@@ -179,13 +232,31 @@ const Structure = ({ allAllocators, allocatorStatuses }: IStructureProps) => {
           label: "Automatic Allocators",
           datacap: convertBytesToIEC(
             filteredAllocators
-              .filter((item) => item.allocatorType === "Automatic")
+              .filter((item) => item.pathway === "Automatic")
               .reduce((acc, curr) => acc + +curr.datacap, 0)
           ),
         },
         width: 200,
+        type: "categoryParentNode",
+        position: { x: 590, y: 100 },
+      },
+      {
+        id: "other",
+        data: {
+          label: "Other",
+        },
+        width: 200,
+        position: { x: 1065, y: 100 },
+      },
+      {
+        id: "experimentalPathwayMetaAllocator",
+        data: {
+          label: experimentalPathwayMetaAllocator?.name,
+          datacap: convertBytesToIEC(experimentalPathwayMetaAllocator?.initialAllowance)
+        },
+        width: 200,
         type: "categoryNode",
-        position: { x: 300, y: 100 },
+        position: { x: 1175, y: 200 },
       },
       {
         id: "marketAllocators",
@@ -193,19 +264,71 @@ const Structure = ({ allAllocators, allocatorStatuses }: IStructureProps) => {
           label: "Market Based Allocators",
           datacap: convertBytesToIEC(
             filteredAllocators
-              .filter((item) => item.allocatorType === "Market-based")
+              .filter((item) => item.pathway === "Market-based")
               .reduce((acc, curr) => acc + +curr.datacap, 0)
           ),
         },
         width: 200,
         type: "categoryNode",
-        position: { x: 550, y: 100 },
+        position: { x: 950, y: 200 },
       },
+      {
+        id: "manualAllocatorsDirect",
+        data: {
+          label: "Direct",
+          datacap: convertBytesToIEC(
+            filteredAllocators
+              .filter((item) => item.allocatorType === "Manual" && item.pathway === "Manual")
+              .reduce((acc, curr) => acc + +curr.datacap, 0)
+          ),
+        },
+        width: 200,
+        type: "categoryNode",
+        position: { x: 0, y: 200 },
+      },
+      {
+        id: "manualAllocatorsMPMA",
+        data: {
+          label: "MPMA",
+          datacap: convertBytesToIEC(
+            filteredAllocators
+              .filter((item) => item.allocatorType === "Manual Pathway MetaAllocator" && item.pathway === "Manual")
+              .reduce((acc, curr) => acc + +curr.datacap, 0)
+          ),
+        },
+        width: 200,
+        type: "categoryNode",
+        position: { x: 225, y: 200 },
+      },
+      {
+        id: "automaticAllocatorsDirect",
+        data: {
+          label: "Direct",
+          datacap: convertBytesToIEC(
+            filteredAllocators
+              .filter((item) => item.allocatorType === "Automatic" && item.pathway === "Automatic")
+              .reduce((acc, curr) => acc + +curr.datacap, 0)
+          ),
+        },
+        width: 200,
+        type: "categoryNode",
+        position: { x: 475, y: 200 },
+      },
+      {
+        id: "automaticAllocatorsFaucet",
+        data: {
+          label: "Faucet",
+        },
+        width: 200,
+        type: "categoryNode",
+        position: { x: 700, y: 200 },
+      },
+      manualDirectAllocatorsNodes,
+      manualMPMAAllocatorsNodes,
       automaticAllocatorsNodes,
-      manualAllocatorsNodes,
-      marketAllocatorsNodes,
+      marketAllocatorsNodes
     ];
-  }, [pareIsActiveToBool, parseAllocatorToNode, parsedAllocators, search, tab]);
+  }, [allAllocators.data, pareIsActiveToBool, parseAllocatorToNode, parsedAllocators, search, tab]);
 
   const onNodeClick: NodeMouseHandler = () => {};
 

@@ -3,5 +3,6 @@ export interface IAllocatorNode {
   allocatorName: string,
   isActive: boolean,
   allocatorType: string,
+  pathway: string,
   datacap: string,
 }

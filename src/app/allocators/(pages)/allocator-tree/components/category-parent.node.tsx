@@ -1,11 +1,11 @@
 import React from 'react';
 import {Handle, NodeProps, Position} from '@xyflow/react';
 
-const CategoryNode = ({data}: NodeProps) => {
+const CategoryParentNode = ({data}: NodeProps) => {
   return (
-    <div className="flex flex-col h-full bg-white rounded-[3px] min-h-[75px] p-2 border border-black">
+    <div className="bg-white rounded-[3px] p-2 border border-black">
       <Handle type="target" position={Position.Top} />
-      <div className="flex flex-col flex-1 items-center justify-center h-full">
+      <div>
         <p className="text-sm text-center">
           {data['label'] as string}
         </p>
@@ -13,8 +13,9 @@ const CategoryNode = ({data}: NodeProps) => {
           {data['datacap'] as string}
         </p>
       </div>
+      <Handle type="source" position={Position.Bottom} />
     </div>
   );
 };
 
-export {CategoryNode}
+export {CategoryParentNode}

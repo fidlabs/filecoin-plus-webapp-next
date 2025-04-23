@@ -21,8 +21,6 @@ const AllocatorsTreePage = async () => {
     showInactive: 'true',
   })
 
-  const experimentalPathwayMetaAllocator = allAllocators.data.find(allocato => allocato.addressId = 'f03521515')
-
   const allocatorsTree: WithContext<Organization> = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
