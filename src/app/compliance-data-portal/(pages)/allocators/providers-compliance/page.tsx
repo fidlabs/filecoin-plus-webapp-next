@@ -1,24 +1,21 @@
 "use client";
+
 import { ChartWrapper } from "@/app/compliance-data-portal/components/chart-wrapper";
 import { StackedBarGraph } from "@/app/compliance-data-portal/components/graphs/stacked-bar-graph";
-import {
-  ResponsiveHoverCard,
-  ResponsiveHoverCardContent,
-  ResponsiveHoverCardTrigger,
-} from "@/components/ui/responsive-hover-card";
-import { Slider } from "@/components/ui/slider";
+import { AllocatorsComplianceThresholdSelector } from "@/components/allocators-compliance-threshold-selector";
+import { Checkbox } from "@/components/ui/checkbox";
 import { StatsLink } from "@/components/ui/stats-link";
 import { useAllocatorSPComplianceChartData } from "@/lib/hooks/cdp.hooks";
 import { useChartScale } from "@/lib/hooks/useChartScale";
 import { dataTabs } from "@/lib/providers/cdp.provider";
-import { gradientPalette } from "@/lib/utils";
-import { InfoIcon } from "lucide-react";
-import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
-import { Checkbox } from "@/components/ui/checkbox";
+import { gradientPalette, isPlainObject } from "@/lib/utils";
+import { safeWeekFromReadableString, weekToString } from "@/lib/weeks";
+import { usePathname, useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
 
-const ProviderComplianceAllocator = () => {
+export default function ProviderComplianceAllocator() {
   const pathName = usePathname();
+  const { push } = useRouter();
 
   const [threshold, setThreshold] = useState(50);
   const [usePercentage, setUsePercentage] = useState(false);
@@ -39,6 +36,39 @@ const ProviderComplianceAllocator = () => {
 
   const { scale, selectedScale, calcPercentage, setSelectedScale } =
     useChartScale(10);
+
+  const handleBarClick = useCallback(
+    (data: unknown) => {
+      if (!isPlainObject(data)) {
+        return;
+      }
+
+      const searchParams = new URLSearchParams();
+      const week = safeWeekFromReadableString(data.name);
+      const weekString = week ? weekToString(week) : "latest";
+
+      if (
+        Array.isArray(data.tooltipPayload) &&
+        typeof data.tooltipPayload[0]?.dataKey === "string"
+      ) {
+        searchParams.set("complianceScore", data.tooltipPayload[0].dataKey);
+      }
+
+      searchParams.set("retrievability", String(retrievabilityMetric));
+      searchParams.set("numberOfClients", String(numberOfClientsMetric));
+      searchParams.set("totalDealSize", String(totalDealSizeMetric));
+      searchParams.set("complianceThresholdPercentage", String(threshold));
+
+      push(`/allocators/compliance/${weekString}?${searchParams.toString()}`);
+    },
+    [
+      retrievabilityMetric,
+      numberOfClientsMetric,
+      push,
+      threshold,
+      totalDealSizeMetric,
+    ]
+  );
 
   useEffect(() => {
     setUsePercentage(calcPercentage);
@@ -131,13 +161,17 @@ const ProviderComplianceAllocator = () => {
       ]}
       setSelectedScale={setSelectedScale}
       additionalFilters={[
-        <ThresholdSelector
+        <AllocatorsComplianceThresholdSelector
           key="threshold"
-          threshold={threshold}
-          setThreshold={setThreshold}
+          value={threshold}
+          onThresholdChange={setThreshold}
         />,
       ]}
     >
+      <p className="text-sm text-center text-muted-foreground mb-4">
+        Click on a bar to see a list of Allocators for that time period,
+        matching selected criteria.
+      </p>
       <StackedBarGraph
         currentDataTab={currentDataTab}
         customPalette={gradientPalette("#4CAF50", "#FF5722", 3)}
@@ -146,49 +180,8 @@ const ProviderComplianceAllocator = () => {
         scale={scale}
         isLoading={isLoading}
         unit={unit}
+        onBarClick={handleBarClick}
       />
     </ChartWrapper>
   );
-};
-
-const ThresholdSelector = ({
-  threshold,
-  setThreshold,
-}: {
-  threshold: number;
-  setThreshold: (val: number) => void;
-}) => {
-  return (
-    <div className="flex flex-col">
-      <div className="flex gap-1 items-center justify-between">
-        Threshold: {threshold}%
-        <ResponsiveHoverCard>
-          <ResponsiveHoverCardTrigger>
-            <InfoIcon className="w-5 h-5 text-muted-foreground" />
-          </ResponsiveHoverCardTrigger>
-          <ResponsiveHoverCardContent>
-            <p className="p-4 md:p-2 font-normal">
-              Use this slider to adjust the threshold of SPs that need to be in
-              compliance,
-              <br />
-              <p className="text-muted-foreground">
-                eg. 50% means that half of the SPs receiving DC through this
-                allocator meet the compliance metrics
-              </p>
-            </p>
-          </ResponsiveHoverCardContent>
-        </ResponsiveHoverCard>
-      </div>
-      <Slider
-        className="min-w-[150px]"
-        value={[threshold]}
-        max={100}
-        min={5}
-        step={5}
-        onValueChange={(values) => setThreshold(values[0])}
-      />
-    </div>
-  );
-};
-
-export default ProviderComplianceAllocator;
+}
