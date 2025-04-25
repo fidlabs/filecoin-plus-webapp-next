@@ -1,10 +1,11 @@
 import { IApiQuery } from "@/lib/interfaces/api.interface";
 import {
-  IFilDCAllocationsWeekly,
-  IFilDCAllocationsWeeklyByClient,
-  IFilDCFLow,
-  IFilPlusStats,
-} from "@/lib/interfaces/dmob/dmob.interface";
+  CPDAggregatedIPNIReport,
+  ICDPAllocatorFullReport,
+  IClientFullReport,
+  IClientReportsResponse,
+} from "@/lib/interfaces/cdp/cdp.interface";
+import { IGoogleSheetResponse } from "@/lib/interfaces/cdp/google.interface";
 import {
   IAllocatorResponse,
   IAllocatorsResponse,
@@ -16,16 +17,15 @@ import {
   IClientsResponse,
 } from "@/lib/interfaces/dmob/client.interface";
 import {
+  IFilDCAllocationsWeekly,
+  IFilDCAllocationsWeeklyByClient,
+  IFilDCFLow,
+  IFilPlusStats,
+} from "@/lib/interfaces/dmob/dmob.interface";
+import {
   IStorageProviderResponse,
   IStorageProvidersResponse,
 } from "@/lib/interfaces/dmob/sp.interface";
-import { IGoogleSheetResponse } from "@/lib/interfaces/cdp/google.interface";
-import {
-  CPDAggregatedIPNIReport,
-  ICDPAllocatorFullReport,
-  IClientFullReport,
-  IClientReportsResponse,
-} from "@/lib/interfaces/cdp/cdp.interface";
 import * as z from "zod";
 import { CDP_API_URL } from "./constants";
 
@@ -71,7 +71,7 @@ export const postData = async (
   return await response.json();
 };
 
-export const parseQuery = (query?: IApiQuery) => {
+export const parseQuery = (query?: Record<string, string | undefined>) => {
   if (!query) {
     return "";
   }
@@ -100,7 +100,12 @@ export const getDataCapAllocationsWeeklyByClient = async () => {
 };
 
 export const getAllocators = async (query?: IApiQuery) => {
-  const url = `${apiUrl}/getVerifiers${parseQuery(query)}`;
+  const url = `${CDP_API_URL}/allocators${parseQuery(query)}`;
+  return (await fetchData(url)) as IAllocatorsResponse;
+};
+
+export const getAllocatorsByCompliance = async (query?: IApiQuery) => {
+  const url = `${CDP_API_URL}/allocators/compliance-data${parseQuery(query)}`;
   return (await fetchData(url)) as IAllocatorsResponse;
 };
 
@@ -135,7 +140,12 @@ export const getClientAllocationsById = async (id: string) => {
 };
 
 export const getStorageProviders = async (query?: IApiQuery) => {
-  const url = `${apiUrl}/v2/getMiners${parseQuery(query)}`;
+  const url = `${CDP_API_URL}/storage-providers${parseQuery(query)}`;
+  return (await fetchData(url)) as IStorageProvidersResponse;
+};
+
+export const getStorageProvidersByCompliance = async (query?: IApiQuery) => {
+  const url = `${CDP_API_URL}/storage-providers/compliance-data${parseQuery(query)}`;
   return (await fetchData(url)) as IStorageProvidersResponse;
 };
 

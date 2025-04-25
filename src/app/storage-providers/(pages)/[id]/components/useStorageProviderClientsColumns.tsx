@@ -1,14 +1,14 @@
-import { DataTableSort } from "@/components/ui/data-table";
-import Link from "next/link";
-import { ColumnDef } from "@tanstack/react-table";
-import { calculateDateFromHeight, convertBytesToIEC } from "@/lib/utils";
+import { DMOBDataTableSort } from "@/components/dmob-data-table-sort";
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import { InfoIcon } from "lucide-react";
 import { IStorageProviderClient } from "@/lib/interfaces/dmob/sp.interface";
+import { calculateDateFromHeight, convertBytesToIEC } from "@/lib/utils";
+import { ColumnDef } from "@tanstack/react-table";
+import { InfoIcon } from "lucide-react";
+import Link from "next/link";
 
 type FilterCallback = (key: string, direction: string) => void;
 
@@ -20,9 +20,9 @@ export const useStorageProviderClientsColumns = (
       accessorKey: "client",
       header: () => {
         return (
-          <DataTableSort property="client" setSorting={filterCallback}>
+          <DMOBDataTableSort property="client" onSort={filterCallback}>
             Verified Client ID
-          </DataTableSort>
+          </DMOBDataTableSort>
         );
       },
       cell: ({ row }) => {
@@ -38,12 +38,12 @@ export const useStorageProviderClientsColumns = (
       accessorKey: "noOfVerifiedDeals",
       header: () => {
         return (
-          <DataTableSort
+          <DMOBDataTableSort
             property="noOfVerifiedDeals"
-            setSorting={filterCallback}
+            onSort={filterCallback}
           >
             Deals
-          </DataTableSort>
+          </DMOBDataTableSort>
         );
       },
       cell: ({ row }) => {
@@ -55,12 +55,12 @@ export const useStorageProviderClientsColumns = (
       accessorKey: "verifiedDealsTotalSize",
       header: () => {
         return (
-          <DataTableSort
+          <DMOBDataTableSort
             property="verifiedDealsTotalSize"
-            setSorting={filterCallback}
+            onSort={filterCallback}
           >
             Verified Deals Total Size
-          </DataTableSort>
+          </DMOBDataTableSort>
         );
       },
       cell: ({ row }) => {
@@ -74,9 +74,9 @@ export const useStorageProviderClientsColumns = (
       accessorKey: "lastDealHeight",
       header: () => {
         return (
-          <DataTableSort property="lastDealHeight" setSorting={filterCallback}>
+          <DMOBDataTableSort property="lastDealHeight" onSort={filterCallback}>
             Last Deal Date
-          </DataTableSort>
+          </DMOBDataTableSort>
         );
       },
       cell: ({ row }) => {

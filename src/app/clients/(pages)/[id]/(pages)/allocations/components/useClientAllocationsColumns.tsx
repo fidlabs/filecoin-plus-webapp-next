@@ -1,14 +1,14 @@
-import Link from "next/link";
+import { DMOBDataTableSort } from "@/components/dmob-data-table-sort";
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import { calculateDateFromHeight, convertBytesToIEC } from "@/lib/utils";
-import { InfoIcon } from "lucide-react";
-import { ColumnDef } from "@tanstack/react-table";
 import { IAllowanceArray } from "@/lib/interfaces/dmob/dmob.interface";
-import { DataTableSort } from "@/components/ui/data-table";
+import { calculateDateFromHeight, convertBytesToIEC } from "@/lib/utils";
+import { ColumnDef } from "@tanstack/react-table";
+import { InfoIcon } from "lucide-react";
+import Link from "next/link";
 
 interface Options {
   onSort(key: string, direction: string): void;
@@ -47,9 +47,9 @@ export const useClientAllocationsColumns = ({ onSort }: Options) => {
       accessorKey: "height",
       header: () => {
         return (
-          <DataTableSort property="height" setSorting={onSort}>
+          <DMOBDataTableSort property="height" onSort={onSort}>
             Allocation date
-          </DataTableSort>
+          </DMOBDataTableSort>
         );
       },
       cell: ({ row }) => {

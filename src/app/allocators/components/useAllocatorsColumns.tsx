@@ -1,24 +1,53 @@
-import { DataTableSort } from "@/components/ui/data-table";
-import Link from "next/link";
+import {
+  DataTableSort,
+  DataTableSortProps,
+} from "@/components/data-table-sort";
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import { calculateDateFromHeight, convertBytesToIEC } from "@/lib/utils";
-import { CopyIcon, InfoIcon } from "lucide-react";
-import { ColumnDef } from "@tanstack/react-table";
 import { IAllocator } from "@/lib/interfaces/dmob/allocator.interface";
+import { calculateDateFromHeight, convertBytesToIEC } from "@/lib/utils";
+import { ColumnDef } from "@tanstack/react-table";
+import { CopyIcon, InfoIcon } from "lucide-react";
+import Link from "next/link";
 
-type FilterCallback = (key: string, direction: string) => void;
+type SortDirection = NonNullable<DataTableSortProps["direction"]>;
 
-export const useAllocatorsColumns = (filterCallback: FilterCallback) => {
-  const columns = [
+interface Sorting {
+  key: string;
+  direction: SortDirection;
+}
+export interface UseAllocatorsColumnsOptions {
+  sorting?: Sorting | null;
+  onSort(key: string, direction: SortDirection): void;
+}
+
+function getSortDirectionForProperty(
+  sorting: Sorting | null | undefined,
+  property: string
+): SortDirection | undefined {
+  if (!sorting) {
+    return undefined;
+  }
+
+  return sorting.key === property ? sorting.direction : undefined;
+}
+
+export function useAllocatorsColumns({
+  sorting,
+  onSort,
+}: UseAllocatorsColumnsOptions) {
+  return [
     {
       accessorKey: "addressId",
       header: () => {
         return (
-          <DataTableSort property="addressId" setSorting={filterCallback}>
+          <DataTableSort
+            direction={getSortDirectionForProperty(sorting, "addressId")}
+            onSort={(direction) => onSort("addressId", direction)}
+          >
             Allocator ID
           </DataTableSort>
         );
@@ -36,7 +65,10 @@ export const useAllocatorsColumns = (filterCallback: FilterCallback) => {
       accessorKey: "name",
       header: () => {
         return (
-          <DataTableSort property="name" setSorting={filterCallback}>
+          <DataTableSort
+            direction={getSortDirectionForProperty(sorting, "name")}
+            onSort={(direction) => onSort("name", direction)}
+          >
             Name
           </DataTableSort>
         );
@@ -68,7 +100,10 @@ export const useAllocatorsColumns = (filterCallback: FilterCallback) => {
       accessorKey: "orgName",
       header: () => {
         return (
-          <DataTableSort property="orgName" setSorting={filterCallback}>
+          <DataTableSort
+            direction={getSortDirectionForProperty(sorting, "orgName")}
+            onSort={(direction) => onSort("orgName", direction)}
+          >
             Organization Name
           </DataTableSort>
         );
@@ -94,8 +129,11 @@ export const useAllocatorsColumns = (filterCallback: FilterCallback) => {
       header: () => {
         return (
           <DataTableSort
-            property="verifiedClientsCount"
-            setSorting={filterCallback}
+            direction={getSortDirectionForProperty(
+              sorting,
+              "verifiedClientsCount"
+            )}
+            onSort={(direction) => onSort("verifiedClientsCount", direction)}
           >
             Verified Clients
           </DataTableSort>
@@ -116,7 +154,10 @@ export const useAllocatorsColumns = (filterCallback: FilterCallback) => {
       accessorKey: "address",
       header: () => {
         return (
-          <DataTableSort property="address" setSorting={filterCallback}>
+          <DataTableSort
+            direction={getSortDirectionForProperty(sorting, "address")}
+            onSort={(direction) => onSort("address", direction)}
+          >
             Address
           </DataTableSort>
         );
@@ -138,7 +179,10 @@ export const useAllocatorsColumns = (filterCallback: FilterCallback) => {
       accessorKey: "createdAtHeight",
       header: () => {
         return (
-          <DataTableSort property="createdAtHeight" setSorting={filterCallback}>
+          <DataTableSort
+            direction={getSortDirectionForProperty(sorting, "createdAtHeight")}
+            onSort={(direction) => onSort("createdAtHeight", direction)}
+          >
             Create date
           </DataTableSort>
         );
@@ -168,7 +212,10 @@ export const useAllocatorsColumns = (filterCallback: FilterCallback) => {
       accessorKey: "allowance",
       header: () => {
         return (
-          <DataTableSort property="allowance" setSorting={filterCallback}>
+          <DataTableSort
+            direction={getSortDirectionForProperty(sorting, "allowance")}
+            onSort={(direction) => onSort("allowance", direction)}
+          >
             DataCap Available
           </DataTableSort>
         );
@@ -183,8 +230,8 @@ export const useAllocatorsColumns = (filterCallback: FilterCallback) => {
       header: () => {
         return (
           <DataTableSort
-            property="remainingDatacap"
-            setSorting={filterCallback}
+            direction={getSortDirectionForProperty(sorting, "remainingDatacap")}
+            onSort={(direction) => onSort("remainingDatacap", direction)}
           >
             Used DataCap
           </DataTableSort>
@@ -200,8 +247,8 @@ export const useAllocatorsColumns = (filterCallback: FilterCallback) => {
       header: () => {
         return (
           <DataTableSort
-            property="initialAllowance"
-            setSorting={filterCallback}
+            direction={getSortDirectionForProperty(sorting, "initialAllowance")}
+            onSort={(direction) => onSort("initialAllowance", direction)}
           >
             Total DataCap received
           </DataTableSort>
@@ -242,49 +289,4 @@ export const useAllocatorsColumns = (filterCallback: FilterCallback) => {
       },
     },
   ] as ColumnDef<IAllocator>[];
-
-  const csvHeaders = [
-    {
-      key: "addressId",
-      label: "Allocator ID",
-    },
-    {
-      key: "name",
-      label: "Name",
-    },
-    {
-      key: "orgName",
-      label: "Organization Name",
-    },
-    {
-      key: "verifiedClientsCount",
-      label: "Verified Clients",
-    },
-    {
-      key: "allowance",
-      label: "DataCap Available",
-    },
-    {
-      key: "remainingDatacap",
-      label: "DataCap Remaining",
-    },
-    {
-      key: "initialAllowance",
-      label: "Total DataCap received",
-    },
-    {
-      key: "createdAtHeight",
-      label: "Create date",
-    },
-    {
-      key: "address",
-      label: "Address",
-    },
-    {
-      key: "removed",
-      label: "Allocator deprecated",
-    },
-  ];
-
-  return { columns, csvHeaders };
-};
+}

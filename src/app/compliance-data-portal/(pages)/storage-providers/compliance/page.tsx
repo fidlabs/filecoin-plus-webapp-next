@@ -6,13 +6,15 @@ import { StatsLink } from "@/components/ui/stats-link";
 import { useProvidersComplianceChartData } from "@/lib/hooks/cdp.hooks";
 import { useChartScale } from "@/lib/hooks/useChartScale";
 import { dataTabs } from "@/lib/providers/cdp.provider";
-import { gradientPalette } from "@/lib/utils";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { gradientPalette, isPlainObject } from "@/lib/utils";
+import { usePathname, useRouter } from "next/navigation";
+import { useCallback, useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
+import { safeWeekFromReadableString, weekToString } from "@/lib/weeks";
 
 const StorageProviderCompliance = () => {
   const pathName = usePathname();
+  const { push } = useRouter();
 
   const { scale, selectedScale, calcPercentage, setSelectedScale } =
     useChartScale(10);
@@ -30,6 +32,34 @@ const StorageProviderCompliance = () => {
       numberOfClientsMetric,
       totalDealSizeMetric,
     });
+
+  const handleBarClick = useCallback(
+    (data: unknown) => {
+      if (!isPlainObject(data)) {
+        return;
+      }
+
+      const searchParams = new URLSearchParams();
+      const week = safeWeekFromReadableString(data.name);
+      const weekString = week ? weekToString(week) : "latest";
+
+      if (
+        Array.isArray(data.tooltipPayload) &&
+        typeof data.tooltipPayload[0]?.dataKey === "string"
+      ) {
+        searchParams.set("complianceScore", data.tooltipPayload[0].dataKey);
+      }
+
+      searchParams.set("retrievability", String(retrievabilityMetric));
+      searchParams.set("numberOfClients", String(numberOfClientsMetric));
+      searchParams.set("totalDealSize", String(totalDealSizeMetric));
+
+      push(
+        `/storage-providers/compliance/${weekString}?${searchParams.toString()}`
+      );
+    },
+    [retrievabilityMetric, numberOfClientsMetric, totalDealSizeMetric, push]
+  );
 
   return (
     <ChartWrapper
@@ -111,6 +141,10 @@ const StorageProviderCompliance = () => {
         },
       ]}
     >
+      <p className="text-sm text-center text-muted-foreground mb-4">
+        Click on a bar to see a list of Service Providers for that time period,
+        matching selected criteria.
+      </p>
       <StackedBarGraph
         currentDataTab={dataTab}
         customPalette={gradientPalette("#4CAF50", "#FF5722", 3)}
@@ -119,6 +153,7 @@ const StorageProviderCompliance = () => {
         scale={scale}
         isLoading={isLoading}
         unit={dataTab === "PiB" ? "PiB" : "compliant SP"}
+        onBarClick={handleBarClick}
       />
     </ChartWrapper>
   );

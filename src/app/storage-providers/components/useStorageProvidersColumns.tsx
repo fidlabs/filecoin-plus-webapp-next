@@ -1,24 +1,53 @@
-import { DataTableSort } from "@/components/ui/data-table";
-import Link from "next/link";
+import {
+  DataTableSort,
+  DataTableSortProps,
+} from "@/components/data-table-sort";
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import { calculateDateFromHeight, convertBytesToIEC } from "@/lib/utils";
-import { InfoIcon } from "lucide-react";
-import { ColumnDef } from "@tanstack/react-table";
 import { IStorageProvider } from "@/lib/interfaces/dmob/sp.interface";
+import { calculateDateFromHeight, convertBytesToIEC } from "@/lib/utils";
+import { ColumnDef } from "@tanstack/react-table";
+import { InfoIcon } from "lucide-react";
+import Link from "next/link";
 
-type FilterCallback = (key: string, direction: string) => void;
+type SortDirection = NonNullable<DataTableSortProps["direction"]>;
 
-export const useStorageProvidersColumns = (filterCallback: FilterCallback) => {
-  const columns = [
+interface Sorting {
+  key: string;
+  direction: SortDirection;
+}
+export interface UseStorageProvidersColumnsOptions {
+  sorting?: Sorting | null;
+  onSort(key: string, direction: SortDirection): void;
+}
+
+function getSortDirectionForProperty(
+  sorting: Sorting | null | undefined,
+  property: string
+): SortDirection | undefined {
+  if (!sorting) {
+    return undefined;
+  }
+
+  return sorting.key === property ? sorting.direction : undefined;
+}
+
+export function useStorageProvidersColumns({
+  sorting,
+  onSort,
+}: UseStorageProvidersColumnsOptions) {
+  return [
     {
       accessorKey: "provider",
       header: () => {
         return (
-          <DataTableSort property="provider" setSorting={filterCallback}>
+          <DataTableSort
+            direction={getSortDirectionForProperty(sorting, "provider")}
+            onSort={(direction) => onSort("provider", direction)}
+          >
             Storage Provider ID
           </DataTableSort>
         );
@@ -37,8 +66,11 @@ export const useStorageProvidersColumns = (filterCallback: FilterCallback) => {
       header: () => {
         return (
           <DataTableSort
-            property="noOfVerifiedDeals"
-            setSorting={filterCallback}
+            direction={getSortDirectionForProperty(
+              sorting,
+              "noOfVerifiedDeals"
+            )}
+            onSort={(direction) => onSort("noOfVerifiedDeals", direction)}
           >
             Deals
           </DataTableSort>
@@ -49,7 +81,10 @@ export const useStorageProvidersColumns = (filterCallback: FilterCallback) => {
       accessorKey: "noOfClients",
       header: () => {
         return (
-          <DataTableSort property="noOfClients" setSorting={filterCallback}>
+          <DataTableSort
+            direction={getSortDirectionForProperty(sorting, "noOfClients")}
+            onSort={(direction) => onSort("noOfClients", direction)}
+          >
             Number of clients
           </DataTableSort>
         );
@@ -63,7 +98,7 @@ export const useStorageProvidersColumns = (filterCallback: FilterCallback) => {
       cell: ({ row }) => {
         const verifiedDealsTotalSize = row.getValue(
           "verifiedDealsTotalSize"
-        ) as number;
+        ) as string;
         return convertBytesToIEC(+verifiedDealsTotalSize);
       },
     },
@@ -71,7 +106,10 @@ export const useStorageProvidersColumns = (filterCallback: FilterCallback) => {
       accessorKey: "lastDealHeight",
       header: () => {
         return (
-          <DataTableSort property="lastDealHeight" setSorting={filterCallback}>
+          <DataTableSort
+            direction={getSortDirectionForProperty(sorting, "lastDealHeight")}
+            onSort={(direction) => onSort("lastDealHeight", direction)}
+          >
             Last Deal
           </DataTableSort>
         );
@@ -98,29 +136,4 @@ export const useStorageProvidersColumns = (filterCallback: FilterCallback) => {
       },
     },
   ] as ColumnDef<IStorageProvider>[];
-
-  const csvHeaders = [
-    {
-      key: "addressId",
-      label: "Allocator ID",
-    },
-    {
-      key: "noOfVerifiedDeals",
-      label: "Deals",
-    },
-    {
-      key: "noOfClients",
-      label: "Number of clients",
-    },
-    {
-      key: "verifiedDealsTotalSize",
-      label: "Total Deals Size",
-    },
-    {
-      key: "lastDealHeight",
-      label: "Last Deal",
-    },
-  ];
-
-  return { columns, csvHeaders };
-};
+}
