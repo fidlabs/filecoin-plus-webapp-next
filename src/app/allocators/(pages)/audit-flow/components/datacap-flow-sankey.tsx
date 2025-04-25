@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import {useCallback, useEffect, useMemo, useState} from "react";
 import { DataCapChild } from "@/lib/hooks/dmob.hooks";
 import { cn, convertBytesToIEC, convertBytesToIECSimple } from "@/lib/utils";
 import {
+  Layer,
   ResponsiveContainer,
   Sankey,
   Tooltip as RechartsTooltip,
@@ -67,6 +68,15 @@ interface SankeyData {
   nodes: SankeyNode[];
   links: SankeyLink[];
 }
+
+const getAuditResultColor = (nodeName: string) => {
+  switch(nodeName) {
+    case "Pass": return "var(--color-mountain-meadow)"; // Green using Tailwind CSS variable
+    case "Conditional": return "var(--warning)"; // Orange using Tailwind CSS variable
+    case "Failed": return "var(--destructive)"; // Red using Tailwind CSS variable
+    default: return null; // Use default color logic
+  }
+};
 
 const DataCapFlowSankey = ({ data, rawData }: Props) => {
   const [selectedNodes, setSelectedNodes] = useState<DataCapChild[]>([]);
@@ -361,7 +371,7 @@ const DataCapFlowSankey = ({ data, rawData }: Props) => {
               bottom: 50,
             }}
             onClick={handleNodeClick}
-            link={{ stroke: "var(--color-medium-turquoise)" }}
+            link={ColouredLink}
           >
             <RechartsTooltip content={renderTooltip} />
           </Sankey>
@@ -390,6 +400,13 @@ interface NodeProps {
 
 const Node = ({ x, y, width, height, payload }: NodeProps) => {
   const hasChildren = payload.hasChildren || payload.isParent;
+
+  let nodeColor = getAuditResultColor(payload.name);
+
+  if (!nodeColor) {
+    nodeColor = hasChildren ? "var(--color-dodger-blue)" : "var(--color-horizon)";
+  }
+
   return (
     <g transform={`translate(${x},${y})`} style={{ cursor: "pointer" }}>
       <rect
@@ -399,7 +416,7 @@ const Node = ({ x, y, width, height, payload }: NodeProps) => {
         rx={4}
         height={height + 10}
         cursor={hasChildren ? "pointer" : "default"}
-        fill={hasChildren ? "var(--color-dodger-blue)" : "var(--color-horizon)"}
+        fill={nodeColor}
       />
       <text
         x={width * 1.5}
@@ -421,6 +438,15 @@ const ExpandedNode = ({ x, y, width, height, payload }: NodeProps) => {
   if (isHidden || isNaN(x) || isNaN(y)) {
     return <g transform={`translate(${x},${y})`}></g>;
   }
+
+  let nodeColor = getAuditResultColor(payload.name);
+
+  if (!nodeColor) {
+    nodeColor = !!rawData?.length
+      ? "var(--color-dodger-blue)"
+      : "var(--color-horizon)";
+  }
+
   return (
     <g
       transform={`translate(${x},${y})`}
@@ -435,14 +461,10 @@ const ExpandedNode = ({ x, y, width, height, payload }: NodeProps) => {
             x={-width}
             y={-5}
             width={width * 2}
-            rx={4}
+            rx={6}
             height={height + 10}
             cursor={!!rawData?.length ? "pointer" : "default"}
-            fill={
-              !!rawData?.length
-                ? "var(--color-dodger-blue)"
-                : "var(--color-horizon)"
-            }
+            fill={nodeColor}
           />
         </DialogTrigger>
         <DialogContent className="bg-white">
@@ -481,5 +503,84 @@ const ExpandedNode = ({ x, y, width, height, payload }: NodeProps) => {
     </g>
   );
 };
+
+const ColouredLink = (props: {
+  sourceX: number
+  targetX: number
+  sourceY: number
+  targetY: number
+  sourceControlX: number
+  targetControlX: number
+  sourceRelativeY: number
+  targetRelativeY: number
+  linkWidth: number
+  index: number
+  payload: {
+    source: {
+      name: string
+      datacap: number
+      allocators: number
+      nodeId: number
+      isParent: boolean
+      hasChildren: boolean
+      value: number
+    }
+    target: {
+      name: string
+      datacap: number
+      allocators: number
+      nodeId: number
+      isParent: boolean
+      hasChildren: boolean
+      value: number
+    }
+    value: number
+    datacap: number
+    allocators: number
+    hasChildren: boolean
+    dy: number
+    sy: number
+    ty: number
+  }
+}) => {
+  const {
+    sourceX,
+    targetX,
+    sourceY,
+    targetY,
+    sourceControlX,
+    targetControlX,
+    linkWidth,
+    index,
+    payload
+  } = props;
+
+  let linkColor = getAuditResultColor(payload.target.name);
+
+  if (!linkColor) {
+    linkColor = "var(--color-echo-blue)"
+  }
+
+  return (
+    <Layer key={`CustomLink${index}`}>
+      <path
+        d={`
+            M${sourceX},${sourceY + linkWidth / 2}
+            C${sourceControlX},${sourceY + linkWidth / 2}
+              ${targetControlX},${targetY + linkWidth / 2}
+              ${targetX},${targetY + linkWidth / 2}
+            L${targetX},${targetY - linkWidth / 2}
+            C${targetControlX},${targetY - linkWidth / 2}
+              ${sourceControlX},${sourceY - linkWidth / 2}
+              ${sourceX},${sourceY - linkWidth / 2}
+            Z
+          `}
+        fill={linkColor}
+        fillOpacity={0.35}
+        strokeWidth="0"
+      />
+    </Layer>
+  );
+}
 
 export { DataCapFlowSankey };
