@@ -3,7 +3,6 @@ import { GithubButton } from "@/components/github-button";
 import { JsonLd } from "@/components/json.ld";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ResponsiveView } from "@/components/ui/responsive-view";
-import { PageHeader, PageSubTitle, PageTitle } from "@/components/ui/title";
 import { getClients } from "@/lib/api";
 import { createClientLink } from "@/lib/filecoin-pulse";
 import { convertBytesToIEC, generatePageMetadata } from "@/lib/utils";
@@ -83,21 +82,26 @@ export default async function ClientDetailsLayout({
   return (
     <JsonLd data={person}>
       <div className="flex w-full justify-between mb-4 main-content">
-        <PageHeader>
-          <div className="flex items-end">
-            <PageTitle>{clientData.name}</PageTitle>
-            <div className="ml-4 mb-1 flex items-center gap-1">
-              {!!clientData.githubUrl && (
-                <GithubButton
-                  url={clientData.githubUrl}
-                  tooltipText="View application on GitHub"
-                />
-              )}
-              <FilecoinPulseButton url={createClientLink(params.id)} />
-            </div>
+        <div className="text-white">
+          <h1 className="text-3xl leading-relaxed font-semibold">
+            {clientData.name}
+          </h1>
+          <p className="text-sm leading-none mb-4">Client ID: {params.id}</p>
+          <div className="flex items-center gap-2">
+            {!!clientData.githubUrl && (
+              <GithubButton url={clientData.githubUrl}>
+                <span className="lg:hidden">GitHub</span>
+                <span className="hidden lg:inline">
+                  View application on GitHub
+                </span>
+              </GithubButton>
+            )}
+            <FilecoinPulseButton url={createClientLink(params.id)}>
+              <span className="lg:hidden">Pulse</span>
+              <span className="hidden lg:inline">View on Filecoin Pulse</span>
+            </FilecoinPulseButton>
           </div>
-          <PageSubTitle>Client ID: {params.id}</PageSubTitle>
-        </PageHeader>
+        </div>
         <ResponsiveView>
           <div className="grid grid-cols-2 w-full p-4 pb-10 gap-4 md:my-6 md:p-0">
             <Card>

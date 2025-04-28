@@ -90,7 +90,7 @@ export const convertBytesToIECSimple = (bytes?: string | number | boolean) => {
     standard: "iec",
   });
   return bytes !== undefined && !isNaN(Number(bytes)) && isFinite(Number(bytes))
-    ? (+converted.split(" ")[0]) * (converted.split(" ")[1] === 'EiB' ? 1000 : 1)
+    ? +converted.split(" ")[0] * (converted.split(" ")[1] === "EiB" ? 1000 : 1)
     : 0;
 };
 
