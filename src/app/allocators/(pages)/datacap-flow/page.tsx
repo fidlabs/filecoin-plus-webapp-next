@@ -18,6 +18,7 @@ async function fetchPageData() {
   const [allocatorsData, sheetData] = await Promise.all([
     getAllocators({
       page: "1",
+      limit: "999999",
       showInactive: "true",
     }),
     getGoogleSheetAuditSizes(),
