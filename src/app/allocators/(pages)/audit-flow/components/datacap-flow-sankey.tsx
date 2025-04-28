@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useMemo, useState} from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { DataCapChild } from "@/lib/hooks/dmob.hooks";
 import { cn, convertBytesToIEC, convertBytesToIECSimple } from "@/lib/utils";
 import {
@@ -70,11 +70,15 @@ interface SankeyData {
 }
 
 const getAuditResultColor = (nodeName: string) => {
-  switch(nodeName) {
-    case "Pass": return "var(--color-mountain-meadow)"; // Green using Tailwind CSS variable
-    case "Conditional": return "var(--warning)"; // Orange using Tailwind CSS variable
-    case "Failed": return "var(--destructive)"; // Red using Tailwind CSS variable
-    default: return null; // Use default color logic
+  switch (nodeName) {
+    case "Pass":
+      return "var(--color-mountain-meadow)"; // Green using Tailwind CSS variable
+    case "Conditional":
+      return "var(--warning)"; // Orange using Tailwind CSS variable
+    case "Failed":
+      return "var(--destructive)"; // Red using Tailwind CSS variable
+    default:
+      return null; // Use default color logic
   }
 };
 
@@ -404,7 +408,9 @@ const Node = ({ x, y, width, height, payload }: NodeProps) => {
   let nodeColor = getAuditResultColor(payload.name);
 
   if (!nodeColor) {
-    nodeColor = hasChildren ? "var(--color-dodger-blue)" : "var(--color-horizon)";
+    nodeColor = hasChildren
+      ? "var(--color-dodger-blue)"
+      : "var(--color-horizon)";
   }
 
   return (
@@ -505,43 +511,43 @@ const ExpandedNode = ({ x, y, width, height, payload }: NodeProps) => {
 };
 
 const ColouredLink = (props: {
-  sourceX: number
-  targetX: number
-  sourceY: number
-  targetY: number
-  sourceControlX: number
-  targetControlX: number
-  sourceRelativeY: number
-  targetRelativeY: number
-  linkWidth: number
-  index: number
+  sourceX: number;
+  targetX: number;
+  sourceY: number;
+  targetY: number;
+  sourceControlX: number;
+  targetControlX: number;
+  sourceRelativeY: number;
+  targetRelativeY: number;
+  linkWidth: number;
+  index: number;
   payload: {
     source: {
-      name: string
-      datacap: number
-      allocators: number
-      nodeId: number
-      isParent: boolean
-      hasChildren: boolean
-      value: number
-    }
+      name: string;
+      datacap: number;
+      allocators: number;
+      nodeId: number;
+      isParent: boolean;
+      hasChildren: boolean;
+      value: number;
+    };
     target: {
-      name: string
-      datacap: number
-      allocators: number
-      nodeId: number
-      isParent: boolean
-      hasChildren: boolean
-      value: number
-    }
-    value: number
-    datacap: number
-    allocators: number
-    hasChildren: boolean
-    dy: number
-    sy: number
-    ty: number
-  }
+      name: string;
+      datacap: number;
+      allocators: number;
+      nodeId: number;
+      isParent: boolean;
+      hasChildren: boolean;
+      value: number;
+    };
+    value: number;
+    datacap: number;
+    allocators: number;
+    hasChildren: boolean;
+    dy: number;
+    sy: number;
+    ty: number;
+  };
 }) => {
   const {
     sourceX,
@@ -552,13 +558,13 @@ const ColouredLink = (props: {
     targetControlX,
     linkWidth,
     index,
-    payload
+    payload,
   } = props;
 
   let linkColor = getAuditResultColor(payload.target.name);
 
   if (!linkColor) {
-    linkColor = "var(--color-echo-blue)"
+    linkColor = "var(--color-echo-blue)";
   }
 
   return (
@@ -581,6 +587,6 @@ const ColouredLink = (props: {
       />
     </Layer>
   );
-}
+};
 
 export { DataCapFlowSankey };

@@ -209,9 +209,11 @@ function prepareAutomaticSankeyData(
 function prepareExperimentalSankeyData(
   allocatorsData: IAllocatorsResponse,
   generator: Generator<number>,
-  openedSection: OpenedSection) {
-
-  const experimentalPathwayMetaAllocator = allocatorsData.data.find(allocator => allocator.addressId = 'f03521515')
+  openedSection: OpenedSection
+) {
+  const experimentalPathwayMetaAllocator = allocatorsData.data.find(
+    (allocator) => (allocator.addressId = "f03521515")
+  );
 
   const experinemtalPathwayId = generator.next().value as number;
   const experinemtalPathwayChildId = generator.next().value as number;
@@ -222,15 +224,18 @@ function prepareExperimentalSankeyData(
         name: "Experimental Pathway MetaAllocator",
         allocators: [],
         isHidden: false,
-        totalDatacap: BigInt(experimentalPathwayMetaAllocator?.initialAllowance || 0),
+        totalDatacap: BigInt(
+          experimentalPathwayMetaAllocator?.initialAllowance || 0
+        ),
         last: false,
-      }, {
+      },
+      {
         name: "Experimental Pathway MetaAllocator Child",
         isHidden: true,
         allocators: [],
         totalDatacap: BigInt(1),
         last: false,
-      }
+      },
     ],
     links: [
       {
@@ -242,12 +247,13 @@ function prepareExperimentalSankeyData(
         source: experinemtalPathwayId,
         target: experinemtalPathwayChildId,
         value: 1,
-      }
+      },
     ],
   };
 
   if (openedSection !== undefined) {
-    const experinemtalPathwayChildForOpenedId = generator.next().value as number;
+    const experinemtalPathwayChildForOpenedId = generator.next()
+      .value as number;
 
     sankeyData.nodes.push({
       name: "Experimental Pathway MetaAllocator Child Nested",
@@ -261,12 +267,10 @@ function prepareExperimentalSankeyData(
       source: experinemtalPathwayChildId,
       target: experinemtalPathwayChildForOpenedId,
       value: 1,
-    })
+    });
   }
 
-
   return sankeyData;
-
 }
 
 function prepareManualSankeyData(
@@ -459,8 +463,18 @@ function loadSankyData(
   );
 
   return {
-    nodes: [...sankeyData.nodes, ...automaticData.nodes, ...manualData.nodes, ...experimentalData.nodes],
-    links: [...sankeyData.links, ...automaticData.links, ...manualData.links, ...experimentalData.links],
+    nodes: [
+      ...sankeyData.nodes,
+      ...automaticData.nodes,
+      ...manualData.nodes,
+      ...experimentalData.nodes,
+    ],
+    links: [
+      ...sankeyData.links,
+      ...automaticData.links,
+      ...manualData.links,
+      ...experimentalData.links,
+    ],
   };
 }
 
