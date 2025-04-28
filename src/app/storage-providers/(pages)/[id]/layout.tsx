@@ -37,10 +37,10 @@ export async function generateMetadata({
   });
 }
 
-const AllocatorDetailsLayout = async ({
+export default async function StorageProviderDetailsLayout({
   children,
   params,
-}: PropsWithChildren<IPageProps>) => {
+}: PropsWithChildren<IPageProps>) {
   const spResponse = await fetchData(params.id);
 
   return (
@@ -49,16 +49,14 @@ const AllocatorDetailsLayout = async ({
         <PageHeader>
           <div className="flex gap-4 items-end">
             <PageTitle>{spResponse?.providerId}</PageTitle>
-            <FilecoinPulseButton
-              className="mb-1"
-              url={createStorageProviderLink(params.id)}
-            />
+            <FilecoinPulseButton url={createStorageProviderLink(params.id)}>
+              <span className="lg:hidden">Pulse</span>
+              <span className="hidden lg:inline">View on Filecoin Pulse</span>
+            </FilecoinPulseButton>
           </div>
         </PageHeader>
       </div>
       <Suspense>{children}</Suspense>
     </main>
   );
-};
-
-export default AllocatorDetailsLayout;
+}
