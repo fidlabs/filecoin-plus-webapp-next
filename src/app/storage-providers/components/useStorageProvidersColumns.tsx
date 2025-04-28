@@ -117,7 +117,7 @@ export function useStorageProvidersColumns({
       cell: ({ row }) => {
         const lastDealHeight = row.getValue("lastDealHeight") as number;
         return (
-          <div className="whitespace-nowrap flex gap-1 items-center">
+          <div className="whitespace-nowrap flex gap-1 items-center justify-end">
             {calculateDateFromHeight(+lastDealHeight)}
             <HoverCard openDelay={100} closeDelay={50}>
               <HoverCardTrigger asChild>
