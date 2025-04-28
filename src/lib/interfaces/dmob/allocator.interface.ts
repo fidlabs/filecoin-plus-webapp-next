@@ -5,9 +5,9 @@ import {
 } from "@/lib/interfaces/dmob/dmob.interface";
 import { IClient } from "@/lib/interfaces/dmob/client.interface";
 
-export interface IAllocatorsResponse
-  extends IApiListResponse<IAllocator>,
-    IApiListCountable {}
+export interface IAllocatorsResponse extends IApiListResponse<IAllocator> {
+  count: number;
+}
 
 export interface IAllocatorResponse
   extends IApiListResponse<IClient>,

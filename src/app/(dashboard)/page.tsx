@@ -50,6 +50,7 @@ export default async function Home() {
     await getGoogleSheetAuditSizes(),
     await getAllocators({
       page: "1",
+      limit: "999999",
       showInactive: "true",
     }),
   ])) as AllSettledResult;

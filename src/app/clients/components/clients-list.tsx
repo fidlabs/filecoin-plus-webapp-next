@@ -68,7 +68,7 @@ const ClientsList = ({ clients, params }: ClientsListProps) => {
         <GenericContentFooter
           page={params?.page}
           limit={params?.limit}
-          total={clients?.count ?? "0"}
+          total={clients?.count.toString() ?? "0"}
           patchParams={patchParams}
         />
       </Card>

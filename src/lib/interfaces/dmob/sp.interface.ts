@@ -1,23 +1,21 @@
-import {
-  IApiListCountable,
-  IApiListResponse,
-} from "@/lib/interfaces/dmob/dmob.interface";
+import { IApiListResponse } from "@/lib/interfaces/dmob/dmob.interface";
 
 export interface IStorageProvidersResponse
-  extends IApiListResponse<IStorageProvider>,
-    IApiListCountable {}
+  extends IApiListResponse<IStorageProvider> {
+  count: number;
+}
 
 export interface IStorageProvider {
   provider: string;
   noOfVerifiedDeals: number;
   verifiedDealsTotalSize: string;
   noOfClients: number;
-  lastDealHeight: string;
+  lastDealHeight: number;
 }
 
 export interface IStorageProviderResponse
-  extends IApiListResponse<IStorageProviderClient>,
-    IApiListCountable {
+  extends IApiListResponse<IStorageProviderClient> {
+  count: number;
   providerId: string;
 }
 

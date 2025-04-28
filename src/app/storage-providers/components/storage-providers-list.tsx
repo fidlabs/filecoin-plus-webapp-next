@@ -1,74 +1,69 @@
 "use client";
-import { DataTable } from "@/components/ui/data-table";
-import { Card, CardContent } from "@/components/ui/card";
-import { IStorageProvidersQuery } from "@/lib/interfaces/api.interface";
+
 import {
-  GenericContentFooter,
-  GenericContentHeader,
-} from "@/components/generic-content-view";
-import { getStorageProviders } from "@/lib/api";
-import { useParamsQuery } from "@/lib/hooks/useParamsQuery";
-import { useStorageProvidersColumns } from "@/app/storage-providers/components/useStorageProvidersColumns";
-import { ITabNavigatorTab } from "@/components/ui/tab-navigator";
-import { IStorageProvidersResponse } from "@/lib/interfaces/dmob/sp.interface";
+  useStorageProvidersColumns,
+  UseStorageProvidersColumnsOptions,
+} from "@/app/storage-providers/components/useStorageProvidersColumns";
+import { GenericContentFooter } from "@/components/generic-content-view";
+import { DataTable } from "@/components/ui/data-table";
+import { useSearchParamsFilters } from "@/lib/hooks/use-search-params-filters";
+import { useCallback, useMemo } from "react";
 
 interface StorageProvidersListProps {
-  sps: IStorageProvidersResponse;
-  params: IStorageProvidersQuery;
+  storageProviders: Array<{
+    provider: string;
+    noOfVerifiedDeals: number;
+    noOfClients: number;
+    verifiedDealsTotalSize: string;
+    lastDealHeight: number;
+  }>;
+  totalCount: number;
 }
 
-const tabs = [
-  {
-    label: "Storage Providers",
-    href: "/storage-providers",
-    value: "list",
-  },
-] as ITabNavigatorTab[];
+export function StorageProvidersList({
+  storageProviders,
+  totalCount,
+}: StorageProvidersListProps) {
+  const { filters, updateFilters } = useSearchParamsFilters();
 
-const StorageProvidersList = ({ sps, params }: StorageProvidersListProps) => {
-  const { patchParams } = useParamsQuery(params);
+  const sorting: UseStorageProvidersColumnsOptions["sorting"] = useMemo(() => {
+    if (
+      !filters.sort ||
+      (filters.order !== "asc" && filters.order !== "desc")
+    ) {
+      return null;
+    }
 
-  const { columns, csvHeaders } = useStorageProvidersColumns((key, direction) =>
-    patchParams({ sort: `[["${key}",${direction}]]` })
+    return {
+      key: filters.sort,
+      direction: filters.order,
+    };
+  }, [filters.sort, filters.order]);
+
+  const handleSort = useCallback(
+    (key: string, direction: string) => {
+      updateFilters({
+        sort: key,
+        order: direction,
+      });
+    },
+    [updateFilters]
   );
+
+  const columns = useStorageProvidersColumns({
+    sorting,
+    onSort: handleSort,
+  });
 
   return (
-    <Card className="mt-[50px]">
-      <GenericContentHeader
-        placeholder="Storage provider ID"
-        query={params?.filter}
-        getCsv={{
-          method: async () => {
-            const data = await getStorageProviders(params);
-            return {
-              data: data.data as never[],
-            };
-          },
-          title: "storage-providers.csv",
-          headers: csvHeaders,
-        }}
-        navigation={tabs}
-        selected={tabs[0].value}
-        setQuery={(filterString: string) => {
-          const filter = filterString.startsWith("f0")
-            ? filterString.substring(2)
-            : filterString;
-          if (params.filter !== filter) {
-            patchParams({ filter, page: "1" });
-          }
-        }}
-      />
-      <CardContent className="p-0">
-        <DataTable columns={columns} data={sps!.data} />
-      </CardContent>
+    <div>
+      <DataTable columns={columns} data={storageProviders} />
       <GenericContentFooter
-        page={params?.page}
-        limit={params?.limit}
-        total={sps?.count ?? "0"}
-        patchParams={patchParams}
+        page={filters.page ?? "1"}
+        limit={filters.limit ?? "10"}
+        total={String(totalCount)}
+        patchParams={updateFilters}
       />
-    </Card>
+    </div>
   );
-};
-
-export { StorageProvidersList };
+}
