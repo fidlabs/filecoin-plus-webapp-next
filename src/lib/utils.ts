@@ -261,3 +261,30 @@ export function capitalize(input: string): string {
 export function dateToYearWeek(input: Date | string): string {
   return `W${getWeek(input)}'${getWeekYear(input).toString().slice(-2)}`;
 }
+
+export function objectToURLSearchParams(
+  input: Record<string, unknown>
+): URLSearchParams {
+  const params = new URLSearchParams();
+
+  Object.entries(input).forEach(([key, value]) => {
+    if (typeof value === "string" && value !== "") {
+      params.set(key, value);
+    }
+  });
+
+  return params;
+}
+
+export function downloadCSV(filename: string, contents: string) {
+  const blob = new Blob([contents], {
+    type: "text/csv;charset=utf-8;",
+  });
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}

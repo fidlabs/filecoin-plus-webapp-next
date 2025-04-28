@@ -1,14 +1,14 @@
-import { DataTableSort } from "@/components/ui/data-table";
-import Link from "next/link";
+import { DMOBDataTableSort } from "@/components/dmob-data-table-sort";
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import { calculateDateFromHeight, convertBytesToIEC } from "@/lib/utils";
-import { InfoIcon } from "lucide-react";
-import { ColumnDef } from "@tanstack/react-table";
 import { IClient } from "@/lib/interfaces/dmob/client.interface";
+import { calculateDateFromHeight, convertBytesToIEC } from "@/lib/utils";
+import { ColumnDef } from "@tanstack/react-table";
+import { InfoIcon } from "lucide-react";
+import Link from "next/link";
 
 type FilterCallback = (key: string, direction: string) => void;
 
@@ -18,9 +18,9 @@ export const useVerifiedClientsColumns = (filterCallback: FilterCallback) => {
       accessorKey: "addressId",
       header: () => {
         return (
-          <DataTableSort property="addressId" setSorting={filterCallback}>
+          <DMOBDataTableSort property="addressId" onSort={filterCallback}>
             Verified Client ID
-          </DataTableSort>
+          </DMOBDataTableSort>
         );
       },
       cell: ({ row }) => {
@@ -36,9 +36,9 @@ export const useVerifiedClientsColumns = (filterCallback: FilterCallback) => {
       accessorKey: "name",
       header: () => {
         return (
-          <DataTableSort property="name" setSorting={filterCallback}>
+          <DMOBDataTableSort property="name" onSort={filterCallback}>
             Client name
-          </DataTableSort>
+          </DMOBDataTableSort>
         );
       },
       cell: ({ row }) => {
@@ -68,12 +68,12 @@ export const useVerifiedClientsColumns = (filterCallback: FilterCallback) => {
       accessorKey: "initialAllowance",
       header: () => {
         return (
-          <DataTableSort
+          <DMOBDataTableSort
             property="initialAllowance"
-            setSorting={filterCallback}
+            onSort={filterCallback}
           >
             DataCap received
-          </DataTableSort>
+          </DMOBDataTableSort>
         );
       },
       cell: ({ row }) => {
@@ -114,12 +114,12 @@ export const useVerifiedClientsColumns = (filterCallback: FilterCallback) => {
       accessorKey: "remainingDatacap",
       header: () => {
         return (
-          <DataTableSort
+          <DMOBDataTableSort
             property="remainingDatacap"
-            setSorting={filterCallback}
+            onSort={filterCallback}
           >
             DataCap Remaining
-          </DataTableSort>
+          </DMOBDataTableSort>
         );
       },
       cell: ({ row }) => {
@@ -131,12 +131,12 @@ export const useVerifiedClientsColumns = (filterCallback: FilterCallback) => {
       accessorKey: "usedDatacapChange",
       header: () => {
         return (
-          <DataTableSort
+          <DMOBDataTableSort
             property="usedDatacapChange"
-            setSorting={filterCallback}
+            onSort={filterCallback}
           >
             DataCap Used Last 2 Weeks
-          </DataTableSort>
+          </DMOBDataTableSort>
         );
       },
       cell: ({ row }) => {

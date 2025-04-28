@@ -103,7 +103,7 @@ const useGoogleSheetsAuditReport = () => {
   useEffect(() => {
     setLoading(true);
     Promise.all([
-      getAllocators({ showInactive: "false" }),
+      getAllocators({ page: "1", limit: "999999", showInactive: "false" }),
       getGoogleSheetAuditHistory(),
       getGoogleSheetAuditHistorySizes(),
     ]).then(([allocators, auditHistory, auditSizes]) => {

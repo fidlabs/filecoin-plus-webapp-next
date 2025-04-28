@@ -5,11 +5,11 @@ import {
   flexRender,
   getCoreRowModel,
   getSortedRowModel,
-  SortingState,
-  useReactTable,
-  Table as TenstackTable,
-  RowSelectionState,
   OnChangeFn,
+  RowSelectionState,
+  SortingState,
+  Table as TenstackTable,
+  useReactTable,
 } from "@tanstack/react-table";
 
 import {
@@ -20,11 +20,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronUp } from "lucide-react";
-import { PropsWithChildren, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import { cn } from "@/lib/utils";
+import { PropsWithChildren, useEffect, useState } from "react";
 
 type DataTableProps<TData, TValue> = PropsWithChildren<{
   columns: ColumnDef<TData, TValue>[];
@@ -118,58 +114,3 @@ export function DataTable<TData, TValue>(props: DataTableProps<TData, TValue>) {
     </Table>
   );
 }
-
-interface IDataTableSortProps {
-  property: string;
-  setSorting: (key: string, direction: string) => void;
-}
-
-export const DataTableSort = ({
-  children,
-  property,
-  setSorting,
-}: PropsWithChildren<IDataTableSortProps>) => {
-  const query = useSearchParams();
-
-  const selectedDirection = useMemo(() => {
-    if (!query.get("sort")) {
-      return undefined;
-    }
-    const sortParts = query.get("sort")?.split(",") ?? [];
-    const selectedProperty = sortParts[0]?.replace(/[\[\]"]+/g, "");
-    const direction = sortParts[1][0];
-
-    if (selectedProperty === property) {
-      return direction;
-    }
-    return undefined;
-  }, [query, property]);
-
-  return (
-    <div className="flex gap-2 items-center">
-      <p>{children}</p>
-      <div className="flex flex-col">
-        <Button
-          variant="ghost"
-          className={cn(
-            "h-5 w-5 p-0 rounded-b-none",
-            selectedDirection === "1" && "text-link bg-muted rounded-md"
-          )}
-          onClick={() => setSorting(property, "1")}
-        >
-          <ChevronUp className="h-4 w-4" />
-        </Button>
-        <Button
-          variant="ghost"
-          className={cn(
-            "h-5 w-5 p-0 rounded-t-none",
-            selectedDirection === "0" && "text-link bg-muted rounded-md"
-          )}
-          onClick={() => setSorting(property, "0")}
-        >
-          <ChevronDown className="h-4 w-4" />
-        </Button>
-      </div>
-    </div>
-  );
-};
