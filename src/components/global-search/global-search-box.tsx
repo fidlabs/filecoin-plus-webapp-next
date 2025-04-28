@@ -70,7 +70,7 @@ const defaultActions = [
     name: "Allocators Tree Structure",
     group: "allocators",
     tags: ["allocators", "allocator", "tree", "structure"],
-    link: "/allocators/allocator-tree",
+    link: "/allocators/datacap-flow",
   },
   {
     name: "Compliance Data Portal",
