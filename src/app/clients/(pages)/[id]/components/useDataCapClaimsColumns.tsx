@@ -7,6 +7,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import { ClientOnlyWrapper } from "@/components/client-only-wrapper";
 
 export const useDataCapClaimsColumns = () => {
   const columns = [
@@ -71,7 +72,11 @@ export const useDataCapClaimsColumns = () => {
       },
       cell: ({ row }) => {
         const createDate = new Date(row.getValue("createdAt"));
-        return <p>{createDate.toLocaleString()}</p>;
+        return (
+          <ClientOnlyWrapper>
+            <p>{createDate.toLocaleString()}</p>
+          </ClientOnlyWrapper>
+        );
       },
     },
   ] as ColumnDef<IClientDeal>[];
