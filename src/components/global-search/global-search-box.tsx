@@ -37,227 +37,154 @@ function compareTags(arr1: string[], arr2: string[]) {
 
 const defaultActions = [
   {
-    name: "Allocators list",
-    group: "allocators",
-    tags: ["allocators", "allocator", "list"],
-    link: "/allocators",
-  },
-  {
-    name: "Clients list",
-    group: "clients",
-    tags: ["clients", "client", "list"],
-    link: "/clients",
-  },
-  {
-    name: "Storage providers list",
-    group: "storage providers",
-    tags: ["storage", "provider", "providers", "sp", "sps", "list"],
-    link: "/storage-providers",
-  },
-  {
-    name: "Storage providers compliance overview",
-    group: "storage providers",
-    tags: ["storage", "provider", "providers", "sp", "sps", "compliance"],
-    link: "/storage-providers/compliance",
-  },
-  {
-    name: "Allocators compliance",
-    group: "allocators",
-    tags: ["allocators", "allocator", "compliance"],
-    link: "/allocators/compliance",
-  },
-  {
-    name: "Allocators Tree Structure",
-    group: "allocators",
-    tags: ["allocators", "allocator", "tree", "structure"],
-    link: "/allocators/datacap-flow",
-  },
-  {
-    name: "Compliance Data Portal",
-    group: "Compliance Data Porta",
-    tags: ["compliance", "data", "portal", "chart", "cdp"],
-    link: "/compliance-data-portal",
-  },
-  {
-    name: "Storage providers Retrievability Score",
-    group: "Compliance Data Porta",
-    tags: [
-      "compliance",
-      "data",
-      "portal",
-      "chart",
-      "cdp",
-      "storage",
-      "provider",
-      "providers",
-      "sp",
-      "sps",
-      "compliance",
-      "retrievability",
-      "score",
-    ],
-    link: "/compliance-data-portal?chart=RetrievabilityScoreSP",
-  },
-  {
-    name: "Storage providers Number of allocations",
-    group: "Compliance Data Porta",
-    tags: [
-      "compliance",
-      "data",
-      "portal",
-      "chart",
-      "cdp",
-      "storage",
-      "provider",
-      "providers",
-      "sp",
-      "sps",
-      "compliance",
-      "number",
-      "of",
-      "allocations",
-    ],
-    link: "/compliance-data-portal?chart=NumberOfDealsSP",
-  },
-  {
-    name: "Storage providers Biggest allocation",
-    group: "Compliance Data Porta",
-    tags: [
-      "compliance",
-      "data",
-      "portal",
-      "chart",
-      "cdp",
-      "storage",
-      "provider",
-      "providers",
-      "sp",
-      "sps",
-      "compliance",
-      "biggest",
-      "deal",
-      "deals",
-      "allocation",
-      "allocations",
-    ],
-    link: "/compliance-data-portal?chart=BiggestDealsSP",
-  },
-  {
-    name: "Storage providers compliance",
-    group: "Compliance Data Porta",
-    tags: [
-      "compliance",
-      "data",
-      "portal",
-      "chart",
-      "cdp",
-      "storage",
-      "provider",
-      "providers",
-      "sp",
-      "sps",
-      "compliance",
-    ],
-    link: "/compliance-data-portal?chart=ComplianceSP",
-  },
-  {
-    name: "Allocators Retrievability Score",
-    group: "Compliance Data Porta",
-    tags: [
-      "compliance",
-      "data",
-      "portal",
-      "chart",
-      "cdp",
-      "allocator",
-      "allocators",
-      "compliance",
-      "retrievability",
-      "score",
-    ],
-    link: "/compliance-data-portal?chart=RetrievabilityScoreAllocator",
-  },
-  {
-    name: "Allocator's Size Of The Biggest client allocation",
-    group: "Compliance Data Porta",
-    tags: [
-      "compliance",
-      "data",
-      "portal",
-      "chart",
-      "cdp",
-      "allocator",
-      "allocators",
-      "compliance",
-      "biggest",
-      "deal",
-      "deals",
-      "allocation",
-      "allocations",
-    ],
-    link: "/compliance-data-portal?chart=BiggestDealsAllocator",
-  },
-  {
-    name: "Allocator Compliance based on % SP Compliance",
-    group: "Compliance Data Porta",
-    tags: [
-      "compliance",
-      "data",
-      "portal",
-      "chart",
-      "cdp",
-      "allocator",
-      "allocators",
-      "compliance",
-      "biggest",
-      "provider",
-      "providers",
-      "sp",
-      "sps",
-      "compliance",
-    ],
-    link: "/compliance-data-portal?chart=ProviderComplianceAllocator",
-  },
-  {
-    name: "Audit State of the Allocators",
-    group: "Compliance Data Porta",
-    tags: [
-      "compliance",
-      "data",
-      "portal",
-      "chart",
-      "cdp",
-      "allocator",
-      "allocators",
-      "audit",
-      "state",
-      "compliance",
-    ],
-    link: "/compliance-data-portal?chart=AuditStateAllocator",
-  },
-  {
-    name: "Governance Compliance Audit Outcomes",
-    group: "Compliance Data Porta",
-    tags: [
-      "compliance",
-      "data",
-      "portal",
-      "chart",
-      "cdp",
-      "allocator",
-      "allocators",
-      "audit",
-      "outcomes",
-      "trust",
-      "compliance",
-    ],
-    link: "/compliance-data-portal?chart=AuditOutcomesAllocator",
+    name: "Home",
+    group: "generic",
+    tags: ["home", "state", "fil+", "filecoin", "plus", "statistics", "metrics", "dashboard"],
+    link: "/",
   },
   {
     name: "About",
     group: "generic",
     tags: ["about", "us", "filecoin", "plus"],
     link: "/about",
+  },
+
+  {
+    name: "Allocators list",
+    group: "allocators",
+    tags: ["allocators", "allocator", "list"],
+    link: "/allocators",
+  },
+  {
+    name: "Allocators Datacap Flow",
+    group: "allocators",
+    tags: ["allocators", "allocator", "datacap", "flow", 'structure', 'structure flow'],
+    link: "/allocators/datacap-flow",
+  },
+  {
+    name: "Allocators Audit Flow",
+    group: "allocators",
+    tags: ["allocators", "allocator", "audit", "flow"],
+    link: "/allocators/audit-flow",
+  },
+
+  {
+    name: "Clients list",
+    group: "clients",
+    tags: ["clients", "client", "list"],
+    link: "/clients",
+  },
+
+  {
+    name: "Storage providers list",
+    group: "storage providers",
+    tags: ["storage", "provider", "providers", "sp", "sps", "list"],
+    link: "/storage-providers",
+  },
+
+  {
+    name: "Compliance Data Portal - Allocators Retrievability",
+    group: "Compliance Data Portal - Allocators",
+    tags: ["compliance", "data", "portal", "chart", "cdp", "allocators", "retrievability"],
+    link: "/compliance-data-portal/allocators/retrievability",
+  },
+  {
+    name: "Compliance Data Portal - Allocators Biggest Deals",
+    group: "Compliance Data Portal - Allocators",
+    tags: ["compliance", "data", "portal", "chart", "cdp", "allocators", "biggest", "deals"],
+    link: "/compliance-data-portal/allocators/biggest-deals",
+  },
+  {
+    name: "Compliance Data Portal - Allocators Providers Compliance",
+    group: "Compliance Data Portal - Allocators",
+    tags: ["compliance", "data", "portal", "chart", "cdp", "allocators", "providers", "compliance"],
+    link: "/compliance-data-portal/allocators/providers-compliance",
+  },
+  {
+    name: "Compliance Data Portal - Allocators Audit State",
+    group: "Compliance Data Portal - Allocators",
+    tags: ["compliance", "data", "portal", "chart", "cdp", "allocators", "audit", "state"],
+    link: "/compliance-data-portal/allocators/audit-state",
+  },
+  {
+    name: "Compliance Data Portal - Allocators Audit Outcomes",
+    group: "Compliance Data Portal - Allocators",
+    tags: ["compliance", "data", "portal", "chart", "cdp", "allocators", "audit", "outcomes"],
+    link: "/compliance-data-portal/allocators/audit-outcomes",
+  },
+  {
+    name: "Compliance Data Portal - Allocators Audit Timeline",
+    group: "Compliance Data Portal - Allocators",
+    tags: ["compliance", "data", "portal", "chart", "cdp", "allocators", "audit", "timeline"],
+    link: "/compliance-data-portal/allocators/audit-timeline",
+  },
+  {
+    name: "Compliance Data Portal - Allocators Client Diversity",
+    group: "Compliance Data Portal - Allocators",
+    tags: ["compliance", "data", "portal", "chart", "cdp", "allocators", "client", "diversity"],
+    link: "/compliance-data-portal/allocators/client-diversity",
+  },
+
+  {
+    name: "Compliance Data Portal - Old DataCap Owned by Entities",
+    group: "Compliance Data Portal - Old DataCap",
+    tags: ["compliance", "data", "portal", "chart", "cdp", "old", "datacap", "owned", "entities"],
+    link: "/compliance-data-portal/old-datacap/owned-by-entities",
+  },
+  {
+    name: "Compliance Data Portal - Old DataCap Allocated to Clients",
+    group: "Compliance Data Portal - Old DataCap",
+    tags: ["compliance", "data", "portal", "chart", "cdp", "old", "datacap", "allocated", "clients"],
+    link: "/compliance-data-portal/old-datacap/allocated-to-clients",
+  },
+  {
+    name: "Compliance Data Portal - Old DataCap Owned by Clients",
+    group: "Compliance Data Portal - Old DataCap",
+    tags: ["compliance", "data", "portal", "chart", "cdp", "old", "datacap", "owned", "clients"],
+    link: "/compliance-data-portal/old-datacap/owned-by-clients",
+  },
+  {
+    name: "Compliance Data Portal - Old DataCap Spent by Clients",
+    group: "Compliance Data Portal - Old DataCap",
+    tags: ["compliance", "data", "portal", "chart", "cdp", "old", "datacap", "spent", "clients"],
+    link: "/compliance-data-portal/old-datacap/spent-by-clients",
+  },
+
+  {
+    name: "Compliance Data Portal - Storage Providers Compliance",
+    group: "Compliance Data Portal - Storage Providers",
+    tags: ["compliance", "data", "portal", "chart", "cdp", "storage", "providers", "compliance"],
+    link: "/compliance-data-portal/storage-providers/compliance",
+  },
+  {
+    name: "Compliance Data Portal - Storage Providers Retrievability",
+    group: "Compliance Data Portal - Storage Providers",
+    tags: ["compliance", "data", "portal", "chart", "cdp", "storage", "providers", "retrievability"],
+    link: "/compliance-data-portal/storage-providers/retrievability",
+  },
+  {
+    name: "Compliance Data Portal - Storage Providers Number of Deals",
+    group: "Compliance Data Portal - Storage Providers",
+    tags: ["compliance", "data", "portal", "chart", "cdp", "storage", "providers", "number", "deals"],
+    link: "/compliance-data-portal/storage-providers/number-of-deals",
+  },
+  {
+    name: "Compliance Data Portal - Storage Providers Biggest Deals",
+    group: "Compliance Data Portal - Storage Providers",
+    tags: ["compliance", "data", "portal", "chart", "cdp", "storage", "providers", "biggest", "deals"],
+    link: "/compliance-data-portal/storage-providers/biggest-deals",
+  },
+  {
+    name: "Compliance Data Portal - Storage Providers IPNI Misreporting",
+    group: "Compliance Data Portal - Storage Providers",
+    tags: ["compliance", "data", "portal", "chart", "cdp", "storage", "providers", "ipni", "misreporting"],
+    link: "/compliance-data-portal/storage-providers/ipni-misreporting",
+  },
+  {
+    name: "Compliance Data Portal - Storage Providers Client Diversity",
+    group: "Compliance Data Portal - Storage Providers",
+    tags: ["compliance", "data", "portal", "chart", "cdp", "storage", "providers", "client", "diversity"],
+    link: "/compliance-data-portal/storage-providers/client-diversity",
   },
 ] as Action[];
 
@@ -425,7 +352,7 @@ const GlobalSearchBox = () => {
             )}
           {Object.keys(printActions).map((group, index) => {
             return (
-              <>
+              <div key={index}>
                 <CommandGroup key={`${group}${index}`} heading={group}>
                   {printActions?.[group]?.map((action, itemIndex) => {
                     return (
@@ -439,7 +366,7 @@ const GlobalSearchBox = () => {
                   })}
                 </CommandGroup>
                 <Separator />
-              </>
+              </div>
             );
           })}
         </CommandList>
