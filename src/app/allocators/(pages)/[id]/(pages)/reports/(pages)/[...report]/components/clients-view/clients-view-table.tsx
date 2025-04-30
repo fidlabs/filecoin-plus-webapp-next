@@ -1,21 +1,19 @@
 "use client";
-import { ICDPAllocatorFullReportClient } from "@/lib/interfaces/cdp/cdp.interface";
-import React, { useMemo } from "react";
-import { ColumnDef, RowSelectionState } from "@tanstack/react-table";
-import { DataTable } from "@/components/ui/data-table";
-import Link from "next/link";
-import { useReportsDetails } from "@/app/allocators/(pages)/[id]/(pages)/reports/(pages)/[...report]/providers/reports-details.provider";
 import { GithubIcon } from "@/components/icons/github.icon";
-import { convertBytesToIEC } from "@/lib/utils";
-import { format } from "date-fns";
+import { Button } from "@/components/ui/button";
+import { DataTable } from "@/components/ui/data-table";
 import {
   ResponsiveDialog,
   ResponsiveDialogContent,
   ResponsiveDialogTrigger,
 } from "@/components/ui/responsive-dialog";
-import { Button } from "@/components/ui/button";
-import { InfoIcon, TriangleAlertIcon } from "lucide-react";
 import { Table, TableCell, TableHead, TableRow } from "@/components/ui/table";
+import { ICDPAllocatorFullReportClient } from "@/lib/interfaces/cdp/cdp.interface";
+import { convertBytesToIEC } from "@/lib/utils";
+import { ColumnDef } from "@tanstack/react-table";
+import { format } from "date-fns";
+import { InfoIcon, TriangleAlertIcon } from "lucide-react";
+import Link from "next/link";
 
 function useClientsViewColumns(markedIds: string[]) {
   const columns = [
