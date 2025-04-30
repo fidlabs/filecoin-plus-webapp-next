@@ -1,25 +1,21 @@
 "use client";
-import { ICDPAllocatorFullReportClient } from "@/lib/interfaces/cdp/cdp.interface";
-import React, { useMemo } from "react";
-import { ColumnDef, RowSelectionState } from "@tanstack/react-table";
-import { DataTable } from "@/components/ui/data-table";
-import Link from "next/link";
-import { useReportsDetails } from "@/app/allocators/(pages)/[id]/(pages)/reports/(pages)/[...report]/providers/reports-details.provider";
 import { GithubIcon } from "@/components/icons/github.icon";
-import { convertBytesToIEC } from "@/lib/utils";
-import { format } from "date-fns";
+import { Button } from "@/components/ui/button";
+import { DataTable } from "@/components/ui/data-table";
 import {
   ResponsiveDialog,
   ResponsiveDialogContent,
   ResponsiveDialogTrigger,
 } from "@/components/ui/responsive-dialog";
-import { Button } from "@/components/ui/button";
-import { InfoIcon } from "lucide-react";
 import { Table, TableCell, TableHead, TableRow } from "@/components/ui/table";
+import { ICDPAllocatorFullReportClient } from "@/lib/interfaces/cdp/cdp.interface";
+import { convertBytesToIEC } from "@/lib/utils";
+import { ColumnDef } from "@tanstack/react-table";
+import { format } from "date-fns";
+import { InfoIcon, TriangleAlertIcon } from "lucide-react";
+import Link from "next/link";
 
-// const comparableValues = ['up', 'down']
-
-const useClientsViewColumns = (/*compareMode: boolean */) => {
+function useClientsViewColumns(markedIds: string[]) {
   const columns = [
     {
       accessorKey: "client_id",
@@ -29,8 +25,12 @@ const useClientsViewColumns = (/*compareMode: boolean */) => {
       cell: ({ row }) => {
         const client_id = row.getValue("client_id") as string;
         const application_url = row.original.application_url as string;
+
         return (
           <div className="flex flex-row items-center justify-start gap-1">
+            {markedIds.includes(client_id) && (
+              <TriangleAlertIcon className="h-4 w-4 text-yellow-600" />
+            )}
             <Link className="table-link" href={`/clients/${client_id}`}>
               {client_id}
             </Link>
@@ -130,36 +130,22 @@ const useClientsViewColumns = (/*compareMode: boolean */) => {
   ] as ColumnDef<ICDPAllocatorFullReportClient>[];
 
   return { columns };
-};
-
-interface IClientsViewTable {
-  clients: ICDPAllocatorFullReportClient[];
 }
 
-const ClientsViewTable = ({ clients }: IClientsViewTable) => {
-  const { compareMode } = useReportsDetails();
+export interface ClientsViewTableProps {
+  clients: ICDPAllocatorFullReportClient[];
+  markedIds?: string[];
+}
 
-  const { columns } = useClientsViewColumns();
-
-  const rowSelection = useMemo(() => {
-    const selection = {} as RowSelectionState;
-    if (!compareMode) {
-      return selection;
-    }
-
-    for (let i = 0; i < clients.length; i++) {
-      // const item = clients[i];
-      // selection[i] = comparableValues.includes(item ?? 'equal') || comparableValues.includes(item.total_deal_size_compare ?? 'equal')
-    }
-
-    return selection;
-  }, [clients, compareMode]);
+export function ClientsViewTable({
+  clients,
+  markedIds = [],
+}: ClientsViewTableProps) {
+  const { columns } = useClientsViewColumns(markedIds);
 
   return (
     <div className="border-b border-t table-select-warning">
-      <DataTable columns={columns} data={clients} rowSelection={rowSelection} />
+      <DataTable columns={columns} data={clients} />
     </div>
   );
-};
-
-export { ClientsViewTable };
+}
