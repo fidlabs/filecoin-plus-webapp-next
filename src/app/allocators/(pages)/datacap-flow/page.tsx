@@ -5,8 +5,8 @@ import { generatePageMetadata } from "@/lib/utils";
 import { Metadata } from "next";
 import { Organization, WithContext } from "schema-dts";
 import { allocatorsTabs } from "../../constants";
-import { DCFlowSankey } from "@/app/(dashboard)/components/dc-flow-sankey";
 import { getAllocators, getGoogleSheetAuditSizes } from "@/lib/api";
+import { DCFlowSankey } from "@/components/dc-flow-sankey";
 
 export const metadata: Metadata = generatePageMetadata({
   title: "Fil+ DataCap Stats | Datacap Flow",

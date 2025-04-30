@@ -40,10 +40,6 @@ interface NodeProps {
   payload: Node;
 }
 
-export interface DCFlowSankeyProps {
-  data: Data;
-}
-
 type OpenedSection =
   | "MPMA"
   | "Direct RKH Automatic"
@@ -53,7 +49,6 @@ type OpenedSection =
 const faucetId = "f03136591";
 const faucetName = "Faucet.allocator.tech";
 
-type SankeyData = DCFlowSankeyProps["data"];
 type Allocator = z.infer<typeof allocatorSchema>;
 
 const acceptedAllocatorTypes = [
@@ -212,7 +207,7 @@ function prepareExperimentalSankeyData(
   openedSection: OpenedSection
 ) {
   const experimentalPathwayMetaAllocator = allocatorsData.data.find(
-    (allocator) => (allocator.addressId = "f03521515")
+    (allocator) => allocator.addressId === "f03521515"
   );
 
   const experinemtalPathwayId = generator.next().value as number;
@@ -397,7 +392,7 @@ function loadSankyData(
   sheetData: IGoogleSheetResponse,
   allocatorsData: IAllocatorsResponse,
   openedSection: OpenedSection
-): SankeyData {
+): Data {
   const [headerRow, ...rows] = sheetData.values;
   const _allocatorIdIndex = headerRow.indexOf("Allocator ID");
   const _typeOfAllocatorIndex = headerRow.indexOf("Type of Allocator");
@@ -518,15 +513,15 @@ function isOpenedSection(value: string | undefined): value is OpenedSection {
   );
 }
 
-interface IDCFlowSankey {
+export interface DCFlowSankeyProps {
   sheetData: IGoogleSheetResponse;
   allocatorsData: IAllocatorsResponse;
 }
 
-export function DCFlowSankey({ sheetData, allocatorsData }: IDCFlowSankey) {
+export function DCFlowSankey({ allocatorsData, sheetData }: DCFlowSankeyProps) {
   const [openedSection, setOpenedSection] = useState<OpenedSection>(undefined);
 
-  const data = useMemo(() => {
+  const data = useMemo<Data>(() => {
     return loadSankyData(sheetData, allocatorsData, openedSection);
   }, [allocatorsData, sheetData, openedSection]);
 
