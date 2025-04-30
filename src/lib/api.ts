@@ -211,7 +211,7 @@ export const getGoogleSheetAllocatorsTrust = async () => {
 };
 
 export const getGoogleSheetAuditSizes = async () => {
-  const url = `https://cdp.allocator.tech/proxy/googleapis/allocators-overview?tab=Raw+Data`;
+  const url = `https://cdp.allocator.tech/proxy/googleapis/allocators-overview?tab=JSON+Mapping`;
   return (await fetchData(url)) as IGoogleSheetResponse;
 };
 
