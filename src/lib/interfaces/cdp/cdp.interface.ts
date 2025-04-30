@@ -142,6 +142,19 @@ export interface IClientReportCheckResultMetadata {
 
 export type IClientReportsResponse = IClientReportHeader[];
 
+export interface AllocatorClientMultipleAllocatorsCheckResult {
+  check: "CLIENT_MULTIPLE_ALLOCATORS";
+  result: boolean;
+  metadata: {
+    msg: string;
+    violating_ids: string[];
+    clients_using_multiple_allocators_count: number;
+    max_clients_using_multiple_allocators_count: number;
+  };
+}
+
+export type AllocatorCheckResult = AllocatorClientMultipleAllocatorsCheckResult;
+
 export interface ICDPAllocatorFullReport {
   id: string;
   create_date: string;
@@ -156,6 +169,7 @@ export interface ICDPAllocatorFullReport {
   required_sps: string;
   clients: ICDPAllocatorFullReportClient[];
   storage_provider_distribution: ICDPAllocatorFullReportStorageProviderDistribution[];
+  check_results: Array<AllocatorCheckResult>;
 }
 
 export interface ICDPAllocatorFullReportClient {
