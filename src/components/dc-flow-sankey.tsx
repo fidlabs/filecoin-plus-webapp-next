@@ -9,6 +9,8 @@ import { ReactNode, useCallback, useMemo, useState } from "react";
 import { ResponsiveContainer, Sankey, Tooltip, TooltipProps } from "recharts";
 import * as z from "zod";
 
+const PIB = BigInt(1000000000000);
+
 interface Node {
   allocators: Array<{
     id: string;
@@ -46,18 +48,18 @@ type OpenedSection =
   | "Direct RKH Manual"
   | undefined;
 
-const faucetId = "f03136591";
-const faucetName = "Faucet.allocator.tech";
-
 type Allocator = z.infer<typeof allocatorSchema>;
 
 const acceptedAllocatorTypes = [
   "Automatic",
   "Manual",
+  "RFA",
+  "Novel allocator not on RFA",
   "Market-based",
   "Manual Pathway MetaAllocator",
 ] as const;
-const acceptedAllocatorPathWays = ["Automatic", "Manual"] as const;
+
+const acceptedAllocatorPathWays = ["Automatic", "Manual", "RFA", "Manual Pathway MetaAllocator", "Experimental Pathway MetaAllocator"] as const;
 
 const allocatorSchema = z.object({
   id: z.string().min(1),
@@ -92,7 +94,7 @@ function prepareAutomaticSankeyData(
     (result, allocator) => {
       const [currentAllocators, currentFaucetAllocator] = result;
 
-      if (allocator.id === faucetId) {
+      if (allocator.pathway === "RFA" && allocator.type === "RFA") {
         return [currentAllocators, allocator];
       }
 
@@ -125,16 +127,17 @@ function prepareAutomaticSankeyData(
       },
     ],
     links: [
-      { source: 0, target: rootId, value: Number(totalDatacap) },
+      { source: 0, target: rootId, value: Number(totalDatacap / PIB) },
       {
         source: rootId,
         target: allocatorsId,
-        value: Number(restAllocatorsDatacap),
+        value: Number(restAllocatorsDatacap / PIB),
       },
     ],
   };
 
   if (faucetAllocator) {
+
     const faucetId = generator.next().value as number;
 
     sankeyData.nodes.push({
@@ -147,7 +150,7 @@ function prepareAutomaticSankeyData(
     sankeyData.links.push({
       source: rootId,
       target: faucetId,
-      value: Number(faucetAllocator.datacap),
+      value: Number(faucetAllocator.datacap / PIB),
     });
 
     if (openedSection !== undefined) {
@@ -180,7 +183,7 @@ function prepareAutomaticSankeyData(
       sankeyData.links.push({
         source: allocatorsId,
         target: allocatorId,
-        value: Number(allocator.datacap),
+        value: Number(allocator.datacap / PIB),
       });
     }
   } else if (openedSection !== undefined) {
@@ -202,14 +205,11 @@ function prepareAutomaticSankeyData(
 }
 
 function prepareExperimentalSankeyData(
-  allocatorsData: IAllocatorsResponse,
+  allocators: Allocator[],
   generator: Generator<number>,
   openedSection: OpenedSection
 ) {
-  const experimentalPathwayMetaAllocator = allocatorsData.data.find(
-    (allocator) => allocator.addressId === "f03521515"
-  );
-
+  const experimentalPathwayMetaAllocator = allocators[0]
   const experinemtalPathwayId = generator.next().value as number;
   const experinemtalPathwayChildId = generator.next().value as number;
 
@@ -220,7 +220,7 @@ function prepareExperimentalSankeyData(
         allocators: [],
         isHidden: false,
         totalDatacap: BigInt(
-          experimentalPathwayMetaAllocator?.initialAllowance || 0
+          experimentalPathwayMetaAllocator?.datacap || 0
         ),
         last: false,
       },
@@ -236,7 +236,7 @@ function prepareExperimentalSankeyData(
       {
         source: 0,
         target: experinemtalPathwayId,
-        value: Number(experimentalPathwayMetaAllocator?.initialAllowance || 0),
+        value: Number((experimentalPathwayMetaAllocator?.datacap / PIB) || 0),
       },
       {
         source: experinemtalPathwayId,
@@ -274,10 +274,10 @@ function prepareManualSankeyData(
   openedSection: OpenedSection
 ) {
   const metaAllocators = allocators.filter(
-    (allocator) => allocator.type === "Manual Pathway MetaAllocator"
+    (allocator) => allocator.pathway === "Manual Pathway MetaAllocator"
   );
   const restAllocators = allocators.filter(
-    (allocator) => allocator.type !== "Manual Pathway MetaAllocator"
+    (allocator) => allocator.pathway !== "Manual Pathway MetaAllocator"
   );
 
   const totalDatacap = sumAllocatorsDatacap(allocators);
@@ -313,12 +313,14 @@ function prepareManualSankeyData(
       },
     ],
     links: [
-      { source: 0, target: rootId, value: Number(totalDatacap) },
-      { source: rootId, target: metaId, value: Number(metaAllocatorDatacap) },
+      { source: 0, target: rootId, value: Number(totalDatacap / PIB) },
+      { source: rootId,
+        target: metaId,
+        value: Number(metaAllocatorDatacap / PIB) },
       {
         source: rootId,
         target: allocatorsId,
-        value: Number(restAllocatorsDatacap),
+        value: Number(restAllocatorsDatacap / PIB),
       },
     ],
   };
@@ -336,7 +338,7 @@ function prepareManualSankeyData(
       sankeyData.links.push({
         source: metaId,
         target: allocatorId,
-        value: Number(allocator.datacap),
+        value: Number(allocator.datacap / PIB),
       });
     }
   } else if (openedSection !== undefined) {
@@ -367,7 +369,7 @@ function prepareManualSankeyData(
       sankeyData.links.push({
         source: allocatorsId,
         target: allocatorId,
-        value: Number(allocator.datacap),
+        value: Number(allocator.datacap / PIB),
       });
     }
   } else if (openedSection !== undefined) {
@@ -401,12 +403,10 @@ function loadSankyData(
 
   const allocators = rows
     .map((row) => {
-      const sheetAllocatorId = row[_allocatorIdIndex];
+      const allocatorId = row[_allocatorIdIndex];
       const type = row[_typeOfAllocatorIndex];
       const pathway = row[_pathwayIndex];
       const pathwayName = row[_pathwayNameIndex];
-      const allocatorId =
-        pathwayName === faucetName ? faucetId : sheetAllocatorId;
 
       const allocatorData = allocatorsData.data.find(
         (candidateAllocator) =>
@@ -441,18 +441,18 @@ function loadSankyData(
   const indexGenerator = getIndex();
 
   const automaticData = prepareAutomaticSankeyData(
-    allocators.filter((allocator) => allocator.pathway === "Automatic"),
+    allocators.filter((allocator) => ["Automatic", "RFA"].includes(allocator.pathway)),
     indexGenerator,
     openedSection
   );
   const manualData = prepareManualSankeyData(
-    allocators.filter((allocator) => allocator.pathway === "Manual"),
+    allocators.filter((allocator) => allocator.type === "Manual"),
     indexGenerator,
     openedSection
   );
 
   const experimentalData = prepareExperimentalSankeyData(
-    allocatorsData,
+    allocators.filter((allocator) => allocator.pathway === "Experimental Pathway MetaAllocator"),
     indexGenerator,
     openedSection
   );
@@ -583,9 +583,9 @@ export function DCFlowSankey({ allocatorsData, sheetData }: DCFlowSankeyProps) {
   const aspect = useMemo(() => {
     switch (openedSection) {
       case "Direct RKH Automatic":
-        return 1.5;
+        return 0.9;
       case "MPMA":
-        return 0.85;
+        return 0.5;
       case "Direct RKH Manual":
         return 0.5;
       default:
