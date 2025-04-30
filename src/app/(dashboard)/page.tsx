@@ -1,15 +1,8 @@
-import { PageHeader, PageSubTitle, PageTitle } from "@/components/ui/title";
-import { Stats } from "@/app/(dashboard)/components/stats";
-import { DatacapFlow } from "@/app/(dashboard)/components/datacap-flow";
 import { Charts } from "@/app/(dashboard)/components/charts";
-import { WebPage, WithContext } from "schema-dts";
+import { DatacapFlow } from "@/app/(dashboard)/components/datacap-flow";
+import { Stats } from "@/app/(dashboard)/components/stats";
 import { JsonLd } from "@/components/json.ld";
-import {
-  IFilDCAllocationsWeekly,
-  IFilDCAllocationsWeeklyByClient,
-  IFilPlusStats,
-} from "@/lib/interfaces/dmob/dmob.interface";
-import { IAllocatorsResponse } from "@/lib/interfaces/dmob/allocator.interface";
+import { PageHeader, PageSubTitle, PageTitle } from "@/components/ui/title";
 import {
   getAllocators,
   getDataCapAllocationsWeekly,
@@ -17,15 +10,7 @@ import {
   getGoogleSheetAuditSizes,
   getStats,
 } from "@/lib/api";
-import { IGoogleSheetResponse } from "@/lib/interfaces/cdp/google.interface";
-
-type AllSettledResult = [
-  PromiseFulfilledResult<IFilPlusStats>,
-  PromiseFulfilledResult<IFilDCAllocationsWeekly>,
-  PromiseFulfilledResult<IFilDCAllocationsWeeklyByClient>,
-  PromiseFulfilledResult<IGoogleSheetResponse>,
-  PromiseFulfilledResult<IAllocatorsResponse>,
-];
+import { WebPage, WithContext } from "schema-dts";
 
 const page: WithContext<WebPage> = {
   "@context": "https://schema.org",
@@ -43,17 +28,17 @@ export default async function Home() {
     allocationWeeklyByClient,
     sheetData,
     allocators,
-  ] = (await Promise.allSettled([
-    await getStats(),
-    await getDataCapAllocationsWeekly(),
-    await getDataCapAllocationsWeeklyByClient(),
-    await getGoogleSheetAuditSizes(),
-    await getAllocators({
+  ] = await Promise.all([
+    getStats(),
+    getDataCapAllocationsWeekly(),
+    getDataCapAllocationsWeeklyByClient(),
+    getGoogleSheetAuditSizes(),
+    getAllocators({
       page: "1",
       limit: "999999",
       showInactive: "true",
     }),
-  ])) as AllSettledResult;
+  ]);
 
   return (
     <JsonLd data={page}>
@@ -67,15 +52,12 @@ export default async function Home() {
         <div className="flex flex-col gap-6 w-full">
           <Stats />
           <Charts
-            stats={stats.value}
-            allocationWeekly={allocationWeekly.value}
-            allocationWeeklyByClient={allocationWeeklyByClient.value}
-            allocators={allocators.value}
+            stats={stats}
+            allocationWeekly={allocationWeekly}
+            allocationWeeklyByClient={allocationWeeklyByClient}
+            allocators={allocators}
           />
-          <DatacapFlow
-            allocatorsData={allocators.value}
-            sheetData={sheetData.value}
-          />
+          <DatacapFlow allocatorsData={allocators} sheetData={sheetData} />
         </div>
       </main>
     </JsonLd>
