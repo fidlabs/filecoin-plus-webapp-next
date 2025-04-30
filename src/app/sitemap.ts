@@ -46,6 +46,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const storageProviders = await getStorageProviders({
     'page': '1',
+    'limit': '10000',
   });
   const storageProviderSitemapEntries = storageProviders.data.map(({provider}) => ({
     url: `${baseUrl}/storage-providers/${provider}`,
@@ -56,6 +57,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const clients = await getClients({
     'page': '1',
+    'limit': '10000',
   });
   const clientSitemapEntries = clients.data.map(({addressId}) => {
     return [
@@ -86,6 +88,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const allocators = await getAllocators({
     'page': '1',
+    'limit': '1000',
     'showInactive': 'true',
   });
   const allocatorSitemapEntries = allocators.data.map(({addressId}) => {
