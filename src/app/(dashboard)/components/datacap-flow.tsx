@@ -1,6 +1,7 @@
 "use client";
+
+import { DCFlowSankey } from "@/components/dc-flow-sankey";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { DCFlowSankey } from "@/app/(dashboard)/components/dc-flow-sankey";
 import { IGoogleSheetResponse } from "@/lib/interfaces/cdp/google.interface";
 import { IAllocatorsResponse } from "@/lib/interfaces/dmob/allocator.interface";
 
