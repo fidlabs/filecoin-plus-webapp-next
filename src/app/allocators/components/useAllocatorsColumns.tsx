@@ -55,7 +55,7 @@ export function useAllocatorsColumns({
       cell: ({ row }) => {
         const addressId = row.getValue("addressId") as string;
         return (
-          <Link className="table-link" href={`allocators/${addressId}`}>
+          <Link className="table-link" href={`/allocators/${addressId}`}>
             {addressId}
           </Link>
         );
