@@ -95,7 +95,7 @@ export function AllocatorsListAddons({
       <div className="flex items-center space-x-2">
         <Checkbox
           id="show-inactive"
-          checked={filters.showInactive !== "false"}
+          checked={filters.showInactive === "true"}
           onCheckedChange={handleShowInactiveChange}
         />
         <label

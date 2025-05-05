@@ -14,7 +14,7 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   return generatePageMetadata({
-    title: `Fil+ DataCap Stats | Al;ocators by SPs Compliance ${params.week}`,
+    title: `Fil+ DataCap Stats | Allocators by SPs Compliance ${params.week}`,
     description:
       "A convenient way to browse and search for Filecoin Plus Allocators.",
     url: `https://datacapstats.io/allocators/compliance/${params.week}`,
@@ -27,6 +27,7 @@ const defaultFilters = {
   retrievability: "true",
   numberOfClients: "true",
   totalDealSize: "true",
+  showInactive: "false",
 };
 
 function fetchData(week: string, searchParams: Record<string, string>) {
