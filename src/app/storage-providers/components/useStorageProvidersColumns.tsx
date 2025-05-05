@@ -55,7 +55,7 @@ export function useStorageProvidersColumns({
       cell: ({ row }) => {
         const provider = row.getValue("provider") as string;
         return (
-          <Link className="table-link" href={`storage-providers/${provider}`}>
+          <Link className="table-link" href={`/storage-providers/${provider}`}>
             {provider}
           </Link>
         );
