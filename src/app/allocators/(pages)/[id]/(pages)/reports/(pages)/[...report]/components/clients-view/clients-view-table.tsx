@@ -127,6 +127,22 @@ function useClientsViewColumns(markedIds: string[]) {
         return <span>{format(application_timestamp, "dd/MM/yyyy HH:mm")}</span>;
       },
     },
+    {
+      accessorKey: "latest_report",
+      header() {
+        return <div>Latest Report</div>;
+      },
+      cell({ row }) {
+        return (
+          <Link
+            className="underline text-dodger-blue"
+            href={`/client-report/${row.getValue("client_id")}/latest`}
+          >
+            View Report
+          </Link>
+        );
+      },
+    },
   ] as ColumnDef<ICDPAllocatorFullReportClient>[];
 
   return { columns };
