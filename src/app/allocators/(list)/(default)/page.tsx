@@ -18,7 +18,7 @@ interface PageProps {
 const defaultParams: Record<string, string> = {
   page: "1",
   limit: "10",
-  showInactive: "true",
+  showInactive: "false",
 };
 
 export default async function AllocatorsPage({ searchParams }: PageProps) {
