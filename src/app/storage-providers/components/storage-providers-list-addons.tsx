@@ -5,12 +5,7 @@ import { Input } from "@/components/ui/input";
 import { useSearchParamsFilters } from "@/lib/hooks/use-search-params-filters";
 import { type Week } from "@/lib/weeks";
 import { XIcon } from "lucide-react";
-import {
-  type ChangeEventHandler,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import { type ChangeEventHandler, useCallback, useState } from "react";
 import { useDebounceCallback } from "usehooks-ts";
 import { StorageProvidersCSVExportButton } from "./storage-providers-csv-export-button";
 
@@ -38,17 +33,19 @@ export function StorageProvidersListAddons({
 
   const handleSearchPhraseChange = useCallback<
     ChangeEventHandler<HTMLInputElement>
-  >((event) => {
-    setSearchPhrase(event.target.value);
-  }, []);
+  >(
+    (event) => {
+      const nextSearchPhrase = event.target.value;
+      setSearchPhrase(nextSearchPhrase);
+      searchDebounced(nextSearchPhrase);
+    },
+    [searchDebounced]
+  );
 
   const handleClearSearch = useCallback(() => {
     setSearchPhrase("");
+    searchDebounced("");
   }, []);
-
-  useEffect(() => {
-    searchDebounced(searchPhrase);
-  }, [searchPhrase, searchDebounced]);
 
   return (
     <div className="flex flex-wrap gap-4">
