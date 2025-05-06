@@ -116,28 +116,137 @@ export interface IClientReportCIDSharing {
   unique_cid_count_compare: CompareType;
 }
 
+export enum ClientReportCheckType {
+  STORAGE_PROVIDER_DISTRIBUTION_ALL_LOCATED_IN_THE_SAME_REGION = "STORAGE_PROVIDER_DISTRIBUTION_ALL_LOCATED_IN_THE_SAME_REGION",
+  STORAGE_PROVIDER_DISTRIBUTION_PROVIDERS_EXCEED_PROVIDER_DEAL = "STORAGE_PROVIDER_DISTRIBUTION_PROVIDERS_EXCEED_PROVIDER_DEAL",
+  STORAGE_PROVIDER_DISTRIBUTION_PROVIDERS_EXCEED_MAX_DUPLICATION = "STORAGE_PROVIDER_DISTRIBUTION_PROVIDERS_EXCEED_MAX_DUPLICATION",
+  STORAGE_PROVIDER_DISTRIBUTION_PROVIDERS_UNKNOWN_LOCATION = "STORAGE_PROVIDER_DISTRIBUTION_PROVIDERS_UNKNOWN_LOCATION",
+  STORAGE_PROVIDER_DISTRIBUTION_PROVIDERS_RETRIEVABILITY_ZERO = "STORAGE_PROVIDER_DISTRIBUTION_PROVIDERS_RETRIEVABILITY_ZERO",
+  STORAGE_PROVIDER_DISTRIBUTION_PROVIDERS_RETRIEVABILITY_75 = "STORAGE_PROVIDER_DISTRIBUTION_PROVIDERS_RETRIEVABILITY_75",
+  DEAL_DATA_REPLICATION_LOW_REPLICA = "DEAL_DATA_REPLICATION_LOW_REPLICA",
+  DEAL_DATA_REPLICATION_CID_SHARING = "DEAL_DATA_REPLICATION_CID_SHARING",
+  STORAGE_PROVIDER_DISTRIBUTION_PROVIDERS_IPNI_MISREPORTING = "STORAGE_PROVIDER_DISTRIBUTION_PROVIDERS_IPNI_MISREPORTING",
+  STORAGE_PROVIDER_DISTRIBUTION_PROVIDERS_IPNI_NOT_REPORTING = "STORAGE_PROVIDER_DISTRIBUTION_PROVIDERS_IPNI_NOT_REPORTING",
+  MULTIPLE_ALLOCATORS = "MULTIPLE_ALLOCATORS",
+  NOT_ENOUGH_COPIES = "NOT_ENOUGH_COPIES",
+}
+
+type ClientReportCheckBase<
+  T extends string,
+  M extends Record<string, unknown> = Record<string, never>,
+> = {
+  check: T;
+  result: boolean;
+  metadata: M & {
+    msg: string;
+  };
+};
+
+export type ClientReportStorageProviderDistributionAllLocatedInTheSameRegionCheck =
+  ClientReportCheckBase<ClientReportCheckType.STORAGE_PROVIDER_DISTRIBUTION_ALL_LOCATED_IN_THE_SAME_REGION>;
+
+export type ClientReportStorageProviderDistributionProvidersExceedProviderDealCheck =
+  ClientReportCheckBase<
+    ClientReportCheckType.STORAGE_PROVIDER_DISTRIBUTION_PROVIDERS_EXCEED_PROVIDER_DEAL,
+    {
+      violating_ids: string[];
+      max_provider_deal_percentage: `${number}`;
+      providers_exceeding_provider_deal: number;
+      max_providers_exceeding_provider_deal: number;
+    }
+  >;
+
+export type ClientReportStorageProviderDistributionProvidersExceedMaxDuplicationCheck =
+  ClientReportCheckBase<ClientReportCheckType.STORAGE_PROVIDER_DISTRIBUTION_PROVIDERS_EXCEED_MAX_DUPLICATION>;
+
+export type ClientReportStorageProviderDistributionProvidersUnknownLocationCheck =
+  ClientReportCheckBase<ClientReportCheckType.STORAGE_PROVIDER_DISTRIBUTION_PROVIDERS_UNKNOWN_LOCATION>;
+
+export type ClientReportStorageProviderDistributionProvidersRetrievabilityZeroCheck =
+  ClientReportCheckBase<
+    ClientReportCheckType.STORAGE_PROVIDER_DISTRIBUTION_PROVIDERS_RETRIEVABILITY_ZERO,
+    {
+      percentage: number;
+      zero_retrievability_providers: number;
+      max_zero_retrievability_providers: number;
+    }
+  >;
+
+export type ClientReportStorageProviderDistributionProvidersRetrievability75Check =
+  ClientReportCheckBase<
+    ClientReportCheckType.STORAGE_PROVIDER_DISTRIBUTION_PROVIDERS_RETRIEVABILITY_75,
+    {
+      percentage: number;
+      less_than_75_retrievability_providers: number;
+      max_less_than_75_retrievability_providers: number;
+    }
+  >;
+
+export type ClientReportDealDataReplicationLowReplicaCheck =
+  ClientReportCheckBase<
+    ClientReportCheckType.DEAL_DATA_REPLICATION_LOW_REPLICA,
+    {
+      percentage: number;
+      max_percentage_for_low_replica: `${number}`;
+    }
+  >;
+
+export type ClientReportDealDataReplicationCIDSharingCheck =
+  ClientReportCheckBase<
+    ClientReportCheckType.DEAL_DATA_REPLICATION_LOW_REPLICA,
+    {
+      count: number;
+    }
+  >;
+
+export type ClientReportStorageProviderDistributionProvidersIPNIMisreportingCheck =
+  ClientReportCheckBase<ClientReportCheckType.STORAGE_PROVIDER_DISTRIBUTION_PROVIDERS_IPNI_MISREPORTING>;
+
+export type ClientReportStorageProviderDistributionProvidersIPNINotReportingCheck =
+  ClientReportCheckBase<
+    ClientReportCheckType.STORAGE_PROVIDER_DISTRIBUTION_PROVIDERS_IPNI_NOT_REPORTING,
+    {
+      percentage: number;
+      violating_ids: string[];
+      not_reporting_providers: number;
+      max_not_reporting_providers: number;
+    }
+  >;
+
+export type ClientReportMultipleAllocatorsCheck = ClientReportCheckBase<
+  ClientReportCheckType.MULTIPLE_ALLOCATORS,
+  {
+    allocators_count: number;
+    max_allocators_count: number;
+  }
+>;
+
+export type ClientReportNotEnoughCopiesCheck = ClientReportCheckBase<
+  ClientReportCheckType.NOT_ENOUGH_COPIES,
+  {
+    percentage: number;
+    max_percentage_for_required_copies: `${number}`;
+  }
+>;
+
+export type ClientReportCheck =
+  | ClientReportStorageProviderDistributionAllLocatedInTheSameRegionCheck
+  | ClientReportStorageProviderDistributionProvidersExceedProviderDealCheck
+  | ClientReportStorageProviderDistributionProvidersExceedMaxDuplicationCheck
+  | ClientReportStorageProviderDistributionProvidersUnknownLocationCheck
+  | ClientReportStorageProviderDistributionProvidersRetrievabilityZeroCheck
+  | ClientReportStorageProviderDistributionProvidersRetrievability75Check
+  | ClientReportDealDataReplicationLowReplicaCheck
+  | ClientReportDealDataReplicationCIDSharingCheck
+  | ClientReportStorageProviderDistributionProvidersIPNIMisreportingCheck
+  | ClientReportMultipleAllocatorsCheck
+  | ClientReportNotEnoughCopiesCheck;
+
 export interface IClientFullReport extends IClientReportHeader {
   storage_provider_distribution: IClientReportStorageProviderDistribution[];
   replica_distribution: IClientReportReplicaDistribution[];
   cid_sharing: IClientReportCIDSharing[];
-  check_results: IClientReportCheckResult[];
-}
-
-export interface IClientReportCheckResult {
-  check: string;
-  result: boolean;
-  metadata: IClientReportCheckResultMetadata;
-}
-
-export interface IClientReportCheckResultMetadata {
-  msg?: string;
-  percentage?: number;
-  zero_retrievability_providers?: number;
-  max_zero_retrievability_providers?: number;
-  less_than_75_retrievability_providers?: number;
-  max_less_than_75_retrievability_providers?: number;
-  max_percentage_for_low_replica?: string;
-  count?: number;
+  check_results: ClientReportCheck[];
 }
 
 export type IClientReportsResponse = IClientReportHeader[];
