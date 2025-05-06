@@ -1,6 +1,5 @@
 "use client";
 import { GithubIcon } from "@/components/icons/github.icon";
-import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
 import {
   ResponsiveDialog,
@@ -8,12 +7,28 @@ import {
   ResponsiveDialogTrigger,
 } from "@/components/ui/responsive-dialog";
 import { Table, TableCell, TableHead, TableRow } from "@/components/ui/table";
-import { ICDPAllocatorFullReportClient } from "@/lib/interfaces/cdp/cdp.interface";
+import {
+  ICDPAllocatorFullReportClient,
+  ICDPAllocatorFullReportClientAllocation,
+} from "@/lib/interfaces/cdp/cdp.interface";
 import { convertBytesToIEC } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
-import { format } from "date-fns";
-import { InfoIcon, TriangleAlertIcon } from "lucide-react";
+import { differenceInDays, format } from "date-fns";
+import { TriangleAlertIcon } from "lucide-react";
 import Link from "next/link";
+
+function getNumberOfDaysSinceLastAllocation(
+  allocations: ICDPAllocatorFullReportClientAllocation[]
+): number {
+  const lastAllocationDate = allocations.toSorted((a, b) => {
+    const dateA = new Date(a.timestamp);
+    const dateB = new Date(b.timestamp);
+
+    return dateB.valueOf() - dateA.valueOf();
+  })[0].timestamp;
+
+  return differenceInDays(Date.now(), lastAllocationDate);
+}
 
 function useClientsViewColumns(markedIds: string[]) {
   const columns = [
@@ -65,28 +80,25 @@ function useClientsViewColumns(markedIds: string[]) {
     {
       accessorKey: "total_allocations",
       header: () => {
-        return <div className="whitespace-nowrap">Total allocations</div>;
+        return <div className="whitespace-nowrap">Total Allocations</div>;
       },
       cell: ({ row }) => {
-        const total_allocations = row.getValue("total_allocations") as string;
-        return <span>{convertBytesToIEC(total_allocations)}</span>;
-      },
-    },
-    {
-      accessorKey: "allocations_number",
-      header: () => {
-        return <div className="whitespace-nowrap">Number of allocations</div>;
-      },
-      cell: ({ row }) => {
-        const allocations_number = row.getValue("allocations_number") as number;
+        const totalAllocations = row.getValue("total_allocations") as string;
+        const allocationsNumber = row.original.allocations_number;
+
         return (
-          <div className="flex gap-1 items-center justify-start">
-            <span>{allocations_number}</span>
+          <>
+            <div className="whitespace-nowrap">
+              <strong>{convertBytesToIEC(totalAllocations)}</strong> in{" "}
+              <strong>{allocationsNumber}</strong> allocation
+              {allocationsNumber === 1 ? "" : "s"}
+            </div>
+
             <ResponsiveDialog>
               <ResponsiveDialogTrigger asChild>
-                <Button variant="ghost" size="icon" className="w-7 h-7">
-                  <InfoIcon className="text-muted-foreground w-4 h-4" />
-                </Button>
+                <span className="text-xs underline cursor-pointer">
+                  See Breakdown
+                </span>
               </ResponsiveDialogTrigger>
               <ResponsiveDialogContent>
                 <div className="p-4">
@@ -111,14 +123,50 @@ function useClientsViewColumns(markedIds: string[]) {
                 </div>
               </ResponsiveDialogContent>
             </ResponsiveDialog>
-          </div>
+          </>
         );
+      },
+    },
+
+    {
+      accessorKey: "time_since_allocation",
+      header: () => {
+        return <div>Time Since Last Allocation</div>;
+      },
+      cell: ({ row }) => {
+        const daysSinceLastAllocation = getNumberOfDaysSinceLastAllocation(
+          row.original.allocations
+        );
+
+        return (
+          <span>
+            {getNumberOfDaysSinceLastAllocation(row.original.allocations)} day
+            {daysSinceLastAllocation !== 1 && "s"}
+          </span>
+        );
+      },
+    },
+    {
+      accessorKey: "spending_speed",
+      header: () => {
+        return <div>Spending Speed</div>;
+      },
+      cell: ({ row }) => {
+        const totalAllocations = BigInt(row.getValue("total_allocations"));
+        const daysSinceLastAllocation = BigInt(
+          getNumberOfDaysSinceLastAllocation(row.original.allocations)
+        );
+        const spendingSpeed = (
+          totalAllocations / daysSinceLastAllocation
+        ).toString();
+
+        return <span>{convertBytesToIEC(spendingSpeed)} / day</span>;
       },
     },
     {
       accessorKey: "application_timestamp",
       header: () => {
-        return <div className="whitespace-nowrap">Date of application</div>;
+        return <div className="whitespace-nowrap">Date of Application</div>;
       },
       cell: ({ row }) => {
         const application_timestamp = row.getValue(
@@ -130,7 +178,7 @@ function useClientsViewColumns(markedIds: string[]) {
     {
       accessorKey: "latest_report",
       header() {
-        return <div>Latest Report</div>;
+        return <div className="whitespace-nowrap">Latest Report</div>;
       },
       cell({ row }) {
         return (
