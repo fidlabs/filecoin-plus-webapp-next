@@ -11,6 +11,13 @@ import { ReportViewReplicaTable } from "@/app/clients/(pages)/[id]/(pages)/repor
 import { HealthCheck } from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/health-check";
 import { useScrollObserver } from "@/lib/hooks/useScrollObserver";
 import { cn } from "@/lib/utils";
+import { ClientReportCheckType } from "@/lib/interfaces/cdp/cdp.interface";
+
+const checkTypes = [
+  ClientReportCheckType.DEAL_DATA_REPLICATION_CID_SHARING,
+  ClientReportCheckType.DEAL_DATA_REPLICATION_LOW_REPLICA,
+  ClientReportCheckType.NOT_ENOUGH_COPIES,
+];
 
 const ReportViewReplicas = () => {
   const { colsStyle, colsSpanStyle, replikasList, securityChecks } =
@@ -60,11 +67,11 @@ const ReportViewReplicas = () => {
       {replikasList.map((replika, index) => {
         return (
           <div key={index} className="border-b [&:not(:last-child)]:border-r-2">
-            {securityChecks[index] && (
+            {!!securityChecks[index] && (
               <HealthCheck
-                security={securityChecks[index]?.filter((item) =>
-                  item.check.startsWith("DEAL_DATA_REPLICATION")
-                )}
+                security={securityChecks[index].filter((item) => {
+                  return checkTypes.includes(item.check);
+                })}
               />
             )}
             <ReportViewReplicaTable replikaData={replika} />

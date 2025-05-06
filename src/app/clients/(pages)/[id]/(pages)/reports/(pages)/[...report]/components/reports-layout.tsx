@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { ReportViewCidSharing } from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/cid-sharing-view/report-view-cid-sharing";
 import { GithubIcon } from "@/components/icons/github.icon";
 import Link from "next/link";
+import { ClientReportMultipleAllocatorsSection } from "./client-report-multiple-allocators-section";
 
 const ReportsLayout = () => {
   const { colsStyle, reports } = useReportsDetails();
@@ -51,6 +52,7 @@ const ReportsLayout = () => {
               );
             })}
           </div>
+          <ClientReportMultipleAllocatorsSection />
           <ReportViewProviders />
           <ReportViewReplicas />
           <ReportViewCidSharing />
