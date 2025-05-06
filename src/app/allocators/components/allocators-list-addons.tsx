@@ -1,22 +1,21 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { useSearchParamsFilters } from "@/lib/hooks/use-search-params-filters";
+import { cn } from "@/lib/utils";
+import { type Week } from "@/lib/weeks";
 import { XIcon } from "lucide-react";
 import {
   type ChangeEventHandler,
   type ComponentProps,
   type HTMLAttributes,
   useCallback,
-  useEffect,
   useState,
 } from "react";
-import { type Week } from "@/lib/weeks";
-import { AllocatorsCSVExportButton } from "./allocators-csv-export-button";
-import { cn } from "@/lib/utils";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useDebounceCallback } from "usehooks-ts";
+import { AllocatorsCSVExportButton } from "./allocators-csv-export-button";
 
 type CheckboxProps = ComponentProps<typeof Checkbox>;
 type CheckedChangeHandler = NonNullable<CheckboxProps["onCheckedChange"]>;
@@ -47,12 +46,18 @@ export function AllocatorsListAddons({
 
   const handleSearchPhraseChange = useCallback<
     ChangeEventHandler<HTMLInputElement>
-  >((event) => {
-    setSearchPhrase(event.target.value);
-  }, []);
+  >(
+    (event) => {
+      const nextSearchPhrase = event.target.value;
+      setSearchPhrase(nextSearchPhrase);
+      searchDebounced(nextSearchPhrase);
+    },
+    [searchDebounced]
+  );
 
   const handleClearSearch = useCallback(() => {
     setSearchPhrase("");
+    searchDebounced("");
   }, []);
 
   const handleShowInactiveChange = useCallback<CheckedChangeHandler>(
@@ -64,10 +69,6 @@ export function AllocatorsListAddons({
     },
     [updateFilters]
   );
-
-  useEffect(() => {
-    searchDebounced(searchPhrase);
-  }, [searchPhrase, searchDebounced]);
 
   return (
     <div {...rest} className={cn("flex flex-wrap gap-4", className)}>
@@ -95,7 +96,7 @@ export function AllocatorsListAddons({
       <div className="flex items-center space-x-2">
         <Checkbox
           id="show-inactive"
-          checked={filters.showInactive !== "false"}
+          checked={filters.showInactive === "true"}
           onCheckedChange={handleShowInactiveChange}
         />
         <label

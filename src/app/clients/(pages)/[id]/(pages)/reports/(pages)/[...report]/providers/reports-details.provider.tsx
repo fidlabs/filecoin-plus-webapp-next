@@ -1,7 +1,7 @@
 "use client";
 import {
+  ClientReportCheck,
   IClientFullReport,
-  IClientReportCheckResult,
   IClientReportCIDSharing,
   IClientReportReplicaDistribution,
   IClientReportStorageProviderDistribution,
@@ -23,7 +23,7 @@ interface IReportsDetailsContext {
   providerDistributionList: IClientReportStorageProviderDistribution[][];
   cidSharingList: IClientReportCIDSharing[][];
   replikasList: IClientReportReplicaDistribution[][];
-  securityChecks: IClientReportCheckResult[][];
+  securityChecks: ClientReportCheck[][];
   colsStyle: CSSProperties;
   colsSpanStyle: CSSProperties;
   mapsConstraints: {
