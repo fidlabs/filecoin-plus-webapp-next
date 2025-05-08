@@ -45,7 +45,7 @@ export function StorageProvidersListAddons({
   const handleClearSearch = useCallback(() => {
     setSearchPhrase("");
     searchDebounced("");
-  }, []);
+  }, [searchDebounced]);
 
   return (
     <div className="flex flex-wrap gap-4">

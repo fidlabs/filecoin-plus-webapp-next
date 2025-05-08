@@ -243,9 +243,7 @@ const useReportViewProvidersColumns = (compareMode: boolean) => {
     {
       accessorKey: "retrievability_success_rate",
       header: () => {
-        return (
-          <div className="whitespace-nowrap">Retrieval Rate (via HTTP)</div>
-        );
+        return <div className="whitespace-nowrap">Retrieval Rate</div>;
       },
       cell: ({ row }) => {
         if (row.original.not_found) {
@@ -259,21 +257,43 @@ const useReportViewProvidersColumns = (compareMode: boolean) => {
         const successRate = row.getValue(
           "retrievability_success_rate"
         ) as number;
-        const successRateHttp = +row.original.retrievability_success_rate_http;
 
         return (
           <div className="h-full flex items-center justify-end gap-1">
             <span>{(successRate * 100).toFixed(2)}%</span>
-            <span>
-              (
-              {successRateHttp
-                ? `${(successRateHttp * 100).toFixed(2)}%`
-                : "0%"}
-              )
-            </span>
             {compareMode && (
               <CompareIcon
                 compare={row.original.retrievability_success_rate_compare}
+              />
+            )}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "retrievability_success_rate_http",
+      header: () => {
+        return <div className="whitespace-nowrap">HTTP Retrievability</div>;
+      },
+      cell: ({ row }) => {
+        if (row.original.not_found) {
+          return (
+            <div className="h-full flex items-center justify-end gap-1">
+              N/A
+            </div>
+          );
+        }
+
+        const successRate = row.getValue(
+          "retrievability_success_rate_http"
+        ) as number;
+
+        return (
+          <div className="h-full flex items-center justify-end gap-1">
+            <span>{(successRate * 100).toFixed(2)}%</span>
+            {compareMode && (
+              <CompareIcon
+                compare={row.original.retrievability_success_rate_http_compare}
               />
             )}
           </div>

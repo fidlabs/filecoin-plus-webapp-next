@@ -58,7 +58,7 @@ export function AllocatorsListAddons({
   const handleClearSearch = useCallback(() => {
     setSearchPhrase("");
     searchDebounced("");
-  }, []);
+  }, [searchDebounced]);
 
   const handleShowInactiveChange = useCallback<CheckedChangeHandler>(
     (state) => {

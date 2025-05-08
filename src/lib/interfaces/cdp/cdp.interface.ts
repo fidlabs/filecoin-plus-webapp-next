@@ -73,8 +73,9 @@ export interface IClientReportStorageProviderDistribution {
   duplication_percentage: number;
   duplication_percentage_compare: CompareType;
   retrievability_success_rate: string;
-  retrievability_success_rate_http: string;
   retrievability_success_rate_compare: CompareType;
+  retrievability_success_rate_http: string;
+  retrievability_success_rate_http_compare: CompareType;
   ipni_reporting_status: IPNIReportingStatus;
   ipni_reported_claims_count: string | undefined;
   claims_count: string | undefined;
@@ -308,6 +309,8 @@ export interface ICDPAllocatorFullReportStorageProviderDistribution {
   perc_of_total_datacap_compare: CompareType;
   retrievability_success_rate?: number;
   retrievability_success_rate_compare: CompareType;
+  retrievability_success_rate_http: number;
+  retrievability_success_rate_http_compare: number;
   location: IGenericReportLocation;
 }
 
