@@ -59,7 +59,13 @@ const acceptedAllocatorTypes = [
   "Manual Pathway MetaAllocator",
 ] as const;
 
-const acceptedAllocatorPathWays = ["Automatic", "Manual", "RFA", "Manual Pathway MetaAllocator", "Experimental Pathway MetaAllocator"] as const;
+const acceptedAllocatorPathWays = [
+  "Automatic",
+  "Manual",
+  "RFA",
+  "Manual Pathway MetaAllocator",
+  "Experimental Pathway MetaAllocator",
+] as const;
 
 const allocatorSchema = z.object({
   id: z.string().min(1),
@@ -137,7 +143,6 @@ function prepareAutomaticSankeyData(
   };
 
   if (faucetAllocator) {
-
     const faucetId = generator.next().value as number;
 
     sankeyData.nodes.push({
@@ -209,7 +214,7 @@ function prepareExperimentalSankeyData(
   generator: Generator<number>,
   openedSection: OpenedSection
 ) {
-  const experimentalPathwayMetaAllocator = allocators[0]
+  const experimentalPathwayMetaAllocator = allocators[0];
   const experinemtalPathwayId = generator.next().value as number;
   const experinemtalPathwayChildId = generator.next().value as number;
 
@@ -219,9 +224,7 @@ function prepareExperimentalSankeyData(
         name: "Experimental Pathway MetaAllocator",
         allocators: [],
         isHidden: false,
-        totalDatacap: BigInt(
-          experimentalPathwayMetaAllocator?.datacap || 0
-        ),
+        totalDatacap: BigInt(experimentalPathwayMetaAllocator?.datacap || 0),
         last: false,
       },
       {
@@ -236,7 +239,7 @@ function prepareExperimentalSankeyData(
       {
         source: 0,
         target: experinemtalPathwayId,
-        value: Number((experimentalPathwayMetaAllocator?.datacap / PIB) || 0),
+        value: Number(experimentalPathwayMetaAllocator?.datacap / PIB || 0),
       },
       {
         source: experinemtalPathwayId,
@@ -314,9 +317,11 @@ function prepareManualSankeyData(
     ],
     links: [
       { source: 0, target: rootId, value: Number(totalDatacap / PIB) },
-      { source: rootId,
+      {
+        source: rootId,
         target: metaId,
-        value: Number(metaAllocatorDatacap / PIB) },
+        value: Number(metaAllocatorDatacap / PIB),
+      },
       {
         source: rootId,
         target: allocatorsId,
@@ -441,7 +446,9 @@ function loadSankyData(
   const indexGenerator = getIndex();
 
   const automaticData = prepareAutomaticSankeyData(
-    allocators.filter((allocator) => ["Automatic", "RFA"].includes(allocator.pathway)),
+    allocators.filter((allocator) =>
+      ["Automatic", "RFA"].includes(allocator.pathway)
+    ),
     indexGenerator,
     openedSection
   );
@@ -452,7 +459,9 @@ function loadSankyData(
   );
 
   const experimentalData = prepareExperimentalSankeyData(
-    allocators.filter((allocator) => allocator.pathway === "Experimental Pathway MetaAllocator"),
+    allocators.filter(
+      (allocator) => allocator.pathway === "Experimental Pathway MetaAllocator"
+    ),
     indexGenerator,
     openedSection
   );

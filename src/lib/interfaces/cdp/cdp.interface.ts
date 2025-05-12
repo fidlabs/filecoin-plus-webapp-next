@@ -52,6 +52,7 @@ export interface IClientReportHeader {
   client_address: string;
   organization_name: string;
   application_url: string;
+  is_public_dataset: boolean;
 }
 
 export type CompareType = "up" | "down" | "equal" | undefined;

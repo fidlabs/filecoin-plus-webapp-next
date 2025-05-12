@@ -11,6 +11,7 @@ import { ReportViewCidSharing } from "@/app/clients/(pages)/[id]/(pages)/reports
 import { GithubIcon } from "@/components/icons/github.icon";
 import Link from "next/link";
 import { ClientReportMultipleAllocatorsSection } from "./client-report-multiple-allocators-section";
+import { ClientReportOverviewSection } from "./client-report-overview-section";
 
 const ReportsLayout = () => {
   const { colsStyle, reports } = useReportsDetails();
@@ -52,6 +53,7 @@ const ReportsLayout = () => {
               );
             })}
           </div>
+          <ClientReportOverviewSection />
           <ClientReportMultipleAllocatorsSection />
           <ReportViewProviders />
           <ReportViewReplicas />
