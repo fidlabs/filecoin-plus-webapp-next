@@ -7,6 +7,8 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { ClientsView } from "@/app/allocators/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/clients-view/clients-view";
 import { ProvidersView } from "@/app/allocators/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/provider-view/providers-view";
+import { AllocatorReportOverviewSection } from "./allocator-report-overview-section";
+import { AllocatorReportDataTypesSection } from "./allocator-report-data-types-section";
 
 const ReportsLayout = () => {
   const { colsStyle, reports } = useReportsDetails();
@@ -49,6 +51,8 @@ const ReportsLayout = () => {
               );
             })}
           </div>
+          <AllocatorReportOverviewSection />
+          <AllocatorReportDataTypesSection />
           <ClientsView />
           <ProvidersView />
         </CardContent>
