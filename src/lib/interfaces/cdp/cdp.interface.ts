@@ -53,6 +53,8 @@ export interface IClientReportHeader {
   organization_name: string;
   application_url: string;
   is_public_dataset: boolean;
+  using_client_contract: boolean;
+  client_contract_max_deviation: `${number}`;
 }
 
 export type CompareType = "up" | "down" | "equal" | undefined;
@@ -292,6 +294,7 @@ export interface ICDPAllocatorFullReportClient {
   application_url: string;
   application_timestamp: string;
   allocations: ICDPAllocatorFullReportClientAllocation[];
+  using_client_contract: boolean;
 }
 
 export interface ICDPAllocatorFullReportClientAllocation {
