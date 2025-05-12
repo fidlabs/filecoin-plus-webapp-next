@@ -99,6 +99,7 @@ export const prepareEmptyProviders = (allProviders: string[]) => {
         unique_data_size: "0",
         perc_of_total_datacap: 0,
         retrievability_success_rate: 0,
+        retrievability_success_rate_http: 0,
         provider,
         location: {
           city: "",

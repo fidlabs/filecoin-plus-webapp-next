@@ -1,4 +1,5 @@
 "use client";
+
 import { GithubIcon } from "@/components/icons/github.icon";
 import { DataTable } from "@/components/ui/data-table";
 import {
@@ -14,8 +15,13 @@ import {
 import { convertBytesToIEC } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import { differenceInDays, format } from "date-fns";
-import { TriangleAlertIcon } from "lucide-react";
+import { CheckIcon, TriangleAlertIcon } from "lucide-react";
 import Link from "next/link";
+
+interface UseClientsViewColumnsParameters {
+  idsUsingContract: string[];
+  idsReceivingDatacapFromMultipleAllocators: string[];
+}
 
 function getNumberOfDaysSinceLastAllocation(
   allocations: ICDPAllocatorFullReportClientAllocation[]
@@ -30,7 +36,10 @@ function getNumberOfDaysSinceLastAllocation(
   return differenceInDays(Date.now(), lastAllocationDate);
 }
 
-function useClientsViewColumns(markedIds: string[]) {
+function useClientsViewColumns({
+  idsReceivingDatacapFromMultipleAllocators,
+  idsUsingContract,
+}: UseClientsViewColumnsParameters) {
   const columns = [
     {
       accessorKey: "client_id",
@@ -43,7 +52,10 @@ function useClientsViewColumns(markedIds: string[]) {
 
         return (
           <div className="flex flex-row items-center justify-start gap-1">
-            {markedIds.includes(client_id) && (
+            {idsUsingContract.includes(client_id) && (
+              <CheckIcon className="h-4 w-4 text-green-500" />
+            )}
+            {idsReceivingDatacapFromMultipleAllocators.includes(client_id) && (
               <TriangleAlertIcon className="h-4 w-4 text-yellow-600" />
             )}
             <Link className="table-link" href={`/clients/${client_id}`}>
@@ -196,16 +208,20 @@ function useClientsViewColumns(markedIds: string[]) {
   return { columns };
 }
 
-export interface ClientsViewTableProps {
+export interface ClientsViewTableProps
+  extends Partial<UseClientsViewColumnsParameters> {
   clients: ICDPAllocatorFullReportClient[];
-  markedIds?: string[];
 }
 
 export function ClientsViewTable({
   clients,
-  markedIds = [],
+  idsReceivingDatacapFromMultipleAllocators = [],
+  idsUsingContract = [],
 }: ClientsViewTableProps) {
-  const { columns } = useClientsViewColumns(markedIds);
+  const { columns } = useClientsViewColumns({
+    idsReceivingDatacapFromMultipleAllocators,
+    idsUsingContract,
+  });
 
   return (
     <div className="border-b border-t table-select-warning">

@@ -52,6 +52,9 @@ export interface IClientReportHeader {
   client_address: string;
   organization_name: string;
   application_url: string;
+  is_public_dataset: boolean;
+  using_client_contract: boolean;
+  client_contract_max_deviation: `${number}`;
 }
 
 export type CompareType = "up" | "down" | "equal" | undefined;
@@ -73,8 +76,9 @@ export interface IClientReportStorageProviderDistribution {
   duplication_percentage: number;
   duplication_percentage_compare: CompareType;
   retrievability_success_rate: string;
-  retrievability_success_rate_http: string;
   retrievability_success_rate_compare: CompareType;
+  retrievability_success_rate_http: string;
+  retrievability_success_rate_http_compare: CompareType;
   ipni_reporting_status: IPNIReportingStatus;
   ipni_reported_claims_count: string | undefined;
   claims_count: string | undefined;
@@ -290,6 +294,7 @@ export interface ICDPAllocatorFullReportClient {
   application_url: string;
   application_timestamp: string;
   allocations: ICDPAllocatorFullReportClientAllocation[];
+  using_client_contract: boolean;
 }
 
 export interface ICDPAllocatorFullReportClientAllocation {
@@ -308,6 +313,8 @@ export interface ICDPAllocatorFullReportStorageProviderDistribution {
   perc_of_total_datacap_compare: CompareType;
   retrievability_success_rate?: number;
   retrievability_success_rate_compare: CompareType;
+  retrievability_success_rate_http: number;
+  retrievability_success_rate_http_compare: number;
   location: IGenericReportLocation;
 }
 
