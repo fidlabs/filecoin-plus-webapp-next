@@ -4,20 +4,19 @@ import { ClientsViewTable } from "@/app/allocators/(pages)/[id]/(pages)/reports/
 import { useReportsDetails } from "@/app/allocators/(pages)/[id]/(pages)/reports/(pages)/[...report]/providers/reports-details.provider";
 import { useScrollObserver } from "@/lib/hooks/useScrollObserver";
 import { cn } from "@/lib/utils";
-import { TriangleAlertIcon } from "lucide-react";
+import { CheckIcon, TriangleAlertIcon } from "lucide-react";
 
 export function ClientsView() {
   const { colsStyle, colsSpanStyle, reports } = useReportsDetails();
   const { top, ref } = useScrollObserver();
 
-  const showMarkedClientsExplanation = reports.some((report) => {
-    return (
-      report.check_results.findIndex(
-        (result) =>
-          result.check === "CLIENT_MULTIPLE_ALLOCATORS" &&
-          result.metadata.violating_ids.length > 0
-      ) !== -1
-    );
+  const showMutipleAllocatorsExplanation = reports.some((report) => {
+    return report.check_results.some((result) => {
+      return (
+        result.check === "CLIENT_MULTIPLE_ALLOCATORS" &&
+        result.metadata.violating_ids.length > 0
+      );
+    });
   });
 
   return (
@@ -33,7 +32,13 @@ export function ClientsView() {
       >
         <h2 className="font-semibold text-lg">Clients overview</h2>
 
-        {showMarkedClientsExplanation && (
+        <p className="text-sm mt-2">
+          Clients marked with{" "}
+          <CheckIcon className="inline h-4 w-4 text-green-500" /> are using
+          Client contract.
+        </p>
+
+        {showMutipleAllocatorsExplanation && (
           <p className="text-sm mt-2">
             Clients marked with{" "}
             <TriangleAlertIcon className="inline h-4 w-4 text-yellow-600" />{" "}
@@ -43,13 +48,24 @@ export function ClientsView() {
       </div>
 
       {reports.map((report, index) => {
-        const markedIds = report.check_results.find(
-          (result) => result.check === "CLIENT_MULTIPLE_ALLOCATORS"
-        )?.metadata.violating_ids;
+        const idsUsingContract = report.clients
+          .filter((client) => client.using_client_contract)
+          .map((client) => client.client_id);
+
+        const idsReceivingDatacapFromMultipleAllocators =
+          report.check_results.find(
+            (result) => result.check === "CLIENT_MULTIPLE_ALLOCATORS"
+          )?.metadata.violating_ids;
 
         return (
           <div key={index} className="border-b [&:not(:last-child)]:border-r-2">
-            <ClientsViewTable clients={report.clients} markedIds={markedIds} />
+            <ClientsViewTable
+              clients={report.clients}
+              idsUsingContract={idsUsingContract}
+              idsReceivingDatacapFromMultipleAllocators={
+                idsReceivingDatacapFromMultipleAllocators
+              }
+            />
           </div>
         );
       })}
