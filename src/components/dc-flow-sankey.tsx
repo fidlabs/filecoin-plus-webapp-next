@@ -9,8 +9,6 @@ import { ReactNode, useCallback, useMemo, useState } from "react";
 import { ResponsiveContainer, Sankey, Tooltip, TooltipProps } from "recharts";
 import * as z from "zod";
 
-const PIB = BigInt(1000000000000);
-
 interface Node {
   allocators: Array<{
     id: string;
@@ -133,11 +131,11 @@ function prepareAutomaticSankeyData(
       },
     ],
     links: [
-      { source: 0, target: rootId, value: Number(totalDatacap / PIB) },
+      { source: 0, target: rootId, value: Number(totalDatacap) },
       {
         source: rootId,
         target: allocatorsId,
-        value: Number(restAllocatorsDatacap / PIB),
+        value: Number(restAllocatorsDatacap),
       },
     ],
   };
@@ -155,7 +153,7 @@ function prepareAutomaticSankeyData(
     sankeyData.links.push({
       source: rootId,
       target: faucetId,
-      value: Number(faucetAllocator.datacap / PIB),
+      value: Number(faucetAllocator.datacap),
     });
 
     if (openedSection !== undefined) {
@@ -188,7 +186,7 @@ function prepareAutomaticSankeyData(
       sankeyData.links.push({
         source: allocatorsId,
         target: allocatorId,
-        value: Number(allocator.datacap / PIB),
+        value: Number(allocator.datacap),
       });
     }
   } else if (openedSection !== undefined) {
@@ -239,7 +237,7 @@ function prepareExperimentalSankeyData(
       {
         source: 0,
         target: experinemtalPathwayId,
-        value: Number(experimentalPathwayMetaAllocator?.datacap / PIB || 0),
+        value: Number(experimentalPathwayMetaAllocator?.datacap || 0),
       },
       {
         source: experinemtalPathwayId,
@@ -316,16 +314,16 @@ function prepareManualSankeyData(
       },
     ],
     links: [
-      { source: 0, target: rootId, value: Number(totalDatacap / PIB) },
+      { source: 0, target: rootId, value: Number(totalDatacap) },
       {
         source: rootId,
         target: metaId,
-        value: Number(metaAllocatorDatacap / PIB),
+        value: Number(metaAllocatorDatacap),
       },
       {
         source: rootId,
         target: allocatorsId,
-        value: Number(restAllocatorsDatacap / PIB),
+        value: Number(restAllocatorsDatacap),
       },
     ],
   };
@@ -343,7 +341,7 @@ function prepareManualSankeyData(
       sankeyData.links.push({
         source: metaId,
         target: allocatorId,
-        value: Number(allocator.datacap / PIB),
+        value: Number(allocator.datacap),
       });
     }
   } else if (openedSection !== undefined) {
@@ -374,7 +372,7 @@ function prepareManualSankeyData(
       sankeyData.links.push({
         source: allocatorsId,
         target: allocatorId,
-        value: Number(allocator.datacap / PIB),
+        value: Number(allocator.datacap),
       });
     }
   } else if (openedSection !== undefined) {
