@@ -44,12 +44,14 @@ const Component = ({ data, allocators }: Props) => {
     return convertBytesToIEC(value);
   };
 
-  const handleClick = (data: {
-    name: string;
-    [key: string]: number | string;
-  }) => {
-    window.open(`/allocators/${data.name}`, "_blank");
-  };
+  const handleClick = useCallback(
+    (data: { name: string; [key: string]: number | string }) => {
+      if (mode === "week") {
+        window.open(`/allocators/${data.name}`, "_blank");
+      }
+    },
+    [mode]
+  );
 
   const { scale, selectedScale, setSelectedScale } = useChartScale(
     minValue,
@@ -169,7 +171,7 @@ const Component = ({ data, allocators }: Props) => {
                   onClick={handleClick}
                   key={key}
                   style={{
-                    cursor: "pointer",
+                    cursor: mode === "week" ? "pointer" : "default",
                     stroke: "#212121",
                     strokeWidth: 1,
                   }}
