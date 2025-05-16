@@ -1,10 +1,11 @@
-import { Montserrat } from "next/font/google";
-import "./globals.css";
-import { ReactNode } from "react";
 import { Header } from "@/components/header";
 import { Toaster } from "@/components/ui/sonner";
-import { ViewTransitions } from "next-view-transitions";
 import { generatePageMetadata } from "@/lib/utils";
+import PlausibleProvider from "next-plausible";
+import { ViewTransitions } from "next-view-transitions";
+import { Montserrat } from "next/font/google";
+import { ReactNode } from "react";
+import "./globals.css";
 
 const font = Montserrat({
   subsets: ["latin"],
@@ -26,11 +27,13 @@ export default function RootLayout({
     <ViewTransitions>
       <html lang="en">
         <body className={`${font.className} antialiased`}>
-          <div vaul-drawer-wrapper="">
-            <Header />
-            <div className="pb-28 md:pb-10">{children}</div>
-            <Toaster position="top-right" />
-          </div>
+          <PlausibleProvider domain="datacapstats.io" trackOutboundLinks>
+            <div vaul-drawer-wrapper="">
+              <Header />
+              <div className="pb-28 md:pb-10">{children}</div>
+              <Toaster position="top-right" />
+            </div>
+          </PlausibleProvider>
         </body>
       </html>
     </ViewTransitions>
