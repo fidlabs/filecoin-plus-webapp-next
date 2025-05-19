@@ -1,31 +1,59 @@
 "use client";
-import { StackedBarGraph } from "@/app/compliance-data-portal/components/graphs/stacked-bar-graph";
+
 import { ChartWrapper } from "@/app/compliance-data-portal/components/chart-wrapper";
-import { useCDPChartDataEngine } from "@/app/compliance-data-portal/hooks/useCDPChartDataEngine";
+import { StackedBarGraph } from "@/app/compliance-data-portal/components/graphs/stacked-bar-graph";
+import useWeeklyChartData from "@/app/compliance-data-portal/hooks/useWeeklyChartData";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useStorageProviderRetrievability } from "@/lib/hooks/cdp.hooks";
+import { useSearchParamsFilters } from "@/lib/hooks/use-search-params-filters";
+import { useChartScale } from "@/lib/hooks/useChartScale";
 import { barTabs, dataTabs } from "@/lib/providers/cdp.provider";
 import { LoaderCircle } from "lucide-react";
+import { type ComponentProps, useCallback, useEffect, useState } from "react";
 
-const StorageProviderRetrievability = () => {
+type CheckboxProps = ComponentProps<typeof Checkbox>;
+type CheckedChangeHandler = NonNullable<CheckboxProps["onCheckedChange"]>;
+
+const openDataFilterKey = "openData";
+
+export default function StorageProviderRetrievabilityPage() {
+  const { filters, updateFilter } = useSearchParamsFilters();
+  const showOpenDataOnly = filters[openDataFilterKey] === "true";
+  const [usePercentage, setUsePercentage] = useState(false);
+
+  const { data, isLoading } = useStorageProviderRetrievability({
+    openData: showOpenDataOnly,
+  });
+
   const {
-    isLoading,
-    usePercentage,
     chartData,
     currentTab,
     setCurrentTab,
-    scale,
-    data,
-    selectedScale,
-    setSelectedScale,
+    minValue,
     palette,
     currentDataTab,
     setCurrentDataTab,
-  } = useCDPChartDataEngine({
-    fetchMethod: useStorageProviderRetrievability,
+  } = useWeeklyChartData({
+    data: data?.buckets,
     unit: " %",
+    usePercentage,
   });
 
   const unit = currentDataTab === "Count" ? "provider" : currentDataTab;
+
+  const { scale, calcPercentage, selectedScale, setSelectedScale } =
+    useChartScale(minValue);
+
+  const handleOpenDataToggleChange = useCallback<CheckedChangeHandler>(
+    (state) => {
+      updateFilter(openDataFilterKey, state === true ? "true" : undefined);
+    },
+    [updateFilter]
+  );
+
+  useEffect(() => {
+    setUsePercentage(calcPercentage);
+  }, [calcPercentage]);
 
   return (
     <ChartWrapper
@@ -49,6 +77,24 @@ const StorageProviderRetrievability = () => {
       ]}
       selectedScale={selectedScale}
       setSelectedScale={setSelectedScale}
+      additionalFilters={[
+        <div
+          key="open-data-toggle"
+          className="flex items-center space-x-2 py-3.5 px-2"
+        >
+          <Checkbox
+            id="open-data"
+            checked={showOpenDataOnly}
+            onCheckedChange={handleOpenDataToggleChange}
+          />
+          <label
+            className="text-sm font-medium leading-none"
+            htmlFor="open-data"
+          >
+            Open Data Only
+          </label>
+        </div>,
+      ]}
     >
       <StackedBarGraph
         currentDataTab={currentDataTab}
@@ -61,6 +107,4 @@ const StorageProviderRetrievability = () => {
       />
     </ChartWrapper>
   );
-};
-
-export default StorageProviderRetrievability;
+}

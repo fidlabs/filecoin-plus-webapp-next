@@ -1,27 +1,56 @@
 "use client";
-import { StackedBarGraph } from "@/app/compliance-data-portal/components/graphs/stacked-bar-graph";
-import { ChartWrapper } from "@/app/compliance-data-portal/components/chart-wrapper";
-import { useCDPChartDataEngine } from "@/app/compliance-data-portal/hooks/useCDPChartDataEngine";
-import { useAllocatorRetrievability } from "@/lib/hooks/cdp.hooks";
-import { barTabs, dataTabs } from "@/lib/providers/cdp.provider";
 
-const AllocatorRetrievability = () => {
+import { ChartWrapper } from "@/app/compliance-data-portal/components/chart-wrapper";
+import { StackedBarGraph } from "@/app/compliance-data-portal/components/graphs/stacked-bar-graph";
+import useWeeklyChartData from "@/app/compliance-data-portal/hooks/useWeeklyChartData";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useAllocatorRetrievability } from "@/lib/hooks/cdp.hooks";
+import { useSearchParamsFilters } from "@/lib/hooks/use-search-params-filters";
+import { useChartScale } from "@/lib/hooks/useChartScale";
+import { barTabs, dataTabs } from "@/lib/providers/cdp.provider";
+import { type ComponentProps, useCallback, useEffect, useState } from "react";
+
+type CheckboxProps = ComponentProps<typeof Checkbox>;
+type CheckedChangeHandler = NonNullable<CheckboxProps["onCheckedChange"]>;
+
+const openDataFilterKey = "openData";
+
+export default function AllocatorRetrievabilityPage() {
+  const { filters, updateFilter } = useSearchParamsFilters();
+  const showOpenDataOnly = filters[openDataFilterKey] === "true";
+  const [usePercentage, setUsePercentage] = useState(false);
+
+  const { data, isLoading } = useAllocatorRetrievability({
+    openData: showOpenDataOnly,
+  });
+
   const {
-    isLoading,
-    usePercentage,
     chartData,
     currentTab,
     setCurrentTab,
-    scale,
-    selectedScale,
-    setSelectedScale,
+    minValue,
     palette,
     currentDataTab,
     setCurrentDataTab,
-  } = useCDPChartDataEngine({
-    fetchMethod: useAllocatorRetrievability,
+  } = useWeeklyChartData({
+    data: data?.buckets,
     unit: " %",
+    usePercentage,
   });
+
+  const { scale, calcPercentage, selectedScale, setSelectedScale } =
+    useChartScale(minValue);
+
+  const handleOpenDataToggleChange = useCallback<CheckedChangeHandler>(
+    (state) => {
+      updateFilter(openDataFilterKey, state === true ? "true" : undefined);
+    },
+    [updateFilter]
+  );
+
+  useEffect(() => {
+    setUsePercentage(calcPercentage);
+  }, [calcPercentage]);
 
   const unit = currentDataTab === "Count" ? "allocator" : currentDataTab;
 
@@ -37,6 +66,24 @@ const AllocatorRetrievability = () => {
       id="RetrievabilityScoreAllocator"
       selectedScale={selectedScale}
       setSelectedScale={setSelectedScale}
+      additionalFilters={[
+        <div
+          key="open-data-toggle"
+          className="flex items-center space-x-2 py-3.5 px-2"
+        >
+          <Checkbox
+            id="open-data"
+            checked={showOpenDataOnly}
+            onCheckedChange={handleOpenDataToggleChange}
+          />
+          <label
+            className="text-sm font-medium leading-none"
+            htmlFor="open-data"
+          >
+            Open Data Only
+          </label>
+        </div>,
+      ]}
     >
       <StackedBarGraph
         currentDataTab={currentDataTab}
@@ -49,6 +96,4 @@ const AllocatorRetrievability = () => {
       />
     </ChartWrapper>
   );
-};
-
-export default AllocatorRetrievability;
+}
