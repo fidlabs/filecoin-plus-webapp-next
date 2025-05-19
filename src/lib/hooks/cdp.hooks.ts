@@ -26,28 +26,36 @@ const allocatorSPsComplianceMetrics = [
   "nonCompliant",
 ] as const;
 
-const useStorageProviderRetrievability = () => {
-  const fetchData = async () => {
-    const response = await fetch(
-      `${CDP_API}/stats/acc/providers/retrievability`
-    );
+interface UseStorageProviderRetrievabilityParameters {
+  openData?: boolean;
+}
+
+const useStorageProviderRetrievability = ({
+  openData = false,
+}: UseStorageProviderRetrievabilityParameters) => {
+  const fetchData = useCallback(async () => {
+    const endpoint = openData
+      ? "/stats/acc/providers/open-data-retrievability"
+      : "/stats/acc/providers/retrievability";
+    const response = await fetch(`${CDP_API}${endpoint}`);
     const data = (await response.json()) as ICDPHistogramResult;
     return {
       avgSuccessRatePct: data?.averageSuccessRate,
       count: data?.histogram?.total,
       buckets: data?.histogram?.results,
     } as ICDPUnifiedHistogram;
-  };
+  }, [openData]);
 
   const [data, setData] = useState<ICDPUnifiedHistogram | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    setData(undefined);
     setIsLoading(true);
     fetchData()
       .then(setData)
       .then(() => setIsLoading(false));
-  }, []);
+  }, [fetchData]);
 
   return {
     data,
@@ -109,28 +117,36 @@ const useStorageProviderBiggestDeal = () => {
   };
 };
 
-const useAllocatorRetrievability = () => {
-  const fetchData = async () => {
-    const response = await fetch(
-      `${CDP_API}/stats/acc/allocators/retrievability`
-    );
+interface UseAllocatorRetrievabilityParameters {
+  openData?: boolean;
+}
+
+const useAllocatorRetrievability = ({
+  openData = false,
+}: UseAllocatorRetrievabilityParameters) => {
+  const fetchData = useCallback(async () => {
+    const endpoint = openData
+      ? "/stats/acc/allocators/open-data-retrievability"
+      : "/stats/acc/allocators/retrievability";
+    const response = await fetch(`${CDP_API}${endpoint}`);
     const data = (await response.json()) as ICDPHistogramResult;
     return {
       avgSuccessRatePct: data?.averageSuccessRate,
       count: data?.histogram?.total,
       buckets: data?.histogram?.results,
     } as ICDPUnifiedHistogram;
-  };
+  }, [openData]);
 
   const [data, setData] = useState<ICDPUnifiedHistogram | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     setIsLoading(true);
+    setData(undefined);
     fetchData()
       .then(setData)
       .then(() => setIsLoading(false));
-  }, []);
+  }, [fetchData]);
 
   return {
     data,
