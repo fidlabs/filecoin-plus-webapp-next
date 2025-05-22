@@ -14,15 +14,18 @@ import { type ComponentProps, useCallback, useEffect, useState } from "react";
 type CheckboxProps = ComponentProps<typeof Checkbox>;
 type CheckedChangeHandler = NonNullable<CheckboxProps["onCheckedChange"]>;
 
-const openDataFilterKey = "openData";
+const httpRetrievabilityFilterKey = "httpRetrievability";
+const openDataFilterKey = "openDataOnly";
 
 export default function StorageProviderRetrievabilityPage() {
   const { filters, updateFilter } = useSearchParamsFilters();
-  const showOpenDataOnly = filters[openDataFilterKey] === "true";
+  const httpRetrievability = filters[httpRetrievabilityFilterKey] === "true";
+  const openDataOnly = filters[openDataFilterKey] === "true";
   const [usePercentage, setUsePercentage] = useState(false);
 
   const { data, isLoading } = useStorageProviderRetrievability({
-    openData: showOpenDataOnly,
+    httpRetrievability,
+    openDataOnly,
   });
 
   const {
@@ -43,6 +46,17 @@ export default function StorageProviderRetrievabilityPage() {
 
   const { scale, calcPercentage, selectedScale, setSelectedScale } =
     useChartScale(minValue);
+
+  const handleHTTPRetrievabilityToggleChange =
+    useCallback<CheckedChangeHandler>(
+      (state) => {
+        updateFilter(
+          httpRetrievabilityFilterKey,
+          state === true ? "true" : undefined
+        );
+      },
+      [updateFilter]
+    );
 
   const handleOpenDataToggleChange = useCallback<CheckedChangeHandler>(
     (state) => {
@@ -79,12 +93,28 @@ export default function StorageProviderRetrievabilityPage() {
       setSelectedScale={setSelectedScale}
       additionalFilters={[
         <div
+          key="http-retrievability-toggle"
+          className="flex items-center space-x-2 py-3.5 px-2"
+        >
+          <Checkbox
+            id="http-retrievability"
+            checked={httpRetrievability}
+            onCheckedChange={handleHTTPRetrievabilityToggleChange}
+          />
+          <label
+            className="text-sm font-medium leading-none"
+            htmlFor="http-retrievability"
+          >
+            HTTP Retrievability
+          </label>
+        </div>,
+        <div
           key="open-data-toggle"
           className="flex items-center space-x-2 py-3.5 px-2"
         >
           <Checkbox
             id="open-data"
-            checked={showOpenDataOnly}
+            checked={openDataOnly}
             onCheckedChange={handleOpenDataToggleChange}
           />
           <label
