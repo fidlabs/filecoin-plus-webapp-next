@@ -27,16 +27,20 @@ const allocatorSPsComplianceMetrics = [
 ] as const;
 
 interface UseStorageProviderRetrievabilityParameters {
-  openData?: boolean;
+  httpRetrievability?: boolean;
+  openDataOnly?: boolean;
 }
 
 const useStorageProviderRetrievability = ({
-  openData = false,
+  httpRetrievability = false,
+  openDataOnly = false,
 }: UseStorageProviderRetrievabilityParameters) => {
   const fetchData = useCallback(async () => {
-    const endpoint = openData
-      ? "/stats/acc/providers/open-data-retrievability"
-      : "/stats/acc/providers/retrievability";
+    const searchParams = new URLSearchParams();
+    searchParams.set("httpRetrievability", String(httpRetrievability));
+    searchParams.set("openDataOnly", String(openDataOnly));
+
+    const endpoint = `/stats/acc/providers/retrievability?${searchParams.toString()}`;
     const response = await fetch(`${CDP_API}${endpoint}`);
     const data = (await response.json()) as ICDPHistogramResult;
     return {
@@ -44,7 +48,7 @@ const useStorageProviderRetrievability = ({
       count: data?.histogram?.total,
       buckets: data?.histogram?.results,
     } as ICDPUnifiedHistogram;
-  }, [openData]);
+  }, [httpRetrievability, openDataOnly]);
 
   const [data, setData] = useState<ICDPUnifiedHistogram | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
@@ -118,16 +122,19 @@ const useStorageProviderBiggestDeal = () => {
 };
 
 interface UseAllocatorRetrievabilityParameters {
-  openData?: boolean;
+  httpRetrievability?: boolean;
+  openDataOnly?: boolean;
 }
 
 const useAllocatorRetrievability = ({
-  openData = false,
+  httpRetrievability = false,
+  openDataOnly = false,
 }: UseAllocatorRetrievabilityParameters) => {
   const fetchData = useCallback(async () => {
-    const endpoint = openData
-      ? "/stats/acc/allocators/open-data-retrievability"
-      : "/stats/acc/allocators/retrievability";
+    const searchParams = new URLSearchParams();
+    searchParams.set("httpRetrievability", String(httpRetrievability));
+    searchParams.set("openDataOnly", String(openDataOnly));
+    const endpoint = `/stats/acc/allocators/retrievability?${searchParams.toString()}`;
     const response = await fetch(`${CDP_API}${endpoint}`);
     const data = (await response.json()) as ICDPHistogramResult;
     return {
@@ -135,7 +142,7 @@ const useAllocatorRetrievability = ({
       count: data?.histogram?.total,
       buckets: data?.histogram?.results,
     } as ICDPUnifiedHistogram;
-  }, [openData]);
+  }, [httpRetrievability, openDataOnly]);
 
   const [data, setData] = useState<ICDPUnifiedHistogram | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
