@@ -94,8 +94,8 @@ export default async function ClientDetailsLayout({
   return (
     <JsonLd data={person}>
       <div className="flex w-full justify-between mb-4 main-content">
-        <div className="text-white">
-          <h1 className="text-3xl leading-relaxed font-semibold">
+        <div className="text-white min-w-0">
+          <h1 className="text-3xl leading-relaxed font-semibold truncate">
             <ClientLink clientId={params.id}>{clientData.name}</ClientLink>
           </h1>
           <p className="text-sm leading-none mb-4">
@@ -116,26 +116,28 @@ export default async function ClientDetailsLayout({
             </FilecoinPulseButton>
           </div>
         </div>
-        <ResponsiveView>
-          <div className="grid grid-cols-2 w-full p-4 pb-10 gap-4 md:my-6 md:p-0">
-            <Card>
-              <CardHeader className="p-4">
-                <CardTitle>Remaining DataCap</CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 pt-0">
-                {convertBytesToIEC(clientData.remainingDatacap)}
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="p-4">
-                <CardTitle>Allocated DataCap</CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 pt-0">
-                {convertBytesToIEC(clientData.allocatedDatacap)}
-              </CardContent>
-            </Card>
-          </div>
-        </ResponsiveView>
+        <div className="min-w-[40px] md:min-w-fit flex justify-center">
+          <ResponsiveView>
+            <div className="grid grid-cols-2 w-full p-4 pb-10 gap-4 md:my-6 md:p-0">
+              <Card>
+                <CardHeader className="p-4">
+                  <CardTitle>Remaining DataCap</CardTitle>
+                </CardHeader>
+                <CardContent className="p-4 pt-0">
+                  {convertBytesToIEC(clientData.remainingDatacap)}
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="p-4">
+                  <CardTitle>Allocated DataCap</CardTitle>
+                </CardHeader>
+                <CardContent className="p-4 pt-0">
+                  {convertBytesToIEC(clientData.allocatedDatacap)}
+                </CardContent>
+              </Card>
+            </div>
+          </ResponsiveView>
+        </div>
       </div>
       <Suspense>{children}</Suspense>
     </JsonLd>
