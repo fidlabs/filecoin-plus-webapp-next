@@ -7,6 +7,7 @@ import { getClients } from "@/lib/api";
 import { createClientLink } from "@/lib/filecoin-pulse";
 import { convertBytesToIEC, generatePageMetadata } from "@/lib/utils";
 import { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { cache, PropsWithChildren, Suspense } from "react";
 import { Person, WithContext } from "schema-dts";
@@ -61,6 +62,17 @@ export async function generateMetadata({
   });
 }
 
+function ClientLink({
+  children,
+  clientId,
+}: PropsWithChildren<{ clientId: string }>) {
+  return (
+    <Link className="hover:underline" href={`/clients/${clientId}`}>
+      {children}
+    </Link>
+  );
+}
+
 export default async function ClientDetailsLayout({
   children,
   params,
@@ -84,9 +96,11 @@ export default async function ClientDetailsLayout({
       <div className="flex w-full justify-between mb-4 main-content">
         <div className="text-white">
           <h1 className="text-3xl leading-relaxed font-semibold">
-            {clientData.name}
+            <ClientLink clientId={params.id}>{clientData.name}</ClientLink>
           </h1>
-          <p className="text-sm leading-none mb-4">Client ID: {params.id}</p>
+          <p className="text-sm leading-none mb-4">
+            Client ID: <ClientLink clientId={params.id}>{params.id}</ClientLink>
+          </p>
           <div className="flex items-center gap-2">
             {!!clientData.githubUrl && (
               <GithubButton url={clientData.githubUrl}>
