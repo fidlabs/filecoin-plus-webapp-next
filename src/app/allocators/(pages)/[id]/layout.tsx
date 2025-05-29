@@ -60,7 +60,7 @@ const AllocatorDetailsLayout = async ({
   const person: WithContext<Person> = {
     "@context": "https://schema.org",
     "@type": "Person",
-    name: allocatorResponse?.name,
+    name: allocatorResponse?.name ?? params.id,
     description: "Fil+ Allocator",
     url: `https://datacapstats.io/allocators/${params.id}`,
   };
@@ -71,9 +71,9 @@ const AllocatorDetailsLayout = async ({
         <div className="main-content flex w-full justify-between mb-4">
           <div className="text-white">
             <h1 className="text-3xl leading-relaxed font-semibold">
-              {allocatorResponse.name.length > 0
+              {allocatorResponse.name && allocatorResponse.name.length > 0
                 ? allocatorResponse.name
-                : allocatorResponse.addressId}{" "}
+                : allocatorResponse.addressId}
             </h1>
             <p className="text-sm leading-none mb-4">
               Allocator ID: {allocatorResponse?.addressId}

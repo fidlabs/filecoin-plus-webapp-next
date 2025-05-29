@@ -7,6 +7,7 @@ import { getClients } from "@/lib/api";
 import { createClientLink } from "@/lib/filecoin-pulse";
 import { convertBytesToIEC, generatePageMetadata } from "@/lib/utils";
 import { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { cache, PropsWithChildren, Suspense } from "react";
 import { Person, WithContext } from "schema-dts";
@@ -61,6 +62,17 @@ export async function generateMetadata({
   });
 }
 
+function ClientLink({
+  children,
+  clientId,
+}: PropsWithChildren<{ clientId: string }>) {
+  return (
+    <Link className="hover:underline" href={`/clients/${clientId}`}>
+      {children}
+    </Link>
+  );
+}
+
 export default async function ClientDetailsLayout({
   children,
   params,
@@ -82,11 +94,13 @@ export default async function ClientDetailsLayout({
   return (
     <JsonLd data={person}>
       <div className="flex w-full justify-between mb-4 main-content">
-        <div className="text-white">
-          <h1 className="text-3xl leading-relaxed font-semibold">
-            {clientData.name}
+        <div className="text-white min-w-0">
+          <h1 className="text-3xl leading-relaxed font-semibold truncate">
+            <ClientLink clientId={params.id}>{clientData.name}</ClientLink>
           </h1>
-          <p className="text-sm leading-none mb-4">Client ID: {params.id}</p>
+          <p className="text-sm leading-none mb-4">
+            Client ID: <ClientLink clientId={params.id}>{params.id}</ClientLink>
+          </p>
           <div className="flex items-center gap-2">
             {!!clientData.githubUrl && (
               <GithubButton url={clientData.githubUrl}>
@@ -102,26 +116,28 @@ export default async function ClientDetailsLayout({
             </FilecoinPulseButton>
           </div>
         </div>
-        <ResponsiveView>
-          <div className="grid grid-cols-2 w-full p-4 pb-10 gap-4 md:my-6 md:p-0">
-            <Card>
-              <CardHeader className="p-4">
-                <CardTitle>Remaining DataCap</CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 pt-0">
-                {convertBytesToIEC(clientData.remainingDatacap)}
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader className="p-4">
-                <CardTitle>Allocated DataCap</CardTitle>
-              </CardHeader>
-              <CardContent className="p-4 pt-0">
-                {convertBytesToIEC(clientData.allocatedDatacap)}
-              </CardContent>
-            </Card>
-          </div>
-        </ResponsiveView>
+        <div className="min-w-[40px] md:min-w-fit flex justify-center">
+          <ResponsiveView>
+            <div className="grid grid-cols-2 w-full p-4 pb-10 gap-4 md:my-6 md:p-0">
+              <Card>
+                <CardHeader className="p-4">
+                  <CardTitle>Remaining DataCap</CardTitle>
+                </CardHeader>
+                <CardContent className="p-4 pt-0">
+                  {convertBytesToIEC(clientData.remainingDatacap)}
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader className="p-4">
+                  <CardTitle>Allocated DataCap</CardTitle>
+                </CardHeader>
+                <CardContent className="p-4 pt-0">
+                  {convertBytesToIEC(clientData.allocatedDatacap)}
+                </CardContent>
+              </Card>
+            </div>
+          </ResponsiveView>
+        </div>
       </div>
       <Suspense>{children}</Suspense>
     </JsonLd>
