@@ -1,4 +1,5 @@
 "use client";
+
 import Link from "next/link";
 import { LogoIcon } from "@/components/icons/logo.icon";
 import { TextLogoIcon } from "@/components/icons/text-logo.icon";
@@ -6,7 +7,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { ChevronRight, MenuIcon } from "lucide-react";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { GlobalSearchBox } from "@/components/global-search/global-search-box";
 import {
   DropdownMenu,
@@ -15,6 +16,90 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
+
+interface NavigationItem {
+  label: string;
+  path: string;
+  strictPath?: boolean;
+  external?: boolean;
+}
+
+interface NavigationGroup {
+  label: string;
+  items: NavigationItem[];
+}
+
+const navigation: Array<NavigationItem | NavigationGroup> = [
+  {
+    label: "Dashboard",
+    path: "/",
+    strictPath: true,
+  },
+  {
+    label: "Allocators",
+    items: [
+      {
+        label: "Allocators List",
+        path: "/allocators",
+      },
+      {
+        label: "Metaaallocators List",
+        path: "/metaallocators",
+      },
+    ],
+  },
+  {
+    label: "Clients",
+    path: "/clients",
+  },
+  {
+    label: "Storage Providers",
+    path: "/storage-providers",
+  },
+  {
+    label: "Compliance",
+    path: "/compliance-data-portal",
+  },
+  {
+    label: "About",
+    path: "/about",
+  },
+  {
+    label: "Ecosystem",
+    items: [
+      {
+        label: "Filecoin",
+        path: "https://filecoin.io",
+        external: true,
+      },
+      {
+        label: "Fil+",
+        path: "https://fil.org",
+        external: true,
+      },
+      {
+        label: "Documentation",
+        path: "https://docs.filecoin.io",
+        external: true,
+      },
+    ],
+  },
+];
+
+function isNavigationItemActive(
+  navigationItem: NavigationItem,
+  path: string
+): boolean {
+  return navigationItem.strictPath
+    ? navigationItem.path === path
+    : path.startsWith(navigationItem.path);
+}
+
+function isNavgiationGroup(
+  input: NavigationItem | NavigationGroup
+): input is NavigationGroup {
+  return Array.isArray((input as unknown as Record<string, unknown>).items);
+}
 
 const Header = () => {
   const [menuOpened, setMenuOpened] = useState(false);
@@ -60,135 +145,86 @@ const NavMenu = ({
   onClick?: () => void;
 }) => {
   const path = usePathname();
+
   return (
     <div className={cn("flex gap-6", className)}>
-      <Link
-        href="/"
-        onClick={onClick}
-        className={cn("nav-link", { active: path === "/" })}
-      >
-        Dashboard
-      </Link>
-      <Link
-        href="/allocators"
-        onClick={onClick}
-        className={cn("nav-link", { active: path.startsWith("/allocators") })}
-      >
-        Allocators
-      </Link>
-      <Link
-        href="/clients"
-        onClick={onClick}
-        className={cn("nav-link", { active: path.startsWith("/clients") })}
-      >
-        Clients
-      </Link>
-      <Link
-        href="/storage-providers"
-        onClick={onClick}
-        className={cn("nav-link", {
-          active: path.startsWith("/storage-providers"),
-        })}
-      >
-        Storage Providers
-      </Link>
-      <Link
-        href="/compliance-data-portal"
-        onClick={onClick}
-        className={cn("nav-link", {
-          active: path.startsWith("/compliance-data-portal"),
-        })}
-      >
-        Compliance
-      </Link>
-      <Link
-        href="/about"
-        onClick={onClick}
-        className={cn("nav-link", { active: path.startsWith("/about") })}
-      >
-        About
-      </Link>
-      <div className="hidden md:flex">
-        <DropdownMenu>
-          <DropdownMenuTrigger className="nav-link flex items-center gap-1">
-            Ecosystem
-            <ChevronDown className="h-4 w-4" />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent>
-            <DropdownMenuItem asChild>
-              <Link
-                href="https://filecoin.io"
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={onClick}
-              >
-                Filecoin
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link
-                href="https://fil.org"
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={onClick}
-              >
-                Fil+
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link
-                href="https://docs.filecoin.io"
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={onClick}
-              >
-                Documentation
-              </Link>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-      <div className="md:hidden">
-        <h3 className="nav-link">Ecosystem</h3>
-        <div className="flex flex-col mt-6 gap-2">
+      {navigation.map((item, index) => {
+        const group = isNavgiationGroup(item);
+        const key = group
+          ? `nav_group_${index}_${item.label}`
+          : `nav_item_${index}_${item.path}`;
+
+        if (group) {
+          const groupActive = item.items.some((item) =>
+            isNavigationItemActive(item, path)
+          );
+
+          return (
+            <Fragment key={key}>
+              <div className="hidden md:flex">
+                <DropdownMenu>
+                  <DropdownMenuTrigger
+                    className={cn("nav-link flex items-center gap-1", {
+                      active: groupActive,
+                    })}
+                  >
+                    {item.label}
+                    <ChevronDown className="h-4 w-4" />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    {item.items.map((innerItem, index) => (
+                      <DropdownMenuItem key={`${key}_item_${index}`} asChild>
+                        <Link
+                          href={innerItem.path}
+                          target={innerItem.external ? "_blank" : undefined}
+                          onClick={onClick}
+                        >
+                          {innerItem.label}
+                        </Link>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+              <div className="md:hidden">
+                <h3 className="text-md font-semibold">{item.label}</h3>
+                <div className="flex flex-col mt-6 gap-2">
+                  {item.items.map((innerItem, index) => (
+                    <Link
+                      key={`${key}_item_${index}`}
+                      href={innerItem.path}
+                      className={cn("nav-link", {
+                        active: isNavigationItemActive(innerItem, path),
+                      })}
+                      target={innerItem.external ? "_blank" : undefined}
+                      onClick={onClick}
+                    >
+                      <div className="flex items-center gap-2">
+                        <ChevronRight />
+                        {innerItem.label}
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </Fragment>
+          );
+        }
+
+        return (
           <Link
-            href="https://filecoin.io"
-            className="nav-link"
-            target="_blank"
-            rel="noopener noreferrer"
+            key={key}
+            href={item.path}
             onClick={onClick}
+            className={cn("nav-link", {
+              active: isNavigationItemActive(item, path),
+            })}
+            target={item.external ? "_blank" : undefined}
           >
-            <div className="flex items-center gap-2">
-              <ChevronRight />
-              Filecoin
-            </div>
+            {item.label}
           </Link>
-          <Link
-            href="https://fil.org"
-            className="nav-link"
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={onClick}
-          >
-            <div className="flex items-center gap-2">
-              <ChevronRight />
-              Fil+
-            </div>
-          </Link>
-          <Link
-            href="https://docs.filecoin.io"
-            className="nav-link"
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={onClick}
-          >
-            <div className="flex items-center gap-2">
-              <ChevronRight />
-              Documentation
-            </div>
-          </Link>
-        </div>
-      </div>
+        );
+      })}
     </div>
   );
 };
