@@ -12,7 +12,7 @@ export interface IAllocatorsResponse extends IApiListResponse<IAllocator> {
 export interface IAllocatorResponse
   extends IApiListResponse<IClient>,
     IApiListCountable {
-  name: string;
+  name: string | null | undefined;
   remainingDatacap: string;
   addressId: string;
   address: string;
