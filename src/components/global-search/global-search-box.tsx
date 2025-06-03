@@ -38,7 +38,7 @@ function compareTags(arr1: string[], arr2: string[]) {
 const defaultActions = [
   {
     name: "Home",
-    group: "generic",
+    group: "Generic",
     tags: [
       "home",
       "state",
@@ -53,20 +53,31 @@ const defaultActions = [
   },
   {
     name: "About",
-    group: "generic",
+    group: "Generic",
     tags: ["about", "us", "filecoin", "plus"],
     link: "/about",
   },
-
   {
-    name: "Allocators list",
-    group: "allocators",
+    name: "Allocators List",
+    group: "Allocators",
     tags: ["allocators", "allocator", "list"],
     link: "/allocators",
   },
   {
+    name: "Metallocators List",
+    group: "Allocators",
+    tags: [
+      "metaallocators",
+      "metaallocator",
+      "allocators",
+      "allocator",
+      "list",
+    ],
+    link: "/metaallocators",
+  },
+  {
     name: "Allocators Datacap Flow",
-    group: "allocators",
+    group: "Allocators",
     tags: [
       "allocators",
       "allocator",
@@ -79,21 +90,21 @@ const defaultActions = [
   },
   {
     name: "Allocators Audit Flow",
-    group: "allocators",
+    group: "Allocators",
     tags: ["allocators", "allocator", "audit", "flow"],
     link: "/allocators/audit-flow",
   },
 
   {
     name: "Clients list",
-    group: "clients",
+    group: "Clients",
     tags: ["clients", "client", "list"],
     link: "/clients",
   },
 
   {
-    name: "Storage providers list",
-    group: "storage providers",
+    name: "Storage Providers List",
+    group: "Storage Providers",
     tags: ["storage", "provider", "providers", "sp", "sps", "list"],
     link: "/storage-providers",
   },

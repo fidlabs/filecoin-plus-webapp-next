@@ -2,6 +2,7 @@ import {
   DataTableSort,
   DataTableSortProps,
 } from "@/components/data-table-sort";
+import { StringShortener } from "@/components/string-shortener";
 import {
   HoverCard,
   HoverCardContent,
@@ -75,25 +76,13 @@ export function useAllocatorsColumns({
       },
       cell: ({ row }) => {
         const addressId = row.getValue("addressId") as string;
-        const name = row.getValue("name") as string;
-        if (name?.length > 20) {
-          return (
-            <HoverCard openDelay={100} closeDelay={50}>
-              <HoverCardTrigger asChild>
-                <Link className="table-link" href={`allocators/${addressId}`}>
-                  {name.slice(0, 20)}...
-                </Link>
-              </HoverCardTrigger>
-              <HoverCardContent className="w-80">{name}</HoverCardContent>
-            </HoverCard>
-          );
-        } else {
-          return (
-            <Link className="table-link" href={`allocators/${addressId}`}>
-              {name}
-            </Link>
-          );
-        }
+        const name = row.getValue("name") as string | undefined;
+
+        return (
+          <Link className="table-link" href={`/allocators/${addressId}`}>
+            <StringShortener value={name ?? ""} maxLength={20} />
+          </Link>
+        );
       },
     },
     {
@@ -109,19 +98,9 @@ export function useAllocatorsColumns({
         );
       },
       cell: ({ row }) => {
-        const orgName = row.getValue("orgName") as string;
-        if (orgName?.length > 20) {
-          return (
-            <HoverCard openDelay={100} closeDelay={50}>
-              <HoverCardTrigger asChild>
-                <p className="cursor-help">{orgName.slice(0, 20)}...</p>
-              </HoverCardTrigger>
-              <HoverCardContent className="w-80">{orgName}</HoverCardContent>
-            </HoverCard>
-          );
-        } else {
-          return <p>{orgName}</p>;
-        }
+        const orgName = row.getValue("orgName") as string | undefined;
+
+        return <StringShortener value={orgName ?? ""} maxLength={20} />;
       },
     },
     {

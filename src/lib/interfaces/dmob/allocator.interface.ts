@@ -40,4 +40,5 @@ export interface IAllocator {
   auditStatus?: string;
   remainingDatacap: string;
   application_json_url: string | null;
+  receivedDatacapFromMetaallocator: string | null;
 }
