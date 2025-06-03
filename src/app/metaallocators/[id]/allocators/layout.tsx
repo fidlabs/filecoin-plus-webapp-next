@@ -9,9 +9,7 @@ type Props = PropsWithChildren<{
   params: { id: string };
 }>;
 
-export async function getMetaallocatorName(
-  metaallocatorId: string
-): Promise<string> {
+async function getMetaallocatorName(metaallocatorId: string): Promise<string> {
   const response = await getAllocators({
     page: "1",
     limit: "1",
