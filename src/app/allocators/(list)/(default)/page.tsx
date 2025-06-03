@@ -19,6 +19,7 @@ const defaultParams: Record<string, string> = {
   page: "1",
   limit: "10",
   showInactive: "false",
+  isMetaallocator: "false",
 };
 
 export default async function AllocatorsPage({ searchParams }: PageProps) {
