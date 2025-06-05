@@ -318,7 +318,7 @@ export async function fetchClientsOldDatacap(): Promise<ClientsOldDatacapRespons
 
   if (!response.ok) {
     throw new Error(
-      `CDP API returned status ${response.status} when fetching allocators' old datacap`
+      `CDP API returned status ${response.status} when fetching clients' old datacap`
     );
   }
 
