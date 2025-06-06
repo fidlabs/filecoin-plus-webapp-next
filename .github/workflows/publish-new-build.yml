@@ -1,0 +1,143 @@
+name: Publish new build
+run-name: "Publish new images for ${{ github.ref_name }} triggered by ${{ github.actor }}; version: ${{ inputs.version || 'N/A'}}"
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Enter the version number"
+        required: true
+        default: "latest"
+      deploy-to-staging:
+        description: "Deploy the new version on staging?"
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  code-check:
+    uses: ./.github/workflows/code-check.yml
+
+  bump-version:
+    runs-on: ubuntu-latest
+    needs: code-check
+    if: ${{ github.ref_name == 'main' && inputs.version != '' }}
+    outputs:
+      commit_sha: ${{ steps.commit-version.outputs.commit_sha }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install semver
+        run: npm install semver
+
+      - name: Get current version
+        run: echo "current_version=$(jq -r '.version' package.json)" >> $GITHUB_ENV
+
+      - name: Validate and set new version
+        run: |
+          new_version="${{ inputs.version }}"
+          current_version="${{ env.current_version }}"
+
+          if npx semver $new_version -r "<=$current_version"; then
+            echo "Error: New version ($new_version) is lowest or the same as current ($current_version)"
+            exit 1
+          fi
+
+      - name: Bump version
+        run: |
+          npm version ${{ inputs.version }} --no-git-tag-version
+
+      - name: Git config
+        run: |
+          git config user.name "${GITHUB_ACTOR}"
+          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+
+      - name: Commit version change
+        id: commit-version
+        run: |
+          git commit -am "Update version to ${{ inputs.version }}"
+          git push origin main
+          echo "commit_sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+
+  staging-publish:
+    uses: ./.github/workflows/build-docker-image.yml
+    needs:
+      - code-check
+      - bump-version
+    if: |
+      always() &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled')
+    with:
+      environment: staging-fidl
+      version: ${{ inputs.version }}
+      commit_sha: ${{ needs.bump-version.outputs.commit_sha }}
+    secrets: inherit
+
+  production-publish:
+    needs:
+      - code-check
+      - bump-version
+    uses: ./.github/workflows/build-docker-image.yml
+    if: |
+      ${{ github.ref_name == 'main' && inputs.version != '' }} &&
+      always() &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled')
+    with:
+      environment: production-fidl
+      version: ${{ inputs.version }}
+      commit_sha: ${{ github.ref_name == 'main' && inputs.version != '' && needs.bump-version.outputs.commit_sha || '' }}
+
+    secrets: inherit
+
+  git-tag:
+    runs-on: ubuntu-latest
+    needs:
+      - bump-version
+      - production-publish
+    if: |
+      ${{ github.ref_name == 'main' && inputs.version != '' }} &&
+      always() &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled')
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.bump-version.outputs.commit_sha }}
+
+      - name: Create and push tag
+        run: |
+          TAG_NAME="v${{ inputs.version }}"
+          git tag $TAG_NAME
+          git push origin $TAG_NAME
+
+  trigger-staging-deploy:
+    runs-on: ubuntu-latest
+    environment: staging-fidl
+    needs:
+      - code-check
+      - bump-version
+      - staging-publish
+    if: ${{ inputs.version != '' && inputs.deploy-to-staging == true }}
+    steps:
+      - name: Trigger staging deploy
+        uses: neti-filplus-infra/filplus-deploy-action@main
+        with:
+          version: ${{ inputs.version }}
+          environment: staging
+          ecr-repository: filecoin-plus-webapp-next
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_IMAGE_DEPLOYER }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_IMAGE_DEPLOYER }}
+          aws-region: us-east-1
