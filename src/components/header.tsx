@@ -61,6 +61,10 @@ const navigation: Array<NavigationItem | NavigationGroup> = [
     path: "/compliance-data-portal",
   },
   {
+    label: "Alerts",
+    path: "/alerts",
+  },
+  {
     label: "About",
     path: "/about",
   },
@@ -187,7 +191,7 @@ const NavMenu = ({
                 </DropdownMenu>
               </div>
               <div className="md:hidden">
-                <h3 className="text-md font-semibold">{item.label}</h3>
+                <h3 className="text-base font-semibold">{item.label}</h3>
                 <div className="flex flex-col mt-6 gap-2">
                   {item.items.map((innerItem, index) => (
                     <Link

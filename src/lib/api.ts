@@ -28,6 +28,7 @@ import {
 } from "@/lib/interfaces/dmob/sp.interface";
 import * as z from "zod";
 import { CDP_API_URL } from "./constants";
+import { objectToURLSearchParams } from "./utils";
 
 const revalidate = 30;
 const apiUrl = "https://api.datacapstats.io/api";
@@ -368,5 +369,149 @@ export async function fetchIPNIMisreportingHistoricalData(): Promise<IPNIMisrepo
 
   const data = await response.json();
   assertIsIPNIMisreportingHistoricalReponse(data);
+  return data;
+}
+
+// Report Checks
+const allocatorsReportChecksWeeksSchema = z.array(
+  z.object({
+    week: z.string().datetime(),
+    checksPassedCount: z.number(),
+    checksFailedCount: z.number(),
+  })
+);
+
+const allocatorsReportChecksDaysSchema = z.object({
+  week: z.string().datetime(),
+  results: z.array(
+    z.object({
+      day: z.string().datetime(),
+      checksPassedCount: z.number(),
+      checksFailedCount: z.number(),
+    })
+  ),
+});
+
+const allocatorsDailyReportChecksSchema = z.object({
+  day: z.string().datetime(),
+  results: z.array(
+    z.object({
+      allocatorId: z.string(),
+      allocatorName: z.string(),
+      checksPassedCount: z.number(),
+      checksFailedCount: z.number(),
+      failedChecks: z.array(
+        z.object({
+          checkMsg: z.string(),
+          reportId: z.string(),
+          check: z.string(),
+        })
+      ),
+    })
+  ),
+});
+
+export type AllocatorsReportChecksWeeksResponse = z.infer<
+  typeof allocatorsReportChecksWeeksSchema
+>;
+export type AllocatorsReportChecksDaysResponse = z.infer<
+  typeof allocatorsReportChecksDaysSchema
+>;
+export type AllocatorsDailyReportChecksResponse = z.infer<
+  typeof allocatorsDailyReportChecksSchema
+>;
+
+function assertIsAllocatorsReportChecksWeeksResponse(
+  input: unknown
+): asserts input is AllocatorsReportChecksWeeksResponse {
+  const result = allocatorsReportChecksWeeksSchema.safeParse(input);
+
+  if (!result.success) {
+    throw new TypeError(
+      "Invalid response from CDP API when fetching weekly report checks"
+    );
+  }
+}
+
+export async function fetchAllocatorsReportChecksWeeks(): Promise<AllocatorsReportChecksWeeksResponse> {
+  const endpoint = `${CDP_API_URL}/report-checks/allocator/weekly`;
+  const response = await fetch(endpoint);
+
+  if (!response.ok) {
+    throw new Error(
+      `CDP API returned status ${response.status} when fetching weekly report checks`
+    );
+  }
+
+  const data = await response.json();
+  assertIsAllocatorsReportChecksWeeksResponse(data);
+  return data;
+}
+
+function assertIsAllocatorsReportChecksDaysResponse(
+  input: unknown
+): asserts input is AllocatorsReportChecksDaysResponse {
+  const result = allocatorsReportChecksDaysSchema.safeParse(input);
+
+  if (!result.success) {
+    throw new TypeError(
+      "Invalid response from CDP API when fetching daily report checks"
+    );
+  }
+}
+
+export async function fetchAllocatorsReportChecksDays(
+  week?: string
+): Promise<AllocatorsReportChecksDaysResponse> {
+  let endpoint = `${CDP_API_URL}/report-checks/allocator/daily`;
+
+  if (week) {
+    endpoint = endpoint + "?" + objectToURLSearchParams({ week });
+  }
+
+  const response = await fetch(endpoint);
+
+  if (!response.ok) {
+    throw new Error(
+      `CDP API returned status ${response.status} when fetching daily report checks`
+    );
+  }
+
+  const data = await response.json();
+  assertIsAllocatorsReportChecksDaysResponse(data);
+  return data;
+}
+
+function assertIsAllocatorsDailyReportChecksResponse(
+  input: unknown
+): asserts input is AllocatorsDailyReportChecksResponse {
+  const result = allocatorsDailyReportChecksSchema.safeParse(input);
+
+  if (!result.success) {
+    throw new TypeError(
+      "Invalid response from CDP API when fetching checks details"
+    );
+  }
+}
+
+export async function fetchAllocatorsDailyReportChecks(
+  day?: string
+): Promise<AllocatorsDailyReportChecksResponse> {
+  let endpoint = `${CDP_API_URL}/report-checks/allocator/details`;
+
+  if (day) {
+    endpoint = endpoint + "?" + objectToURLSearchParams({ day });
+  }
+
+  const response = await fetch(endpoint);
+
+  if (!response.ok) {
+    throw new Error(
+      `CDP API returned status ${response.status} when fetching checks details`
+    );
+  }
+
+  const data = await response.json();
+  assertIsAllocatorsDailyReportChecksResponse(data);
   return data;
 }
