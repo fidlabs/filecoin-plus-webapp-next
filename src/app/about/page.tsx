@@ -87,7 +87,7 @@ export default function AboutPage() {
     <JsonLd data={page}>
       <main className="main-content flex flex-col gap-8 row-start-2 items-start">
         <PageTitle>About</PageTitle>
-        <div className="space-y-8">
+        <div className="space-y-12">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-9">
             <Card className="flex flex-col">
               <CardHeader>
