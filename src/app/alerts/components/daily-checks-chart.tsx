@@ -1,11 +1,11 @@
 "use client";
 
-import { weekToReadableString, type Week } from "@/lib/weeks";
-import { ChecksChart, type ChecksChartProps } from "./checks-chart";
 import { Button } from "@/components/ui/button";
 import { useSearchParamsFilters } from "@/lib/hooks/use-search-params-filters";
-import { useCallback } from "react";
+import { weekToReadableString, type Week } from "@/lib/weeks";
 import { UTCDate } from "@date-fns/utc";
+import { useCallback } from "react";
+import { ChecksChart, type ChecksChartProps } from "./checks-chart";
 
 export interface DailyChecksChartProps {
   data: ChecksChartProps["data"];

@@ -7,7 +7,7 @@ import { weekFromDate, weekToReadableString, weekToString } from "@/lib/weeks";
 import { chunk } from "lodash";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { useCallback, useState } from "react";
-import { ChecksChart, ChecksChartProps } from "./checks-chart";
+import { ChecksChart, type ChecksChartProps } from "./checks-chart";
 
 export interface WeeklyChecksChartProps {
   data: ChecksChartProps["data"];

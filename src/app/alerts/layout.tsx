@@ -11,7 +11,7 @@ import {
   fetchAllocatorsDailyReportChecks,
   fetchAllocatorsReportChecksWeeks,
 } from "@/lib/api";
-import { PropsWithChildren, ReactNode } from "react";
+import type { PropsWithChildren, ReactNode } from "react";
 import type { WebPage, WithContext } from "schema-dts";
 
 export const revalidate = 600;
