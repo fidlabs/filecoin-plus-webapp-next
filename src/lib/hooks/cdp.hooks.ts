@@ -7,6 +7,7 @@ import {
 } from "@/lib/interfaces/cdp/cdp.interface";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { dateToYearWeek, groupBy, isPlainObject, mapObject } from "../utils";
+import { CDP_API_URL } from "../constants";
 
 type AllocatorSPSComplianceMetric =
   (typeof allocatorSPsComplianceMetrics)[number];
@@ -19,7 +20,6 @@ type ChartDataItem<T extends string> = {
   [K in T as `${T}Name`]: string;
 };
 
-const CDP_API = `https://cdp.allocator.tech`;
 const allocatorSPsComplianceMetrics = [
   "compliant",
   "partiallyCompliant",
@@ -41,7 +41,7 @@ const useStorageProviderRetrievability = ({
     searchParams.set("openDataOnly", String(openDataOnly));
 
     const endpoint = `/stats/acc/providers/retrievability?${searchParams.toString()}`;
-    const response = await fetch(`${CDP_API}${endpoint}`);
+    const response = await fetch(`${CDP_API_URL}${endpoint}`);
     const data = (await response.json()) as ICDPHistogramResult;
     return {
       avgSuccessRatePct: data?.averageSuccessRate,
@@ -69,7 +69,7 @@ const useStorageProviderRetrievability = ({
 
 const useStorageProviderNumberOfDeals = () => {
   const fetchData = async () => {
-    const response = await fetch(`${CDP_API}/stats/acc/providers/clients`);
+    const response = await fetch(`${CDP_API_URL}/stats/acc/providers/clients`);
     const data = (await response.json()) as ICDPHistogram;
     return {
       count: data?.total,
@@ -96,7 +96,7 @@ const useStorageProviderNumberOfDeals = () => {
 const useStorageProviderBiggestDeal = () => {
   const fetchData = async () => {
     const response = await fetch(
-      `${CDP_API}/stats/acc/providers/biggest-client-distribution`
+      `${CDP_API_URL}/stats/acc/providers/biggest-client-distribution`
     );
     const data = (await response.json()) as ICDPHistogram;
     return {
@@ -135,7 +135,7 @@ const useAllocatorRetrievability = ({
     searchParams.set("httpRetrievability", String(httpRetrievability));
     searchParams.set("openDataOnly", String(openDataOnly));
     const endpoint = `/stats/acc/allocators/retrievability?${searchParams.toString()}`;
-    const response = await fetch(`${CDP_API}${endpoint}`);
+    const response = await fetch(`${CDP_API_URL}${endpoint}`);
     const data = (await response.json()) as ICDPHistogramResult;
     return {
       avgSuccessRatePct: data?.averageSuccessRate,
@@ -164,7 +164,7 @@ const useAllocatorRetrievability = ({
 const useAllocatorBiggestDeal = () => {
   const fetchData = async () => {
     const response = await fetch(
-      `${CDP_API}/stats/acc/allocators/biggest-client-distribution`
+      `${CDP_API_URL}/stats/acc/allocators/biggest-client-distribution`
     );
     const data = (await response.json()) as ICDPHistogram;
     return {
@@ -201,7 +201,7 @@ export const useAllocatorAndSPClientDiversity = (options: {
   const [isLoading, setIsLoading] = useState(false);
 
   const fetchData = useCallback(async () => {
-    const response = await fetch(`${CDP_API}/stats/acc/${apiMode}/clients`);
+    const response = await fetch(`${CDP_API_URL}/stats/acc/${apiMode}/clients`);
     const data = (await response.json()) as ICDPHistogram;
     return {
       count: data?.total,
@@ -314,7 +314,7 @@ export function useAllocatorSPComplianceChartData(options: {
 
     try {
       const response = await fetch(
-        `${CDP_API}/stats/acc/allocators/sps-compliance?${fetchOptions.toString()}`
+        `${CDP_API_URL}/stats/acc/allocators/sps-compliance?${fetchOptions.toString()}`
       );
 
       const json = await response.json();
@@ -447,7 +447,7 @@ export function useProvidersComplianceChartData(options?: {
 
     try {
       const response = await fetch(
-        `${CDP_API}/stats/acc/providers/compliance-data?${fetchOptions.toString()}`
+        `${CDP_API_URL}/stats/acc/providers/compliance-data?${fetchOptions.toString()}`
       );
 
       const json = await response.json();
