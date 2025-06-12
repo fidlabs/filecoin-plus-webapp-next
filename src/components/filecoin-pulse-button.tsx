@@ -18,7 +18,7 @@ export function FilecoinPulseButton({
       {...rest}
       asChild
       className={cn(
-        "bg-transparent rounded-full text-white gap-2 hover:text-dodger-blue",
+        "bg-transparent rounded-full w-full max-w-80 text-white gap-2 hover:text-dodger-blue",
         className
       )}
     >

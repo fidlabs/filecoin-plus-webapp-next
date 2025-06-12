@@ -2,6 +2,7 @@ import { FilecoinPulseButton } from "@/components/filecoin-pulse-button";
 import { GithubButton } from "@/components/github-button";
 import { JsonLd } from "@/components/json.ld";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageHeader, PageSubTitle, PageTitle } from "@/components/ui/header";
 import { ResponsiveView } from "@/components/ui/responsive-view";
 import { getAllocatorById, getAllocators } from "@/lib/api";
 import { createAllocatorLink } from "@/lib/filecoin-pulse";
@@ -67,24 +68,25 @@ const AllocatorDetailsLayout = async ({
 
   return (
     <JsonLd data={person}>
-      <main>
-        <div className="main-content flex w-full justify-between mb-4">
-          <div className="text-white">
-            <h1 className="text-3xl leading-relaxed font-semibold">
+      <PageHeader
+        leftContent={
+          <>
+            <PageTitle>
               {allocatorResponse.name && allocatorResponse.name.length > 0
                 ? allocatorResponse.name
                 : allocatorResponse.addressId}
-            </h1>
-            <p className="text-sm leading-none mb-4">
+            </PageTitle>
+            <PageSubTitle>
               Allocator ID: {allocatorResponse?.addressId}
-            </p>
-            <div className="flex items-center gap-2">
+            </PageSubTitle>
+            <div className="flex gap-4">
               <FilecoinPulseButton url={createAllocatorLink(params.id)}>
                 <span className="lg:hidden">Pulse</span>
                 <span className="hidden lg:inline">View on Filecoin Pulse</span>
               </FilecoinPulseButton>
+
               {jsonUrl !== null && (
-                <GithubButton className="mb-1" url={jsonUrl}>
+                <GithubButton url={jsonUrl}>
                   <span className="lg:hidden">GitHub</span>
                   <span className="hidden lg:inline">
                     View Registry JSON File
@@ -92,20 +94,26 @@ const AllocatorDetailsLayout = async ({
                 </GithubButton>
               )}
             </div>
+          </>
+        }
+        rightContent={
+          <div className="flex justify-center">
+            <ResponsiveView>
+              <div className="w-48 h-28">
+                <Card>
+                  <CardHeader className="p-4">
+                    <CardTitle>Remaining DataCap</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-4 pt-0">
+                    {convertBytesToIEC(allocatorResponse?.remainingDatacap)}
+                  </CardContent>
+                </Card>
+              </div>
+            </ResponsiveView>
           </div>
-          <ResponsiveView>
-            <div className="p-4 pb-10 md:my-6 md:p-0">
-              <Card>
-                <CardHeader className="p-4">
-                  <CardTitle>Remaining DataCap</CardTitle>
-                </CardHeader>
-                <CardContent className="p-4 pt-0">
-                  {convertBytesToIEC(allocatorResponse?.remainingDatacap)}
-                </CardContent>
-              </Card>
-            </div>
-          </ResponsiveView>
-        </div>
+        }
+      />
+      <main>
         <Suspense>{children}</Suspense>
       </main>
     </JsonLd>

@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { PageTitle } from "@/components/ui/title";
+import { PageHeader, PageTitle } from "@/components/ui/header";
 import { ReactNode } from "react";
 import { CdpProvider } from "@/lib/providers/cdp.provider";
 import { Navigation } from "@/app/compliance-data-portal/components/navigation";
@@ -202,9 +202,9 @@ const ComplianceLayout = ({
 }>) => {
   return (
     <JsonLd data={dataset}>
+      <PageHeader leftContent={<PageTitle>Compliance overview</PageTitle>} />
       <main className="main-content flex flex-col justify-start gap-8 row-start-2 items-start">
         <CdpProvider>
-          <PageTitle>Compliance overview</PageTitle>
           <div className="mt-9 flex gap-5 w-full">
             <Navigation />
             <div className="flex-1">{children}</div>

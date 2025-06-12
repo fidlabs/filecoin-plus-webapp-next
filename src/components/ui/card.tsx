@@ -10,7 +10,7 @@ const Card = forwardRef<HTMLDivElement, AlternateCardProps>(
     <div
       ref={ref}
       className={cn(
-        "rounded-lg border-none text-card-foreground shadow-f-card bg-white",
+        "rounded-lg border-none flex flex-col justify-between h-full text-card-foreground shadow-f-card bg-white",
         { "bg-background shadow-f-card-inset": alternate },
         className
       )}

@@ -18,7 +18,7 @@ export function GithubButton({
       {...rest}
       asChild
       className={cn(
-        "bg-transparent rounded-full text-white hover:text-dodger-blue gap-2",
+        "bg-transparent w-full rounded-full max-w-80 text-white hover:text-dodger-blue gap-2",
         className
       )}
     >
