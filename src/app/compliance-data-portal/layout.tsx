@@ -6,6 +6,7 @@ import { Navigation } from "@/app/compliance-data-portal/components/navigation";
 import { Dataset, WithContext } from "schema-dts";
 import { JsonLd } from "@/components/json.ld";
 import { generatePageMetadata } from "@/lib/utils";
+import { CDP_API_URL } from "@/lib/constants";
 
 export const metadata: Metadata = generatePageMetadata({
   title: "Fil+ DataCap Stats | Compliance Overview",
@@ -32,8 +33,7 @@ const dataset: WithContext<Dataset>[] = [
     distribution: {
       "@type": "DataDownload",
       encodingFormat: "application/json",
-      contentUrl:
-        "https://cdp.allocator.tech/stats/acc/providers/retrievability",
+      contentUrl: `${CDP_API_URL}/stats/acc/providers/retrievability`,
     },
   },
   {
@@ -52,7 +52,7 @@ const dataset: WithContext<Dataset>[] = [
     distribution: {
       "@type": "DataDownload",
       encodingFormat: "application/json",
-      contentUrl: "https://cdp.allocator.tech/stats/acc/providers/clients",
+      contentUrl: `${CDP_API_URL}/stats/acc/providers/clients`,
     },
   },
   {
@@ -71,8 +71,7 @@ const dataset: WithContext<Dataset>[] = [
     distribution: {
       "@type": "DataDownload",
       encodingFormat: "application/json",
-      contentUrl:
-        "https://cdp.allocator.tech/stats/acc/providers/biggest-client-distribution",
+      contentUrl: `${CDP_API_URL}/stats/acc/providers/biggest-client-distribution`,
     },
   },
   {
@@ -91,8 +90,7 @@ const dataset: WithContext<Dataset>[] = [
     distribution: {
       "@type": "DataDownload",
       encodingFormat: "application/json",
-      contentUrl:
-        "https://cdp.allocator.tech/stats/acc/providers/compliance-data",
+      contentUrl: `${CDP_API_URL}/stats/acc/providers/compliance-data`,
     },
   },
   {
@@ -111,8 +109,7 @@ const dataset: WithContext<Dataset>[] = [
     distribution: {
       "@type": "DataDownload",
       encodingFormat: "application/json",
-      contentUrl:
-        "https://cdp.allocator.tech/stats/acc/allocators/retrievability",
+      contentUrl: `${CDP_API_URL}/stats/acc/allocators/retrievability`,
     },
   },
   {
@@ -131,8 +128,7 @@ const dataset: WithContext<Dataset>[] = [
     distribution: {
       "@type": "DataDownload",
       encodingFormat: "application/json",
-      contentUrl:
-        "https://cdp.allocator.tech/stats/acc/allocators/biggest-client-distribution",
+      contentUrl: `${CDP_API_URL}/stats/acc/allocators/biggest-client-distribution`,
     },
   },
   {
@@ -151,8 +147,7 @@ const dataset: WithContext<Dataset>[] = [
     distribution: {
       "@type": "DataDownload",
       encodingFormat: "application/json",
-      contentUrl:
-        "https://cdp.allocator.tech/stats/acc/allocators/sps-compliance-data",
+      contentUrl: `${CDP_API_URL}/stats/acc/allocators/sps-compliance-data`,
     },
   },
   {
@@ -170,8 +165,7 @@ const dataset: WithContext<Dataset>[] = [
     distribution: {
       "@type": "DataDownload",
       encodingFormat: "application/json",
-      contentUrl:
-        "https://cdp.allocator.tech/proxy/googleapis/allocators-overview",
+      contentUrl: `${CDP_API_URL}/proxy/googleapis/allocators-overview`,
     },
   },
   {
@@ -189,8 +183,7 @@ const dataset: WithContext<Dataset>[] = [
     distribution: {
       "@type": "DataDownload",
       encodingFormat: "application/json",
-      contentUrl:
-        "https://cdp.allocator.tech/proxy/googleapis/allocators-overview?tab=TrustLevels-MPG",
+      contentUrl: `${CDP_API_URL}/proxy/googleapis/allocators-overview?tab=TrustLevels-MPG`,
     },
   },
 ];
