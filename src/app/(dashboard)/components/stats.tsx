@@ -1,10 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  fetchAllocatorsDailyReportChecks,
-  fetchAllocatorsReportChecksDays,
-  getStats,
-} from "@/lib/api";
 import { StatsLink } from "@/components/ui/stats-link";
+import { fetchAllocatorsDailyReportChecks, getStats } from "@/lib/api";
 import { memo } from "react";
 
 export const revalidate = 300;

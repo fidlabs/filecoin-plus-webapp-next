@@ -9,7 +9,6 @@ import {
 import { PageHeader, PageSubTitle, PageTitle } from "@/components/ui/title";
 import {
   fetchAllocatorsDailyReportChecks,
-  fetchAllocatorsReportChecksDays,
   fetchAllocatorsReportChecksWeeks,
 } from "@/lib/api";
 import { PropsWithChildren, ReactNode } from "react";
