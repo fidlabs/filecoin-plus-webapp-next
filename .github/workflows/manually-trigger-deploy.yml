@@ -30,7 +30,7 @@ jobs:
       - name: Trigger production deploy
         uses: neti-filplus-infra/filplus-deploy-action@main
         with:
-          version: ${{ inputs.version }}
+          version: ${{ inputs.version }}-production-fidl
           environment: production
           ecr-repository: filecoin-plus-webapp-next
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_IMAGE_DEPLOYER }}
@@ -45,7 +45,7 @@ jobs:
       - name: Trigger staging deploy
         uses: neti-filplus-infra/filplus-deploy-action@main
         with:
-          version: ${{ inputs.version }}
+          version: ${{ inputs.version }}-staging-fidl
           environment: staging
           ecr-repository: filecoin-plus-webapp-next
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_IMAGE_DEPLOYER }}
