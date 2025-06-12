@@ -7,7 +7,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
-import { PageTitle } from "@/components/ui/title";
+import { PageHeader, PageTitle } from "@/components/ui/header";
 import {
   BookIcon,
   CodeIcon,
@@ -86,8 +86,8 @@ const contentLink = {
 export default function AboutPage() {
   return (
     <JsonLd data={page}>
+      <PageHeader leftContent={<PageTitle>About</PageTitle>} />
       <main className="main-content flex flex-col gap-8 row-start-2 items-start">
-        <PageTitle>About</PageTitle>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-9">
           <Card className="flex flex-col">
             <CardHeader>

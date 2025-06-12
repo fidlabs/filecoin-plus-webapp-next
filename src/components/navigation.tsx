@@ -31,9 +31,8 @@ interface NavigationGroup {
 
 const navigation: Array<NavigationItem | NavigationGroup> = [
   {
-    label: "Dashboard",
-    path: "/",
-    strictPath: true,
+    label: "About",
+    path: "/about",
   },
   {
     label: "Allocators",
@@ -53,16 +52,12 @@ const navigation: Array<NavigationItem | NavigationGroup> = [
     path: "/clients",
   },
   {
-    label: "Storage Providers",
+    label: "SP",
     path: "/storage-providers",
   },
   {
     label: "Compliance",
     path: "/compliance-data-portal",
-  },
-  {
-    label: "About",
-    path: "/about",
   },
   {
     label: "Ecosystem",
@@ -95,45 +90,43 @@ function isNavigationItemActive(
     : path.startsWith(navigationItem.path);
 }
 
-function isNavgiationGroup(
+function isNavigationGroup(
   input: NavigationItem | NavigationGroup
 ): input is NavigationGroup {
   return Array.isArray((input as unknown as Record<string, unknown>).items);
 }
 
-const Header = () => {
+const Navigation = () => {
   const [menuOpened, setMenuOpened] = useState(false);
 
   return (
-    <header className="w-full h-[110px] text-white after:absolute after:w-full after:content-[''] relative after:bg-header after:min-h-[250px] after:-z-[1] after:top-0">
-      <div className="w-full h-full max-w-[1700px] mx-auto flex justify-between md:justify-start gap-6 pt-7 pb-10 px-4 md:px-12 text-white items-end">
-        <Link
-          href="/"
-          className="flex gap-2 items-end mr-5"
-          aria-label="Homepage logo link"
-        >
-          <LogoIcon className="w-[40px] h-[40px]" />
-          <TextLogoIcon className="w-auto h-[30px]" />
-        </Link>
-        <NavMenu className="hidden md:flex" />
-        <GlobalSearchBox />
-        <div className="md:hidden">
-          <Sheet open={menuOpened} onOpenChange={setMenuOpened}>
-            <SheetTrigger aria-label="Mobile nav menu trigegr">
-              <MenuIcon />
-            </SheetTrigger>
-            <SheetContent>
-              <div>
-                <NavMenu
-                  onClick={() => setMenuOpened(false)}
-                  className="md:hidden flex-col w-min !after:hidden"
-                />
-              </div>
-            </SheetContent>
-          </Sheet>
-        </div>
+    <nav className="w-full bg-header h-full max-w-[1700px] mx-auto flex justify-between gap-4 pt-7 pb-10 px-4 md:px-12 text-white items-center">
+      <Link
+        href="/"
+        className="flex gap-2 items-end"
+        aria-label="Homepage logo link"
+      >
+        <LogoIcon className="w-[32px] h-[32px]" />
+        <TextLogoIcon className="w-auto h-[30px]" />
+      </Link>
+      <NavMenu className="hidden md:flex" />
+      <GlobalSearchBox />
+      <div className="md:hidden">
+        <Sheet open={menuOpened} onOpenChange={setMenuOpened}>
+          <SheetTrigger aria-label="Mobile nav menu trigegr">
+            <MenuIcon />
+          </SheetTrigger>
+          <SheetContent>
+            <div>
+              <NavMenu
+                onClick={() => setMenuOpened(false)}
+                className="md:hidden flex-col w-min !after:hidden"
+              />
+            </div>
+          </SheetContent>
+        </Sheet>
       </div>
-    </header>
+    </nav>
   );
 };
 
@@ -147,9 +140,9 @@ const NavMenu = ({
   const path = usePathname();
 
   return (
-    <div className={cn("flex gap-6", className)}>
+    <ul className={cn("flex gap-3", className)}>
       {navigation.map((item, index) => {
-        const group = isNavgiationGroup(item);
+        const group = isNavigationGroup(item);
         const key = group
           ? `nav_group_${index}_${item.label}`
           : `nav_item_${index}_${item.path}`;
@@ -161,7 +154,7 @@ const NavMenu = ({
 
           return (
             <Fragment key={key}>
-              <div className="hidden md:flex">
+              <li className="hidden md:flex">
                 <DropdownMenu>
                   <DropdownMenuTrigger
                     className={cn("nav-link flex items-center gap-1", {
@@ -185,25 +178,27 @@ const NavMenu = ({
                     ))}
                   </DropdownMenuContent>
                 </DropdownMenu>
-              </div>
+              </li>
               <div className="md:hidden">
                 <h3 className="text-md font-semibold">{item.label}</h3>
                 <div className="flex flex-col mt-6 gap-2">
                   {item.items.map((innerItem, index) => (
-                    <Link
-                      key={`${key}_item_${index}`}
-                      href={innerItem.path}
-                      className={cn("nav-link", {
-                        active: isNavigationItemActive(innerItem, path),
-                      })}
-                      target={innerItem.external ? "_blank" : undefined}
-                      onClick={onClick}
-                    >
-                      <div className="flex items-center gap-2">
-                        <ChevronRight />
-                        {innerItem.label}
-                      </div>
-                    </Link>
+                    <li key={`${key}_item_${index}`}>
+                      <Link
+                        key={`${key}_item_${index}`}
+                        href={innerItem.path}
+                        className={cn("nav-link", {
+                          active: isNavigationItemActive(innerItem, path),
+                        })}
+                        target={innerItem.external ? "_blank" : undefined}
+                        onClick={onClick}
+                      >
+                        <div className="flex items-center gap-2">
+                          <ChevronRight />
+                          {innerItem.label}
+                        </div>
+                      </Link>
+                    </li>
                   ))}
                 </div>
               </div>
@@ -212,21 +207,23 @@ const NavMenu = ({
         }
 
         return (
-          <Link
-            key={key}
-            href={item.path}
-            onClick={onClick}
-            className={cn("nav-link", {
-              active: isNavigationItemActive(item, path),
-            })}
-            target={item.external ? "_blank" : undefined}
-          >
-            {item.label}
-          </Link>
+          <li key={key}>
+            <Link
+              key={key}
+              href={item.path}
+              onClick={onClick}
+              className={cn("nav-link", {
+                active: isNavigationItemActive(item, path),
+              })}
+              target={item.external ? "_blank" : undefined}
+            >
+              {item.label}
+            </Link>
+          </li>
         );
       })}
-    </div>
+    </ul>
   );
 };
 
-export { Header };
+export { Navigation };

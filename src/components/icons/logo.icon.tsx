@@ -1,11 +1,6 @@
 import IBaseIconProps from "@/lib/interfaces/base-icon-props.interface";
 
-const LogoIcon = ({
-  width = 50,
-  height = 50,
-  className,
-  style,
-}: IBaseIconProps) => {
+const LogoIcon = ({ className, style }: IBaseIconProps) => {
   return (
     <svg
       id="logo"
@@ -13,8 +8,7 @@ const LogoIcon = ({
       fill="none"
       className={className}
       style={style}
-      width={width}
-      height={height}
+      height="100%"
     >
       <path
         fillRule="evenodd"

@@ -508,7 +508,7 @@ const GlobalSearchBox = () => {
   return (
     <>
       <div
-        className="flex gap-2 w-32 transition-all cursor-pointer justify-between rounded-md border border-input bg-white px-3 p-2 text-sm ring-offset-background text-muted-foreground hover:bg-muted"
+        className="flex gap-2 transition-all cursor-pointer justify-between rounded-md border border-input bg-white px-3 p-2 text-sm ring-offset-background text-muted-foreground hover:bg-muted"
         onClick={toggleOpen}
       >
         Search
