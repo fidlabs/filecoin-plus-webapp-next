@@ -216,7 +216,7 @@ export const getGoogleSheetAuditSizes = async () => {
 };
 
 export const getGoogleSheetAuditTimeline = async () => {
-  const url = `${CDP_API_URL}s/proxy/googleapis/allocators-overview?tab=Charts`;
+  const url = `${CDP_API_URL}/proxy/googleapis/allocators-overview?tab=Charts`;
   return (await fetchData(url)) as IGoogleSheetResponse;
 };
 
