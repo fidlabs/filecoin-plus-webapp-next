@@ -155,12 +155,12 @@ export const getStorageProviderById = async (id: string, query?: IApiQuery) => {
 };
 
 export const getClientReports = async (clientId: string) => {
-  const url = `https://cdp.allocator.tech/client-report/${clientId}`;
+  const url = `${CDP_API_URL}/client-report/${clientId}`;
   return (await fetchData(url)) as IClientReportsResponse;
 };
 
 export const getAllocatorReports = async (allocatorId: string) => {
-  const url = `https://cdp.allocator.tech/allocator-report/${allocatorId}`;
+  const url = `${CDP_API_URL}/allocator-report/${allocatorId}`;
   return (await fetchData(url)) as IClientReportsResponse;
 };
 
@@ -168,7 +168,7 @@ export const getClientReportById = async (
   clientId: string,
   reportId: string
 ) => {
-  const url = `https://cdp.allocator.tech/client-report/${clientId}/${reportId}`;
+  const url = `${CDP_API_URL}/client-report/${clientId}/${reportId}`;
   return (await fetchData(url)) as IClientFullReport;
 };
 
@@ -176,47 +176,47 @@ export const getAllocatorReportById = async (
   allocatorId: string,
   reportId: string
 ) => {
-  const url = `https://cdp.allocator.tech/allocator-report/${allocatorId}/${reportId}`;
+  const url = `${CDP_API_URL}/allocator-report/${allocatorId}/${reportId}`;
   return (await fetchData(url)) as ICDPAllocatorFullReport;
 };
 
 export const getAggregatedIPNI = async () => {
-  const url = `https://cdp.allocator.tech/stats/providers/aggregated-ipni-status`;
+  const url = `${CDP_API_URL}/stats/providers/aggregated-ipni-status`;
   return (await fetchData(url)) as CPDAggregatedIPNIReport;
 };
 
 export const generateClientReport = async (id: string) => {
-  const url = `https://cdp.allocator.tech/client-report/${id}`;
+  const url = `${CDP_API_URL}/client-report/${id}`;
   return (await postData(url)) as void;
 };
 
 export const generateAllocatorReport = async (id: string) => {
-  const url = `https://cdp.allocator.tech/allocator-report/${id}`;
+  const url = `${CDP_API_URL}/allocator-report/${id}`;
   return (await postData(url)) as void;
 };
 
 export const getGoogleSheetAuditHistory = async () => {
-  const url = `https://cdp.allocator.tech/proxy/googleapis/allocators-overview`;
+  const url = `${CDP_API_URL}/proxy/googleapis/allocators-overview`;
   return (await fetchData(url)) as IGoogleSheetResponse;
 };
 
 export const getGoogleSheetAuditHistorySizes = async () => {
-  const url = `https://cdp.allocator.tech/proxy/googleapis/allocators-overview?tab=Audit+Results+per+DC`;
+  const url = `${CDP_API_URL}/proxy/googleapis/allocators-overview?tab=Audit+Results+per+DC`;
   return (await fetchData(url)) as IGoogleSheetResponse;
 };
 
 export const getGoogleSheetAllocatorsTrust = async () => {
-  const url = `https://cdp.allocator.tech/proxy/googleapis/allocators-overview?tab=Trust+per+allocator+per+month`;
+  const url = `${CDP_API_URL}/proxy/googleapis/allocators-overview?tab=Trust+per+allocator+per+month`;
   return (await fetchData(url)) as IGoogleSheetResponse;
 };
 
 export const getGoogleSheetAuditSizes = async () => {
-  const url = `https://cdp.allocator.tech/proxy/googleapis/allocators-overview?tab=JSON+Mapping`;
+  const url = `${CDP_API_URL}/proxy/googleapis/allocators-overview?tab=JSON+Mapping`;
   return (await fetchData(url)) as IGoogleSheetResponse;
 };
 
 export const getGoogleSheetAuditTimeline = async () => {
-  const url = `https://cdp.allocator.tech/proxy/googleapis/allocators-overview?tab=Charts`;
+  const url = `${CDP_API_URL}s/proxy/googleapis/allocators-overview?tab=Charts`;
   return (await fetchData(url)) as IGoogleSheetResponse;
 };
 
