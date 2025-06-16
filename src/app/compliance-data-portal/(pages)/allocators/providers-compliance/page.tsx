@@ -10,11 +10,10 @@ import { useChartScale } from "@/lib/hooks/useChartScale";
 import { dataTabs } from "@/lib/providers/cdp.provider";
 import { gradientPalette, isPlainObject } from "@/lib/utils";
 import { safeWeekFromReadableString, weekToString } from "@/lib/weeks";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 export default function ProviderComplianceAllocator() {
-  const pathName = usePathname();
   const { push } = useRouter();
 
   const [threshold, setThreshold] = useState(50);
@@ -108,9 +107,7 @@ export default function ProviderComplianceAllocator() {
                       : ""}
                     <StatsLink
                       className="ml-2"
-                      href={`${
-                        pathName.split("?")[0]
-                      }?chart=RetrievabilityScoreAllocator`}
+                      href="/compliance-data-portal/allocators/retrievability"
                     >
                       Retrievability
                     </StatsLink>
@@ -127,9 +124,7 @@ export default function ProviderComplianceAllocator() {
                     Have at least 3 clients
                     <StatsLink
                       className="ml-2"
-                      href={`${
-                        pathName.split("?")[0]
-                      }?chart=ClientDiversityAllocator`}
+                      href="/compliance-data-portal/allocators/client-diversity"
                     >
                       Client Diversity
                     </StatsLink>
@@ -146,9 +141,7 @@ export default function ProviderComplianceAllocator() {
                     Has at most 30% of the DC coming from a single client
                     <StatsLink
                       className="ml-2"
-                      href={`${
-                        pathName.split("?")[0]
-                      }?chart=BiggestDealsAllocator`}
+                      href="/compliance-data-portal/allocators/biggest-deals"
                     >
                       Biggest Allocation
                     </StatsLink>
