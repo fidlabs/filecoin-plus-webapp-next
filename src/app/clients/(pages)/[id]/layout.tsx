@@ -119,7 +119,7 @@ interface CardContainerProps {
   clientData: ClientData;
 }
 
-const CardContainer = ({ clientData }: CardContainerProps) => {
+function CardContainer({ clientData }: CardContainerProps) {
   return (
     <ResponsiveView>
       <CardGrid cols="col-2">
@@ -142,14 +142,14 @@ const CardContainer = ({ clientData }: CardContainerProps) => {
       </CardGrid>
     </ResponsiveView>
   );
-};
+}
 
 interface ActionButtonsProps {
   clientData: ClientData;
   params: string;
 }
 
-const ActionButtons = ({ clientData, params }: ActionButtonsProps) => {
+function ActionButtons({ clientData, params }: ActionButtonsProps) {
   return (
     <div className="flex items-center gap-2">
       {!!clientData.githubUrl && (
@@ -164,4 +164,4 @@ const ActionButtons = ({ clientData, params }: ActionButtonsProps) => {
       </FilecoinPulseButton>
     </div>
   );
-};
+}

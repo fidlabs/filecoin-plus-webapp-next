@@ -110,7 +110,7 @@ interface ActionButtonsProps {
   jsonUrl: string | null;
 }
 
-const ActionButtons = ({ id, jsonUrl }: ActionButtonsProps) => {
+function ActionButtons({ id, jsonUrl }: ActionButtonsProps) {
   return (
     <div className="flex gap-4">
       <FilecoinPulseButton url={createAllocatorLink(id)}>
@@ -126,6 +126,6 @@ const ActionButtons = ({ id, jsonUrl }: ActionButtonsProps) => {
       )}
     </div>
   );
-};
+}
 
 export default AllocatorDetailsLayout;
