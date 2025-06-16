@@ -2,18 +2,17 @@
 
 import { ChartWrapper } from "@/app/compliance-data-portal/components/chart-wrapper";
 import { StackedBarGraph } from "@/app/compliance-data-portal/components/graphs/stacked-bar-graph";
+import { Checkbox } from "@/components/ui/checkbox";
 import { StatsLink } from "@/components/ui/stats-link";
 import { useProvidersComplianceChartData } from "@/lib/hooks/cdp.hooks";
 import { useChartScale } from "@/lib/hooks/useChartScale";
 import { dataTabs } from "@/lib/providers/cdp.provider";
 import { gradientPalette, isPlainObject } from "@/lib/utils";
-import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useState } from "react";
-import { Checkbox } from "@/components/ui/checkbox";
 import { safeWeekFromReadableString, weekToString } from "@/lib/weeks";
+import { useRouter } from "next/navigation";
+import { useCallback, useState } from "react";
 
 const StorageProviderCompliance = () => {
-  const pathName = usePathname();
   const { push } = useRouter();
 
   const { scale, selectedScale, calcPercentage, setSelectedScale } =
@@ -93,9 +92,7 @@ const StorageProviderCompliance = () => {
                       : ""}
                     <StatsLink
                       className="ml-2"
-                      href={`${
-                        pathName.split("?")[0]
-                      }?chart=RetrievabilityScoreSP`}
+                      href="/compliance-data-portal/storage-providers/retrievability"
                     >
                       Retrievability
                     </StatsLink>
@@ -112,7 +109,7 @@ const StorageProviderCompliance = () => {
                     Have at least 3 clients
                     <StatsLink
                       className="ml-2"
-                      href={`${pathName.split("?")[0]}?chart=ClientDiversitySP`}
+                      href="/compliance-data-portal/storage-providers/client-diversity"
                     >
                       Client Diversity
                     </StatsLink>
@@ -129,7 +126,7 @@ const StorageProviderCompliance = () => {
                     Has at most 30% of the DC coming from a single client
                     <StatsLink
                       className="ml-2"
-                      href={`${pathName.split("?")[0]}?chart=BiggestDealsSP`}
+                      href="/compliance-data-portal/storage-providers/biggest-deals"
                     >
                       Biggest Allocation
                     </StatsLink>
