@@ -80,21 +80,7 @@ const AllocatorDetailsLayout = async ({
             <PageSubTitle>
               Allocator ID: {allocatorResponse?.addressId}
             </PageSubTitle>
-            <div className="flex gap-4">
-              <FilecoinPulseButton url={createAllocatorLink(params.id)}>
-                <span className="lg:hidden">Pulse</span>
-                <span className="hidden lg:inline">View on Filecoin Pulse</span>
-              </FilecoinPulseButton>
-
-              {jsonUrl !== null && (
-                <GithubButton url={jsonUrl}>
-                  <span className="lg:hidden">GitHub</span>
-                  <span className="hidden lg:inline">
-                    View Registry JSON File
-                  </span>
-                </GithubButton>
-              )}
-            </div>
+            <ActionButtons id={params.id} jsonUrl={jsonUrl} />
           </>
         }
         rightContent={
@@ -116,6 +102,29 @@ const AllocatorDetailsLayout = async ({
         <Suspense>{children}</Suspense>
       </main>
     </JsonLd>
+  );
+};
+
+interface ActionButtonsProps {
+  id: string;
+  jsonUrl: string | null;
+}
+
+const ActionButtons = ({ id, jsonUrl }: ActionButtonsProps) => {
+  return (
+    <div className="flex gap-4">
+      <FilecoinPulseButton url={createAllocatorLink(id)}>
+        <span className="lg:hidden">Pulse</span>
+        <span className="hidden lg:inline">View on Filecoin Pulse</span>
+      </FilecoinPulseButton>
+
+      {jsonUrl !== null && (
+        <GithubButton url={jsonUrl}>
+          <span className="lg:hidden">GitHub</span>
+          <span className="hidden lg:inline">View Registry JSON File</span>
+        </GithubButton>
+      )}
+    </div>
   );
 };
 

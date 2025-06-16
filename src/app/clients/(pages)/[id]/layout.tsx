@@ -115,38 +115,41 @@ export default async function ClientDetailsLayout({
   );
 }
 
-function CardContainer({ clientData }: { clientData: ClientData }) {
-  return (
-      <ResponsiveView>
-        <CardGrid cols="col-2">
-          <Card>
-            <CardHeader className="p-4">
-              <CardTitle>Remaining DataCap</CardTitle>
-            </CardHeader>
-            <CardContent className="p-4 pt-0">
-              {convertBytesToIEC(clientData.remainingDatacap)}
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="p-4">
-              <CardTitle>Allocated DataCap</CardTitle>
-            </CardHeader>
-            <CardContent className="p-4 pt-0">
-              {convertBytesToIEC(clientData.allocatedDatacap)}
-            </CardContent>
-          </Card>
-        </CardGrid>
-      </ResponsiveView>
-  );
+interface CardContainerProps {
+  clientData: ClientData;
 }
 
-function ActionButtons({
-  clientData,
-  params,
-}: {
+const CardContainer = ({ clientData }: CardContainerProps) => {
+  return (
+    <ResponsiveView>
+      <CardGrid cols="col-2">
+        <Card>
+          <CardHeader className="p-4">
+            <CardTitle>Remaining DataCap</CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 pt-0">
+            {convertBytesToIEC(clientData.remainingDatacap)}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="p-4">
+            <CardTitle>Allocated DataCap</CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 pt-0">
+            {convertBytesToIEC(clientData.allocatedDatacap)}
+          </CardContent>
+        </Card>
+      </CardGrid>
+    </ResponsiveView>
+  );
+};
+
+interface ActionButtonsProps {
   clientData: ClientData;
   params: string;
-}) {
+}
+
+const ActionButtons = ({ clientData, params }: ActionButtonsProps) => {
   return (
     <div className="flex items-center gap-2">
       {!!clientData.githubUrl && (
@@ -161,4 +164,4 @@ function ActionButtons({
       </FilecoinPulseButton>
     </div>
   );
-}
+};
