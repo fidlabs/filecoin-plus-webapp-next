@@ -2,6 +2,7 @@ import { FilecoinPulseButton } from "@/components/filecoin-pulse-button";
 import { GithubButton } from "@/components/github-button";
 import { JsonLd } from "@/components/json.ld";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CardGrid } from "@/components/ui/card-grid";
 import { PageHeader, PageSubTitle, PageTitle } from "@/components/ui/header";
 import { ResponsiveView } from "@/components/ui/responsive-view";
 import { getClients } from "@/lib/api";
@@ -116,9 +117,8 @@ export default async function ClientDetailsLayout({
 
 function CardContainer({ clientData }: { clientData: ClientData }) {
   return (
-    <>
       <ResponsiveView>
-        <div className="grid grid-cols-2 w-full gap-4 min-h-28">
+        <CardGrid cols="col-2">
           <Card>
             <CardHeader className="p-4">
               <CardTitle>Remaining DataCap</CardTitle>
@@ -135,9 +135,8 @@ function CardContainer({ clientData }: { clientData: ClientData }) {
               {convertBytesToIEC(clientData.allocatedDatacap)}
             </CardContent>
           </Card>
-        </div>
+        </CardGrid>
       </ResponsiveView>
-    </>
   );
 }
 

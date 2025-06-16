@@ -101,13 +101,9 @@ const Navigation = () => {
 
   return (
     <nav className="w-full bg-header h-full max-w-[1700px] mx-auto flex justify-between gap-4 pt-7 pb-10 px-4 md:px-12 text-white items-center">
-      <Link
-        href="/"
-        className="flex gap-2 items-end"
-        aria-label="Homepage logo link"
-      >
-        <LogoIcon className="w-[32px] h-[32px]" />
-        <TextLogoIcon className="w-auto h-[30px]" />
+      <Link href="/" className="flex gap-2" aria-label="Homepage logo link">
+        <LogoIcon className="w-[28px] h-[28px]" />
+        <TextLogoIcon className="w-auto h-[28px]" />
       </Link>
       <NavMenu className="hidden md:flex" />
       <GlobalSearchBox />
@@ -140,7 +136,7 @@ const NavMenu = ({
   const path = usePathname();
 
   return (
-    <ul className={cn("flex gap-3", className)}>
+    <ul className={cn("flex gap-4", className)}>
       {navigation.map((item, index) => {
         const group = isNavigationGroup(item);
         const key = group

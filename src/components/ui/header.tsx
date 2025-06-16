@@ -24,17 +24,13 @@ const PageHeader = ({
       {...props}
     >
       <div className="flex flex-col gap-6">{leftContent}</div>
-      <div className="flex flex-col gap-6">{rightContent}</div>
+      <div className="flex justify-center h-full">{rightContent}</div>
     </header>
   );
 };
 
 const PageTitle = ({ children }: DivProps) => {
-  return (
-    <h1 className="text-3xl leading-relaxed font-semibold text-white">
-      {children}
-    </h1>
-  );
+  return <h1 className="text-3xl font-semibold text-white">{children}</h1>;
 };
 
 const PageSubTitle = ({ children }: DivProps) => {

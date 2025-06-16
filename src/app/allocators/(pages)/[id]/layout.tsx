@@ -2,6 +2,7 @@ import { FilecoinPulseButton } from "@/components/filecoin-pulse-button";
 import { GithubButton } from "@/components/github-button";
 import { JsonLd } from "@/components/json.ld";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CardGrid } from "@/components/ui/card-grid";
 import { PageHeader, PageSubTitle, PageTitle } from "@/components/ui/header";
 import { ResponsiveView } from "@/components/ui/responsive-view";
 import { getAllocatorById, getAllocators } from "@/lib/api";
@@ -97,20 +98,18 @@ const AllocatorDetailsLayout = async ({
           </>
         }
         rightContent={
-          <div className="flex justify-center">
-            <ResponsiveView>
-              <div className="w-48 h-28">
-                <Card>
-                  <CardHeader className="p-4">
-                    <CardTitle>Remaining DataCap</CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-4 pt-0">
-                    {convertBytesToIEC(allocatorResponse?.remainingDatacap)}
-                  </CardContent>
-                </Card>
-              </div>
-            </ResponsiveView>
-          </div>
+          <ResponsiveView>
+            <CardGrid cols="col-1">
+              <Card>
+                <CardHeader className="p-4">
+                  <CardTitle>Remaining DataCap</CardTitle>
+                </CardHeader>
+                <CardContent className="p-4 pt-0">
+                  {convertBytesToIEC(allocatorResponse?.remainingDatacap)}
+                </CardContent>
+              </Card>
+            </CardGrid>
+          </ResponsiveView>
         }
       />
       <main>
