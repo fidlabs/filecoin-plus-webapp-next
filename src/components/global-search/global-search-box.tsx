@@ -58,6 +58,12 @@ const defaultActions = [
     link: "/about",
   },
   {
+    name: "Alerts",
+    group: "Generic",
+    tags: ["alerts", "checks"],
+    link: "/alerts",
+  },
+  {
     name: "Allocators List",
     group: "Allocators",
     tags: ["allocators", "allocator", "list"],

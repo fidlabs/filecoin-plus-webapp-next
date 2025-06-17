@@ -1,13 +1,22 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getStats } from "@/lib/api";
 import { StatsLink } from "@/components/ui/stats-link";
+import { fetchAllocatorsDailyReportChecks, getStats } from "@/lib/api";
 import { memo } from "react";
 
+export const revalidate = 300;
+
 const Component = async () => {
-  const stats = await getStats();
+  const [stats, alertsCount] = await Promise.all([
+    getStats(),
+    fetchAllocatorsDailyReportChecks().then((response) => {
+      return response.results.reduce((total, result) => {
+        return total + result.checksFailedCount;
+      }, 0);
+    }),
+  ]);
 
   return (
-    <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 content-evenly">
+    <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 content-evenly">
       <Card>
         <CardHeader>
           <CardTitle>Total Approved Allocators</CardTitle>
@@ -40,6 +49,17 @@ const Component = async () => {
           <div className="w-full flex justify-between">
             <p className="font-semibold textxl">{stats?.numberOfClients}</p>
             <StatsLink href="/clients">Clients</StatsLink>
+          </div>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Number of Alerts (Last 24h)</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="w-full flex justify-between">
+            <p className="font-semibold textxl">{alertsCount}</p>
+            <StatsLink href="/alerts">Alerts</StatsLink>
           </div>
         </CardContent>
       </Card>
