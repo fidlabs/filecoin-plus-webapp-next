@@ -4,11 +4,15 @@ import { Card } from "@/components/ui/card";
 import { GenericContentHeader } from "@/components/generic-content-view";
 import { ITabNavigatorTab } from "@/components/ui/tab-navigator";
 
-interface IPageProps {
+export const revalidate = 300;
+
+interface PageProps {
   params: { id: string };
 }
 
-const ClientProviderBreakdownPage = async (pageParams: IPageProps) => {
+export default async function ClientProviderBreakdownPage(
+  pageParams: PageProps
+) {
   const clientId = pageParams.params.id;
   const data = await getClientProviderBreakdownById(clientId);
 
@@ -56,6 +60,4 @@ const ClientProviderBreakdownPage = async (pageParams: IPageProps) => {
       </Card>
     </div>
   );
-};
-
-export default ClientProviderBreakdownPage;
+}
