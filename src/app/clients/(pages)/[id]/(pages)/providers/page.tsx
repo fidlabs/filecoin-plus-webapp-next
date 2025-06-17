@@ -44,7 +44,15 @@ const ClientProviderBreakdownPage = async (pageParams: IPageProps) => {
           selected="providers"
           fixedHeight={false}
         />
-        <ProvidersList data={data} />
+
+        {data.stats.length === 0 && (
+          <div className="p-6">
+            <p className="text-center text-muted-foreground">
+              Nothing to show.
+            </p>
+          </div>
+        )}
+        {data.stats.length > 0 && <ProvidersList data={data} />}
       </Card>
     </div>
   );
