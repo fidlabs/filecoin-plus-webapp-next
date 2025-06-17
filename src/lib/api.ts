@@ -12,7 +12,6 @@ import {
 } from "@/lib/interfaces/dmob/allocator.interface";
 import {
   IClientAllocationsResponse,
-  IClientProviderBreakdownResponse,
   IClientResponse,
   IClientsResponse,
 } from "@/lib/interfaces/dmob/client.interface";
@@ -127,11 +126,6 @@ export const getClients = async (query?: IApiQuery) => {
 export const getClientById = async (id: string, query?: IApiQuery) => {
   const url = `${apiUrl}/v2/getUnifiedVerifiedDeals/${id}${parseQuery(query)}`;
   return (await fetchData(url)) as IClientResponse;
-};
-
-export const getClientProviderBreakdownById = async (id: string) => {
-  const url = `${apiUrl}/v2/getDealAllocationStats/${id}`;
-  return (await fetchData(url)) as IClientProviderBreakdownResponse;
 };
 
 export const getClientAllocationsById = async (id: string) => {
@@ -368,5 +362,50 @@ export async function fetchIPNIMisreportingHistoricalData(): Promise<IPNIMisrepo
 
   const data = await response.json();
   assertIsIPNIMisreportingHistoricalReponse(data);
+  return data;
+}
+
+// Client Provider breakdown
+const clientProvidersResponseSchema = z.object({
+  name: z.string(),
+  stats: z.array(
+    z.object({
+      provider: z.string(),
+      total_deal_size: numericalStringSchema,
+      percent: z.string(),
+    })
+  ),
+});
+
+export type ClientProvidersResponse = z.infer<
+  typeof clientProvidersResponseSchema
+>;
+
+function assertIsClientProvidersResponse(
+  input: unknown
+): asserts input is ClientProvidersResponse {
+  const result = clientProvidersResponseSchema.safeParse(input);
+
+  if (!result.success) {
+    throw new TypeError(
+      "Invalid response from CDP API when fetching Client's Providers breakdown"
+    );
+  }
+}
+
+export async function getClientProviderBreakdownById(
+  clientId: string
+): Promise<ClientProvidersResponse> {
+  const endpoint = `${CDP_API_URL}/clients/${clientId}/providers`;
+  const response = await fetch(endpoint);
+
+  if (!response.ok) {
+    throw new Error(
+      `CDP API returned status ${response.status} when fetching Client's Providers breakdown`
+    );
+  }
+
+  const data = await response.json();
+  assertIsClientProvidersResponse(data);
   return data;
 }
