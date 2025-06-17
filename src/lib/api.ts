@@ -128,11 +128,6 @@ export const getClientById = async (id: string, query?: IApiQuery) => {
   return (await fetchData(url)) as IClientResponse;
 };
 
-// export const getClientProviderBreakdownById = async (id: string) => {
-//   const url = `${apiUrl}/v2/getDealAllocationStats/${id}`;
-//   return (await fetchData(url)) as IClientProviderBreakdownResponse;
-// };
-
 export const getClientAllocationsById = async (id: string) => {
   const url = `${apiUrl}/getVerifiedClients?filter=${id}`;
   return (await fetchData(url)) as IClientAllocationsResponse;
