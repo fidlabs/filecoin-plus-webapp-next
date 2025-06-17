@@ -27,6 +27,7 @@ import {
 } from "@/lib/interfaces/dmob/sp.interface";
 import * as z from "zod";
 import { CDP_API_URL } from "./constants";
+import { throwHTTPErrorOrSkip } from "./http-errors";
 
 const revalidate = 30;
 const apiUrl = "https://api.datacapstats.io/api";
@@ -158,21 +159,32 @@ export const getAllocatorReports = async (allocatorId: string) => {
   return (await fetchData(url)) as IClientReportsResponse;
 };
 
-export const getClientReportById = async (
-  clientId: string,
-  reportId: string
-) => {
+export async function getClientReportById(clientId: string, reportId: string) {
   const url = `${CDP_API_URL}/client-report/${clientId}/${reportId}`;
-  return (await fetchData(url)) as IClientFullReport;
-};
+  const response = await fetch(url);
+  throwHTTPErrorOrSkip(
+    response,
+    `CDP API returned status ${response.status} when fetching client report. URL: ${url}`
+  );
 
-export const getAllocatorReportById = async (
+  const data = await response.json();
+  return data as IClientFullReport;
+}
+
+export async function getAllocatorReportById(
   allocatorId: string,
   reportId: string
-) => {
+) {
   const url = `${CDP_API_URL}/allocator-report/${allocatorId}/${reportId}`;
-  return (await fetchData(url)) as ICDPAllocatorFullReport;
-};
+  const response = await fetch(url);
+  throwHTTPErrorOrSkip(
+    response,
+    `CDP API returned status ${response.status} when fetching allocator report. URL: ${url}`
+  );
+
+  const data = await response.json();
+  return data as ICDPAllocatorFullReport;
+}
 
 export const getAggregatedIPNI = async () => {
   const url = `${CDP_API_URL}/stats/providers/aggregated-ipni-status`;

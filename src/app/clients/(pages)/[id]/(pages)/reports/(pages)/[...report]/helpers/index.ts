@@ -29,41 +29,42 @@ export const parseProviderDistribution = (
 };
 
 export const parseReport = (
-  result: PromiseFulfilledResult<IClientFullReport>,
+  report: IClientFullReport,
   allProviders: IClientReportStorageProviderDistribution[],
   allReplikas: IClientReportReplicaDistribution[],
   allCidShares: IClientReportCIDSharing[]
 ) => {
-  const value = result.value;
-  value.storage_provider_distribution = parseProviderDistribution([
+  report.storage_provider_distribution = parseProviderDistribution([
     ...allProviders.filter(
       (provider) =>
-        !value.storage_provider_distribution.find(
+        !report.storage_provider_distribution.find(
           (p) => p.provider === provider.provider
         )
     ),
-    ...value.storage_provider_distribution,
+    ...report.storage_provider_distribution,
   ]);
 
-  value.replica_distribution = [
+  report.replica_distribution = [
     ...allReplikas.filter(
       (replica) =>
-        !value.replica_distribution.find(
+        !report.replica_distribution.find(
           (r) => r.num_of_replicas === replica.num_of_replicas
         )
     ),
-    ...value.replica_distribution,
+    ...report.replica_distribution,
   ].sort((a, b) => +a.num_of_replicas - +b.num_of_replicas);
 
-  value.cid_sharing = [
+  report.cid_sharing = [
     ...allCidShares.filter(
       (cidShare) =>
-        !value.cid_sharing.find((c) => c.other_client === cidShare.other_client)
+        !report.cid_sharing.find(
+          (c) => c.other_client === cidShare.other_client
+        )
     ),
-    ...value.cid_sharing,
+    ...report.cid_sharing,
   ].sort((a, b) => a.other_client.localeCompare(b.other_client));
 
-  return value;
+  return report;
 };
 
 export const compareReports = (reports: IClientFullReport[]) => {
@@ -221,13 +222,11 @@ export const prepareEmptyCIDSharing = (allCidShares: string[]) => {
   );
 };
 
-export const parseReports = (
-  reports: PromiseFulfilledResult<IClientFullReport>[]
-) => {
+export const parseReports = (reports: IClientFullReport[]) => {
   const allProviders = prepareEmptyProviders(
     reports
       .map((report) =>
-        report.value.storage_provider_distribution.map(
+        report.storage_provider_distribution.map(
           (provider) => provider.provider
         )
       )
@@ -236,16 +235,14 @@ export const parseReports = (
   const allReplikas = prepareEmptyReplicas(
     reports
       .map((report) =>
-        report.value.replica_distribution.map(
-          (provider) => provider.num_of_replicas
-        )
+        report.replica_distribution.map((provider) => provider.num_of_replicas)
       )
       .flat()
   );
   const allCidShares = prepareEmptyCIDSharing(
     reports
       .map((report) =>
-        report.value.cid_sharing.map((provider) => provider.other_client)
+        report.cid_sharing.map((provider) => provider.other_client)
       )
       .flat()
   );
