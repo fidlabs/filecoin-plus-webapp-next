@@ -137,14 +137,14 @@ export const parseReports = (
   const allClients = prepareEmtyClients(
     reports
       .map((report) =>
-        report.value.clients.map((provider) => provider.client_id)
+        report.value.clients?.map((provider) => provider.client_id)
       )
       .flat()
   );
   const allProviders = prepareEmptyProviders(
     reports
       .map((report) =>
-        report.value.storage_provider_distribution.map(
+        report.value.storage_provider_distribution?.map(
           (provider) => provider.provider
         )
       )

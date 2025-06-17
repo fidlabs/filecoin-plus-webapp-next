@@ -37,7 +37,7 @@ const ProvidersPieChart = () => {
             window.open(`/storage-providers/${val.name}`, "_blank");
           }}
         >
-          {providersChartData.map((entry, index) => (
+          {providersChartData?.map((entry, index) => (
             <Cell
               key={`cell-${index}`}
               fill={palette(index)}

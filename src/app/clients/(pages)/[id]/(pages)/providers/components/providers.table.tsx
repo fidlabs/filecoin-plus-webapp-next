@@ -24,7 +24,7 @@ const ProvidersTable = () => {
           <TableCell>Total size</TableCell>
         </TableHeader>
         <TableBody>
-          {providersData?.stats.map(
+          {providersData?.stats?.map(
             ({ provider, percent, total_deal_size }, index) => (
               <TableRow
                 key={index}

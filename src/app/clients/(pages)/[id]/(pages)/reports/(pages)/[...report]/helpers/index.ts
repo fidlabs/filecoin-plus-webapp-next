@@ -227,7 +227,7 @@ export const parseReports = (
   const allProviders = prepareEmptyProviders(
     reports
       .map((report) =>
-        report.value.storage_provider_distribution.map(
+        report.value.storage_provider_distribution?.map(
           (provider) => provider.provider
         )
       )

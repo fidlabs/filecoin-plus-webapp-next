@@ -62,7 +62,7 @@ const ProvidersBarChart = () => {
           onMouseEnter={(_, index) => setActiveProviderIndex(index)}
           cursor="pointer"
         >
-          {providersChartData.map((entry, index) => (
+          {providersChartData?.map((entry, index) => (
             <Cell
               key={`cell-${index}`}
               fill={palette(index)}
