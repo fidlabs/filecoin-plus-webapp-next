@@ -1,5 +1,6 @@
 "use client";
-import { IClientProviderBreakdownResponse } from "@/lib/interfaces/dmob/client.interface";
+import { ClientProvidersResponse } from "@/lib/api";
+import { convertBytesToIEC } from "@/lib/utils";
 import {
   createContext,
   PropsWithChildren,
@@ -7,10 +8,9 @@ import {
   useMemo,
   useState,
 } from "react";
-import { convertBytesToIEC } from "@/lib/utils";
 
 interface IClientProvidersContext {
-  providersData: IClientProviderBreakdownResponse | undefined;
+  providersData: ClientProvidersResponse | undefined;
   activeProviderIndex: number;
   setActiveProviderIndex: (index: number) => void;
   providersChartData: {
@@ -32,7 +32,7 @@ const ClientProvidersProvider = ({
   children,
   initialData,
 }: PropsWithChildren<{
-  initialData: IClientProviderBreakdownResponse;
+  initialData: ClientProvidersResponse;
 }>) => {
   const [activeProviderIndex, setActiveProviderIndex] = useState(-1);
 

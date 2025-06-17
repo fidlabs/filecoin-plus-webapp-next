@@ -12,7 +12,6 @@ import {
 } from "@/lib/interfaces/dmob/allocator.interface";
 import {
   IClientAllocationsResponse,
-  IClientProviderBreakdownResponse,
   IClientResponse,
   IClientsResponse,
 } from "@/lib/interfaces/dmob/client.interface";
@@ -28,6 +27,7 @@ import {
 } from "@/lib/interfaces/dmob/sp.interface";
 import * as z from "zod";
 import { CDP_API_URL } from "./constants";
+import { throwHTTPErrorOrSkip } from "./http-errors";
 import { objectToURLSearchParams } from "./utils";
 
 const revalidate = 30;
@@ -130,11 +130,6 @@ export const getClientById = async (id: string, query?: IApiQuery) => {
   return (await fetchData(url)) as IClientResponse;
 };
 
-export const getClientProviderBreakdownById = async (id: string) => {
-  const url = `${apiUrl}/v2/getDealAllocationStats/${id}`;
-  return (await fetchData(url)) as IClientProviderBreakdownResponse;
-};
-
 export const getClientAllocationsById = async (id: string) => {
   const url = `${apiUrl}/getVerifiedClients?filter=${id}`;
   return (await fetchData(url)) as IClientAllocationsResponse;
@@ -165,21 +160,32 @@ export const getAllocatorReports = async (allocatorId: string) => {
   return (await fetchData(url)) as IClientReportsResponse;
 };
 
-export const getClientReportById = async (
-  clientId: string,
-  reportId: string
-) => {
+export async function getClientReportById(clientId: string, reportId: string) {
   const url = `${CDP_API_URL}/client-report/${clientId}/${reportId}`;
-  return (await fetchData(url)) as IClientFullReport;
-};
+  const response = await fetch(url);
+  throwHTTPErrorOrSkip(
+    response,
+    `CDP API returned status ${response.status} when fetching client report. URL: ${url}`
+  );
 
-export const getAllocatorReportById = async (
+  const data = await response.json();
+  return data as IClientFullReport;
+}
+
+export async function getAllocatorReportById(
   allocatorId: string,
   reportId: string
-) => {
+) {
   const url = `${CDP_API_URL}/allocator-report/${allocatorId}/${reportId}`;
-  return (await fetchData(url)) as ICDPAllocatorFullReport;
-};
+  const response = await fetch(url);
+  throwHTTPErrorOrSkip(
+    response,
+    `CDP API returned status ${response.status} when fetching allocator report. URL: ${url}`
+  );
+
+  const data = await response.json();
+  return data as ICDPAllocatorFullReport;
+}
 
 export const getAggregatedIPNI = async () => {
   const url = `${CDP_API_URL}/stats/providers/aggregated-ipni-status`;
@@ -369,6 +375,51 @@ export async function fetchIPNIMisreportingHistoricalData(): Promise<IPNIMisrepo
 
   const data = await response.json();
   assertIsIPNIMisreportingHistoricalReponse(data);
+  return data;
+}
+
+// Client Provider breakdown
+const clientProvidersResponseSchema = z.object({
+  name: z.string(),
+  stats: z.array(
+    z.object({
+      provider: z.string(),
+      total_deal_size: numericalStringSchema,
+      percent: z.string(),
+    })
+  ),
+});
+
+export type ClientProvidersResponse = z.infer<
+  typeof clientProvidersResponseSchema
+>;
+
+function assertIsClientProvidersResponse(
+  input: unknown
+): asserts input is ClientProvidersResponse {
+  const result = clientProvidersResponseSchema.safeParse(input);
+
+  if (!result.success) {
+    throw new TypeError(
+      "Invalid response from CDP API when fetching Client's Providers breakdown"
+    );
+  }
+}
+
+export async function getClientProviderBreakdownById(
+  clientId: string
+): Promise<ClientProvidersResponse> {
+  const endpoint = `${CDP_API_URL}/clients/${clientId}/providers`;
+  const response = await fetch(endpoint);
+
+  if (!response.ok) {
+    throw new Error(
+      `CDP API returned status ${response.status} when fetching Client's Providers breakdown`
+    );
+  }
+
+  const data = await response.json();
+  assertIsClientProvidersResponse(data);
   return data;
 }
 

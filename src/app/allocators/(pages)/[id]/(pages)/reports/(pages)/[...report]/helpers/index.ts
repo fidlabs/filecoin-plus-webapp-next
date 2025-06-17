@@ -28,29 +28,28 @@ export const parseProviderDistribution = (
 };
 
 export const parseReport = (
-  result: PromiseFulfilledResult<ICDPAllocatorFullReport>,
+  report: ICDPAllocatorFullReport,
   allCLients: ICDPAllocatorFullReportClient[],
   allProviders: ICDPAllocatorFullReportStorageProviderDistribution[]
 ) => {
-  const value = result.value;
-  value.storage_provider_distribution = parseProviderDistribution([
+  report.storage_provider_distribution = parseProviderDistribution([
     ...allProviders.filter(
       (provider) =>
-        !value.storage_provider_distribution.find(
+        !report.storage_provider_distribution.find(
           (p) => p.provider === provider.provider
         )
     ),
-    ...value.storage_provider_distribution,
+    ...report.storage_provider_distribution,
   ]);
 
-  value.clients = [
+  report.clients = [
     ...allCLients.filter(
-      (client) => !value.clients.find((c) => c.client_id === client.client_id)
+      (client) => !report.clients.find((c) => c.client_id === client.client_id)
     ),
-    ...value.clients,
+    ...report.clients,
   ].sort((a, b) => a.client_id.localeCompare(b.client_id));
 
-  return value;
+  return report;
 };
 
 export const compareReports = (reports: ICDPAllocatorFullReport[]) => {
@@ -131,20 +130,16 @@ export const prepareEmtyClients = (allClients: string[]) => {
   );
 };
 
-export const parseReports = (
-  reports: PromiseFulfilledResult<ICDPAllocatorFullReport>[]
-) => {
+export const parseReports = (reports: ICDPAllocatorFullReport[]) => {
   const allClients = prepareEmtyClients(
     reports
-      .map((report) =>
-        report.value.clients.map((provider) => provider.client_id)
-      )
+      .map((report) => report.clients.map((provider) => provider.client_id))
       .flat()
   );
   const allProviders = prepareEmptyProviders(
     reports
       .map((report) =>
-        report.value.storage_provider_distribution.map(
+        report.storage_provider_distribution.map(
           (provider) => provider.provider
         )
       )
