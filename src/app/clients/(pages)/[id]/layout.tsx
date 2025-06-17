@@ -2,6 +2,8 @@ import { FilecoinPulseButton } from "@/components/filecoin-pulse-button";
 import { GithubButton } from "@/components/github-button";
 import { JsonLd } from "@/components/json.ld";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CardGrid } from "@/components/ui/card-grid";
+import { PageHeader, PageSubTitle, PageTitle } from "@/components/ui/header";
 import { ResponsiveView } from "@/components/ui/responsive-view";
 import { getClients } from "@/lib/api";
 import { createClientLink } from "@/lib/filecoin-pulse";
@@ -93,53 +95,73 @@ export default async function ClientDetailsLayout({
 
   return (
     <JsonLd data={person}>
-      <div className="flex w-full justify-between mb-4 main-content">
-        <div className="text-white min-w-0">
-          <h1 className="text-3xl leading-relaxed font-semibold truncate">
-            <ClientLink clientId={params.id}>{clientData.name}</ClientLink>
-          </h1>
-          <p className="text-sm leading-none mb-4">
-            Client ID: <ClientLink clientId={params.id}>{params.id}</ClientLink>
-          </p>
-          <div className="flex items-center gap-2">
-            {!!clientData.githubUrl && (
-              <GithubButton url={clientData.githubUrl}>
-                <span className="lg:hidden">GitHub</span>
-                <span className="hidden lg:inline">
-                  View application on GitHub
-                </span>
-              </GithubButton>
-            )}
-            <FilecoinPulseButton url={createClientLink(params.id)}>
-              <span className="lg:hidden">Pulse</span>
-              <span className="hidden lg:inline">View on Filecoin Pulse</span>
-            </FilecoinPulseButton>
-          </div>
-        </div>
-        <div className="min-w-[40px] md:min-w-fit flex justify-center">
-          <ResponsiveView>
-            <div className="grid grid-cols-2 w-full p-4 pb-10 gap-4 md:my-6 md:p-0">
-              <Card>
-                <CardHeader className="p-4">
-                  <CardTitle>Remaining DataCap</CardTitle>
-                </CardHeader>
-                <CardContent className="p-4 pt-0">
-                  {convertBytesToIEC(clientData.remainingDatacap)}
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader className="p-4">
-                  <CardTitle>Allocated DataCap</CardTitle>
-                </CardHeader>
-                <CardContent className="p-4 pt-0">
-                  {convertBytesToIEC(clientData.allocatedDatacap)}
-                </CardContent>
-              </Card>
-            </div>
-          </ResponsiveView>
-        </div>
-      </div>
+      <PageHeader
+        leftContent={
+          <>
+            <PageTitle>
+              <ClientLink clientId={params.id}>{clientData.name}</ClientLink>
+            </PageTitle>
+            <PageSubTitle>
+              Client ID:{" "}
+              <ClientLink clientId={params.id}>{params.id}</ClientLink>
+            </PageSubTitle>
+            <ActionButtons clientData={clientData} params={params.id} />
+          </>
+        }
+        rightContent={<CardContainer clientData={clientData} />}
+      />
       <Suspense>{children}</Suspense>
     </JsonLd>
+  );
+}
+
+interface CardContainerProps {
+  clientData: ClientData;
+}
+
+function CardContainer({ clientData }: CardContainerProps) {
+  return (
+    <ResponsiveView>
+      <CardGrid cols="col-2">
+        <Card>
+          <CardHeader className="p-4">
+            <CardTitle>Remaining DataCap</CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 pt-0">
+            {convertBytesToIEC(clientData.remainingDatacap)}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="p-4">
+            <CardTitle>Allocated DataCap</CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 pt-0">
+            {convertBytesToIEC(clientData.allocatedDatacap)}
+          </CardContent>
+        </Card>
+      </CardGrid>
+    </ResponsiveView>
+  );
+}
+
+interface ActionButtonsProps {
+  clientData: ClientData;
+  params: string;
+}
+
+function ActionButtons({ clientData, params }: ActionButtonsProps) {
+  return (
+    <div className="flex items-center gap-2">
+      {!!clientData.githubUrl && (
+        <GithubButton url={clientData.githubUrl}>
+          <span className="lg:hidden">GitHub</span>
+          <span className="hidden lg:inline">View on GitHub</span>
+        </GithubButton>
+      )}
+      <FilecoinPulseButton url={createClientLink(params)}>
+        <span className="lg:hidden">Pulse</span>
+        <span className="hidden lg:inline">View on Filecoin Pulse</span>
+      </FilecoinPulseButton>
+    </div>
   );
 }

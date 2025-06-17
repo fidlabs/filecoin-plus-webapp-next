@@ -1,4 +1,4 @@
-import { Header } from "@/components/header";
+import { Navigation } from "@/components/navigation";
 import { Toaster } from "@/components/ui/sonner";
 import { generatePageMetadata } from "@/lib/utils";
 import PlausibleProvider from "next-plausible";
@@ -29,8 +29,8 @@ export default function RootLayout({
         <body className={`${font.className} antialiased`}>
           <PlausibleProvider domain="datacapstats.io" trackOutboundLinks>
             <div vaul-drawer-wrapper="">
-              <Header />
-              <div className="pb-28 md:pb-10">{children}</div>
+              <Navigation />
+              <div className="pb-28 md:pb-10 space-y-10">{children}</div>
               <Toaster position="top-right" />
             </div>
           </PlausibleProvider>

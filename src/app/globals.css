@@ -94,11 +94,11 @@
   }
 
   .nav-link {
-    @apply text-sm leading-4 font-bold opacity-75 hover:opacity-100 mb-3 whitespace-nowrap relative;
+    @apply text-sm leading-4 font-bold opacity-75 hover:opacity-100 relative;
   }
 
   .nav-link.active {
-    @apply opacity-100 underline underline-offset-4 md:no-underline md:after:content-[''] md:after:absolute md:after:-bottom-2 md:after:-translate-x-1/2 md:after:left-1/2 md:after:h-1 md:after:bg-white md:after:w-4 md:after:rounded-sm;
+    @apply opacity-100 underline underline-offset-4 md:no-underline md:after:content-[''] md:after:absolute md:after:-bottom-2 md:after:-translate-x-1/2 md:after:left-1/2 md:after:h-1 md:after:bg-white md:after:w-full md:after:rounded-sm;
   }
 
   .table-link {

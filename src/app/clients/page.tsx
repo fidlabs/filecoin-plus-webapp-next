@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import { ClientsList } from "@/app/clients/components/clients-list";
 import { Suspense } from "react";
-import { PageHeader, PageSubTitle, PageTitle } from "@/components/ui/title";
+import { PageHeader, PageSubTitle, PageTitle } from "@/components/ui/header";
 import { IClientsQuery } from "@/lib/interfaces/api.interface";
 import { getClients } from "@/lib/api";
 import { ItemList, WithContext } from "schema-dts";
@@ -44,13 +44,17 @@ const ClientsPage = async ({ searchParams }: PageProps) => {
 
   return (
     <JsonLd data={listJsonLD}>
+      <PageHeader
+        leftContent={
+          <>
+            <PageTitle>Clients</PageTitle>
+            <PageSubTitle>
+              View all clients participating in Filecoin
+            </PageSubTitle>
+          </>
+        }
+      />
       <main className="main-content">
-        <PageHeader>
-          <PageTitle>Clients</PageTitle>
-          <PageSubTitle>
-            View all clients participating in Filecoin
-          </PageSubTitle>
-        </PageHeader>
         <Suspense>
           <ClientsList clients={clients} params={currentParams} />
         </Suspense>

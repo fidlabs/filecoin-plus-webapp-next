@@ -1,7 +1,7 @@
 import { getStorageProviderById } from "@/lib/api";
 import { Metadata } from "next";
 import { cache, PropsWithChildren, Suspense } from "react";
-import { PageHeader, PageTitle } from "@/components/ui/title";
+import { PageHeader, PageTitle } from "@/components/ui/header";
 import { generatePageMetadata } from "@/lib/utils";
 import { createStorageProviderLink } from "@/lib/filecoin-pulse";
 import { FilecoinPulseButton } from "@/components/filecoin-pulse-button";
@@ -44,19 +44,22 @@ export default async function StorageProviderDetailsLayout({
   const spResponse = await fetchData(params.id);
 
   return (
-    <main className="main-content">
-      <div className="flex w-full justify-between mb-4">
-        <PageHeader>
-          <div className="flex gap-4 items-end">
+    <>
+      <PageHeader
+        leftContent={
+          <>
             <PageTitle>{spResponse?.providerId}</PageTitle>
             <FilecoinPulseButton url={createStorageProviderLink(params.id)}>
               <span className="lg:hidden">Pulse</span>
               <span className="hidden lg:inline">View on Filecoin Pulse</span>
             </FilecoinPulseButton>
-          </div>
-        </PageHeader>
-      </div>
-      <Suspense>{children}</Suspense>
-    </main>
+          </>
+        }
+      />
+      <main className="main-content">
+        <div className="flex w-full justify-between mb-4"></div>
+        <Suspense>{children}</Suspense>
+      </main>
+    </>
   );
 }
