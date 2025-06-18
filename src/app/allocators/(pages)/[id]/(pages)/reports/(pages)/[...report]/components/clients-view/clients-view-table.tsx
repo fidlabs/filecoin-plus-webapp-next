@@ -1,6 +1,7 @@
 "use client";
 
 import { GithubIcon } from "@/components/icons/github.icon";
+import { StringShortener } from "@/components/string-shortener";
 import { DataTable } from "@/components/ui/data-table";
 import {
   ResponsiveDialog,
@@ -12,7 +13,7 @@ import {
   ICDPAllocatorFullReportClient,
   ICDPAllocatorFullReportClientAllocation,
 } from "@/lib/interfaces/cdp/cdp.interface";
-import { convertBytesToIEC } from "@/lib/utils";
+import { cn, convertBytesToIEC } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import { differenceInDays, format } from "date-fns";
 import { CheckIcon, TriangleAlertIcon } from "lucide-react";
@@ -21,17 +22,24 @@ import Link from "next/link";
 interface UseClientsViewColumnsParameters {
   idsUsingContract: string[];
   idsReceivingDatacapFromMultipleAllocators: string[];
+  idsWithNotEnoughReplicas: string[];
 }
 
 function getNumberOfDaysSinceLastAllocation(
   allocations: ICDPAllocatorFullReportClientAllocation[]
-): number {
-  const lastAllocationDate = allocations.toSorted((a, b) => {
-    const dateA = new Date(a.timestamp);
-    const dateB = new Date(b.timestamp);
+): number | null {
+  const lastAllocationDate: string | undefined = allocations.toSorted(
+    (a, b) => {
+      const dateA = new Date(a.timestamp);
+      const dateB = new Date(b.timestamp);
 
-    return dateB.valueOf() - dateA.valueOf();
-  })[0].timestamp;
+      return dateB.valueOf() - dateA.valueOf();
+    }
+  )[0]?.timestamp;
+
+  if (!lastAllocationDate) {
+    return null;
+  }
 
   return differenceInDays(Date.now(), lastAllocationDate);
 }
@@ -39,6 +47,7 @@ function getNumberOfDaysSinceLastAllocation(
 function useClientsViewColumns({
   idsReceivingDatacapFromMultipleAllocators,
   idsUsingContract,
+  idsWithNotEnoughReplicas,
 }: UseClientsViewColumnsParameters) {
   const columns = [
     {
@@ -81,10 +90,13 @@ function useClientsViewColumns({
       },
       cell: ({ row }) => {
         const client_id = row.getValue("client_id");
-        const name = row.getValue("name") as string;
+        const name = row.getValue("name");
         return (
           <Link className="table-link" href={`/clients/${client_id}`}>
-            {name}
+            <StringShortener
+              value={typeof name === "string" ? name : "N/A"}
+              maxLength={30}
+            />
           </Link>
         );
       },
@@ -150,6 +162,10 @@ function useClientsViewColumns({
           row.original.allocations
         );
 
+        if (daysSinceLastAllocation === null) {
+          return <span>N/A</span>;
+        }
+
         return (
           <span>
             {getNumberOfDaysSinceLastAllocation(row.original.allocations)} day
@@ -164,12 +180,17 @@ function useClientsViewColumns({
         return <div>Spending Speed</div>;
       },
       cell: ({ row }) => {
-        const totalAllocations = BigInt(row.getValue("total_allocations"));
-        const daysSinceLastAllocation = BigInt(
-          getNumberOfDaysSinceLastAllocation(row.original.allocations)
+        const daysSinceLastAllocation = getNumberOfDaysSinceLastAllocation(
+          row.original.allocations
         );
+
+        if (daysSinceLastAllocation === null) {
+          return <span>N/A</span>;
+        }
+
+        const totalAllocations = BigInt(row.getValue("total_allocations"));
         const spendingSpeed = (
-          totalAllocations / daysSinceLastAllocation
+          totalAllocations / BigInt(daysSinceLastAllocation)
         ).toString();
 
         return <span>{convertBytesToIEC(spendingSpeed)} / day</span>;
@@ -185,6 +206,27 @@ function useClientsViewColumns({
           "application_timestamp"
         ) as string;
         return <span>{format(application_timestamp, "dd/MM/yyyy HH:mm")}</span>;
+      },
+    },
+    {
+      accessorFn(row) {
+        return idsWithNotEnoughReplicas.includes(row.client_id) ? false : true;
+      },
+      id: "enough_replicas",
+      header() {
+        return <div className="whitespace-nowrap">Has Enough Replicas</div>;
+      },
+      cell(cell) {
+        const value = cell.getValue() as boolean;
+        return (
+          <span
+            className={cn({
+              "text-red-500": !value,
+            })}
+          >
+            {value ? "Yes" : "No"}
+          </span>
+        );
       },
     },
     {
@@ -217,10 +259,12 @@ export function ClientsViewTable({
   clients,
   idsReceivingDatacapFromMultipleAllocators = [],
   idsUsingContract = [],
+  idsWithNotEnoughReplicas = [],
 }: ClientsViewTableProps) {
   const { columns } = useClientsViewColumns({
     idsReceivingDatacapFromMultipleAllocators,
     idsUsingContract,
+    idsWithNotEnoughReplicas,
   });
 
   return (

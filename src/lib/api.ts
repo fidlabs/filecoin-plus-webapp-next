@@ -380,7 +380,7 @@ export async function fetchIPNIMisreportingHistoricalData(): Promise<IPNIMisrepo
 
 // Client Provider breakdown
 const clientProvidersResponseSchema = z.object({
-  name: z.string(),
+  name: z.string().nullable(),
   stats: z.array(
     z.object({
       provider: z.string(),

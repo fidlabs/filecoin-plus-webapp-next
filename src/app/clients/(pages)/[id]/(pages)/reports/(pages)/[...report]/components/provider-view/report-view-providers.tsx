@@ -1,12 +1,13 @@
 "use client";
-import { useReportsDetails } from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/providers/reports-details.provider";
+
 import { ReportViewProviderMap } from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/provider-view/report-view-provider-map";
 import { ReportViewProviderTable } from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/provider-view/report-view-provider-table";
-import { HealthCheck } from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/health-check";
+import { useReportsDetails } from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/providers/reports-details.provider";
+import { HealthCheck } from "@/components/health-check";
 import { useScrollObserver } from "@/lib/hooks/useScrollObserver";
 import { cn } from "@/lib/utils";
 
-const ReportViewProviders = () => {
+export function ReportViewProviders() {
   const { colsStyle, colsSpanStyle, providerDistributionList, securityChecks } =
     useReportsDetails();
 
@@ -57,6 +58,4 @@ const ReportViewProviders = () => {
       })}
     </div>
   );
-};
-
-export { ReportViewProviders };
+}

@@ -2,9 +2,16 @@
 
 import { ClientsViewTable } from "@/app/allocators/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/clients-view/clients-view-table";
 import { useReportsDetails } from "@/app/allocators/(pages)/[id]/(pages)/reports/(pages)/[...report]/providers/reports-details.provider";
+import { HealthCheck } from "@/components/health-check";
 import { useScrollObserver } from "@/lib/hooks/useScrollObserver";
+import { AllocatorReportCheckType } from "@/lib/interfaces/cdp/cdp.interface";
 import { cn } from "@/lib/utils";
 import { CheckIcon, TriangleAlertIcon } from "lucide-react";
+
+const checkTypes = [
+  AllocatorReportCheckType.CLIENT_MULTIPLE_ALLOCATORS,
+  AllocatorReportCheckType.CLIENT_NOT_ENOUGH_COPIES,
+];
 
 export function ClientsView() {
   const { colsStyle, colsSpanStyle, reports } = useReportsDetails();
@@ -13,7 +20,7 @@ export function ClientsView() {
   const showMutipleAllocatorsExplanation = reports.some((report) => {
     return report.check_results.some((result) => {
       return (
-        result.check === "CLIENT_MULTIPLE_ALLOCATORS" &&
+        result.check === AllocatorReportCheckType.CLIENT_MULTIPLE_ALLOCATORS &&
         result.metadata.violating_ids.length > 0
       );
     });
@@ -53,18 +60,34 @@ export function ClientsView() {
           .map((client) => client.client_id);
 
         const idsReceivingDatacapFromMultipleAllocators =
-          report.check_results.find(
-            (result) => result.check === "CLIENT_MULTIPLE_ALLOCATORS"
-          )?.metadata.violating_ids;
+          report.check_results.find((result) => {
+            return (
+              result.check ===
+              AllocatorReportCheckType.CLIENT_MULTIPLE_ALLOCATORS
+            );
+          })?.metadata.violating_ids;
+
+        const idsWithNotEnoughReplicas =
+          report.check_results.find((result) => {
+            return (
+              result.check === AllocatorReportCheckType.CLIENT_NOT_ENOUGH_COPIES
+            );
+          })?.metadata.violating_ids ?? [];
 
         return (
           <div key={index} className="border-b [&:not(:last-child)]:border-r-2">
+            <HealthCheck
+              security={report.check_results.filter((checkResult) =>
+                checkTypes.includes(checkResult.check)
+              )}
+            />
             <ClientsViewTable
               clients={report.clients}
               idsUsingContract={idsUsingContract}
               idsReceivingDatacapFromMultipleAllocators={
                 idsReceivingDatacapFromMultipleAllocators
               }
+              idsWithNotEnoughReplicas={idsWithNotEnoughReplicas}
             />
           </div>
         );
