@@ -3,6 +3,7 @@
 import { ReportViewReplicaChart } from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/replikas-view/report-view-replika-chart";
 import { ReportViewReplicaTable } from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/replikas-view/report-view-replika-table";
 import { useReportsDetails } from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/providers/reports-details.provider";
+import { HealthCheck } from "@/components/health-check";
 import {
   HoverCard,
   HoverCardContent,
@@ -12,7 +13,6 @@ import { useScrollObserver } from "@/lib/hooks/useScrollObserver";
 import { ClientReportCheckType } from "@/lib/interfaces/cdp/cdp.interface";
 import { cn } from "@/lib/utils";
 import { InfoIcon } from "lucide-react";
-import { HealthCheck } from "../health-check";
 
 const checkTypes = [
   ClientReportCheckType.DEAL_DATA_REPLICATION_CID_SHARING,
