@@ -1,17 +1,18 @@
 "use client";
-import { useReportsDetails } from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/providers/reports-details.provider";
+
 import { ReportViewReplicaChart } from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/replikas-view/report-view-replika-chart";
+import { ReportViewReplicaTable } from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/replikas-view/report-view-replika-table";
+import { useReportsDetails } from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/providers/reports-details.provider";
+import { HealthCheck } from "@/components/health-check";
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import { InfoIcon } from "lucide-react";
-import { ReportViewReplicaTable } from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/replikas-view/report-view-replika-table";
-import { HealthCheck } from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/health-check";
 import { useScrollObserver } from "@/lib/hooks/useScrollObserver";
-import { cn } from "@/lib/utils";
 import { ClientReportCheckType } from "@/lib/interfaces/cdp/cdp.interface";
+import { cn } from "@/lib/utils";
+import { InfoIcon } from "lucide-react";
 
 const checkTypes = [
   ClientReportCheckType.DEAL_DATA_REPLICATION_CID_SHARING,
@@ -19,7 +20,7 @@ const checkTypes = [
   ClientReportCheckType.NOT_ENOUGH_COPIES,
 ];
 
-const ReportViewReplicas = () => {
+export function ReportViewReplicas() {
   const { colsStyle, colsSpanStyle, replikasList, securityChecks } =
     useReportsDetails();
 
@@ -81,6 +82,4 @@ const ReportViewReplicas = () => {
       })}
     </div>
   );
-};
-
-export { ReportViewReplicas };
+}

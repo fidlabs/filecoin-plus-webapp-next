@@ -136,7 +136,7 @@ export enum ClientReportCheckType {
 }
 
 type ClientReportCheckBase<
-  T extends string,
+  T extends ClientReportCheckType,
   M extends Record<string, unknown> = Record<string, never>,
 > = {
   check: T;
@@ -255,18 +255,43 @@ export interface IClientFullReport extends IClientReportHeader {
 
 export type IClientReportsResponse = IClientReportHeader[];
 
-export interface AllocatorClientMultipleAllocatorsCheckResult {
-  check: "CLIENT_MULTIPLE_ALLOCATORS";
+export enum AllocatorReportCheckType {
+  CLIENT_MULTIPLE_ALLOCATORS = "CLIENT_MULTIPLE_ALLOCATORS",
+  CLIENT_NOT_ENOUGH_COPIES = "CLIENT_NOT_ENOUGH_COPIES",
+}
+
+type AllocatorReportCheckBase<
+  T extends AllocatorReportCheckType,
+  M extends Record<string, unknown> = Record<string, never>,
+> = {
+  check: T;
   result: boolean;
-  metadata: {
+  metadata: M & {
     msg: string;
+  };
+};
+
+export type AllocatorClientMultipleAllocatorsCheck = AllocatorReportCheckBase<
+  AllocatorReportCheckType.CLIENT_MULTIPLE_ALLOCATORS,
+  {
     violating_ids: string[];
     clients_using_multiple_allocators_count: number;
     max_clients_using_multiple_allocators_count: number;
-  };
-}
+  }
+>;
 
-export type AllocatorCheckResult = AllocatorClientMultipleAllocatorsCheckResult;
+export type AllocatorClientNotEnoughCopiesCheck = AllocatorReportCheckBase<
+  AllocatorReportCheckType.CLIENT_NOT_ENOUGH_COPIES,
+  {
+    violating_ids: string[];
+    max_clients_with_not_enough_copies: number;
+    max_percentage_for_required_copies: string;
+  }
+>;
+
+export type AllocatorReportCheck =
+  | AllocatorClientMultipleAllocatorsCheck
+  | AllocatorClientNotEnoughCopiesCheck;
 
 export interface ICDPAllocatorFullReport {
   id: string;
@@ -282,7 +307,7 @@ export interface ICDPAllocatorFullReport {
   required_sps: string;
   clients: ICDPAllocatorFullReportClient[];
   storage_provider_distribution: ICDPAllocatorFullReportStorageProviderDistribution[];
-  check_results: Array<AllocatorCheckResult>;
+  check_results: Array<AllocatorReportCheck>;
 }
 
 export interface ICDPAllocatorFullReportClient {

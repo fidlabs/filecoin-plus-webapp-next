@@ -1,20 +1,23 @@
 "use client";
 
-import { useMemo } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import { Badge } from "@/components/ui/badge";
-import { ShieldCheckIcon, ShieldXIcon } from "lucide-react";
+import {
+  AllocatorReportCheck,
+  ClientReportCheck,
+} from "@/lib/interfaces/cdp/cdp.interface";
 import { cn } from "@/lib/utils";
+import { ShieldCheckIcon, ShieldXIcon } from "lucide-react";
+import { useMemo } from "react";
 import { useMediaQuery } from "usehooks-ts";
-import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
-import { ClientReportCheck } from "@/lib/interfaces/cdp/cdp.interface";
 
 export interface HealthCheckProps {
-  security: ClientReportCheck[];
+  security: Array<ClientReportCheck | AllocatorReportCheck>;
 }
 
 function ChecksContent({ security }: HealthCheckProps) {
