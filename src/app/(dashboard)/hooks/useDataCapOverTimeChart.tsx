@@ -23,10 +23,14 @@ export const useDataCapOverTimeChart = (
   const [valueKeys, setValueKeys] = useState<string[]>([]);
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
 
-  const reversedValueKeys = useMemo(
-    () => valueKeys.slice().reverse(),
-    [valueKeys]
-  );
+  const reversedValueKeys = useMemo(() => {
+    const sortedValueKeys = valueKeys.slice().sort((a, b) => {
+      const weekA = parseInt(a.substring(1));
+      const weekB = parseInt(b.substring(1));
+      return weekA - weekB;
+    });
+    return sortedValueKeys.reverse(); 
+  }, [valueKeys]);
 
   const valuesToDisplay = useMemo(() => {
     if (!selectedValues?.length) {
