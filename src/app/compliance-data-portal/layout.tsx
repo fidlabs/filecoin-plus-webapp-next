@@ -1,12 +1,11 @@
-import { Metadata } from "next";
-import { PageTitle } from "@/components/ui/title";
-import { ReactNode } from "react";
-import { CdpProvider } from "@/lib/providers/cdp.provider";
 import { Navigation } from "@/app/compliance-data-portal/components/navigation";
-import { Dataset, WithContext } from "schema-dts";
 import { JsonLd } from "@/components/json.ld";
+import { PageTitle } from "@/components/ui/title";
+import { CdpProvider } from "@/lib/providers/cdp.provider";
 import { generatePageMetadata } from "@/lib/utils";
-import { CDP_API_URL } from "@/lib/constants";
+import { Metadata } from "next";
+import { ReactNode } from "react";
+import { Dataset, WithContext } from "schema-dts";
 
 export const metadata: Metadata = generatePageMetadata({
   title: "Fil+ DataCap Stats | Compliance Overview",
@@ -30,11 +29,6 @@ const dataset: WithContext<Dataset>[] = [
       name: "Filecoin Incentive Design Labs",
       url: "https://www.fidl.tech",
     },
-    distribution: {
-      "@type": "DataDownload",
-      encodingFormat: "application/json",
-      contentUrl: `${CDP_API_URL}/stats/acc/providers/retrievability`,
-    },
   },
   {
     // SP Number of allocations
@@ -48,11 +42,6 @@ const dataset: WithContext<Dataset>[] = [
       "@type": "Organization",
       name: "Filecoin Incentive Design Labs",
       url: "https://www.fidl.tech",
-    },
-    distribution: {
-      "@type": "DataDownload",
-      encodingFormat: "application/json",
-      contentUrl: `${CDP_API_URL}/stats/acc/providers/clients`,
     },
   },
   {
@@ -68,11 +57,6 @@ const dataset: WithContext<Dataset>[] = [
       name: "Filecoin Incentive Design Labs",
       url: "https://www.fild.tech",
     },
-    distribution: {
-      "@type": "DataDownload",
-      encodingFormat: "application/json",
-      contentUrl: `${CDP_API_URL}/stats/acc/providers/biggest-client-distribution`,
-    },
   },
   {
     // SP Compliance
@@ -86,11 +70,6 @@ const dataset: WithContext<Dataset>[] = [
       "@type": "Organization",
       name: "Filecoin Incentive Design Labs",
       url: "https://www.fidl.tech",
-    },
-    distribution: {
-      "@type": "DataDownload",
-      encodingFormat: "application/json",
-      contentUrl: `${CDP_API_URL}/stats/acc/providers/compliance-data`,
     },
   },
   {
@@ -106,11 +85,6 @@ const dataset: WithContext<Dataset>[] = [
       name: "Filecoin Incentive Design Labs",
       url: "https://www.fidl.tech",
     },
-    distribution: {
-      "@type": "DataDownload",
-      encodingFormat: "application/json",
-      contentUrl: `${CDP_API_URL}/stats/acc/allocators/retrievability`,
-    },
   },
   {
     // Allocator Size Of The Biggest client allocation
@@ -124,11 +98,6 @@ const dataset: WithContext<Dataset>[] = [
       "@type": "Organization",
       name: "Filecoin Incentive Design Labs",
       url: "https://www.fidl.tech",
-    },
-    distribution: {
-      "@type": "DataDownload",
-      encodingFormat: "application/json",
-      contentUrl: `${CDP_API_URL}/stats/acc/allocators/biggest-client-distribution`,
     },
   },
   {
@@ -144,11 +113,6 @@ const dataset: WithContext<Dataset>[] = [
       name: "Filecoin Incentive Design Labs",
       url: "https://www.fidl.tech",
     },
-    distribution: {
-      "@type": "DataDownload",
-      encodingFormat: "application/json",
-      contentUrl: `${CDP_API_URL}/stats/acc/allocators/sps-compliance-data`,
-    },
   },
   {
     // Allocator SPs Compliance
@@ -162,11 +126,6 @@ const dataset: WithContext<Dataset>[] = [
       name: "Filecoin Incentive Design Labs",
       url: "https://www.fidl.tech",
     },
-    distribution: {
-      "@type": "DataDownload",
-      encodingFormat: "application/json",
-      contentUrl: `${CDP_API_URL}/proxy/googleapis/allocators-overview`,
-    },
   },
   {
     // Allocator SPs Compliance
@@ -179,11 +138,6 @@ const dataset: WithContext<Dataset>[] = [
       "@type": "Organization",
       name: "Filecoin Incentive Design Labs",
       url: "https://www.fidl.tech",
-    },
-    distribution: {
-      "@type": "DataDownload",
-      encodingFormat: "application/json",
-      contentUrl: `${CDP_API_URL}/proxy/googleapis/allocators-overview?tab=TrustLevels-MPG`,
     },
   },
 ];
