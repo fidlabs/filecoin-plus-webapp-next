@@ -1,12 +1,11 @@
-import { Metadata } from "next";
-import { PageTitle } from "@/components/ui/title";
-import { ReactNode } from "react";
-import { CdpProvider } from "@/lib/providers/cdp.provider";
 import { Navigation } from "@/app/compliance-data-portal/components/navigation";
-import { Dataset, WithContext } from "schema-dts";
 import { JsonLd } from "@/components/json.ld";
+import { PageTitle } from "@/components/ui/title";
+import { CdpProvider } from "@/lib/providers/cdp.provider";
 import { generatePageMetadata } from "@/lib/utils";
-import { CDP_API_URL } from "@/lib/constants";
+import { Metadata } from "next";
+import { ReactNode } from "react";
+import { Dataset, WithContext } from "schema-dts";
 
 export const metadata: Metadata = generatePageMetadata({
   title: "Fil+ DataCap Stats | Compliance Overview",
