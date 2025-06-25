@@ -54,11 +54,19 @@ const ClientsList = ({ clients, params }: ClientsListProps) => {
         />
         <CardContent className="p-0 m-0 border-b bg-[#F2F9FF]">
           <div className="flex items-center px-6 py-2 gap-3">
-            <InfoIcon className="w-5 h-5 bg-[#475A6E] rounded-full text-white flex flex-col items-center justify-center" />
+            <InfoIcon className="w-5 h-5 flex-shrink-0 bg-[#475A6E] rounded-full text-white flex flex-col items-center justify-center" />
             <p className="text-sm">
-              Note: Clients that receive automatic DataCap allocations from the
-              verify.glif.io site maintained by the Infinite Scroll allocator
-              are marked as &quot;Glif auto verified.&quot;
+              Note: Clients that receive automatic DataCap allocations from the{" "}
+              <a
+                href="https://verify.glif.io"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600"
+              >
+                verify.glif.io
+              </a>{" "}
+              site maintained by the Infinite Scroll allocator are marked as
+              &quot;Glif auto verified.&quot;
             </p>
           </div>
         </CardContent>
