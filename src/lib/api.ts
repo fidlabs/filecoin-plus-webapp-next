@@ -135,7 +135,7 @@ export const getClientLatestClaimsByClientId = async (
   id: string,
   query?: IApiQuery
 ) => {
-  const url = `${CDP_API_URL}/clients/latest-claims/${id}${parseQuery(query)}`;
+  const url = `${CDP_API_URL}/clients/${id}/latest-claims${parseQuery(query)}`;
   const response = (await fetchData(url)) as IClientLatestClaimsResponse;
   return response;
 };
