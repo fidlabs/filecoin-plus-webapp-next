@@ -1,5 +1,5 @@
 import { LatestClaims } from "@/app/clients/(pages)/[id]/components/latest-claims";
-import { getClientById, getClientLatestClaimsByClientId } from "@/lib/api";
+import { getClientLatestClaimsByClientId } from "@/lib/api";
 import { IApiQuery } from "@/lib/interfaces/api.interface";
 import { Suspense } from "react";
 
