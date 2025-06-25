@@ -55,6 +55,9 @@ export interface IClientResponse
   addressId: string;
 }
 
+export interface IClientLatestClaimsResponse
+  extends IApiListResponse<IClientLatestClaims> {}
+
 export interface IClientProviderBreakdownResponse {
   stats: IClientProviderBreakdownStat[];
   name: string;
@@ -86,6 +89,18 @@ export interface IClientDeal {
   isMixedSector: boolean;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface IClientLatestClaims {
+  id: string;
+  dealId: number;
+  clientId: string;
+  type: string;
+  providerId: string;
+  pieceCid: string;
+  pieceSize: string;
+  createdAt: string;
+  idDDO: boolean;
 }
 
 export interface IClientAllocationsResponse
