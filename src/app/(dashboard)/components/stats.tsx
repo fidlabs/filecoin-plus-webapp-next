@@ -24,7 +24,9 @@ const Component = async () => {
         <CardContent>
           <div className="w-full flex justify-between">
             <p className="font-semibold textxl">{stats?.numberOfAllocators}</p>
-            <StatsLink href="/allocators?showInactive=true&page=1">Allocators</StatsLink>
+            <StatsLink href="/allocators?showInactive=true&page=1">
+              Allocators
+            </StatsLink>
           </div>
         </CardContent>
       </Card>

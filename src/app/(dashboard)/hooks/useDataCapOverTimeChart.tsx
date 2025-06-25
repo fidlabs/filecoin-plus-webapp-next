@@ -29,7 +29,7 @@ export const useDataCapOverTimeChart = (
       const weekB = parseInt(b.substring(1));
       return weekA - weekB;
     });
-    return sortedValueKeys.reverse(); 
+    return sortedValueKeys.reverse();
   }, [valueKeys]);
 
   const valuesToDisplay = useMemo(() => {
