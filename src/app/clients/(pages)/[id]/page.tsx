@@ -1,7 +1,7 @@
-import { getClientById } from "@/lib/api";
+import { LatestClaims } from "@/app/clients/(pages)/[id]/components/latest-claims";
+import { getClientById, getClientLatestClaimsByClientId } from "@/lib/api";
 import { IApiQuery } from "@/lib/interfaces/api.interface";
 import { Suspense } from "react";
-import { LatestClaims } from "@/app/clients/(pages)/[id]/components/latest-claims";
 
 interface IPageProps {
   params: { id: string };
@@ -16,10 +16,11 @@ const ClientDetailsPage = async (pageParams: IPageProps) => {
     page: searchParams?.page ?? "1",
     limit: searchParams?.limit ?? "15",
     filter: searchParams?.filter ?? "",
-    sort: searchParams?.sort ?? `[["createdAt", 0]]`,
+    sort: searchParams?.sort ?? "createdAt",
+    order: searchParams?.order ?? "desc",
   };
 
-  const data = await getClientById(clientId, currentParams);
+  const data = await getClientLatestClaimsByClientId(clientId, currentParams);
 
   return (
     <div className="main-content">

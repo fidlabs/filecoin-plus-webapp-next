@@ -1,13 +1,13 @@
-import Link from "next/link";
-import { convertBytesToIEC } from "@/lib/utils";
-import { ColumnDef } from "@tanstack/react-table";
-import { IClientDeal } from "@/lib/interfaces/dmob/client.interface";
+import { ClientOnlyWrapper } from "@/components/client-only-wrapper";
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import { ClientOnlyWrapper } from "@/components/client-only-wrapper";
+import { IClientLatestClaims } from "@/lib/interfaces/dmob/client.interface";
+import { convertBytesToIEC } from "@/lib/utils";
+import { ColumnDef } from "@tanstack/react-table";
+import Link from "next/link";
 
 export const useDataCapClaimsColumns = () => {
   const columns = [
@@ -56,6 +56,16 @@ export const useDataCapClaimsColumns = () => {
       },
     },
     {
+      accessorKey: "isDDO",
+      header: () => {
+        return <div>IS DDO</div>;
+      },
+      cell: ({ row }) => {
+        const isDDO = row.getValue("isDDO") as string;
+        return <p>{isDDO.toString()}</p>;
+      },
+    },
+    {
       accessorKey: "pieceSize",
       header: () => {
         return <div>Size</div>;
@@ -79,11 +89,12 @@ export const useDataCapClaimsColumns = () => {
         );
       },
     },
-  ] as ColumnDef<IClientDeal>[];
+  ] as ColumnDef<IClientLatestClaims>[];
 
   const csvHeaders = [
     { label: "Piece CID", key: "pieceCid" },
     { label: "Storage Provider ID", key: "providerId" },
+    { label: "Is DDO", key: "isDDO" },
     { label: "Size", key: "pieceSize" },
     { label: "Date", key: "createdAt" },
   ];

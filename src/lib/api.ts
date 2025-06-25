@@ -12,6 +12,7 @@ import {
 } from "@/lib/interfaces/dmob/allocator.interface";
 import {
   IClientAllocationsResponse,
+  IClientLatestClaimsResponse,
   IClientResponse,
   IClientsResponse,
 } from "@/lib/interfaces/dmob/client.interface";
@@ -128,6 +129,15 @@ export const getClients = async (query?: IApiQuery) => {
 export const getClientById = async (id: string, query?: IApiQuery) => {
   const url = `${apiUrl}/v2/getUnifiedVerifiedDeals/${id}${parseQuery(query)}`;
   return (await fetchData(url)) as IClientResponse;
+};
+
+export const getClientLatestClaimsByClientId = async (
+  id: string,
+  query?: IApiQuery
+) => {
+  const url = `${CDP_API_URL}/clients/latest-claims/${id}${parseQuery(query)}`;
+  const response = (await fetchData(url)) as IClientLatestClaimsResponse;
+  return response;
 };
 
 export const getClientAllocationsById = async (id: string) => {
