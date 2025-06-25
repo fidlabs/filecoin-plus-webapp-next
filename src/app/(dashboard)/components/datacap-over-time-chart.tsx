@@ -186,8 +186,7 @@ const Component = ({ data, allocators }: Props) => {
         )}
         <div
           className={cn(
-            "flex flex-col gap-x-1 h-full max-h-[900px] w-[250px]",
-            mode === "allocator" && "overflow-y-auto"
+            "flex flex-col gap-x-1 h-full max-h-[900px] w-[250px] overflow-y-auto"
           )}
         >
           {reversedValueKeys.map((entry, index) => {

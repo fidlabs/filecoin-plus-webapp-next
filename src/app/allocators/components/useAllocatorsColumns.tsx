@@ -178,9 +178,9 @@ export function useAllocatorsColumns({
                   className="text-muted-foreground cursor-help"
                 />
               </HoverCardTrigger>
-              <HoverCardContent className="w-32">
-                <p>Block height</p>
-                <p>{createdAtHeight}</p>
+              <HoverCardContent className="w-32 flex flex-col gap-1 justify-center items-center">
+                <span>Block height</span>
+                <span>{createdAtHeight}</span>
               </HoverCardContent>
             </HoverCard>
           </div>
@@ -250,13 +250,14 @@ export function useAllocatorsColumns({
                 <HoverCardContent className="w-64">
                   {allowanceArray.map((allowance, index) => {
                     return (
-                      <div key={index} className="grid grid-cols-7 gap-2">
-                        <div className="col-span-2 text-right">
-                          {convertBytesToIEC(allowance.allowance)}
-                        </div>
-                        <div className="col-span-5 text-sm text-muted-foreground">
+                      <div
+                        key={index}
+                        className="flex items-center gap-3 justify-center"
+                      >
+                        <span>{convertBytesToIEC(allowance.allowance)}</span>
+                        <span className="text-sm text-muted-foreground">
                           ({calculateDateFromHeight(+allowance.height)})
-                        </div>
+                        </span>
                       </div>
                     );
                   })}
