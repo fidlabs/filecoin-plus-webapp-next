@@ -5,8 +5,8 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import { IClientLatestClaims } from "@/lib/interfaces/dmob/client.interface";
-import { convertBytesToIEC } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
+import { filesize } from "filesize";
 import Link from "next/link";
 
 export const useDataCapClaimsColumns = () => {
@@ -72,7 +72,7 @@ export const useDataCapClaimsColumns = () => {
       },
       cell: ({ row }) => {
         const pieceSize = row.getValue("pieceSize") as string;
-        return <p>{convertBytesToIEC(pieceSize)}</p>;
+        return <p>{filesize(pieceSize, { standard: "iec" })}</p>;
       },
     },
     {
