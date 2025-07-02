@@ -97,9 +97,13 @@ const columns: ColumnDef<IAllocator>[] = [
     },
   },
   {
-    accessorKey: "verifiedClientsCount",
-    header: "Verified Clients",
-    cell: (info) => info.getValue(),
+    accessorKey: "allocatorsUsingMetaallocator",
+    header: "Allocators Count",
+    cell: (info) => {
+      const value = info.getValue();
+      return Array.isArray(value) ? value.length : "N/A";
+    },
+    enableSorting: false,
   },
   {
     accessorKey: "address",

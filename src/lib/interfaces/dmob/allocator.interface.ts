@@ -41,4 +41,8 @@ export interface IAllocator {
   remainingDatacap: string;
   application_json_url: string | null;
   receivedDatacapFromMetaallocator: string | null;
+  isMetaAllocator: boolean;
+  allocatorsUsingMetaallocator: Array<{
+    addressId: string;
+  }>;
 }
