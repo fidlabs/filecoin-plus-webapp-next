@@ -1,18 +1,32 @@
 import { Tabs } from "@radix-ui/react-tabs";
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useCallback } from "react";
 
-interface IProps {
+type Scale = (typeof scales)[number];
+interface ScaleSelectorProps {
   scale: string;
-  setScale: (scale: string) => void;
+  setScale: (scale: Scale) => void;
 }
 
-export const ScaleSelector = ({ scale, setScale }: IProps) => {
+const scales = ["linear", "log"] as const;
+
+export function ScaleSelector({ scale, setScale }: ScaleSelectorProps) {
+  const handleValueChange = useCallback(
+    (scale: string) => {
+      setScale(scale as Scale);
+    },
+    [setScale]
+  );
+
   return (
-    <Tabs value={scale} onValueChange={setScale}>
+    <Tabs value={scale} onValueChange={handleValueChange}>
       <TabsList>
-        <TabsTrigger value="linear">Linear</TabsTrigger>
-        <TabsTrigger value="log">Log</TabsTrigger>
+        {scales.map((scale) => (
+          <TabsTrigger key={scale} value={scale} className="capitalize">
+            {scale}
+          </TabsTrigger>
+        ))}
       </TabsList>
     </Tabs>
   );
-};
+}
