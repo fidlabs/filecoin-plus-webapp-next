@@ -1,6 +1,6 @@
 import { DatacapAllocationChart } from "@/app/(dashboard)/components/datacap-allocation-chart";
 import { DatacapAllocationWeeklyChart } from "@/app/(dashboard)/components/datacap-allocation-weekly-chart";
-import { DataCapOverTimeChart } from "@/app/(dashboard)/components/datacap-over-time-chart";
+import { DatacapOverTimeChart } from "@/app/(dashboard)/components/datacap-over-time-chart";
 import {
   IFilDCAllocationsWeekly,
   IFilDCAllocationsWeeklyByClient,
@@ -33,7 +33,7 @@ const Charts = async ({
         <DatacapAllocationWeeklyChart data={allocationWeekly} />
       </Suspense>
       <Suspense fallback={<Fallback />}>
-        <DataCapOverTimeChart
+        <DatacapOverTimeChart
           data={allocationWeeklyByClient}
           allocators={allocators}
         />
