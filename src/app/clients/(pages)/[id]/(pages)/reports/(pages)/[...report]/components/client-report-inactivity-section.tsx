@@ -39,7 +39,7 @@ export function ClientReportActivitySection() {
               <CircleAlertIcon className="text-yellow-500" />
             )}
             <p>
-              {inactivityCheck?.metadata.msg ?? "Aactivty status not available"}
+              {inactivityCheck?.metadata.msg ?? "Activity status not available"}
             </p>
           </div>
         );
