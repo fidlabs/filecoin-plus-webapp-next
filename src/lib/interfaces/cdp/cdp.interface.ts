@@ -133,6 +133,7 @@ export enum ClientReportCheckType {
   STORAGE_PROVIDER_DISTRIBUTION_PROVIDERS_IPNI_NOT_REPORTING = "STORAGE_PROVIDER_DISTRIBUTION_PROVIDERS_IPNI_NOT_REPORTING",
   MULTIPLE_ALLOCATORS = "MULTIPLE_ALLOCATORS",
   NOT_ENOUGH_COPIES = "NOT_ENOUGH_COPIES",
+  INACTIVITY = "INACTIVITY",
 }
 
 type ClientReportCheckBase<
@@ -233,6 +234,15 @@ export type ClientReportNotEnoughCopiesCheck = ClientReportCheckBase<
   }
 >;
 
+export type ClientReportInactivityCheck = ClientReportCheckBase<
+  ClientReportCheckType.INACTIVITY,
+  {
+    available_datacap: string;
+    inactivity_period_days: number;
+    time_since_last_datacap_days: number;
+  }
+>;
+
 export type ClientReportCheck =
   | ClientReportStorageProviderDistributionAllLocatedInTheSameRegionCheck
   | ClientReportStorageProviderDistributionProvidersExceedProviderDealCheck
@@ -244,7 +254,8 @@ export type ClientReportCheck =
   | ClientReportDealDataReplicationCIDSharingCheck
   | ClientReportStorageProviderDistributionProvidersIPNIMisreportingCheck
   | ClientReportMultipleAllocatorsCheck
-  | ClientReportNotEnoughCopiesCheck;
+  | ClientReportNotEnoughCopiesCheck
+  | ClientReportInactivityCheck;
 
 export interface IClientFullReport extends IClientReportHeader {
   storage_provider_distribution: IClientReportStorageProviderDistribution[];
