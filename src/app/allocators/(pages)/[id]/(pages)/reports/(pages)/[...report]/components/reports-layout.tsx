@@ -1,16 +1,18 @@
 "use client";
+
+import { ClientsView } from "@/app/allocators/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/clients-view/clients-view";
+import { EnableCompareButton } from "@/app/allocators/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/enable-compare.button";
+import { ProvidersView } from "@/app/allocators/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/provider-view/providers-view";
+import { useReportsDetails } from "@/app/allocators/(pages)/[id]/(pages)/reports/(pages)/[...report]/providers/reports-details.provider";
+import { ClientOnlyWrapper } from "@/components/client-only-wrapper";
 import { GenericContentHeader } from "@/components/generic-content-view";
 import { Card, CardContent } from "@/components/ui/card";
-import { EnableCompareButton } from "@/app/allocators/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/enable-compare.button";
-import { useReportsDetails } from "@/app/allocators/(pages)/[id]/(pages)/reports/(pages)/[...report]/providers/reports-details.provider";
-import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import { ClientsView } from "@/app/allocators/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/clients-view/clients-view";
-import { ProvidersView } from "@/app/allocators/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/provider-view/providers-view";
-import { AllocatorReportOverviewSection } from "./allocator-report-overview-section";
+import { format } from "date-fns";
 import { AllocatorReportDataTypesSection } from "./allocator-report-data-types-section";
+import { AllocatorReportOverviewSection } from "./allocator-report-overview-section";
 
-const ReportsLayout = () => {
+export function ReportsLayout() {
   const { colsStyle, reports } = useReportsDetails();
 
   const parseId = (id: string) => {
@@ -44,9 +46,11 @@ const ReportsLayout = () => {
                   Report{" "}
                   <span className="font-semibold">{parseId(report.id)}</span>{" "}
                   from{" "}
-                  <span className="font-semibold">
-                    {format(new Date(report.create_date), "yyyy-MM-dd HH:mm")}
-                  </span>
+                  <ClientOnlyWrapper>
+                    <span className="font-semibold">
+                      {format(new Date(report.create_date), "yyyy-MM-dd HH:mm")}
+                    </span>
+                  </ClientOnlyWrapper>
                 </div>
               );
             })}
@@ -59,6 +63,4 @@ const ReportsLayout = () => {
       </Card>
     </div>
   );
-};
-
-export { ReportsLayout };
+}
