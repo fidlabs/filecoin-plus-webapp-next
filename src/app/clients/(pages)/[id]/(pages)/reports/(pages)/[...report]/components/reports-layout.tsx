@@ -1,19 +1,21 @@
 "use client";
-import { GenericContentHeader } from "@/components/generic-content-view";
-import { Card, CardContent } from "@/components/ui/card";
-import { ReportViewProviders } from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/provider-view/report-view-providers";
-import { EnableCompareButton } from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/enable-compare.button";
-import { useReportsDetails } from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/providers/reports-details.provider";
-import { format } from "date-fns";
-import { ReportViewReplicas } from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/replikas-view/report-view-replikas";
-import { cn } from "@/lib/utils";
+
 import { ReportViewCidSharing } from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/cid-sharing-view/report-view-cid-sharing";
+import { EnableCompareButton } from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/enable-compare.button";
+import { ReportViewProviders } from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/provider-view/report-view-providers";
+import { ReportViewReplicas } from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/replikas-view/report-view-replikas";
+import { useReportsDetails } from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/providers/reports-details.provider";
+import { ClientOnlyWrapper } from "@/components/client-only-wrapper";
+import { GenericContentHeader } from "@/components/generic-content-view";
 import { GithubIcon } from "@/components/icons/github.icon";
+import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
 import Link from "next/link";
 import { ClientReportMultipleAllocatorsSection } from "./client-report-multiple-allocators-section";
 import { ClientReportOverviewSection } from "./client-report-overview-section";
 
-const ReportsLayout = () => {
+export function ReportsLayout() {
   const { colsStyle, reports } = useReportsDetails();
 
   return (
@@ -37,9 +39,11 @@ const ReportsLayout = () => {
                   className="[&:not(:last-child)]:border-r-2 p-4 flex gap-1 items-center"
                 >
                   Report <span className="font-semibold">{report.id}</span> from{" "}
-                  <span className="font-semibold">
-                    {format(new Date(report.create_date), "yyyy-MM-dd HH:mm")}
-                  </span>
+                  <ClientOnlyWrapper>
+                    <span className="font-semibold">
+                      {format(new Date(report.create_date), "yyyy-MM-dd HH:mm")}
+                    </span>
+                  </ClientOnlyWrapper>
                   {report.application_url && (
                     <Link
                       className="text-gray-500 hover:text-gray-900"
@@ -62,6 +66,4 @@ const ReportsLayout = () => {
       </Card>
     </div>
   );
-};
-
-export { ReportsLayout };
+}
