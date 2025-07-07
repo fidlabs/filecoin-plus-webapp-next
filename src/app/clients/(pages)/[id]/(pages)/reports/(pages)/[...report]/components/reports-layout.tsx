@@ -14,6 +14,7 @@ import { format } from "date-fns";
 import Link from "next/link";
 import { ClientReportMultipleAllocatorsSection } from "./client-report-multiple-allocators-section";
 import { ClientReportOverviewSection } from "./client-report-overview-section";
+import { ClientReportActivitySection } from "./client-report-inactivity-section";
 
 export function ReportsLayout() {
   const { colsStyle, reports } = useReportsDetails();
@@ -59,6 +60,7 @@ export function ReportsLayout() {
           </div>
           <ClientReportOverviewSection />
           <ClientReportMultipleAllocatorsSection />
+          <ClientReportActivitySection />
           <ReportViewProviders />
           <ReportViewReplicas />
           <ReportViewCidSharing />
