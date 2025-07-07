@@ -288,3 +288,11 @@ export function downloadCSV(filename: string, contents: string) {
   a.click();
   URL.revokeObjectURL(url);
 }
+
+export function stringToColor(input: string): string {
+  const hash = input.split("").reduce((result, char) => {
+    return char.charCodeAt(0) + ((result << 5) - result);
+  }, 0);
+
+  return `hsl(${hash % 360}, 90%, 60%)`;
+}
