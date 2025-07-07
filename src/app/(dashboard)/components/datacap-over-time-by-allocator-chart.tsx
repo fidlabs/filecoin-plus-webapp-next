@@ -269,9 +269,10 @@ function CustomTooltip({
     return null;
   }
 
-  const total =
-    payload?.[0].value ??
-    visibleEntries.reduce((sum, entry) => sum + entry.datacap, BigInt(0));
+  const total = visibleEntries.reduce(
+    (sum, entry) => sum + entry.datacap,
+    BigInt(0)
+  );
 
   return (
     <Card>
