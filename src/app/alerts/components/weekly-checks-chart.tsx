@@ -20,7 +20,7 @@ const weeksChunkSize = 8;
 export function WeeklyChecksChart({ data }: WeeklyChecksChartProps) {
   const { updateFilter } = useSearchParamsFilters();
   const [weeksChunkIndex, setWeeksChunkIndex] = useState(0);
-  const weeksChunks = chunk(data, weeksChunkSize);
+  const weeksChunks = chunk(data, weeksChunkSize).toReversed();
   const weeksChunk = weeksChunks[weeksChunkIndex] ?? [];
 
   const prev = useCallback(() => {
