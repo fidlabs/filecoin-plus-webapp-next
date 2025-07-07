@@ -8,12 +8,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { AllocatorsDailyReportChecksResponse } from "@/lib/api";
 import { useSearchParamsFilters } from "@/lib/hooks/use-search-params-filters";
 import { cn } from "@/lib/utils";
