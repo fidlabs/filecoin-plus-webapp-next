@@ -25,23 +25,22 @@ interface UseClientsViewColumnsParameters {
   idsWithNotEnoughReplicas: string[];
 }
 
-function getNumberOfDaysSinceLastAllocation(
-  allocations: ICDPAllocatorFullReportClientAllocation[]
+function getNumberOfDaysSinceAllocation(
+  allocations: ICDPAllocatorFullReportClientAllocation[],
+  mode: "first" | "last"
 ): number | null {
-  const lastAllocationDate: string | undefined = allocations.toSorted(
-    (a, b) => {
-      const dateA = new Date(a.timestamp);
-      const dateB = new Date(b.timestamp);
+  const allocationDate: string | undefined = allocations.toSorted((a, b) => {
+    const dateAValue = new Date(a.timestamp).valueOf();
+    const dateBValue = new Date(b.timestamp).valueOf();
 
-      return dateB.valueOf() - dateA.valueOf();
-    }
-  )[0]?.timestamp;
+    return mode === "last" ? dateBValue - dateAValue : dateAValue - dateBValue;
+  })[0]?.timestamp;
 
-  if (!lastAllocationDate) {
+  if (!allocationDate) {
     return null;
   }
 
-  return differenceInDays(Date.now(), lastAllocationDate);
+  return differenceInDays(Date.now(), allocationDate);
 }
 
 function useClientsViewColumns({
@@ -158,8 +157,9 @@ function useClientsViewColumns({
         return <div>Time Since Last Allocation</div>;
       },
       cell: ({ row }) => {
-        const daysSinceLastAllocation = getNumberOfDaysSinceLastAllocation(
-          row.original.allocations
+        const daysSinceLastAllocation = getNumberOfDaysSinceAllocation(
+          row.original.allocations,
+          "last"
         );
 
         if (daysSinceLastAllocation === null) {
@@ -168,7 +168,7 @@ function useClientsViewColumns({
 
         return (
           <span>
-            {getNumberOfDaysSinceLastAllocation(row.original.allocations)} day
+            {daysSinceLastAllocation} day
             {daysSinceLastAllocation !== 1 && "s"}
           </span>
         );
@@ -180,8 +180,9 @@ function useClientsViewColumns({
         return <div>Spending Speed</div>;
       },
       cell: ({ row }) => {
-        const daysSinceLastAllocation = getNumberOfDaysSinceLastAllocation(
-          row.original.allocations
+        const daysSinceLastAllocation = getNumberOfDaysSinceAllocation(
+          row.original.allocations,
+          "first"
         );
 
         if (daysSinceLastAllocation === null) {
@@ -189,9 +190,11 @@ function useClientsViewColumns({
         }
 
         const totalAllocations = BigInt(row.getValue("total_allocations"));
-        const spendingSpeed = (
-          totalAllocations / BigInt(daysSinceLastAllocation)
-        ).toString();
+
+        const spendingSpeed =
+          daysSinceLastAllocation > 0
+            ? (totalAllocations / BigInt(daysSinceLastAllocation)).toString()
+            : totalAllocations.toString();
 
         return <span>{convertBytesToIEC(spendingSpeed)} / day</span>;
       },
