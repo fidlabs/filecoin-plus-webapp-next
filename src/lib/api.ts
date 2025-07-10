@@ -462,7 +462,7 @@ const allocatorsDailyReportChecksSchema = z.object({
   results: z.array(
     z.object({
       allocatorId: z.string(),
-      allocatorName: z.string(),
+      allocatorName: z.string().nullable(),
       checksPassedCount: z.number(),
       checksPassedChange: z.number().nullish(),
       checksFailedCount: z.number(),
