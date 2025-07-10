@@ -14,7 +14,9 @@ import {
 interface DataItem {
   date: string;
   passed: number;
+  passedChange: number;
   failed: number;
+  failedChange: number;
 }
 
 interface BarData extends DataItem {
@@ -28,6 +30,11 @@ export interface ChecksChartProps {
   onBarClick?(barData: BarData): void;
 }
 
+const passColor = "#66a61e";
+const passColorAlt = "rgba(102, 166, 30, 0.5)";
+const failColor = "#ff0029";
+const failColorAlt = "rgba(255, 0, 41, 0.5)";
+
 export function ChecksChart({
   data,
   formatDate,
@@ -40,6 +47,22 @@ export function ChecksChart({
     [formatDate]
   );
 
+  const getPassedChecks = useCallback((dataItem: DataItem) => {
+    return dataItem.passed - Math.max(0, dataItem.passedChange);
+  }, []);
+
+  const getPassedChecksChange = useCallback((dataItem: DataItem) => {
+    return Math.max(0, dataItem.passedChange);
+  }, []);
+
+  const getFailedChecks = useCallback((dataItem: DataItem) => {
+    return dataItem.failed - Math.max(0, dataItem.failedChange);
+  }, []);
+
+  const getFailedChecksChange = useCallback((dataItem: DataItem) => {
+    return Math.max(0, dataItem.failedChange);
+  }, []);
+
   return (
     <ResponsiveContainer width="100%" height={300} debounce={500}>
       <BarChart data={data}>
@@ -47,23 +70,57 @@ export function ChecksChart({
         <XAxis dataKey={getXAxisDataKey} />
         <YAxis />
         <Tooltip />
+
         <Bar
-          name="Passed Checks"
-          dataKey="passed"
+          stackId="passed"
+          name="Passed Checks Increase"
+          dataKey={getPassedChecksChange}
           barSize={20}
-          fill="#66a61e"
+          fill={passColor}
           style={{
             cursor: onBarClick ? "pointer" : "default",
+            stroke: passColor,
+            strokeWidth: 1,
           }}
           onClick={onBarClick}
         />
         <Bar
-          name="Failed Checks"
-          dataKey="failed"
+          stackId="passed"
+          name="Passed Checks"
+          dataKey={getPassedChecks}
           barSize={20}
-          fill="#ff0029"
+          fill={passColorAlt}
           style={{
             cursor: onBarClick ? "pointer" : "default",
+            stroke: passColor,
+            strokeWidth: 1,
+          }}
+          onClick={onBarClick}
+        />
+
+        <Bar
+          stackId="failed"
+          name="Failed Checks Increase"
+          dataKey={getFailedChecksChange}
+          barSize={20}
+          fill={failColor}
+          style={{
+            cursor: onBarClick ? "pointer" : "default",
+            stroke: failColor,
+            strokeWidth: 1,
+          }}
+          onClick={onBarClick}
+        />
+        <Bar
+          stackId="failed"
+          name="Failed Checks"
+          dataKey={getFailedChecks}
+          barSize={20}
+          fill={failColorAlt}
+          style={{
+            cursor: onBarClick ? "pointer" : "default",
+            stroke: failColor,
+            strokeWidth: 1,
           }}
           onClick={onBarClick}
         />

@@ -11,6 +11,7 @@ import {
   fetchAllocatorsDailyReportChecks,
   fetchAllocatorsReportChecksWeeks,
 } from "@/lib/api";
+import { cn } from "@/lib/utils";
 import type { PropsWithChildren, ReactNode } from "react";
 import type { WebPage, WithContext } from "schema-dts";
 
@@ -18,7 +19,9 @@ export const revalidate = 600;
 
 interface LayoutData {
   lastWeekAlertsCount: number;
+  lastWeekAlertsChange: number | null;
   lastDayAlertsCount: number;
+  lastDayAlertsChange: number;
   lastDayFailingAllocatorsCount: number;
 }
 
@@ -42,9 +45,16 @@ async function loadLayoutData(): Promise<LayoutData> {
     fetchAllocatorsDailyReportChecks(),
   ]);
 
-  const lastDayAlertsCount = checksResponse.results.reduce((total, result) => {
-    return total + result.checksFailedCount;
-  }, 0);
+  const [lastDayAlertsCount, lastDayAlertsChange] =
+    checksResponse.results.reduce(
+      ([totalAlerts, totalChange], result) => {
+        return [
+          totalAlerts + result.checksFailedCount,
+          totalChange + (result.checksFailedChange ?? 0),
+        ];
+      },
+      [0, 0]
+    );
 
   const lastDayFailingAllocatorsCount = checksResponse.results.filter(
     (result) => result.checksFailedCount > 0
@@ -52,7 +62,9 @@ async function loadLayoutData(): Promise<LayoutData> {
 
   return {
     lastWeekAlertsCount: weeksResponse[0].checksFailedCount,
+    lastWeekAlertsChange: weeksResponse[0].checksFailedChange ?? null,
     lastDayAlertsCount,
+    lastDayAlertsChange,
     lastDayFailingAllocatorsCount,
   };
 }
@@ -60,20 +72,41 @@ async function loadLayoutData(): Promise<LayoutData> {
 export default async function AlertsLayout({ children }: PropsWithChildren) {
   const {
     lastWeekAlertsCount,
+    lastWeekAlertsChange,
     lastDayAlertsCount,
+    lastDayAlertsChange,
     lastDayFailingAllocatorsCount,
   } = await loadLayoutData();
+
+  const lastWeekAlertsChangePercentage =
+    lastWeekAlertsChange !== null
+      ? (lastWeekAlertsChange / lastWeekAlertsCount) * 100
+      : null;
+  const lastDayAlertsChangePercentage =
+    (lastDayAlertsChange / lastDayAlertsCount) * 100;
 
   const stats: Stat[] = [
     {
       heading: "Alerts Count",
       subtext: "Last Week",
-      content: lastWeekAlertsCount,
+      content: (
+        <p>
+          {lastWeekAlertsCount}{" "}
+          {lastWeekAlertsChangePercentage !== null && (
+            <PercentageChangeText value={lastWeekAlertsChangePercentage} />
+          )}
+        </p>
+      ),
     },
     {
       heading: "Alerts Count",
       subtext: "Last 24 hours",
-      content: lastDayAlertsCount,
+      content: (
+        <p>
+          {lastDayAlertsCount}{" "}
+          <PercentageChangeText value={lastDayAlertsChangePercentage} />
+        </p>
+      ),
     },
     {
       heading: "Allocators With Alerts",
@@ -107,5 +140,19 @@ export default async function AlertsLayout({ children }: PropsWithChildren) {
         {children}
       </main>
     </JsonLd>
+  );
+}
+
+function PercentageChangeText({ value }: { value: number }) {
+  return (
+    <span
+      className={cn("text-muted-foreground", {
+        "text-red-500": value > 0,
+        "text-green-500": value < 0,
+      })}
+    >
+      ({value > 0 ? "+" : ""}
+      {Math.round(value)}%)
+    </span>
   );
 }

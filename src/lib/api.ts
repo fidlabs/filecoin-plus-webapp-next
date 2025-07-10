@@ -438,7 +438,9 @@ const allocatorsReportChecksWeeksSchema = z.array(
   z.object({
     week: z.string().datetime(),
     checksPassedCount: z.number(),
+    checksPassedChange: z.number().nullish(),
     checksFailedCount: z.number(),
+    checksFailedChange: z.number().nullish(),
   })
 );
 
@@ -448,7 +450,9 @@ const allocatorsReportChecksDaysSchema = z.object({
     z.object({
       day: z.string().datetime(),
       checksPassedCount: z.number(),
+      checksPassedChange: z.number().nullish(),
       checksFailedCount: z.number(),
+      checksFailedChange: z.number().nullish(),
     })
   ),
 });
@@ -460,12 +464,19 @@ const allocatorsDailyReportChecksSchema = z.object({
       allocatorId: z.string(),
       allocatorName: z.string(),
       checksPassedCount: z.number(),
+      checksPassedChange: z.number().nullish(),
       checksFailedCount: z.number(),
+      checksFailedChange: z.number().nullish(),
       failedChecks: z.array(
         z.object({
           checkMsg: z.string(),
           reportId: z.string(),
           check: z.string(),
+          isNewDaily: z.boolean(),
+          isNewWeekly: z.boolean(),
+          firstSeen: z.string(),
+          lastSeen: z.string().nullish(),
+          lastPassed: z.string().nullish(),
         })
       ),
     })
@@ -500,7 +511,7 @@ export async function fetchAllocatorsReportChecksWeeks(): Promise<AllocatorsRepo
 
   if (!response.ok) {
     throw new Error(
-      `CDP API returned status ${response.status} when fetching weekly report checks`
+      `CDP API returned status ${response.status} when fetching weekly report checks. URL: ${endpoint}`
     );
   }
 

@@ -29,15 +29,19 @@ interface PageData {
   alertsData: AllocatorsDailyReportChecksResponse;
 }
 
+function getCurrentDayStringUTC() {
+  return new UTCDate(new UTCDate().setHours(0, 0, 0, 0)).toISOString();
+}
+
 function safeDayFromString(input: unknown): string | undefined {
   if (typeof input !== "string") {
-    return undefined;
+    return getCurrentDayStringUTC();
   }
 
   const date = new UTCDate(input);
 
   if (isNaN(date.valueOf())) {
-    return undefined;
+    return getCurrentDayStringUTC();
   }
 
   return date.toISOString();
@@ -56,6 +60,8 @@ async function loadChartData(
         date: result.day,
         passed: result.checksPassedCount,
         failed: result.checksFailedCount,
+        passedChange: result.checksPassedChange ?? 0,
+        failedChange: result.checksFailedChange ?? 0,
       };
     });
   }
@@ -67,6 +73,8 @@ async function loadChartData(
       date: result.week,
       passed: result.checksPassedCount,
       failed: result.checksFailedCount,
+      passedChange: result.checksPassedChange ?? 0,
+      failedChange: result.checksFailedChange ?? 0,
     };
   });
 }
