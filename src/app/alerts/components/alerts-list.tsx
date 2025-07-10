@@ -144,7 +144,7 @@ export function AlertsList({ data }: AlertsListProps) {
                         className="text-inherit text-base"
                       >
                         <Link href={`/allocators/${result.allocatorId}`}>
-                          {result.allocatorName}
+                          {result.allocatorName ?? result.allocatorId}
                         </Link>
                       </Button>
                     </CardTitle>
