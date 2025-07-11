@@ -41,7 +41,7 @@ interface NodeProps {
 }
 
 type OpenedSection =
-  | "MPMA"
+  | "MDMA"
   | "Direct RKH Automatic"
   | "Direct RKH Manual"
   | undefined;
@@ -299,7 +299,7 @@ function prepareManualSankeyData(
         last: false,
       },
       {
-        name: "MPMA",
+        name: "MDMA",
         isHidden: false,
         allocators: metaAllocators,
         totalDatacap: metaAllocatorDatacap,
@@ -328,7 +328,7 @@ function prepareManualSankeyData(
     ],
   };
 
-  if (openedSection === "MPMA") {
+  if (openedSection === "MDMA") {
     for (const allocator of metaAllocators) {
       const allocatorId = generator.next().value as number;
       sankeyData.nodes.push({
@@ -346,7 +346,7 @@ function prepareManualSankeyData(
     }
   } else if (openedSection !== undefined) {
     sankeyData.nodes.push({
-      name: "MPMA Alocators",
+      name: "MDMA Alocators",
       isHidden: true,
       allocators: [],
       totalDatacap: BigInt(0),
@@ -513,7 +513,7 @@ const Node = ({ x, y, width, height, payload }: NodeProps) => {
 
 function isOpenedSection(value: string | undefined): value is OpenedSection {
   return (
-    value === "MPMA" ||
+    value === "MDMA" ||
     value === "Direct RKH Automatic" ||
     value === "Direct RKH Manual" ||
     value === undefined
@@ -591,7 +591,7 @@ export function DCFlowSankey({ allocatorsData, sheetData }: DCFlowSankeyProps) {
     switch (openedSection) {
       case "Direct RKH Automatic":
         return 0.9;
-      case "MPMA":
+      case "MDMA":
         return 0.5;
       case "Direct RKH Manual":
         return 0.5;
