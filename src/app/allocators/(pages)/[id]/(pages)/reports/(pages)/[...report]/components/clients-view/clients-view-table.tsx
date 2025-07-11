@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/responsive-dialog";
 import { Table, TableCell, TableHead, TableRow } from "@/components/ui/table";
 import {
-  ICDPAllocatorFullReportClient,
+  AllocatorFullReportFoundClient,
   ICDPAllocatorFullReportClientAllocation,
 } from "@/lib/interfaces/cdp/cdp.interface";
 import { cn, convertBytesToIEC } from "@/lib/utils";
@@ -248,14 +248,14 @@ function useClientsViewColumns({
         );
       },
     },
-  ] as ColumnDef<ICDPAllocatorFullReportClient>[];
+  ] as ColumnDef<AllocatorFullReportFoundClient>[];
 
   return { columns };
 }
 
 export interface ClientsViewTableProps
   extends Partial<UseClientsViewColumnsParameters> {
-  clients: ICDPAllocatorFullReportClient[];
+  clients: AllocatorFullReportFoundClient[];
 }
 
 export function ClientsViewTable({

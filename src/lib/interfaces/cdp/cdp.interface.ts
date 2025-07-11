@@ -314,15 +314,26 @@ export interface ICDPAllocatorFullReport {
   multisig: boolean;
   avg_retrievability_success_rate: number;
   data_types: string[];
+  audit: unknown;
   required_copies: string;
   required_sps: string;
-  clients: ICDPAllocatorFullReportClient[];
+  clients: AllocatorFullReportClient[];
   storage_provider_distribution: ICDPAllocatorFullReportStorageProviderDistribution[];
   check_results: Array<AllocatorReportCheck>;
 }
 
-export interface ICDPAllocatorFullReportClient {
-  not_found: boolean | undefined;
+export interface AllocatorFullReportNotFoundClient {
+  not_found: true;
+  client_id: string;
+  allocations_number: number;
+  application_timestamp: "";
+  application_url: "";
+  name: "";
+  total_allocations: "";
+}
+
+export interface AllocatorFullReportFoundClient {
+  not_found: undefined;
   client_id: string;
   name: string;
   allocations_number: number;
@@ -332,6 +343,10 @@ export interface ICDPAllocatorFullReportClient {
   allocations: ICDPAllocatorFullReportClientAllocation[];
   using_client_contract: boolean;
 }
+
+export type AllocatorFullReportClient =
+  | AllocatorFullReportFoundClient
+  | AllocatorFullReportNotFoundClient;
 
 export interface ICDPAllocatorFullReportClientAllocation {
   allocation: string;
