@@ -1,4 +1,5 @@
 "use client";
+
 import { useDataCapClaimsColumns } from "@/app/clients/(pages)/[id]/components/useDataCapClaimsColumns";
 import {
   GenericContentFooter,
@@ -9,25 +10,27 @@ import { DataTable } from "@/components/ui/data-table";
 import { ITabNavigatorTab } from "@/components/ui/tab-navigator";
 import { getClients } from "@/lib/api";
 import { useParamsQuery } from "@/lib/hooks/useParamsQuery";
-import { IApiQuery } from "@/lib/interfaces/api.interface";
 import { IClientLatestClaimsResponse } from "@/lib/interfaces/dmob/client.interface";
 import { useMemo } from "react";
 
-interface IPageProps {
+export interface LatestClaimsProps {
   clientId: string;
   data: IClientLatestClaimsResponse;
-  searchParams: IApiQuery;
+  searchParams: Record<string, string | undefined>;
 }
 
-const LatestClaims = ({ clientId, data, searchParams }: IPageProps) => {
+export function LatestClaims({
+  clientId,
+  data,
+  searchParams,
+}: LatestClaimsProps) {
   const { columns, csvHeaders } = useDataCapClaimsColumns();
-
   const { patchParams } = useParamsQuery(searchParams);
 
   const tabs = useMemo(() => {
     return [
       {
-        label: "Latest claims",
+        label: "Latest Claims",
         href: `/clients/${clientId}`,
         value: "list",
       },
@@ -82,14 +85,12 @@ const LatestClaims = ({ clientId, data, searchParams }: IPageProps) => {
         <DataTable columns={columns} data={data!.data} />
       </CardContent>
       <GenericContentFooter
-        page={searchParams?.page}
-        currentElements={data.data?.length || 0}
-        limit={searchParams?.limit}
+        page={data.pagination.page.toString(10)}
+        total={data.pagination.total.toString(10)}
+        limit={data.pagination.limit.toString(10)}
         paginationSteps={["15", "25", "50"]}
         patchParams={patchParams}
       />
     </Card>
   );
-};
-
-export { LatestClaims };
+}

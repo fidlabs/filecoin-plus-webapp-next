@@ -56,7 +56,14 @@ export interface IClientResponse
 }
 
 export interface IClientLatestClaimsResponse
-  extends IApiListResponse<IClientLatestClaims> {}
+  extends IApiListResponse<IClientLatestClaims> {
+  pagination: {
+    limit: number;
+    page: number;
+    pages: number;
+    total: number;
+  };
+}
 
 export interface IClientProviderBreakdownResponse {
   stats: IClientProviderBreakdownStat[];
