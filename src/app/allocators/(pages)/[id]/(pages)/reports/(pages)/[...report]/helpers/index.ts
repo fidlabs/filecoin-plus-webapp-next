@@ -1,6 +1,6 @@
 import {
   ICDPAllocatorFullReport,
-  ICDPAllocatorFullReportClient,
+  AllocatorFullReportClient,
   ICDPAllocatorFullReportStorageProviderDistribution,
 } from "@/lib/interfaces/cdp/cdp.interface";
 import { compareReportValue } from "@/lib/helpers/cpd.helpers";
@@ -29,7 +29,7 @@ export const parseProviderDistribution = (
 
 export const parseReport = (
   report: ICDPAllocatorFullReport,
-  allCLients: ICDPAllocatorFullReportClient[],
+  allCLients: AllocatorFullReportClient[],
   allProviders: ICDPAllocatorFullReportStorageProviderDistribution[]
 ) => {
   report.storage_provider_distribution = parseProviderDistribution([
@@ -126,7 +126,7 @@ export const prepareEmtyClients = (allClients: string[]) => {
         total_allocations: "",
         application_url: "",
         application_timestamp: "",
-      }) as ICDPAllocatorFullReportClient
+      }) as AllocatorFullReportClient
   );
 };
 

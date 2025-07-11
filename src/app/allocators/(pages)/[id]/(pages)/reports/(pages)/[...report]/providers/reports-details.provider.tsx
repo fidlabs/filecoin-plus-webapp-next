@@ -1,7 +1,7 @@
 "use client";
 import {
   ICDPAllocatorFullReport,
-  ICDPAllocatorFullReportClient,
+  AllocatorFullReportClient,
   ICDPAllocatorFullReportStorageProviderDistribution,
 } from "@/lib/interfaces/cdp/cdp.interface";
 import {
@@ -16,7 +16,7 @@ import { calculateAverage, calculateMapScale } from "@/lib/utils";
 
 interface IReportsDetailsContext {
   reports: ICDPAllocatorFullReport[];
-  clients: ICDPAllocatorFullReportClient[][];
+  clients: AllocatorFullReportClient[][];
   providersDistribution: ICDPAllocatorFullReportStorageProviderDistribution[][];
   compareMode: boolean;
   toggleCompareMode: () => void;

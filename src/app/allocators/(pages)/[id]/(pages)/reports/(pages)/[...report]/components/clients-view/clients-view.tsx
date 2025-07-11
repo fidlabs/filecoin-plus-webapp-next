@@ -56,7 +56,7 @@ export function ClientsView() {
 
       {reports.map((report, index) => {
         const idsUsingContract = report.clients
-          .filter((client) => client.using_client_contract)
+          .filter((client) => !client.not_found && client.using_client_contract)
           .map((client) => client.client_id);
 
         const idsReceivingDatacapFromMultipleAllocators =
@@ -74,6 +74,10 @@ export function ClientsView() {
             );
           })?.metadata.violating_ids ?? [];
 
+        const foundClients = report.clients.filter(
+          (client) => !client.not_found
+        );
+
         return (
           <div key={index} className="border-b [&:not(:last-child)]:border-r-2">
             <HealthCheck
@@ -82,7 +86,7 @@ export function ClientsView() {
               )}
             />
             <ClientsViewTable
-              clients={report.clients}
+              clients={foundClients}
               idsUsingContract={idsUsingContract}
               idsReceivingDatacapFromMultipleAllocators={
                 idsReceivingDatacapFromMultipleAllocators
