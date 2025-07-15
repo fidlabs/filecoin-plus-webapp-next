@@ -6,6 +6,8 @@ import { ViewTransitions } from "next-view-transitions";
 import { Montserrat } from "next/font/google";
 import { ReactNode } from "react";
 import "./globals.css";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 const font = Montserrat({
   subsets: ["latin"],
@@ -30,7 +32,23 @@ export default function RootLayout({
           <PlausibleProvider domain="datacapstats.io" trackOutboundLinks>
             <div vaul-drawer-wrapper="">
               <Header />
-              <div className="pb-28 md:pb-10">{children}</div>
+              <div className="pb-28 md:pb-10">
+                {children}
+                <div className="flex justify-center pt-6 md:pt-0 md:fixed md:top-12 2xl:top-0 md:right-[19px] 2xl:right-6">
+                  <Button
+                    asChild
+                    className="origin-right md:shadow-md md:-rotate-90  md:rounded-b-none 2xl:rounded-b-md 2xl:rounded-t-none 2xl:rotate-0"
+                  >
+                    <Link
+                      href="https://form-interface-d85407.zapier.app/page"
+                      target="_blank"
+                      rel="noreferre noopener"
+                    >
+                      Propose a Dashboard
+                    </Link>
+                  </Button>
+                </div>
+              </div>
               <Toaster position="top-right" />
             </div>
           </PlausibleProvider>
