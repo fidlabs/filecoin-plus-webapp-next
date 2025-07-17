@@ -300,6 +300,39 @@ const useReportViewProvidersColumns = (compareMode: boolean) => {
         );
       },
     },
+    {
+      accessorKey: "retrievability_success_rate_url_finder",
+      header: () => {
+        return <div className="whitespace-nowrap">HTTP Ret. URL-Finder</div>;
+      },
+      cell: ({ row }) => {
+        console.log("retrievability_success_rate_url_finder", row.original);
+        if (row.original.not_found) {
+          return (
+            <div className="h-full flex items-center justify-end gap-1">
+              N/A
+            </div>
+          );
+        }
+
+        const successRate = row.getValue(
+          "retrievability_success_rate_url_finder"
+        ) as number;
+
+        return (
+          <div className="h-full flex items-center justify-end gap-1">
+            <span>{(successRate * 100).toFixed(2)}%</span>
+            {compareMode && (
+              <CompareIcon
+                compare={
+                  row.original.retrievability_success_rate_url_finder_compare
+                }
+              />
+            )}
+          </div>
+        );
+      },
+    },
   ] as ColumnDef<IClientReportStorageProviderDistribution>[];
 
   return { columns };
