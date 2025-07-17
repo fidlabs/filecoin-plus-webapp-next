@@ -306,7 +306,6 @@ const useReportViewProvidersColumns = (compareMode: boolean) => {
         return <div className="whitespace-nowrap">HTTP Ret. URL-Finder</div>;
       },
       cell: ({ row }) => {
-        console.log("retrievability_success_rate_url_finder", row.original);
         if (row.original.not_found) {
           return (
             <div className="h-full flex items-center justify-end gap-1">
