@@ -224,7 +224,6 @@ const useReportViewProvidersColumns = (/*compareMode: boolean*/) => {
             </div>
           );
         }
-
         const successRate = row.getValue(
           "retrievability_success_rate_url_finder"
         ) as number;
