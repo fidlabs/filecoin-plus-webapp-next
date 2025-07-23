@@ -19,6 +19,7 @@ const checkTypes = [
   ClientReportCheckType.DEAL_DATA_REPLICATION_LOW_REPLICA,
   ClientReportCheckType.NOT_ENOUGH_COPIES,
   ClientReportCheckType.UNIQ_DATA_SET_SIZE_TO_DECLARED,
+  ClientReportCheckType.DEAL_DATA_REPLICATION_HIGH_REPLICA,
 ];
 
 export function ReportViewReplicas() {
