@@ -134,6 +134,7 @@ export enum ClientReportCheckType {
   MULTIPLE_ALLOCATORS = "MULTIPLE_ALLOCATORS",
   NOT_ENOUGH_COPIES = "NOT_ENOUGH_COPIES",
   INACTIVITY = "INACTIVITY",
+  UNIQ_DATA_SET_SIZE_TO_DECLARED = "UNIQ_DATA_SET_SIZE_TO_DECLARED",
 }
 
 type ClientReportCheckBase<
@@ -243,6 +244,9 @@ export type ClientReportInactivityCheck = ClientReportCheckBase<
   }
 >;
 
+export type ClientReportUniqDataSetSizeCheck =
+  ClientReportCheckBase<ClientReportCheckType.UNIQ_DATA_SET_SIZE_TO_DECLARED>;
+
 export type ClientReportCheck =
   | ClientReportStorageProviderDistributionAllLocatedInTheSameRegionCheck
   | ClientReportStorageProviderDistributionProvidersExceedProviderDealCheck
@@ -255,7 +259,8 @@ export type ClientReportCheck =
   | ClientReportStorageProviderDistributionProvidersIPNIMisreportingCheck
   | ClientReportMultipleAllocatorsCheck
   | ClientReportNotEnoughCopiesCheck
-  | ClientReportInactivityCheck;
+  | ClientReportInactivityCheck
+  | ClientReportUniqDataSetSizeCheck;
 
 export interface IClientFullReport extends IClientReportHeader {
   storage_provider_distribution: IClientReportStorageProviderDistribution[];
