@@ -134,6 +134,7 @@ export enum ClientReportCheckType {
   MULTIPLE_ALLOCATORS = "MULTIPLE_ALLOCATORS",
   NOT_ENOUGH_COPIES = "NOT_ENOUGH_COPIES",
   INACTIVITY = "INACTIVITY",
+  DEAL_DATA_REPLICATION_HIGH_REPLICA = "DEAL_DATA_REPLICATION_HIGH_REPLICA",
 }
 
 type ClientReportCheckBase<
@@ -196,6 +197,14 @@ export type ClientReportDealDataReplicationLowReplicaCheck =
     }
   >;
 
+export type ClientReportDealDataReplicationHighReplicaCheck =
+  ClientReportCheckBase<
+    ClientReportCheckType.DEAL_DATA_REPLICATION_HIGH_REPLICA,
+    {
+      max_percentage_for_replica: `${number}`;
+    }
+  >;
+
 export type ClientReportDealDataReplicationCIDSharingCheck =
   ClientReportCheckBase<
     ClientReportCheckType.DEAL_DATA_REPLICATION_LOW_REPLICA,
@@ -251,6 +260,7 @@ export type ClientReportCheck =
   | ClientReportStorageProviderDistributionProvidersRetrievabilityZeroCheck
   | ClientReportStorageProviderDistributionProvidersRetrievability75Check
   | ClientReportDealDataReplicationLowReplicaCheck
+  | ClientReportDealDataReplicationHighReplicaCheck
   | ClientReportDealDataReplicationCIDSharingCheck
   | ClientReportStorageProviderDistributionProvidersIPNIMisreportingCheck
   | ClientReportMultipleAllocatorsCheck
