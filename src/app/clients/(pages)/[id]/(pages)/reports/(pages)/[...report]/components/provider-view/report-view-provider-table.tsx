@@ -16,6 +16,7 @@ import { CompareIcon } from "@/components/icons/compare.icon";
 import { InfoIcon } from "lucide-react";
 import { ColumnDef, RowSelectionState } from "@tanstack/react-table";
 import { useMemo } from "react";
+import { CDP_API_URL } from "@/lib/constants";
 
 const comparableValues = ["up", "down"];
 
@@ -375,6 +376,10 @@ const ReportViewProviderTable = ({
         columns={columns}
         data={providerDistribution}
         rowSelection={rowSelection}
+        columnVisibility={{
+          retrievability_success_rate_url_finder:
+            CDP_API_URL === "https://cdp.staging.allocator.tech",
+        }}
       />
     </div>
   );

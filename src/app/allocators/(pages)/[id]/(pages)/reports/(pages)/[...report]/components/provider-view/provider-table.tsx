@@ -1,15 +1,16 @@
 "use client";
-import { ICDPAllocatorFullReportStorageProviderDistribution } from "@/lib/interfaces/cdp/cdp.interface";
 import { useReportsDetails } from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/providers/reports-details.provider";
+import { DataTable } from "@/components/ui/data-table";
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import { DataTable } from "@/components/ui/data-table";
-import Link from "next/link";
+import { CDP_API_URL } from "@/lib/constants";
+import { ICDPAllocatorFullReportStorageProviderDistribution } from "@/lib/interfaces/cdp/cdp.interface";
 import { convertBytesToIEC } from "@/lib/utils";
 import { ColumnDef, RowSelectionState } from "@tanstack/react-table";
+import Link from "next/link";
 import { useMemo } from "react";
 
 // const comparableValues = ['up', 'down']
@@ -271,6 +272,10 @@ const ProviderTable = ({
         columns={columns}
         data={providerDistribution}
         rowSelection={rowSelection}
+        columnVisibility={{
+          retrievability_success_rate_url_finder:
+            CDP_API_URL === "https://cdp.staging.allocator.tech",
+        }}
       />
     </div>
   );

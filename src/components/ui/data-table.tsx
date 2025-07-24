@@ -28,11 +28,19 @@ type DataTableProps<TData, TValue> = PropsWithChildren<{
   setTable?: (table: TenstackTable<TData>) => void;
   rowSelection?: RowSelectionState;
   setRowSelection?: OnChangeFn<RowSelectionState>;
+  columnVisibility?: Record<string, boolean>;
 }>;
 
 export function DataTable<TData, TValue>(props: DataTableProps<TData, TValue>) {
-  const { children, columns, data, setTable, rowSelection, setRowSelection } =
-    props;
+  const {
+    children,
+    columns,
+    data,
+    setTable,
+    rowSelection,
+    setRowSelection,
+    columnVisibility,
+  } = props;
   const [sorting, setSorting] = useState<SortingState>([]);
 
   const table = useReactTable({
@@ -47,6 +55,7 @@ export function DataTable<TData, TValue>(props: DataTableProps<TData, TValue>) {
     },
     state: {
       sorting,
+      columnVisibility,
       rowSelection: rowSelection ?? {},
     },
   });
