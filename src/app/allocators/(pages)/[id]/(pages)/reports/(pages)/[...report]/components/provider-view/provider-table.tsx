@@ -272,10 +272,6 @@ const ProviderTable = ({
         columns={columns}
         data={providerDistribution}
         rowSelection={rowSelection}
-        columnVisibility={{
-          retrievability_success_rate_url_finder:
-            CDP_API_URL === "https://cdp.staging.allocator.tech",
-        }}
       />
     </div>
   );

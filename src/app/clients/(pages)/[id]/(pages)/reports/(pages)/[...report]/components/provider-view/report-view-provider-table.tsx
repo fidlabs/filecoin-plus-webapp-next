@@ -1,22 +1,27 @@
 "use client";
-import {
-  IClientReportStorageProviderDistribution,
-  IPNIReportingStatus,
-} from "@/lib/interfaces/cdp/cdp.interface";
 import { useReportsDetails } from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/providers/reports-details.provider";
+import { CompareIcon } from "@/components/icons/compare.icon";
+import { DataTable } from "@/components/ui/data-table";
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import { DataTable } from "@/components/ui/data-table";
-import Link from "next/link";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  IClientReportStorageProviderDistribution,
+  IPNIReportingStatus,
+} from "@/lib/interfaces/cdp/cdp.interface";
 import { convertBytesToIEC } from "@/lib/utils";
-import { CompareIcon } from "@/components/icons/compare.icon";
-import { InfoIcon } from "lucide-react";
 import { ColumnDef, RowSelectionState } from "@tanstack/react-table";
+import { InfoIcon } from "lucide-react";
+import Link from "next/link";
 import { useMemo } from "react";
-import { CDP_API_URL } from "@/lib/constants";
 
 const comparableValues = ["up", "down"];
 
@@ -304,7 +309,18 @@ const useReportViewProvidersColumns = (compareMode: boolean) => {
     {
       accessorKey: "retrievability_success_rate_url_finder",
       header: () => {
-        return <div className="whitespace-nowrap">HTTP Ret. URL-Finder</div>;
+        return (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="cursor-help whitespace-nowrap">RPA</div>
+              </TooltipTrigger>
+              <TooltipContent side="top">
+                RPA - Random Piece Availability
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        );
       },
       cell: ({ row }) => {
         if (row.original.not_found) {
@@ -376,10 +392,6 @@ const ReportViewProviderTable = ({
         columns={columns}
         data={providerDistribution}
         rowSelection={rowSelection}
-        columnVisibility={{
-          retrievability_success_rate_url_finder:
-            CDP_API_URL === "https://cdp.staging.allocator.tech",
-        }}
       />
     </div>
   );
