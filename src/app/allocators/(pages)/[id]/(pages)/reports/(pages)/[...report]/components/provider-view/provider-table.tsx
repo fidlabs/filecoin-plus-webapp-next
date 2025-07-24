@@ -6,7 +6,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import { CDP_API_URL } from "@/lib/constants";
+import { RandomPieceAvailabilityTooltip } from "@/components/ui/random-piece-availability-tooltip";
 import { ICDPAllocatorFullReportStorageProviderDistribution } from "@/lib/interfaces/cdp/cdp.interface";
 import { convertBytesToIEC } from "@/lib/utils";
 import { ColumnDef, RowSelectionState } from "@tanstack/react-table";
@@ -214,9 +214,7 @@ const useReportViewProvidersColumns = (/*compareMode: boolean*/) => {
     },
     {
       accessorKey: "retrievability_success_rate_url_finder",
-      header: () => {
-        return <div className="whitespace-nowrap">HTTP Ret. URL-Finder</div>;
-      },
+      header: () => <RandomPieceAvailabilityTooltip />,
       cell: ({ row }) => {
         if (row.original.not_found) {
           return (

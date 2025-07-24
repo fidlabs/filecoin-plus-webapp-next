@@ -7,12 +7,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { RandomPieceAvailabilityTooltip } from "@/components/ui/random-piece-availability-tooltip";
 import {
   IClientReportStorageProviderDistribution,
   IPNIReportingStatus,
@@ -308,20 +303,7 @@ const useReportViewProvidersColumns = (compareMode: boolean) => {
     },
     {
       accessorKey: "retrievability_success_rate_url_finder",
-      header: () => {
-        return (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="cursor-help whitespace-nowrap">RPA</div>
-              </TooltipTrigger>
-              <TooltipContent side="top">
-                RPA - Random Piece Availability
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        );
-      },
+      header: () => <RandomPieceAvailabilityTooltip />,
       cell: ({ row }) => {
         if (row.original.not_found) {
           return (
