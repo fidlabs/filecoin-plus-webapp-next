@@ -117,6 +117,11 @@ export const compareReports = (reports: IClientFullReport[]) => {
               +reports[index - 1].storage_provider_distribution[providerIndex]
                 .retrievability_success_rate_http
             ),
+            retrievability_success_rate_url_finder_compare: compare(
+              +provider.retrievability_success_rate_url_finder,
+              +reports[index - 1].storage_provider_distribution[providerIndex]
+                .retrievability_success_rate_url_finder
+            ),
           };
         }
       ),

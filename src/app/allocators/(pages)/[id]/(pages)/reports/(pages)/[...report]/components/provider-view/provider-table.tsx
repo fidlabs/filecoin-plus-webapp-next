@@ -1,15 +1,16 @@
 "use client";
-import { ICDPAllocatorFullReportStorageProviderDistribution } from "@/lib/interfaces/cdp/cdp.interface";
 import { useReportsDetails } from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/providers/reports-details.provider";
+import { DataTable } from "@/components/ui/data-table";
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import { DataTable } from "@/components/ui/data-table";
-import Link from "next/link";
+import { RandomPieceAvailabilityTooltip } from "@/components/ui/random-piece-availability-tooltip";
+import { ICDPAllocatorFullReportStorageProviderDistribution } from "@/lib/interfaces/cdp/cdp.interface";
 import { convertBytesToIEC } from "@/lib/utils";
 import { ColumnDef, RowSelectionState } from "@tanstack/react-table";
+import Link from "next/link";
 import { useMemo } from "react";
 
 // const comparableValues = ['up', 'down']
@@ -202,6 +203,28 @@ const useReportViewProvidersColumns = (/*compareMode: boolean*/) => {
 
         const successRate = row.getValue(
           "retrievability_success_rate_http"
+        ) as number;
+
+        return (
+          <div className="h-full flex items-center justify-end gap-1">
+            <span>{(successRate * 100).toFixed(2)}%</span>
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "retrievability_success_rate_url_finder",
+      header: () => <RandomPieceAvailabilityTooltip />,
+      cell: ({ row }) => {
+        if (row.original.not_found) {
+          return (
+            <div className="h-full flex items-center justify-end gap-1">
+              N/A
+            </div>
+          );
+        }
+        const successRate = row.getValue(
+          "retrievability_success_rate_url_finder"
         ) as number;
 
         return (
