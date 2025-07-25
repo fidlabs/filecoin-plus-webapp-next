@@ -1,9 +1,5 @@
 "use client";
 
-import { useScrollObserver } from "@/lib/hooks/useScrollObserver";
-import { cn } from "@/lib/utils";
-import { type ReactNode } from "react";
-import { useReportsDetails } from "../providers/reports-details.provider";
 import { CopyButton } from "@/components/copy-button";
 import {
   Tooltip,
@@ -11,8 +7,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { AlertCircleIcon } from "lucide-react";
+import { useScrollObserver } from "@/lib/hooks/useScrollObserver";
 import { AllocatorReportCheckType } from "@/lib/interfaces/cdp/cdp.interface";
+import { cn } from "@/lib/utils";
+import { AlertCircleIcon } from "lucide-react";
+import { type ReactNode } from "react";
+import { useReportsDetails } from "../providers/reports-details.provider";
 
 interface OverviewItem {
   label: ReactNode;
@@ -81,6 +81,15 @@ export function AllocatorReportOverviewSection() {
                 !checkResult.result
               );
             })?.metadata.msg,
+          },
+          {
+            label: "Average Time To First Deal",
+            value:
+              report.avg_secs_to_first_deal && report.avg_secs_to_first_deal > 0
+                ? `${(report.avg_secs_to_first_deal / 86400).toFixed(2)} ${
+                    report.avg_secs_to_first_deal / 86400 < 2 ? "day" : "days"
+                  }` // Convert seconds to days
+                : "N/A",
           },
         ];
 
