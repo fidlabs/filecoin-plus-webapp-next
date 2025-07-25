@@ -49,7 +49,7 @@ export function ClientReportOverviewSection() {
             value:
               report.avg_secs_to_first_deal && report.avg_secs_to_first_deal > 0
                 ? `${(report.avg_secs_to_first_deal / 86400).toFixed(2)} ${
-                    report.avg_secs_to_first_deal / 86400 <= 2 ? "day" : "days"
+                    report.avg_secs_to_first_deal / 86400 < 2 ? "day" : "days"
                   }` // Convert seconds to days
                 : "N/A",
           },
