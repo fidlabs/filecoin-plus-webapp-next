@@ -18,6 +18,7 @@ const checkTypes = [
   ClientReportCheckType.DEAL_DATA_REPLICATION_CID_SHARING,
   ClientReportCheckType.DEAL_DATA_REPLICATION_LOW_REPLICA,
   ClientReportCheckType.NOT_ENOUGH_COPIES,
+  ClientReportCheckType.DEAL_DATA_REPLICATION_HIGH_REPLICA,
 ];
 
 export function ReportViewReplicas() {
