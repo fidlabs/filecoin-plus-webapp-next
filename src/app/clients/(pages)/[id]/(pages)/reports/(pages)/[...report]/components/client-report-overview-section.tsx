@@ -44,6 +44,15 @@ export function ClientReportOverviewSection() {
               ? report.client_contract_max_deviation
               : "N/A",
           },
+          {
+            label: "Average Time To First Deal",
+            value:
+              report.avg_secs_to_first_deal && report.avg_secs_to_first_deal > 0
+                ? `${(report.avg_secs_to_first_deal / 86400).toFixed(2)} ${
+                    report.avg_secs_to_first_deal / 86400 <= 2 ? "day" : "days"
+                  }` // Convert seconds to days
+                : "N/A",
+          },
         ];
 
         return (

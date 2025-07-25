@@ -55,6 +55,7 @@ export interface IClientReportHeader {
   is_public_dataset: boolean;
   using_client_contract: boolean;
   client_contract_max_deviation: `${number}`;
+  avg_secs_to_first_deal: number;
 }
 
 export type CompareType = "up" | "down" | "equal" | undefined;
@@ -322,6 +323,7 @@ export interface ICDPAllocatorFullReport {
   clients: AllocatorFullReportClient[];
   storage_provider_distribution: ICDPAllocatorFullReportStorageProviderDistribution[];
   check_results: Array<AllocatorReportCheck>;
+  avg_secs_to_first_deal: number;
 }
 
 export interface AllocatorFullReportNotFoundClient {
@@ -344,6 +346,7 @@ export interface AllocatorFullReportFoundClient {
   application_timestamp: string;
   allocations: ICDPAllocatorFullReportClientAllocation[];
   using_client_contract: boolean;
+  avg_secs_to_first_deal: number;
 }
 
 export type AllocatorFullReportClient =
