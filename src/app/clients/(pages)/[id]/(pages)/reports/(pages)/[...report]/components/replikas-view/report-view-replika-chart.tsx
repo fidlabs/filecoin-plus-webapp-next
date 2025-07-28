@@ -25,7 +25,7 @@ const ReportViewReplicaChart = ({ replikaData }: IReportViewReplicaChart) => {
             className={"w-5 h-3 mr-1 rounded"}
             style={{ backgroundColor: palette(1) }}
           />
-          Low provider count
+          Wrong provider count
         </div>
         <div className="flex items-center">
           <div
@@ -52,7 +52,11 @@ const ReportViewReplicaChart = ({ replikaData }: IReportViewReplicaChart) => {
             {replikaData.map((entry, index) => (
               <Cell
                 key={`cell-${index}`}
-                fill={palette(+(+entry.num_of_replicas <= 3))}
+                fill={palette(
+                  +(
+                    +entry.num_of_replicas <= 3 || +(+entry.num_of_replicas > 8)
+                  )
+                )}
               />
             ))}
           </Bar>
