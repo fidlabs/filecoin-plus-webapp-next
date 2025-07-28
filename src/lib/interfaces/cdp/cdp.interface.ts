@@ -55,6 +55,7 @@ export interface IClientReportHeader {
   is_public_dataset: boolean;
   using_client_contract: boolean;
   client_contract_max_deviation: `${number}`;
+  avg_secs_to_first_deal: number;
 }
 
 export type CompareType = "up" | "down" | "equal" | undefined;
@@ -79,6 +80,8 @@ export interface IClientReportStorageProviderDistribution {
   retrievability_success_rate_compare: CompareType;
   retrievability_success_rate_http: string;
   retrievability_success_rate_http_compare: CompareType;
+  retrievability_success_rate_url_finder: string;
+  retrievability_success_rate_url_finder_compare: CompareType;
   ipni_reporting_status: IPNIReportingStatus;
   ipni_reported_claims_count: string | undefined;
   claims_count: string | undefined;
@@ -325,6 +328,7 @@ export interface ICDPAllocatorFullReport {
   clients: AllocatorFullReportClient[];
   storage_provider_distribution: ICDPAllocatorFullReportStorageProviderDistribution[];
   check_results: Array<AllocatorReportCheck>;
+  avg_secs_to_first_deal: number;
 }
 
 export interface AllocatorFullReportNotFoundClient {
@@ -347,6 +351,7 @@ export interface AllocatorFullReportFoundClient {
   application_timestamp: string;
   allocations: ICDPAllocatorFullReportClientAllocation[];
   using_client_contract: boolean;
+  avg_secs_to_first_deal: number;
 }
 
 export type AllocatorFullReportClient =
@@ -371,6 +376,8 @@ export interface ICDPAllocatorFullReportStorageProviderDistribution {
   retrievability_success_rate_compare: CompareType;
   retrievability_success_rate_http: number;
   retrievability_success_rate_http_compare: number;
+  retrievability_success_rate_url_finder: number;
+  retrievability_success_rate_url_finder_compare: CompareType;
   location: IGenericReportLocation;
 }
 
