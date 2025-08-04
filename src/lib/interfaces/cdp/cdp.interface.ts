@@ -56,6 +56,8 @@ export interface IClientReportHeader {
   using_client_contract: boolean;
   client_contract_max_deviation: `${number}`;
   avg_secs_to_first_deal: number;
+  low_replica_threshold: number;
+  high_replica_threshold: number;
 }
 
 export type CompareType = "up" | "down" | "equal" | undefined;
