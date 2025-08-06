@@ -62,7 +62,10 @@ export function ReportsLayout() {
           <ClientReportMultipleAllocatorsSection />
           <ClientReportActivitySection />
           <ReportViewProviders />
-          <ReportViewReplicas />
+          <ReportViewReplicas
+            highReplicaThreshold={reports[0]?.high_replica_threshold}
+            lowReplicaThreshold={reports[0]?.low_replica_threshold}
+          />
           <ReportViewCidSharing />
         </CardContent>
       </Card>

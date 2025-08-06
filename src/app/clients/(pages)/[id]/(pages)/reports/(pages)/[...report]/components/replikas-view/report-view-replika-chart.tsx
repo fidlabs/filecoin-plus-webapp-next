@@ -1,5 +1,6 @@
 "use client";
 import { IClientReportReplicaDistribution } from "@/lib/interfaces/cdp/cdp.interface";
+import { palette } from "@/lib/utils";
 import {
   Bar,
   BarChart,
@@ -9,14 +10,23 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { palette } from "@/lib/utils";
-import React from "react";
 
 interface IReportViewReplicaChart {
   replikaData: IClientReportReplicaDistribution[];
+  lowReplicaThreshold?: number;
+  highReplicaThreshold?: number;
 }
 
-const ReportViewReplicaChart = ({ replikaData }: IReportViewReplicaChart) => {
+const ReportViewReplicaChart = ({
+  replikaData,
+  lowReplicaThreshold,
+  highReplicaThreshold,
+}: IReportViewReplicaChart) => {
+  const lowReplicaThresholdValue =
+    typeof lowReplicaThreshold === "number" ? lowReplicaThreshold : 4;
+  const highReplicaThresholdValue =
+    typeof highReplicaThreshold === "number" ? highReplicaThreshold : 8;
+
   return (
     <div className="pt-4">
       <div className="w-full flex flex-col md:flex-row md:gap-2 items-center justify-center">
@@ -25,7 +35,7 @@ const ReportViewReplicaChart = ({ replikaData }: IReportViewReplicaChart) => {
             className={"w-5 h-3 mr-1 rounded"}
             style={{ backgroundColor: palette(1) }}
           />
-          Low provider count
+          Wrong provider count
         </div>
         <div className="flex items-center">
           <div
@@ -49,12 +59,21 @@ const ReportViewReplicaChart = ({ replikaData }: IReportViewReplicaChart) => {
           <XAxis dataKey="num_of_replicas" />
           <YAxis tickFormatter={(value) => `${value} %`} />
           <Bar dataKey="percentage">
-            {replikaData.map((entry, index) => (
-              <Cell
-                key={`cell-${index}`}
-                fill={palette(+(+entry.num_of_replicas <= 3))}
-              />
-            ))}
+            {replikaData.map((entry, index) => {
+              const numOfReplica = parseInt(entry.num_of_replicas);
+
+              return (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={palette(
+                    +(
+                      numOfReplica < lowReplicaThresholdValue ||
+                      numOfReplica > highReplicaThresholdValue
+                    )
+                  )}
+                />
+              );
+            })}
           </Bar>
         </BarChart>
       </ResponsiveContainer>

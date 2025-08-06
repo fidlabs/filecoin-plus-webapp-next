@@ -56,6 +56,8 @@ export interface IClientReportHeader {
   using_client_contract: boolean;
   client_contract_max_deviation: `${number}`;
   avg_secs_to_first_deal: number;
+  low_replica_threshold: number;
+  high_replica_threshold: number;
 }
 
 export type CompareType = "up" | "down" | "equal" | undefined;
@@ -138,6 +140,7 @@ export enum ClientReportCheckType {
   NOT_ENOUGH_COPIES = "NOT_ENOUGH_COPIES",
   INACTIVITY = "INACTIVITY",
   UNIQ_DATA_SET_SIZE_TO_DECLARED = "UNIQ_DATA_SET_SIZE_TO_DECLARED",
+  DEAL_DATA_REPLICATION_HIGH_REPLICA = "DEAL_DATA_REPLICATION_HIGH_REPLICA",
 }
 
 type ClientReportCheckBase<
@@ -200,6 +203,14 @@ export type ClientReportDealDataReplicationLowReplicaCheck =
     }
   >;
 
+export type ClientReportDealDataReplicationHighReplicaCheck =
+  ClientReportCheckBase<
+    ClientReportCheckType.DEAL_DATA_REPLICATION_HIGH_REPLICA,
+    {
+      max_percentage_for_replica: `${number}`;
+    }
+  >;
+
 export type ClientReportDealDataReplicationCIDSharingCheck =
   ClientReportCheckBase<
     ClientReportCheckType.DEAL_DATA_REPLICATION_LOW_REPLICA,
@@ -258,6 +269,7 @@ export type ClientReportCheck =
   | ClientReportStorageProviderDistributionProvidersRetrievabilityZeroCheck
   | ClientReportStorageProviderDistributionProvidersRetrievability75Check
   | ClientReportDealDataReplicationLowReplicaCheck
+  | ClientReportDealDataReplicationHighReplicaCheck
   | ClientReportDealDataReplicationCIDSharingCheck
   | ClientReportStorageProviderDistributionProvidersIPNIMisreportingCheck
   | ClientReportMultipleAllocatorsCheck
