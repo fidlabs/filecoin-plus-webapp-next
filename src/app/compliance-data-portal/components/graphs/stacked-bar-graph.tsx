@@ -190,7 +190,7 @@ export function StackedBarGraph({
               onClick={onBarClick}
             />
           ))}
-          ))
+
           {isDesktop && usePercentage && haveAverageSuccessRate && (
             <Bar
               layout={!isDesktop ? "vertical" : "horizontal"}
