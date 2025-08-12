@@ -1,23 +1,36 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { IGoogleSheetResponse } from "@/lib/interfaces/cdp/google.interface";
-import { IAllocatorsResponse } from "@/lib/interfaces/dmob/allocator.interface";
-import { convertBytesToIEC, isPlainObject } from "@/lib/utils";
+import {
+  AllocatorsDCFlowData,
+  useAllocatorsDCFlow,
+} from "@/lib/hooks/cdp.hooks";
+import { isPlainObject } from "@/lib/utils";
+import { filesize } from "filesize";
 import Link from "next/link";
-import { ReactNode, useCallback, useMemo, useState } from "react";
+import { ReactNode, useCallback, useMemo } from "react";
 import { ResponsiveContainer, Sankey, Tooltip, TooltipProps } from "recharts";
-import * as z from "zod";
+import { Button } from "./ui/button";
+import { ChartLoader } from "./ui/chart-loader";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "./ui/dialog";
+
+type Allocator = AllocatorsDCFlowData["data"][number];
+interface TreeNode {
+  name: string;
+  allocators: Allocator[];
+  leafs: TreeNode[];
+}
 
 interface Node {
-  allocators: Array<{
-    id: string;
-    datacap: bigint;
-    name: string;
-  }>;
+  allocators: Allocator[];
   name: string;
-  last: boolean;
-  isHidden?: boolean;
   totalDatacap: bigint;
 }
 
@@ -27,7 +40,7 @@ interface Link {
   value: number;
 }
 
-interface Data {
+interface ChartData {
   nodes: Node[];
   links: Link[];
 }
@@ -40,497 +53,174 @@ interface NodeProps {
   payload: Node;
 }
 
-type OpenedSection =
-  | "MDMA"
-  | "Direct RKH Automatic"
-  | "Direct RKH Manual"
-  | undefined;
+export interface DCFlowSankeyProps {
+  snapshotDate?: Date;
+}
 
-type Allocator = z.infer<typeof allocatorSchema>;
-
-const acceptedAllocatorTypes = [
-  "Automatic",
-  "Manual",
-  "RFA",
-  "Novel allocator not on RFA",
-  "Market-based",
-  "Manual Pathway MetaAllocator",
-] as const;
-
-const acceptedAllocatorPathWays = [
-  "Automatic",
-  "Manual",
-  "RFA",
-  "Manual Pathway MetaAllocator",
-  "Experimental Pathway MetaAllocator",
-] as const;
-
-const allocatorSchema = z.object({
-  id: z.string().min(1),
-  name: z.string(),
-  type: z.enum(acceptedAllocatorTypes),
-  pathway: z.enum(acceptedAllocatorPathWays),
-  datacap: z.bigint(),
-});
+const mdmaAllocatorId = "f03358620";
 
 function sumAllocatorsDatacap(allocators: Allocator[]): bigint {
   return allocators.reduce(
-    (sum, allocator) => sum + allocator.datacap,
-    BigInt(0)
+    (sum, allocator) => sum + BigInt(allocator.datacap),
+    0n
   );
 }
 
-function* getIndex() {
-  let index = 1;
+function* createIndexGenerator(): Generator<number, number> {
+  let index = 0;
+
   while (true) {
     yield index++;
   }
 }
 
-function prepareAutomaticSankeyData(
-  allocators: Allocator[],
-  generator: Generator<number>,
-  openedSection: OpenedSection
-) {
-  const [restAllocators, faucetAllocator] = allocators.reduce<
-    [Allocator[], Allocator | void]
-  >(
-    (result, allocator) => {
-      const [currentAllocators, currentFaucetAllocator] = result;
-
-      if (allocator.pathway === "RFA" && allocator.type === "RFA") {
-        return [currentAllocators, allocator];
-      }
-
-      return [[...currentAllocators, allocator], currentFaucetAllocator];
+function getNodesFromTree(tree: TreeNode): Node[] {
+  return [
+    {
+      name: tree.name,
+      allocators: tree.allocators,
+      totalDatacap: sumAllocatorsDatacap(tree.allocators),
     },
-    [[], undefined]
-  );
-
-  const totalDatacap = sumAllocatorsDatacap(allocators);
-  const restAllocatorsDatacap = sumAllocatorsDatacap(restAllocators);
-
-  const rootId = generator.next().value as number;
-  const allocatorsId = generator.next().value as number;
-
-  const sankeyData = {
-    nodes: [
-      {
-        name: "Automatic",
-        allocators,
-        isHidden: false,
-        totalDatacap,
-        last: false,
-      },
-      {
-        name: "Direct RKH Automatic",
-        isHidden: false,
-        allocators: restAllocators,
-        totalDatacap: restAllocatorsDatacap,
-        last: true,
-      },
-    ],
-    links: [
-      { source: 0, target: rootId, value: Number(totalDatacap) },
-      {
-        source: rootId,
-        target: allocatorsId,
-        value: Number(restAllocatorsDatacap),
-      },
-    ],
-  };
-
-  if (faucetAllocator) {
-    const faucetId = generator.next().value as number;
-
-    sankeyData.nodes.push({
-      name: "Faucet",
-      isHidden: false,
-      allocators: [faucetAllocator],
-      totalDatacap: faucetAllocator.datacap,
-      last: false,
-    });
-    sankeyData.links.push({
-      source: rootId,
-      target: faucetId,
-      value: Number(faucetAllocator.datacap),
-    });
-
-    if (openedSection !== undefined) {
-      sankeyData.nodes.push({
-        name: "Faucet Alocators",
-        isHidden: true,
-        allocators: [],
-        totalDatacap: BigInt(0),
-        last: false,
-      });
-      sankeyData.links.push({
-        source: faucetId,
-        target: generator.next().value as number,
-        value: 0.1,
-      });
-    }
-  }
-
-  if (openedSection === "Direct RKH Automatic") {
-    for (const allocator of restAllocators) {
-      const allocatorId = generator.next().value as number;
-
-      sankeyData.nodes.push({
-        name: allocator.name,
-        isHidden: false,
-        allocators: [allocator],
-        totalDatacap: allocator.datacap,
-        last: false,
-      });
-      sankeyData.links.push({
-        source: allocatorsId,
-        target: allocatorId,
-        value: Number(allocator.datacap),
-      });
-    }
-  } else if (openedSection !== undefined) {
-    sankeyData.nodes.push({
-      name: "Automatic allocators Alocators",
-      isHidden: true,
-      allocators: [],
-      totalDatacap: BigInt(0),
-      last: false,
-    });
-    sankeyData.links.push({
-      source: allocatorsId,
-      target: generator.next().value as number,
-      value: 0.1,
-    });
-  }
-
-  return sankeyData;
+    ...tree.leafs.flatMap(getNodesFromTree),
+  ];
 }
 
-function prepareExperimentalSankeyData(
-  allocators: Allocator[],
-  generator: Generator<number>,
-  openedSection: OpenedSection
-) {
-  const experimentalPathwayMetaAllocator = allocators[0];
-  const experinemtalPathwayId = generator.next().value as number;
-  const experinemtalPathwayChildId = generator.next().value as number;
+function getLinksFromTree(
+  tree: TreeNode,
+  DONT_PASS__index_generator: Generator<
+    number,
+    number
+  > = createIndexGenerator(),
+  DONT_PASS__source: number = 0
+): Link[] {
+  const index = DONT_PASS__index_generator.next().value;
 
-  const sankeyData = {
-    nodes: [
-      {
-        name: "Experimental Pathway MetaAllocator",
-        allocators: [],
-        isHidden: false,
-        totalDatacap: BigInt(experimentalPathwayMetaAllocator?.datacap || 0),
-        last: false,
-      },
-      {
-        name: "Experimental Pathway MetaAllocator Child",
-        isHidden: true,
-        allocators: [],
-        totalDatacap: BigInt(1),
-        last: false,
-      },
-    ],
-    links: [
-      {
-        source: 0,
-        target: experinemtalPathwayId,
-        value: Number(experimentalPathwayMetaAllocator?.datacap || 0),
-      },
-      {
-        source: experinemtalPathwayId,
-        target: experinemtalPathwayChildId,
-        value: 1,
-      },
-    ],
-  };
+  if (index === 0) {
+    if (tree.leafs.length === 0) {
+      return [];
+    }
 
-  if (openedSection !== undefined) {
-    const experinemtalPathwayChildForOpenedId = generator.next()
-      .value as number;
-
-    sankeyData.nodes.push({
-      name: "Experimental Pathway MetaAllocator Child Nested",
-      isHidden: true,
-      allocators: [],
-      totalDatacap: BigInt(1),
-      last: false,
-    });
-
-    sankeyData.links.push({
-      source: experinemtalPathwayChildId,
-      target: experinemtalPathwayChildForOpenedId,
-      value: 1,
-    });
+    return tree.leafs.flatMap((leaf) =>
+      getLinksFromTree(leaf, DONT_PASS__index_generator, index)
+    );
   }
 
-  return sankeyData;
+  return [
+    {
+      source: DONT_PASS__source,
+      target: index,
+      value: Number(sumAllocatorsDatacap(tree.allocators)),
+    },
+    ...tree.leafs.flatMap((leaf) =>
+      getLinksFromTree(leaf, DONT_PASS__index_generator, index)
+    ),
+  ];
 }
 
-function prepareManualSankeyData(
-  allocators: Allocator[],
-  generator: Generator<number>,
-  openedSection: OpenedSection
-) {
-  const metaAllocators = allocators.filter(
-    (allocator) => allocator.pathway === "Manual Pathway MetaAllocator"
+function dcFlowDataToChartData(
+  dcFlowData: AllocatorsDCFlowData
+): ChartData | null {
+  const allAllocators = dcFlowData.data.filter((allocator) => {
+    if (
+      allocator.metapathwayType === null ||
+      allocator.applicationAudit === null
+    ) {
+      return false;
+    }
+
+    // Filter out MDMA as it is it's own category on the Sankey
+    if (allocator.allocatorId === mdmaAllocatorId) {
+      return false;
+    }
+
+    return true;
+  });
+
+  if (allAllocators.length === 0) {
+    return null;
+  }
+
+  const mdmaAllocators = allAllocators.filter(
+    (allocator) => allocator.metapathwayType === "MDMA"
   );
-  const restAllocators = allocators.filter(
-    (allocator) => allocator.pathway !== "Manual Pathway MetaAllocator"
-  );
 
-  const totalDatacap = sumAllocatorsDatacap(allocators);
-  const metaAllocatorDatacap = sumAllocatorsDatacap(metaAllocators);
-  const restAllocatorsDatacap = sumAllocatorsDatacap(restAllocators);
-
-  const rootId = generator.next().value as number;
-  const metaId = generator.next().value as number;
-  const allocatorsId = generator.next().value as number;
-
-  const sankeyData = {
-    nodes: [
-      {
-        name: "Manual",
-        isHidden: false,
-        allocators,
-        totalDatacap,
-        last: false,
-      },
+  const tree: TreeNode = {
+    name: "Root Key Holder",
+    allocators: allAllocators,
+    leafs: [
       {
         name: "MDMA",
-        isHidden: false,
-        allocators: metaAllocators,
-        totalDatacap: metaAllocatorDatacap,
-        last: true,
+        allocators: mdmaAllocators,
+        leafs: Object.entries(
+          mdmaAllocators.reduce<Record<string, Allocator[]>>(
+            (acc, allocator) => {
+              if (allocator.applicationAudit === null) {
+                return acc;
+              }
+
+              return {
+                ...acc,
+                [allocator.applicationAudit]: [
+                  ...(acc[allocator.applicationAudit] ?? []),
+                  allocator,
+                ],
+              };
+            },
+            {}
+          )
+        ).map<TreeNode>(([name, allocators]) => {
+          return {
+            name,
+            allocators,
+            leafs: [],
+            selectable: true,
+          };
+        }),
       },
       {
-        name: "Direct RKH Manual",
-        isHidden: false,
-        allocators: restAllocators,
-        totalDatacap: restAllocatorsDatacap,
-        last: true,
-      },
-    ],
-    links: [
-      { source: 0, target: rootId, value: Number(totalDatacap) },
-      {
-        source: rootId,
-        target: metaId,
-        value: Number(metaAllocatorDatacap),
+        name: "Automated",
+        allocators: allAllocators.filter(
+          (allocator) => allocator.applicationAudit === "Automated Allocator"
+        ),
+        leafs: [],
       },
       {
-        source: rootId,
-        target: allocatorsId,
-        value: Number(restAllocatorsDatacap),
+        name: "Direct RKH",
+        allocators: allAllocators.filter((allocator) => {
+          return (
+            allocator.metapathwayType === "RKH" &&
+            allocator.applicationAudit !== "Automated Allocator"
+          );
+        }),
+        leafs: [],
       },
     ],
   };
-
-  if (openedSection === "MDMA") {
-    for (const allocator of metaAllocators) {
-      const allocatorId = generator.next().value as number;
-      sankeyData.nodes.push({
-        name: allocator.name,
-        isHidden: false,
-        allocators: [allocator],
-        totalDatacap: allocator.datacap,
-        last: false,
-      });
-      sankeyData.links.push({
-        source: metaId,
-        target: allocatorId,
-        value: Number(allocator.datacap),
-      });
-    }
-  } else if (openedSection !== undefined) {
-    sankeyData.nodes.push({
-      name: "MDMA Alocators",
-      isHidden: true,
-      allocators: [],
-      totalDatacap: BigInt(0),
-      last: false,
-    });
-    sankeyData.links.push({
-      source: metaId,
-      target: generator.next().value as number,
-      value: 0.1,
-    });
-  }
-
-  if (openedSection === "Direct RKH Manual") {
-    for (const allocator of restAllocators) {
-      const allocatorId = generator.next().value as number;
-      sankeyData.nodes.push({
-        name: allocator.name,
-        isHidden: false,
-        allocators: [allocator],
-        totalDatacap: allocator.datacap,
-        last: false,
-      });
-      sankeyData.links.push({
-        source: allocatorsId,
-        target: allocatorId,
-        value: Number(allocator.datacap),
-      });
-    }
-  } else if (openedSection !== undefined) {
-    sankeyData.nodes.push({
-      name: "Manual Alocators",
-      isHidden: true,
-      allocators: [],
-      totalDatacap: BigInt(0),
-      last: false,
-    });
-    sankeyData.links.push({
-      source: allocatorsId,
-      target: generator.next().value as number,
-      value: 0.1,
-    });
-  }
-
-  return sankeyData;
-}
-
-function loadSankyData(
-  sheetData: IGoogleSheetResponse,
-  allocatorsData: IAllocatorsResponse,
-  openedSection: OpenedSection
-): Data {
-  const [headerRow, ...rows] = sheetData.values;
-  const _allocatorIdIndex = headerRow.indexOf("Allocator ID");
-  const _typeOfAllocatorIndex = headerRow.indexOf("Type of Allocator");
-  const _pathwayIndex = headerRow.indexOf("Pathway");
-  const _pathwayNameIndex = headerRow.indexOf("Pathway Name");
-
-  const allocators = rows
-    .map((row) => {
-      const allocatorId = row[_allocatorIdIndex];
-      const type = row[_typeOfAllocatorIndex];
-      const pathway = row[_pathwayIndex];
-      const pathwayName = row[_pathwayNameIndex];
-
-      const allocatorData = allocatorsData.data.find(
-        (candidateAllocator) =>
-          !!allocatorId && candidateAllocator.addressId === allocatorId
-      );
-
-      const maybeAllocator = {
-        id: allocatorId,
-        name: allocatorData?.name || pathwayName || allocatorId,
-        type,
-        pathway,
-        datacap: allocatorData
-          ? BigInt(allocatorData.initialAllowance)
-          : BigInt(0),
-      };
-
-      const result = allocatorSchema.safeParse(maybeAllocator);
-
-      return result.success ? result.data : null;
-    })
-    .filter(
-      (maybeAllocator): maybeAllocator is Allocator => maybeAllocator !== null
-    );
-
-  const totalDatacap = sumAllocatorsDatacap(allocators);
-
-  const sankeyData = {
-    nodes: [{ name: "Root Key Holder", allocators, totalDatacap, last: false }],
-    links: [],
-  };
-
-  const indexGenerator = getIndex();
-
-  const automaticData = prepareAutomaticSankeyData(
-    allocators.filter((allocator) =>
-      ["Automatic", "RFA"].includes(allocator.pathway)
-    ),
-    indexGenerator,
-    openedSection
-  );
-  const manualData = prepareManualSankeyData(
-    allocators.filter((allocator) => allocator.type === "Manual"),
-    indexGenerator,
-    openedSection
-  );
-
-  const experimentalData = prepareExperimentalSankeyData(
-    allocators.filter(
-      (allocator) => allocator.pathway === "Experimental Pathway MetaAllocator"
-    ),
-    indexGenerator,
-    openedSection
-  );
 
   return {
-    nodes: [
-      ...sankeyData.nodes,
-      ...automaticData.nodes,
-      ...manualData.nodes,
-      ...experimentalData.nodes,
-    ],
-    links: [
-      ...sankeyData.links,
-      ...automaticData.links,
-      ...manualData.links,
-      ...experimentalData.links,
-    ],
+    nodes: getNodesFromTree(tree),
+    links: getLinksFromTree(tree),
   };
 }
 
-const Node = ({ x, y, width, height, payload }: NodeProps) => {
-  if (isNaN(x) || isNaN(y) || payload.isHidden) {
-    return <g transform={`translate(${x},${y})`}></g>;
+export function DCFlowSankey({ snapshotDate }: DCFlowSankeyProps) {
+  const {
+    data: allocatorsDCFlowData,
+    error,
+    isLoading,
+  } = useAllocatorsDCFlow(snapshotDate);
+
+  if (error) {
+    console.warn(error);
   }
 
-  const { name, last } = payload;
+  const chartData = useMemo<ChartData | null>(() => {
+    if (!allocatorsDCFlowData) {
+      return null;
+    }
 
-  return (
-    <g transform={`translate(${x},${y})`} style={{ cursor: "pointer" }}>
-      <rect
-        x={-width}
-        y={-5}
-        width={width * 2}
-        rx={4}
-        height={height + 10}
-        cursor={!last ? "default" : "pointer"}
-        fill={!last ? "var(--color-horizon)" : "var(--color-dodger-blue)"}
-      />
-      <text
-        x={width * 1.5}
-        y={height / 2}
-        fill="black"
-        fontSize={12}
-        cursor={!last ? "default" : "pointer"}
-      >
-        {name}
-      </text>
-    </g>
-  );
-};
-
-function isOpenedSection(value: string | undefined): value is OpenedSection {
-  return (
-    value === "MDMA" ||
-    value === "Direct RKH Automatic" ||
-    value === "Direct RKH Manual" ||
-    value === undefined
-  );
-}
-
-export interface DCFlowSankeyProps {
-  sheetData: IGoogleSheetResponse;
-  allocatorsData: IAllocatorsResponse;
-}
-
-export function DCFlowSankey({ allocatorsData, sheetData }: DCFlowSankeyProps) {
-  const [openedSection, setOpenedSection] = useState<OpenedSection>(undefined);
-
-  const data = useMemo<Data>(() => {
-    return loadSankyData(sheetData, allocatorsData, openedSection);
-  }, [allocatorsData, sheetData, openedSection]);
+    return dcFlowDataToChartData(allocatorsDCFlowData);
+  }, [allocatorsDCFlowData]);
 
   const renderTooltipContent = useCallback(
     ({ payload }: TooltipProps<number, string>): ReactNode => {
@@ -548,6 +238,10 @@ export function DCFlowSankey({ allocatorsData, sheetData }: DCFlowSankeyProps) {
         return null;
       }
 
+      const allocatorsCount = Array.isArray(nodeData.allocators)
+        ? nodeData.allocators.length
+        : 0;
+
       return (
         <Card>
           <CardHeader>
@@ -555,10 +249,16 @@ export function DCFlowSankey({ allocatorsData, sheetData }: DCFlowSankeyProps) {
           </CardHeader>
           <CardContent>
             {typeof value !== "undefined" && (
-              <p>{convertBytesToIEC(value) + " Datacap"}</p>
+              <p>{filesize(value, { standard: "iec" }) + " Datacap"}</p>
             )}
-            {!!nodeData.last && Array.isArray(nodeData.allocators) && (
-              <p>{nodeData.allocators.length} Allocators</p>
+
+            {allocatorsCount > 0 && (
+              <>
+                <p>{allocatorsCount} Allocators</p>
+                <p className="text-xs text-muted-foreground mt-4">
+                  Click on the node to see more details
+                </p>
+              </>
             )}
           </CardContent>
         </Card>
@@ -567,57 +267,101 @@ export function DCFlowSankey({ allocatorsData, sheetData }: DCFlowSankeyProps) {
     []
   );
 
-  const handleClick = (data: {
-    payload: {
-      name: string;
-    };
-  }) => {
-    const { name } = data.payload;
+  return (
+    <div className="h-[600px] flex justify-center items-center">
+      {isLoading && <ChartLoader />}
 
-    if (!isOpenedSection(name)) {
-      return;
-    }
+      {!isLoading && !!error && (
+        <p className="text-center text-muted-foreground">
+          An error has occured. Please try again later.
+        </p>
+      )}
 
-    setOpenedSection((current) => {
-      if (current === name) {
-        return undefined;
-      }
+      {!isLoading && !error && !chartData && (
+        <p className="text-center text-muted-foreground">Nothing to show.</p>
+      )}
 
-      return name as OpenedSection;
-    });
-  };
+      {!isLoading && !error && !!chartData && (
+        <ResponsiveContainer width="100%" height={600}>
+          <Sankey
+            data={chartData}
+            node={CustomSankeyNode}
+            nodePadding={50}
+            iterations={0}
+            link={{ stroke: "var(--color-medium-turquoise)" }}
+            margin={{
+              left: 50,
+              right: 300,
+              top: 100,
+              bottom: 50,
+            }}
+          >
+            <Tooltip content={renderTooltipContent} />
+          </Sankey>
+        </ResponsiveContainer>
+      )}
+    </div>
+  );
+}
 
-  const aspect = useMemo(() => {
-    switch (openedSection) {
-      case "Direct RKH Automatic":
-        return 0.9;
-      case "MDMA":
-        return 0.5;
-      case "Direct RKH Manual":
-        return 0.5;
-      default:
-        return 2;
-    }
-  }, [openedSection]);
+function CustomSankeyNode({ x, y, width, height, payload }: NodeProps) {
+  if (isNaN(x) || isNaN(y)) {
+    return <g transform={`translate(${x},${y})`}></g>;
+  }
+
+  const { name, allocators, totalDatacap } = payload;
+  const clickable = allocators.length > 0;
+
+  const rectElement = (
+    <rect
+      x={-width}
+      y={-5}
+      width={width * 2}
+      rx={4}
+      height={height + 10}
+      cursor={!clickable ? "default" : "pointer"}
+      fill={!clickable ? "var(--color-horizon)" : "var(--color-dodger-blue)"}
+    />
+  );
 
   return (
-    <ResponsiveContainer width="100%" aspect={aspect}>
-      <Sankey
-        data={data}
-        node={Node}
-        nodePadding={50}
-        onClick={handleClick}
-        iterations={0}
-        link={{ stroke: "var(--color-medium-turquoise)" }}
-        margin={{
-          left: 50,
-          right: 300,
-          top: 100,
-          bottom: 50,
-        }}
-      >
-        <Tooltip content={renderTooltipContent} />
-      </Sankey>
-    </ResponsiveContainer>
+    <g transform={`translate(${x},${y})`}>
+      {clickable ? (
+        <Dialog>
+          <DialogTrigger asChild>{rectElement}</DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>{name}</DialogTitle>
+              <DialogDescription>
+                {filesize(totalDatacap, { standard: "iec" })} total datacap
+              </DialogDescription>
+            </DialogHeader>
+
+            <ul className="max-h-[500px] overflow-auto flex flex-col gap-2">
+              {allocators.map(({ allocatorId, allocatorName, datacap }) => (
+                <li key={allocatorId}>
+                  <div>
+                    <Button variant="link" asChild>
+                      <Link href={`/allocators/${allocatorId}`}>
+                        {allocatorName ?? allocatorId} ({allocatorId})
+                      </Link>
+                    </Button>
+                  </div>
+                  <div className="text-sm">
+                    <span className="text-muted-foreground">Datacap:</span>{" "}
+                    {filesize(datacap, { standard: "iec" })}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </DialogContent>
+        </Dialog>
+      ) : (
+        rectElement
+      )}
+      <text x={width * 1.5} y={height / 2} fill="black" fontSize={12}>
+        {name}
+      </text>
+    </g>
   );
 }
