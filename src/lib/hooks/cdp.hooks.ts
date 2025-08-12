@@ -676,7 +676,6 @@ function assertIsAllocatorsDCFlowData(
   const result = allocatorsDCFlowSchema.safeParse(input);
 
   if (!result.success) {
-    console.warn(result.error.errors);
     throw new TypeError(
       "Invalid response from CDP when fetching allocators DC Flow"
     );
