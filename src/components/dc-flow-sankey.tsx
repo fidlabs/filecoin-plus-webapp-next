@@ -210,10 +210,6 @@ export function DCFlowSankey({ snapshotDate }: DCFlowSankeyProps) {
     isLoading,
   } = useAllocatorsDCFlow(snapshotDate);
 
-  if (error) {
-    console.warn(error);
-  }
-
   const chartData = useMemo<ChartData | null>(() => {
     if (!allocatorsDCFlowData) {
       return null;
