@@ -361,7 +361,7 @@ const defaultActions = [
       "ipni",
       "misreporting",
     ],
-    link: "/compliance-data-portal/storage-providers/ipni-misreporting",
+    link: `/compliance-data-portal/storage-providers/ipni-misreporting`,
   },
   {
     name: "Compliance Data Portal - Storage Providers Client Diversity",

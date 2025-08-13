@@ -5,6 +5,8 @@ import {
   IPNIMisreportingHistoricalChartProps,
 } from "./components/ipni-misreporting-historical-chart";
 
+export const revalidate = 300;
+
 type ChartData = IPNIMisreportingHistoricalChartProps["data"];
 
 async function loadChartData(roundId: string | null): Promise<ChartData> {
@@ -31,8 +33,7 @@ export default async function IPNIMisreportingPage({
   searchParams?: { [key: string]: string | string[] | undefined };
 }) {
   const roundId = searchParams?.["editionId"] as string;
-
   const chartData = await loadChartData(roundId);
 
-  return <IPNIMisreportingHistoricalChart data={chartData} />;
+  return <IPNIMisreportingHistoricalChart data={chartData} roundId={roundId} />;
 }

@@ -3,8 +3,9 @@
 import { ChartWrapper } from "@/app/compliance-data-portal/components/chart-wrapper";
 import { EditionRoundCheckbox } from "@/app/compliance-data-portal/components/edition-round-checkbox";
 import { StackedBarGraph } from "@/app/compliance-data-portal/components/graphs/stacked-bar-graph";
+import { useSearchParamsFilters } from "@/lib/hooks/use-search-params-filters";
 import { useChartScale } from "@/lib/hooks/useChartScale";
-import { type ComponentProps, useMemo } from "react";
+import { type ComponentProps, useEffect, useMemo } from "react";
 
 type DataItem = ComponentProps<typeof StackedBarGraph>["data"][number];
 
@@ -20,13 +21,22 @@ interface ChartDataItem extends DataItem {
 
 export interface IPNIMisreportingHistoricalChartProps {
   data: ChartDataItem[];
+  roundId: string;
 }
 
 export function IPNIMisreportingHistoricalChart({
   data,
+  roundId,
 }: IPNIMisreportingHistoricalChartProps) {
   const { calcPercentage, scale, selectedScale, setSelectedScale } =
     useChartScale(10);
+  const { updateFilter } = useSearchParamsFilters();
+
+  useEffect(() => {
+    updateFilter("roundId", roundId, {
+      navigationMethod: "push",
+    });
+  }, [roundId]);
 
   const graphData = useMemo(() => {
     if (!calcPercentage) {
