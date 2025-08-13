@@ -15,6 +15,7 @@ import { IClientsResponse } from "@/lib/interfaces/dmob/client.interface";
 import { IStorageProvidersResponse } from "@/lib/interfaces/dmob/sp.interface";
 import { Separator } from "@/components/ui/separator";
 import { groupBy } from "lodash";
+import { DEFAULT_EDITION_ROUND_ID } from "@/lib/constants";
 
 interface Action {
   group: string;
@@ -361,7 +362,7 @@ const defaultActions = [
       "ipni",
       "misreporting",
     ],
-    link: "/compliance-data-portal/storage-providers/ipni-misreporting",
+    link: `/compliance-data-portal/storage-providers/ipni-misreporting`,
   },
   {
     name: "Compliance Data Portal - Storage Providers Client Diversity",

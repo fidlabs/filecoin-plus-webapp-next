@@ -6,8 +6,9 @@ import {
   ICDPUnifiedHistogram,
 } from "@/lib/interfaces/cdp/cdp.interface";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { dateToYearWeek, groupBy, isPlainObject, mapObject } from "../utils";
 import { CDP_API_URL } from "../constants";
+import { dateToYearWeek, groupBy, isPlainObject, mapObject } from "../utils";
+import { useEditionRound } from "../providers/edition-round-provider";
 
 type AllocatorSPSComplianceMetric =
   (typeof allocatorSPsComplianceMetrics)[number];
@@ -35,10 +36,14 @@ const useStorageProviderRetrievability = ({
   httpRetrievability = false,
   openDataOnly = false,
 }: UseStorageProviderRetrievabilityParameters) => {
+  const { selectedRound } = useEditionRound();
+
   const fetchData = useCallback(async () => {
     const searchParams = new URLSearchParams();
     searchParams.set("httpRetrievability", String(httpRetrievability));
     searchParams.set("openDataOnly", String(openDataOnly));
+
+    searchParams.set("roundId", selectedRound.id);
 
     const endpoint = `/stats/acc/providers/retrievability?${searchParams.toString()}`;
     const response = await fetch(`${CDP_API_URL}${endpoint}`);
@@ -48,7 +53,7 @@ const useStorageProviderRetrievability = ({
       count: data?.histogram?.total,
       buckets: data?.histogram?.results,
     } as ICDPUnifiedHistogram;
-  }, [httpRetrievability, openDataOnly]);
+  }, [httpRetrievability, openDataOnly, selectedRound.id]);
 
   const [data, setData] = useState<ICDPUnifiedHistogram | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
@@ -68,35 +73,14 @@ const useStorageProviderRetrievability = ({
 };
 
 const useStorageProviderNumberOfDeals = () => {
+  const { selectedRound } = useEditionRound();
+
   const fetchData = async () => {
-    const response = await fetch(`${CDP_API_URL}/stats/acc/providers/clients`);
-    const data = (await response.json()) as ICDPHistogram;
-    return {
-      count: data?.total,
-      buckets: data?.results,
-    } as ICDPUnifiedHistogram;
-  };
+    const searchParams = new URLSearchParams();
+    searchParams.set("roundId", selectedRound.id);
 
-  const [data, setData] = useState<ICDPUnifiedHistogram | undefined>(undefined);
-  const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    setIsLoading(true);
-    fetchData()
-      .then(setData)
-      .then(() => setIsLoading(false));
-  }, []);
-
-  return {
-    data,
-    isLoading,
-  };
-};
-
-const useStorageProviderBiggestDeal = () => {
-  const fetchData = async () => {
     const response = await fetch(
-      `${CDP_API_URL}/stats/acc/providers/biggest-client-distribution`
+      `${CDP_API_URL}/stats/acc/providers/clients?${searchParams.toString()}`
     );
     const data = (await response.json()) as ICDPHistogram;
     return {
@@ -113,7 +97,40 @@ const useStorageProviderBiggestDeal = () => {
     fetchData()
       .then(setData)
       .then(() => setIsLoading(false));
-  }, []);
+  }, [selectedRound.id]);
+
+  return {
+    data,
+    isLoading,
+  };
+};
+
+const useStorageProviderBiggestDeal = () => {
+  const { selectedRound } = useEditionRound();
+
+  const fetchData = async () => {
+    const searchParams = new URLSearchParams();
+    searchParams.set("roundId", selectedRound.id);
+
+    const response = await fetch(
+      `${CDP_API_URL}/stats/acc/providers/biggest-client-distribution?${searchParams.toString()}`
+    );
+    const data = (await response.json()) as ICDPHistogram;
+    return {
+      count: data?.total,
+      buckets: data?.results,
+    } as ICDPUnifiedHistogram;
+  };
+
+  const [data, setData] = useState<ICDPUnifiedHistogram | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    setIsLoading(true);
+    fetchData()
+      .then(setData)
+      .then(() => setIsLoading(false));
+  }, [selectedRound.id]);
 
   return {
     data,
@@ -130,19 +147,24 @@ const useAllocatorRetrievability = ({
   httpRetrievability = false,
   openDataOnly = false,
 }: UseAllocatorRetrievabilityParameters) => {
+  const { selectedRound } = useEditionRound();
+
   const fetchData = useCallback(async () => {
     const searchParams = new URLSearchParams();
     searchParams.set("httpRetrievability", String(httpRetrievability));
     searchParams.set("openDataOnly", String(openDataOnly));
+    searchParams.set("roundId", selectedRound.id);
+
     const endpoint = `/stats/acc/allocators/retrievability?${searchParams.toString()}`;
     const response = await fetch(`${CDP_API_URL}${endpoint}`);
     const data = (await response.json()) as ICDPHistogramResult;
+
     return {
       avgSuccessRatePct: data?.averageSuccessRate,
       count: data?.histogram?.total,
       buckets: data?.histogram?.results,
     } as ICDPUnifiedHistogram;
-  }, [httpRetrievability, openDataOnly]);
+  }, [httpRetrievability, openDataOnly, selectedRound.id]);
 
   const [data, setData] = useState<ICDPUnifiedHistogram | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
@@ -162,9 +184,14 @@ const useAllocatorRetrievability = ({
 };
 
 const useAllocatorBiggestDeal = () => {
+  const { selectedRound } = useEditionRound();
+
   const fetchData = async () => {
+    const searchParams = new URLSearchParams();
+    searchParams.set("roundId", selectedRound.id);
+
     const response = await fetch(
-      `${CDP_API_URL}/stats/acc/allocators/biggest-client-distribution`
+      `${CDP_API_URL}/stats/acc/allocators/biggest-client-distribution?${searchParams.toString()}`
     );
     const data = (await response.json()) as ICDPHistogram;
     return {
@@ -181,7 +208,7 @@ const useAllocatorBiggestDeal = () => {
     fetchData()
       .then(setData)
       .then(() => setIsLoading(false));
-  }, []);
+  }, [selectedRound.id]);
 
   return {
     data,
@@ -197,17 +224,24 @@ export const useAllocatorAndSPClientDiversity = (options: {
 }) => {
   const { threshold, mode = "count", asPercentage = false, apiMode } = options;
 
+  const { selectedRound } = useEditionRound();
+
   const [data, setData] = useState<ICDPUnifiedHistogram | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
 
   const fetchData = useCallback(async () => {
-    const response = await fetch(`${CDP_API_URL}/stats/acc/${apiMode}/clients`);
+    const searchParams = new URLSearchParams();
+    searchParams.set("roundId", selectedRound.id);
+
+    const response = await fetch(
+      `${CDP_API_URL}/stats/acc/${apiMode}/clients?${searchParams.toString()}`
+    );
     const data = (await response.json()) as ICDPHistogram;
     return {
       count: data?.total,
       buckets: data?.results,
     } as ICDPUnifiedHistogram;
-  }, [apiMode]);
+  }, [apiMode, selectedRound.id]);
 
   useEffect(() => {
     setIsLoading(true);
@@ -289,6 +323,8 @@ export function useAllocatorSPComplianceChartData(options: {
   type WeekResult = CDPAllocatorsSPsComplianceData["results"][number];
   type AllocatorData = WeekResult["allocators"][number];
 
+  const { selectedRound } = useEditionRound();
+
   const { threshold, mode = "count", asPercentage = false } = options;
   const [data, setData] = useState<CDPAllocatorsSPsComplianceData>();
   const [error, setError] = useState<Error>();
@@ -299,6 +335,7 @@ export function useAllocatorSPComplianceChartData(options: {
     setIsLoading(true);
 
     const fetchOptions = new URLSearchParams();
+
     fetchOptions.append(
       "retrievability",
       options?.retrievabilityMetric ? "true" : "false"
@@ -311,6 +348,8 @@ export function useAllocatorSPComplianceChartData(options: {
       "totalDealSize",
       options?.totalDealSizeMetric ? "true" : "false"
     );
+
+    fetchOptions.append("roundId", selectedRound.id);
 
     try {
       const response = await fetch(
@@ -330,11 +369,12 @@ export function useAllocatorSPComplianceChartData(options: {
     options?.numberOfClientsMetric,
     options?.retrievabilityMetric,
     options?.totalDealSizeMetric,
+    selectedRound.id,
   ]);
 
   useEffect(() => {
     loadData();
-  }, [loadData]);
+  }, [loadData, selectedRound.id]);
 
   const getComplianceByTreshold = useCallback(
     (allocatorData: AllocatorData): AllocatorSPSComplianceMetric => {
@@ -367,7 +407,7 @@ export function useAllocatorSPComplianceChartData(options: {
             );
       return asPercentage ? (value / total) * 100 : value;
     },
-    [asPercentage, mode]
+    [asPercentage, mode, selectedRound.id]
   );
 
   const chartData = useMemo<ChartData>(() => {
@@ -426,6 +466,7 @@ export function useProvidersComplianceChartData(options?: {
   const [data, setData] = useState<CDPProvidersComplianceData>();
   const [error, setError] = useState<Error>();
   const [isLoading, setIsLoading] = useState(false);
+  const { selectedRound } = useEditionRound();
 
   const loadData = useCallback(async () => {
     setError(undefined);
@@ -445,6 +486,8 @@ export function useProvidersComplianceChartData(options?: {
       options?.totalDealSizeMetric ? "true" : "false"
     );
 
+    fetchOptions.append("roundId", selectedRound.id);
+
     try {
       const response = await fetch(
         `${CDP_API_URL}/stats/acc/providers/compliance-data?${fetchOptions.toString()}`
@@ -463,11 +506,12 @@ export function useProvidersComplianceChartData(options?: {
     options?.numberOfClientsMetric,
     options?.retrievabilityMetric,
     options?.totalDealSizeMetric,
+    selectedRound.id,
   ]);
 
   useEffect(() => {
     loadData();
-  }, [loadData]);
+  }, [loadData, selectedRound.id]);
 
   const chartData = useMemo<ChartData>(() => {
     if (!data) {
@@ -507,7 +551,7 @@ export function useProvidersComplianceChartData(options?: {
         nonCompliantName: "Non Compliant",
       };
     });
-  }, [asPercentage, data, mode]);
+  }, [asPercentage, data, mode, selectedRound.id]);
 
   return {
     averageSuccessRate: data?.averageSuccessRate,
@@ -579,6 +623,7 @@ function assertIsAllocatorsSPsComplianceData(
 export {
   useAllocatorBiggestDeal,
   useAllocatorRetrievability,
+  useEditionRound,
   useStorageProviderBiggestDeal,
   useStorageProviderNumberOfDeals,
   useStorageProviderRetrievability,
