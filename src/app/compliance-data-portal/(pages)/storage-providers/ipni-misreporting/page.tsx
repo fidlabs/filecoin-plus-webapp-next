@@ -30,12 +30,9 @@ export default async function IPNIMisreportingPage({
 }: {
   searchParams?: { [key: string]: string | string[] | undefined };
 }) {
-  const roundId =
-    (searchParams?.["roundId"] as string) ||
-    process.env.NEXT_PUBLIC_DEFAULT_EDITION_ROUND_ID ||
-    "6"; // Default to round 6 if not specified
+  const roundId = (searchParams?.["roundId"] as string) || "6"; // Default to round 6 if not specified
 
   const chartData = await loadChartData(roundId);
 
-  return <IPNIMisreportingHistoricalChart data={chartData} roundId={roundId} />;
+  return <IPNIMisreportingHistoricalChart data={chartData} />;
 }

@@ -2,12 +2,12 @@ import { Navigation } from "@/app/compliance-data-portal/components/navigation";
 import { JsonLd } from "@/components/json.ld";
 import { PageTitle } from "@/components/ui/title";
 import { CdpProvider } from "@/lib/providers/cdp.provider";
+import { EditionRoundProvider } from "@/lib/providers/edition-round-provider";
 import { generatePageMetadata } from "@/lib/utils";
 import { Metadata } from "next";
 import { ReactNode } from "react";
 import { Dataset, WithContext } from "schema-dts";
 import { EditionRoundSelect } from "./components/edition-round-select";
-import { EditionRoundProvider } from "@/lib/providers/edition-round-provider";
 
 export const metadata: Metadata = generatePageMetadata({
   title: "Fil+ DataCap Stats | Compliance Overview",
@@ -159,10 +159,7 @@ const ComplianceLayout = ({
             <div className="flex-1">
               <EditionRoundProvider>
                 <div>
-                  <div className="flex items-center mb-4 bg-white rounded-md p-2">
-                    <span className="mr-2">Edition:</span>
-                    <EditionRoundSelect />
-                  </div>
+                  <EditionRoundSelect />
                   {children}
                 </div>
               </EditionRoundProvider>

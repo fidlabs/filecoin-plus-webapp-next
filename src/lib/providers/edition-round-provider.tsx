@@ -1,6 +1,7 @@
 "use client";
 
-import React, { createContext, ReactNode, useContext, useState } from "react";
+import { createContext, ReactNode, useContext } from "react";
+import { useSearchParamsFilters } from "../hooks/use-search-params-filters";
 
 export interface EditionRound {
   id: string;
@@ -9,9 +10,8 @@ export interface EditionRound {
 
 interface EditionRoundContextType {
   editionRounds: EditionRound[];
-  lastEditionRound: EditionRound;
-  selectedRound: EditionRound;
-  setRound: (round: EditionRound) => void;
+  selectedRoundId: string;
+  onRoundChange: (roundId: string) => void;
 }
 
 const EditionRoundContext = createContext<EditionRoundContextType | undefined>(
@@ -22,32 +22,37 @@ interface EditionRoundProviderProps {
   children: ReactNode;
 }
 
-export const EditionRoundProvider: React.FC<EditionRoundProviderProps> = ({
-  children,
-}) => {
-  const editionRounds: EditionRound[] = [
-    { id: "5", name: "Round 5" },
-    { id: "6", name: "Round 6" },
-  ];
+const editionRounds: EditionRound[] = [
+  { id: "5", name: "Round 5" },
+  { id: "6", name: "Round 6" },
+];
 
-  const lastEditionRound = editionRounds[editionRounds.length - 1];
-  const [round, setRound] = useState<EditionRound>(lastEditionRound);
+const lastEditionRound = editionRounds[editionRounds.length - 1];
+
+export function EditionRoundProvider({ children }: EditionRoundProviderProps) {
+  const { filters, updateFilter } = useSearchParamsFilters();
+
+  const onRoundChange = (value: string) => {
+    const selected = editionRounds.find((round) => round.id === value);
+    if (selected) {
+      updateFilter("roundId", selected.id, { navigationMethod: "push" });
+    }
+  };
 
   return (
     <EditionRoundContext.Provider
       value={{
         editionRounds,
-        lastEditionRound,
-        selectedRound: round,
-        setRound,
+        selectedRoundId: filters.roundId || lastEditionRound.id,
+        onRoundChange,
       }}
     >
       {children}
     </EditionRoundContext.Provider>
   );
-};
+}
 
-export const useEditionRound = (): EditionRoundContextType => {
+export function useEditionRound(): EditionRoundContextType {
   const context = useContext(EditionRoundContext);
   if (!context) {
     throw new Error(
@@ -55,4 +60,4 @@ export const useEditionRound = (): EditionRoundContextType => {
     );
   }
   return context;
-};
+}

@@ -1,14 +1,13 @@
 import {
-  CDPAllocatorsSPsComplianceData,
-  CDPProvidersComplianceData,
   ICDPHistogram,
   ICDPHistogramResult,
   ICDPUnifiedHistogram,
 } from "@/lib/interfaces/cdp/cdp.interface";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { z } from "zod";
 import { CDP_API_URL } from "../constants";
-import { dateToYearWeek, groupBy, isPlainObject, mapObject } from "../utils";
 import { useEditionRound } from "../providers/edition-round-provider";
+import { dateToYearWeek, groupBy, mapObject } from "../utils";
 
 type AllocatorSPSComplianceMetric =
   (typeof allocatorSPsComplianceMetrics)[number];
@@ -36,14 +35,14 @@ const useStorageProviderRetrievability = ({
   httpRetrievability = false,
   openDataOnly = false,
 }: UseStorageProviderRetrievabilityParameters) => {
-  const { selectedRound } = useEditionRound();
+  const { selectedRoundId } = useEditionRound();
 
   const fetchData = useCallback(async () => {
     const searchParams = new URLSearchParams();
     searchParams.set("httpRetrievability", String(httpRetrievability));
     searchParams.set("openDataOnly", String(openDataOnly));
 
-    searchParams.set("roundId", selectedRound.id);
+    searchParams.set("roundId", selectedRoundId);
 
     const endpoint = `/stats/acc/providers/retrievability?${searchParams.toString()}`;
     const response = await fetch(`${CDP_API_URL}${endpoint}`);
@@ -53,7 +52,7 @@ const useStorageProviderRetrievability = ({
       count: data?.histogram?.total,
       buckets: data?.histogram?.results,
     } as ICDPUnifiedHistogram;
-  }, [httpRetrievability, openDataOnly, selectedRound.id]);
+  }, [httpRetrievability, openDataOnly, selectedRoundId]);
 
   const [data, setData] = useState<ICDPUnifiedHistogram | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
@@ -73,11 +72,11 @@ const useStorageProviderRetrievability = ({
 };
 
 const useStorageProviderNumberOfDeals = () => {
-  const { selectedRound } = useEditionRound();
+  const { selectedRoundId } = useEditionRound();
 
   const fetchData = async () => {
     const searchParams = new URLSearchParams();
-    searchParams.set("roundId", selectedRound.id);
+    searchParams.set("roundId", selectedRoundId);
 
     const response = await fetch(
       `${CDP_API_URL}/stats/acc/providers/clients?${searchParams.toString()}`
@@ -97,7 +96,7 @@ const useStorageProviderNumberOfDeals = () => {
     fetchData()
       .then(setData)
       .then(() => setIsLoading(false));
-  }, [selectedRound.id]);
+  }, [selectedRoundId]);
 
   return {
     data,
@@ -106,11 +105,11 @@ const useStorageProviderNumberOfDeals = () => {
 };
 
 const useStorageProviderBiggestDeal = () => {
-  const { selectedRound } = useEditionRound();
+  const { selectedRoundId } = useEditionRound();
 
   const fetchData = async () => {
     const searchParams = new URLSearchParams();
-    searchParams.set("roundId", selectedRound.id);
+    searchParams.set("roundId", selectedRoundId);
 
     const response = await fetch(
       `${CDP_API_URL}/stats/acc/providers/biggest-client-distribution?${searchParams.toString()}`
@@ -130,7 +129,7 @@ const useStorageProviderBiggestDeal = () => {
     fetchData()
       .then(setData)
       .then(() => setIsLoading(false));
-  }, [selectedRound.id]);
+  }, [selectedRoundId]);
 
   return {
     data,
@@ -147,13 +146,13 @@ const useAllocatorRetrievability = ({
   httpRetrievability = false,
   openDataOnly = false,
 }: UseAllocatorRetrievabilityParameters) => {
-  const { selectedRound } = useEditionRound();
+  const { selectedRoundId } = useEditionRound();
 
   const fetchData = useCallback(async () => {
     const searchParams = new URLSearchParams();
     searchParams.set("httpRetrievability", String(httpRetrievability));
     searchParams.set("openDataOnly", String(openDataOnly));
-    searchParams.set("roundId", selectedRound.id);
+    searchParams.set("roundId", selectedRoundId);
 
     const endpoint = `/stats/acc/allocators/retrievability?${searchParams.toString()}`;
     const response = await fetch(`${CDP_API_URL}${endpoint}`);
@@ -164,7 +163,7 @@ const useAllocatorRetrievability = ({
       count: data?.histogram?.total,
       buckets: data?.histogram?.results,
     } as ICDPUnifiedHistogram;
-  }, [httpRetrievability, openDataOnly, selectedRound.id]);
+  }, [httpRetrievability, openDataOnly, selectedRoundId]);
 
   const [data, setData] = useState<ICDPUnifiedHistogram | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
@@ -184,11 +183,11 @@ const useAllocatorRetrievability = ({
 };
 
 const useAllocatorBiggestDeal = () => {
-  const { selectedRound } = useEditionRound();
+  const { selectedRoundId } = useEditionRound();
 
   const fetchData = async () => {
     const searchParams = new URLSearchParams();
-    searchParams.set("roundId", selectedRound.id);
+    searchParams.set("roundId", selectedRoundId);
 
     const response = await fetch(
       `${CDP_API_URL}/stats/acc/allocators/biggest-client-distribution?${searchParams.toString()}`
@@ -208,7 +207,7 @@ const useAllocatorBiggestDeal = () => {
     fetchData()
       .then(setData)
       .then(() => setIsLoading(false));
-  }, [selectedRound.id]);
+  }, [selectedRoundId]);
 
   return {
     data,
@@ -224,14 +223,14 @@ export const useAllocatorAndSPClientDiversity = (options: {
 }) => {
   const { threshold, mode = "count", asPercentage = false, apiMode } = options;
 
-  const { selectedRound } = useEditionRound();
+  const { selectedRoundId } = useEditionRound();
 
   const [data, setData] = useState<ICDPUnifiedHistogram | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
 
   const fetchData = useCallback(async () => {
     const searchParams = new URLSearchParams();
-    searchParams.set("roundId", selectedRound.id);
+    searchParams.set("roundId", selectedRoundId);
 
     const response = await fetch(
       `${CDP_API_URL}/stats/acc/${apiMode}/clients?${searchParams.toString()}`
@@ -241,7 +240,7 @@ export const useAllocatorAndSPClientDiversity = (options: {
       count: data?.total,
       buckets: data?.results,
     } as ICDPUnifiedHistogram;
-  }, [apiMode, selectedRound.id]);
+  }, [apiMode, selectedRoundId]);
 
   useEffect(() => {
     setIsLoading(true);
@@ -323,7 +322,7 @@ export function useAllocatorSPComplianceChartData(options: {
   type WeekResult = CDPAllocatorsSPsComplianceData["results"][number];
   type AllocatorData = WeekResult["allocators"][number];
 
-  const { selectedRound } = useEditionRound();
+  const { selectedRoundId } = useEditionRound();
 
   const { threshold, mode = "count", asPercentage = false } = options;
   const [data, setData] = useState<CDPAllocatorsSPsComplianceData>();
@@ -349,7 +348,7 @@ export function useAllocatorSPComplianceChartData(options: {
       options?.totalDealSizeMetric ? "true" : "false"
     );
 
-    fetchOptions.append("roundId", selectedRound.id);
+    fetchOptions.append("roundId", selectedRoundId);
 
     try {
       const response = await fetch(
@@ -369,12 +368,12 @@ export function useAllocatorSPComplianceChartData(options: {
     options?.numberOfClientsMetric,
     options?.retrievabilityMetric,
     options?.totalDealSizeMetric,
-    selectedRound.id,
+    selectedRoundId,
   ]);
 
   useEffect(() => {
     loadData();
-  }, [loadData, selectedRound.id]);
+  }, [loadData, selectedRoundId]);
 
   const getComplianceByTreshold = useCallback(
     (allocatorData: AllocatorData): AllocatorSPSComplianceMetric => {
@@ -396,18 +395,17 @@ export function useAllocatorSPComplianceChartData(options: {
   );
 
   const getChartValue = useCallback(
-    (allocatorsData: AllocatorData[], total: number) => {
+    (allocatorsData: AllocatorData[], total: bigint): number => {
       const value =
         mode === "count"
-          ? allocatorsData.length
-          : allocatorsData.reduce(
-              (sumOfDatacap, allocator) =>
-                sumOfDatacap + allocator.totalDatacap,
-              0
-            );
-      return asPercentage ? (value / total) * 100 : value;
+          ? BigInt(allocatorsData.length)
+          : allocatorsData.reduce((sumOfDatacap, allocator) => {
+              return sumOfDatacap + BigInt(allocator.totalDatacap);
+            }, 0n);
+
+      return asPercentage ? bigintToPercentage(value, total, 6) : Number(value);
     },
-    [asPercentage, mode, selectedRound.id]
+    [asPercentage, mode, selectedRoundId]
   );
 
   const chartData = useMemo<ChartData>(() => {
@@ -419,12 +417,10 @@ export function useAllocatorSPComplianceChartData(options: {
       const date = new Date(result.week);
       const total =
         mode === "count"
-          ? result.allocators.length
-          : result.allocators.reduce(
-              (sumOfDatacap, allocator) =>
-                sumOfDatacap + allocator.totalDatacap,
-              0
-            );
+          ? BigInt(result.allocators.length)
+          : result.allocators.reduce((sumOfDatacap, allocator) => {
+              return sumOfDatacap + BigInt(allocator.totalDatacap);
+            }, 0n);
       const grouped = groupBy(
         result.allocators,
         getComplianceByTreshold,
@@ -466,7 +462,7 @@ export function useProvidersComplianceChartData(options?: {
   const [data, setData] = useState<CDPProvidersComplianceData>();
   const [error, setError] = useState<Error>();
   const [isLoading, setIsLoading] = useState(false);
-  const { selectedRound } = useEditionRound();
+  const { selectedRoundId } = useEditionRound();
 
   const loadData = useCallback(async () => {
     setError(undefined);
@@ -486,7 +482,7 @@ export function useProvidersComplianceChartData(options?: {
       options?.totalDealSizeMetric ? "true" : "false"
     );
 
-    fetchOptions.append("roundId", selectedRound.id);
+    fetchOptions.append("roundId", selectedRoundId);
 
     try {
       const response = await fetch(
@@ -506,12 +502,12 @@ export function useProvidersComplianceChartData(options?: {
     options?.numberOfClientsMetric,
     options?.retrievabilityMetric,
     options?.totalDealSizeMetric,
-    selectedRound.id,
+    selectedRoundId,
   ]);
 
   useEffect(() => {
     loadData();
-  }, [loadData, selectedRound.id]);
+  }, [loadData, selectedRoundId]);
 
   const chartData = useMemo<ChartData>(() => {
     if (!data) {
@@ -520,26 +516,30 @@ export function useProvidersComplianceChartData(options?: {
 
     return data.results.map((result) => {
       const name = dateToYearWeek(result.week);
-      const totalDatacap =
-        result.compliantSpsTotalDatacap +
-        result.partiallyCompliantSpsTotalDatacap +
-        result.nonCompliantSpsTotalDatacap;
-      const divider = mode === "count" ? result.totalSps : totalDatacap;
-      const values: [number, number, number] =
+      const values: [bigint, bigint, bigint] =
         mode === "count"
           ? [
-              result.compliantSps,
-              result.partiallyCompliantSps,
-              result.nonCompliantSps,
+              BigInt(result.compliantSps),
+              BigInt(result.partiallyCompliantSps),
+              BigInt(result.nonCompliantSps),
             ]
           : [
-              result.compliantSpsTotalDatacap,
-              result.partiallyCompliantSpsTotalDatacap,
-              result.nonCompliantSpsTotalDatacap,
+              BigInt(result.compliantSpsTotalDatacap),
+              BigInt(result.partiallyCompliantSpsTotalDatacap),
+              BigInt(result.nonCompliantSpsTotalDatacap),
             ];
-      const [compliant, partiallyCompliant, nonCompliant] = asPercentage
-        ? values.map((value) => (value / divider) * 100)
-        : values;
+
+      const total = values.reduce((sum, value) => sum + value, 0n);
+
+      const [compliant, partiallyCompliant, nonCompliant] = values.map(
+        (value) => {
+          if (asPercentage) {
+            return bigintToPercentage(value, total, 6);
+          }
+
+          return Number(value);
+        }
+      );
 
       return {
         name,
@@ -551,7 +551,7 @@ export function useProvidersComplianceChartData(options?: {
         nonCompliantName: "Non Compliant",
       };
     });
-  }, [asPercentage, data, mode, selectedRound.id]);
+  }, [asPercentage, data, mode, selectedRoundId]);
 
   return {
     averageSuccessRate: data?.averageSuccessRate,
@@ -561,63 +561,88 @@ export function useProvidersComplianceChartData(options?: {
   };
 }
 
+const providersComplianceDataSchema = z.object({
+  averageSuccessRate: z.number(),
+  results: z.array(
+    z.object({
+      week: z.string(),
+      averageSuccessRate: z.number(),
+      compliantSps: z.number(),
+      partiallyCompliantSps: z.number(),
+      nonCompliantSps: z.number(),
+      totalSps: z.number(),
+      compliantSpsTotalDatacap: z.union([z.number(), z.string()]),
+      partiallyCompliantSpsTotalDatacap: z.union([z.number(), z.string()]),
+      nonCompliantSpsTotalDatacap: z.union([z.number(), z.string()]),
+    })
+  ),
+});
+
+export type CDPProvidersComplianceData = z.infer<
+  typeof providersComplianceDataSchema
+>;
+
 function assertIsProvidersComplianceData(
   input: unknown
 ): asserts input is CDPProvidersComplianceData {
-  const isProvidersComplianceData =
-    isPlainObject(input) &&
-    typeof input.averageSuccessRate === "number" &&
-    Array.isArray(input.results) &&
-    input.results.every((result) => {
-      return (
-        isPlainObject(result) &&
-        typeof result.week === "string" &&
-        typeof result.averageSuccessRate === "number" &&
-        typeof result.compliantSps === "number" &&
-        typeof result.partiallyCompliantSps === "number" &&
-        typeof result.nonCompliantSps === "number" &&
-        typeof result.totalSps === "number" &&
-        typeof result.compliantSpsTotalDatacap === "number" &&
-        typeof result.partiallyCompliantSpsTotalDatacap === "number" &&
-        typeof result.nonCompliantSpsTotalDatacap === "number"
-      );
-    });
+  const result = providersComplianceDataSchema.safeParse(input);
 
-  if (!isProvidersComplianceData) {
-    throw new TypeError("Invalid response from CDP");
+  if (!result.success) {
+    throw new TypeError(
+      "Invalid response from CDP when fetching providers compliance data"
+    );
   }
 }
+
+const allocatorsSPsComplianceDataSchema = z.object({
+  averageSuccessRate: z.number(),
+  results: z.array(
+    z.object({
+      week: z.string(),
+      averageSuccessRate: z.number(),
+      allocators: z.array(
+        z.object({
+          compliantSpsPercentage: z.number(),
+          partiallyCompliantSpsPercentage: z.number(),
+          nonCompliantSpsPercentage: z.number(),
+          totalSps: z.number(),
+          totalDatacap: z.union([z.string(), z.number()]),
+        })
+      ),
+    })
+  ),
+});
+
+export type CDPAllocatorsSPsComplianceData = z.infer<
+  typeof allocatorsSPsComplianceDataSchema
+>;
 
 function assertIsAllocatorsSPsComplianceData(
   input: unknown
 ): asserts input is CDPAllocatorsSPsComplianceData {
-  const isAllocatorsSPsComplianceData =
-    isPlainObject(input) &&
-    typeof input.averageSuccessRate === "number" &&
-    Array.isArray(input.results) &&
-    input.results.every((result) => {
-      return (
-        isPlainObject(result) &&
-        typeof result.week === "string" &&
-        typeof result.averageSuccessRate === "number" &&
-        Array.isArray(result.allocators) &&
-        result.allocators.every((allocator) => {
-          return (
-            typeof allocator.compliantSpsPercentage === "number" &&
-            typeof allocator.partiallyCompliantSpsPercentage === "number" &&
-            typeof allocator.nonCompliantSpsPercentage === "number" &&
-            typeof allocator.totalSps === "number" &&
-            typeof allocator.totalDatacap === "number"
-          );
-        })
-      );
-    });
+  const result = allocatorsSPsComplianceDataSchema.safeParse(input);
 
-  if (!isAllocatorsSPsComplianceData) {
+  if (!result.success) {
     throw new TypeError(
       "Invalid response from CDP when fetching allocators SPs compliance data"
     );
   }
+}
+
+function bigintToPercentage(
+  numerator: bigint,
+  denominator: bigint,
+  precision = 2
+): number {
+  if (denominator === 0n) {
+    return 0;
+  }
+
+  const precisionExponent = 10n ** BigInt(2 + precision);
+  const numeratorWithPrecision = numerator * precisionExponent;
+  const fraction = numeratorWithPrecision / denominator;
+
+  return Number(fraction) / Math.pow(10, precision);
 }
 
 export {

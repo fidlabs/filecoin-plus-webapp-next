@@ -400,39 +400,6 @@ export interface ICDPAgregatedIPNIReport {
   total: number;
 }
 
-export interface CDPProvidersComplianceData {
-  averageSuccessRate: number;
-  results: Array<{
-    /** ISO8601 */
-    week: string;
-    averageSuccessRate: number;
-    compliantSps: number;
-    partiallyCompliantSps: number;
-    nonCompliantSps: number;
-    totalSps: number;
-    compliantSpsTotalDatacap: number;
-    partiallyCompliantSpsTotalDatacap: number;
-    nonCompliantSpsTotalDatacap: number;
-  }>;
-}
-
-export interface CDPAllocatorsSPsComplianceData {
-  averageSuccessRate: number;
-  results: Array<{
-    /** ISO8601 */
-    week: string;
-    averageSuccessRate: number;
-    allocators: Array<{
-      id: string;
-      compliantSpsPercentage: number;
-      partiallyCompliantSpsPercentage: number;
-      nonCompliantSpsPercentage: number;
-      totalSps: number;
-      totalDatacap: number;
-    }>;
-  }>;
-}
-
 export interface CDPAllocatorsClientsData {
   total: number;
   results: {
