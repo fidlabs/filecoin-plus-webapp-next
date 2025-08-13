@@ -23,7 +23,7 @@ async function loadPageData(): Promise<PageData> {
     getAllocators({
       page: "1",
       limit: "10000",
-      showInactive: "true",
+      showInactive: "false",
     }),
   ]);
 
