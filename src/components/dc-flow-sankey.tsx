@@ -320,6 +320,8 @@ function CustomSankeyNode({ x, y, width, height, payload }: NodeProps) {
     />
   );
 
+  const totalDatacapString = filesize(totalDatacap, { standard: "iec" });
+
   return (
     <g transform={`translate(${x},${y})`}>
       {clickable ? (
@@ -329,7 +331,7 @@ function CustomSankeyNode({ x, y, width, height, payload }: NodeProps) {
             <DialogHeader>
               <DialogTitle>{name}</DialogTitle>
               <DialogDescription>
-                {filesize(totalDatacap, { standard: "iec" })} total datacap
+                {totalDatacapString} total datacap
               </DialogDescription>
             </DialogHeader>
 
@@ -355,8 +357,17 @@ function CustomSankeyNode({ x, y, width, height, payload }: NodeProps) {
       ) : (
         rectElement
       )}
-      <text x={width * 1.5} y={height / 2} fill="black" fontSize={12}>
+      <text
+        x={width * 1.5}
+        y={height / 2 - 7}
+        fill="black"
+        fontSize={14}
+        fontWeight={500}
+      >
         {name}
+      </text>
+      <text x={width * 1.5} y={height / 2 + 7} fill="black" fontSize={12}>
+        {totalDatacapString}
       </text>
     </g>
   );
