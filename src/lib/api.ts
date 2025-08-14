@@ -30,11 +30,10 @@ import * as z from "zod";
 import { CDP_API_URL } from "./constants";
 import { throwHTTPErrorOrSkip } from "./http-errors";
 import { objectToURLSearchParams } from "./utils";
+import { numericalStringSchema } from "./zod-extensions";
 
 const revalidate = 30;
 const apiUrl = "https://api.datacapstats.io/api";
-
-type NumericalString = `${number}`;
 
 export const fetchData = async (url: string) => {
   const headers = new Headers();
@@ -237,13 +236,6 @@ export const getGoogleSheetAuditTimeline = async () => {
   return (await fetchData(url)) as IGoogleSheetResponse;
 };
 
-const numericalStringRegex = /^[0-9]{1,}$/;
-const numericalStringSchema = z
-  .string()
-  .refine((input): input is NumericalString => {
-    return numericalStringRegex.test(input);
-  });
-
 // Entities old datacap
 const allocatorsOldDatacapResponseSchema = z.object({
   results: z.array(
@@ -373,8 +365,13 @@ function assertIsIPNIMisreportingHistoricalReponse(
   }
 }
 
-export async function fetchIPNIMisreportingHistoricalData(): Promise<IPNIMisreportingHistoricalReponse> {
-  const endpoint = `${CDP_API_URL}/stats/acc/providers/aggregated-ipni-status-weekly`;
+export async function fetchIPNIMisreportingHistoricalData(
+  roundId: string
+): Promise<IPNIMisreportingHistoricalReponse> {
+  const searchParams = new URLSearchParams();
+  searchParams.append("roundId", roundId);
+
+  const endpoint = `${CDP_API_URL}/stats/acc/providers/aggregated-ipni-status-weekly?${searchParams.toString()}`;
   const response = await fetch(endpoint);
 
   if (!response.ok) {
