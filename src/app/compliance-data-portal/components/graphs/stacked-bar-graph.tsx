@@ -180,7 +180,6 @@ export function StackedBarGraph({
                 strokeWidth: 1,
                 cursor: onBarClick ? "pointer" : "default",
               }}
-              barSize={haveAverageSuccessRate ? 20 : undefined}
               stackId="a"
               fill={
                 customPalette
