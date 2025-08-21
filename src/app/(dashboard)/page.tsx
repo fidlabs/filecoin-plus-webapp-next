@@ -7,7 +7,6 @@ import {
   getAllocators,
   getDataCapAllocationsWeekly,
   getDataCapAllocationsWeeklyByClient,
-  getGoogleSheetAuditSizes,
   getStats,
 } from "@/lib/api";
 import { WebPage, WithContext } from "schema-dts";
@@ -22,23 +21,17 @@ const page: WithContext<WebPage> = {
 };
 
 export default async function Home() {
-  const [
-    stats,
-    allocationWeekly,
-    allocationWeeklyByClient,
-    sheetData,
-    allocators,
-  ] = await Promise.all([
-    getStats(),
-    getDataCapAllocationsWeekly(),
-    getDataCapAllocationsWeeklyByClient(),
-    getGoogleSheetAuditSizes(),
-    getAllocators({
-      page: "1",
-      limit: "999999",
-      showInactive: "true",
-    }),
-  ]);
+  const [stats, allocationWeekly, allocationWeeklyByClient, allocators] =
+    await Promise.all([
+      getStats(),
+      getDataCapAllocationsWeekly(),
+      getDataCapAllocationsWeeklyByClient(),
+      getAllocators({
+        page: "1",
+        limit: "999999",
+        showInactive: "true",
+      }),
+    ]);
 
   return (
     <JsonLd data={page}>
@@ -57,7 +50,7 @@ export default async function Home() {
             allocationWeeklyByClient={allocationWeeklyByClient}
             allocators={allocators}
           />
-          <DatacapFlow allocatorsData={allocators} sheetData={sheetData} />
+          <DatacapFlow />
         </div>
       </main>
     </JsonLd>
