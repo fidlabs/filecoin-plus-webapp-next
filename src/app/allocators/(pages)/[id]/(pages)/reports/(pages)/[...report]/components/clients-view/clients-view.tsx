@@ -4,13 +4,32 @@ import { ClientsViewTable } from "@/app/allocators/(pages)/[id]/(pages)/reports/
 import { useReportsDetails } from "@/app/allocators/(pages)/[id]/(pages)/reports/(pages)/[...report]/providers/reports-details.provider";
 import { HealthCheck } from "@/components/health-check";
 import { useScrollObserver } from "@/lib/hooks/useScrollObserver";
-import { AllocatorReportCheckType } from "@/lib/interfaces/cdp/cdp.interface";
+import {
+  AllocatorReportCheckType,
+  ClientReportCheckType,
+} from "@/lib/interfaces/cdp/cdp.interface";
 import { cn } from "@/lib/utils";
 import { CheckIcon, TriangleAlertIcon } from "lucide-react";
 
 const checkTypes = [
   AllocatorReportCheckType.CLIENT_MULTIPLE_ALLOCATORS,
   AllocatorReportCheckType.CLIENT_NOT_ENOUGH_COPIES,
+
+  ClientReportCheckType.STORAGE_PROVIDER_DISTRIBUTION_ALL_LOCATED_IN_THE_SAME_REGION,
+  ClientReportCheckType.STORAGE_PROVIDER_DISTRIBUTION_PROVIDERS_EXCEED_PROVIDER_DEAL,
+  ClientReportCheckType.STORAGE_PROVIDER_DISTRIBUTION_PROVIDERS_EXCEED_MAX_DUPLICATION,
+  ClientReportCheckType.STORAGE_PROVIDER_DISTRIBUTION_PROVIDERS_UNKNOWN_LOCATION,
+  ClientReportCheckType.STORAGE_PROVIDER_DISTRIBUTION_PROVIDERS_RETRIEVABILITY_ZERO,
+  ClientReportCheckType.STORAGE_PROVIDER_DISTRIBUTION_PROVIDERS_RETRIEVABILITY_75,
+  ClientReportCheckType.DEAL_DATA_REPLICATION_LOW_REPLICA,
+  ClientReportCheckType.DEAL_DATA_REPLICATION_CID_SHARING,
+  ClientReportCheckType.STORAGE_PROVIDER_DISTRIBUTION_PROVIDERS_IPNI_MISREPORTING,
+  ClientReportCheckType.STORAGE_PROVIDER_DISTRIBUTION_PROVIDERS_IPNI_NOT_REPORTING,
+  ClientReportCheckType.MULTIPLE_ALLOCATORS,
+  ClientReportCheckType.NOT_ENOUGH_COPIES,
+  ClientReportCheckType.INACTIVITY,
+  ClientReportCheckType.UNIQ_DATA_SET_SIZE_TO_DECLARED,
+  ClientReportCheckType.DEAL_DATA_REPLICATION_HIGH_REPLICA,
 ];
 
 export function ClientsView() {
