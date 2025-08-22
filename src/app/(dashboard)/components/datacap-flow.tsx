@@ -1,29 +1,92 @@
 "use client";
 
 import { DCFlowSankey } from "@/components/dc-flow-sankey";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { IGoogleSheetResponse } from "@/lib/interfaces/cdp/google.interface";
-import { IAllocatorsResponse } from "@/lib/interfaces/dmob/allocator.interface";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { UTCDate } from "@date-fns/utc";
+import { padStart } from "lodash";
+import { ChangeEventHandler, useCallback, useState } from "react";
 
-interface IDatacapFlow {
-  sheetData: IGoogleSheetResponse;
-  allocatorsData: IAllocatorsResponse;
+const dateInputId = `dc_flow_snapshot_date`;
+
+function getUTCDateString(date: Date = new Date()) {
+  return [date.getUTCFullYear(), date.getUTCMonth() + 1, date.getUTCDate()]
+    .map((part) => padStart(String(part), 2, "0"))
+    .join("-");
 }
 
-const DatacapFlow = ({ sheetData, allocatorsData }: IDatacapFlow) => {
+export function DatacapFlow() {
+  const [dateInputValue, setDateInputValue] = useState("");
+
+  const handleSnapshotDateValueChange = useCallback<
+    ChangeEventHandler<HTMLInputElement>
+  >((event) => {
+    const dateString = event.target.value;
+
+    if (dateString === "") {
+      setDateInputValue(dateString);
+      return;
+    }
+
+    const date = new UTCDate(dateString);
+    const now = new UTCDate();
+    const nextDate = date > now ? now : date;
+
+    setDateInputValue(getUTCDateString(nextDate));
+  }, []);
+
+  const snapshotDate =
+    dateInputValue !== "" ? new UTCDate(dateInputValue) : undefined;
+
   return (
     <Card
       id="flowCharts"
       className="hidden w-full overflow-hidden h-auto lg:block mb-28"
     >
       <CardHeader>
-        <CardTitle>Datacap Flow</CardTitle>
+        <div>
+          <CardTitle className="flex-1">Datacap Flow</CardTitle>
+          <CardDescription>
+            This graph shows live how much DC runs through different
+            distribution pathways.
+          </CardDescription>
+        </div>
+        <div className="flex items-center space-x-2">
+          <label
+            className="text-sm text-muted-foreground"
+            htmlFor={dateInputId}
+          >
+            Select snapshot date:
+          </label>
+          <Input
+            id={dateInputId}
+            className="w-auto uppercase"
+            type="date"
+            max={getUTCDateString()}
+            value={dateInputValue}
+            onChange={handleSnapshotDateValueChange}
+          />
+        </div>
       </CardHeader>
-      <CardContent className="px-0 min-h-[900px]">
-        <DCFlowSankey sheetData={sheetData} allocatorsData={allocatorsData} />
+      <CardContent className="px-0">
+        <DCFlowSankey snapshotDate={snapshotDate} />
+        <p className="text-sm text-center text-muted-foreground">
+          Showing state as of{" "}
+          <strong className="font-semibold">
+            {(snapshotDate ?? new UTCDate()).toLocaleDateString("en-US", {
+              day: "numeric",
+              month: "long",
+              year: "numeric",
+            })}
+          </strong>
+        </p>
       </CardContent>
     </Card>
   );
-};
-
-export { DatacapFlow };
+}

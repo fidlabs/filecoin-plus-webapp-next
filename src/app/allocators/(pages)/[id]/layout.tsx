@@ -83,7 +83,7 @@ const AllocatorDetailsLayout = async ({
                 <span className="lg:hidden">Pulse</span>
                 <span className="hidden lg:inline">View on Filecoin Pulse</span>
               </FilecoinPulseButton>
-              {jsonUrl !== null && (
+              {jsonUrl != null && (
                 <GithubButton className="mb-1" url={jsonUrl}>
                   <span className="lg:hidden">GitHub</span>
                   <span className="hidden lg:inline">
