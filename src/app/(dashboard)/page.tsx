@@ -12,6 +12,8 @@ import {
 } from "@/lib/api";
 import { WebPage, WithContext } from "schema-dts";
 
+export const revalidate = 300;
+
 const page: WithContext<WebPage> = {
   "@context": "https://schema.org",
   "@type": "WebPage",
