@@ -1,8 +1,8 @@
 "use client";
-import { useStorageProviderBiggestDeal } from "@/lib/hooks/cdp.hooks";
-import { StackedBarGraph } from "@/app/compliance-data-portal/components/graphs/stacked-bar-graph";
 import { ChartWrapper } from "@/app/compliance-data-portal/components/chart-wrapper";
+import { StackedBarGraph } from "@/app/compliance-data-portal/components/graphs/stacked-bar-graph";
 import { useCDPChartDataEngine } from "@/app/compliance-data-portal/hooks/useCDPChartDataEngine";
+import { useStorageProviderBiggestDeal } from "@/lib/hooks/cdp.hooks";
 import { barTabs, dataTabs } from "@/lib/providers/cdp.provider";
 
 const StorageProviderBiggestAllocation = () => {
