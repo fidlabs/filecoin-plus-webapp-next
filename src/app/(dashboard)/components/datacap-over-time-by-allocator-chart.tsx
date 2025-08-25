@@ -197,6 +197,7 @@ export function DatacapOverTimeByAllocatorChart({
           <YAxis
             tickFormatter={formatYAxisTick}
             scale={scale === "log" ? scaleSymlog().constant(minValue) : scale}
+            fontSize={14}
           />
           <Tooltip content={renderTooltip} />=
           <Bar
