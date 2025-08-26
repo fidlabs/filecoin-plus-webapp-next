@@ -7,7 +7,7 @@ import {
 
 type ChartData = IPNIMisreportingHistoricalChartProps["data"];
 
-async function loadChartData(roundId: string): Promise<ChartData> {
+async function loadChartData(roundId: string | null): Promise<ChartData> {
   const apiData = await fetchIPNIMisreportingHistoricalData(roundId);
 
   const chartData: ChartData = apiData.results.map((item) => {
@@ -30,7 +30,7 @@ export default async function IPNIMisreportingPage({
 }: {
   searchParams?: { [key: string]: string | string[] | undefined };
 }) {
-  const roundId = (searchParams?.["roundId"] as string) || "6"; // Default to round 6 if not specified
+  const roundId = searchParams?.["editionId"] as string;
 
   const chartData = await loadChartData(roundId);
 

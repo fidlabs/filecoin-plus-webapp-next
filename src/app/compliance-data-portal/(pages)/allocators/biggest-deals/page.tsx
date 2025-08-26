@@ -4,6 +4,7 @@ import { StackedBarGraph } from "@/app/compliance-data-portal/components/graphs/
 import { ChartWrapper } from "@/app/compliance-data-portal/components/chart-wrapper";
 import { useCDPChartDataEngine } from "@/app/compliance-data-portal/hooks/useCDPChartDataEngine";
 import { barTabs, dataTabs } from "@/lib/providers/cdp.provider";
+import { EditionRoundCheckbox } from "@/app/compliance-data-portal/components/edition-round-checkbox";
 
 const AllocatorBiggestAllocation = () => {
   const {
@@ -28,40 +29,43 @@ const AllocatorBiggestAllocation = () => {
   const unit = currentDataTab === "Count" ? "allocator" : currentDataTab;
 
   return (
-    <ChartWrapper
-      title="Size Of The Biggest client allocation"
-      tabs={barTabs}
-      dataTabs={dataTabs}
-      currentDataTab={currentDataTab}
-      setCurrentDataTab={setCurrentDataTab}
-      currentTab={currentTab}
-      setCurrentTab={setCurrentTab}
-      id="BiggestDealsAllocator"
-      selectedScale={selectedScale}
-      setSelectedScale={setSelectedScale}
-      addons={[
-        {
-          name: "Total number of allocators",
-          value: data?.count,
-        },
-        {
-          name: "What's here?",
-          size: 2,
-          value:
-            "What % of the total data cap used comes from the single client",
-        },
-      ]}
-    >
-      <StackedBarGraph
+    <>
+      <EditionRoundCheckbox />
+      <ChartWrapper
+        title="Size Of The Biggest client allocation"
+        tabs={barTabs}
+        dataTabs={dataTabs}
         currentDataTab={currentDataTab}
-        customPalette={palette}
-        data={chartData}
-        usePercentage={usePercentage}
-        scale={scale}
-        isLoading={isLoading}
-        unit={unit}
-      />
-    </ChartWrapper>
+        setCurrentDataTab={setCurrentDataTab}
+        currentTab={currentTab}
+        setCurrentTab={setCurrentTab}
+        id="BiggestDealsAllocator"
+        selectedScale={selectedScale}
+        setSelectedScale={setSelectedScale}
+        addons={[
+          {
+            name: "Total number of allocators",
+            value: data?.count,
+          },
+          {
+            name: "What's here?",
+            size: 2,
+            value:
+              "What % of the total data cap used comes from the single client",
+          },
+        ]}
+      >
+        <StackedBarGraph
+          currentDataTab={currentDataTab}
+          customPalette={palette}
+          data={chartData}
+          usePercentage={usePercentage}
+          scale={scale}
+          isLoading={isLoading}
+          unit={unit}
+        />
+      </ChartWrapper>
+    </>
   );
 };
 

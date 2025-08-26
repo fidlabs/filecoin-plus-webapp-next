@@ -7,7 +7,6 @@ import { generatePageMetadata } from "@/lib/utils";
 import { Metadata } from "next";
 import { ReactNode } from "react";
 import { Dataset, WithContext } from "schema-dts";
-import { EditionRoundSelect } from "./components/edition-round-select";
 
 export const metadata: Metadata = generatePageMetadata({
   title: "Fil+ DataCap Stats | Compliance Overview",
@@ -157,12 +156,7 @@ const ComplianceLayout = ({
           <div className="mt-9 flex gap-5 w-full">
             <Navigation />
             <div className="flex-1">
-              <EditionRoundProvider>
-                <div>
-                  <EditionRoundSelect />
-                  {children}
-                </div>
-              </EditionRoundProvider>
+              <EditionRoundProvider>{children}</EditionRoundProvider>
             </div>
           </div>
         </CdpProvider>

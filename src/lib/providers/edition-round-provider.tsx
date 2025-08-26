@@ -10,8 +10,8 @@ export interface EditionRound {
 
 interface EditionRoundContextType {
   editionRounds: EditionRound[];
-  selectedRoundId: string;
-  onRoundChange: (roundId: string) => void;
+  selectedRoundId: string | null;
+  onRoundChange: (roundId: string | null) => void;
 }
 
 const EditionRoundContext = createContext<EditionRoundContextType | undefined>(
@@ -27,15 +27,17 @@ const editionRounds: EditionRound[] = [
   { id: "6", name: "Round 6" },
 ];
 
-const lastEditionRound = editionRounds[editionRounds.length - 1];
-
 export function EditionRoundProvider({ children }: EditionRoundProviderProps) {
   const { filters, updateFilter } = useSearchParamsFilters();
 
-  const onRoundChange = (value: string) => {
-    const selected = editionRounds.find((round) => round.id === value);
-    if (selected) {
-      updateFilter("roundId", selected.id, { navigationMethod: "push" });
+  const onRoundChange = (value: string | null) => {
+    if (!value) {
+      updateFilter("editionId", undefined, { navigationMethod: "push" });
+    } else {
+      const selected = editionRounds.find((round) => round.id === value);
+      if (selected) {
+        updateFilter("editionId", selected.id, { navigationMethod: "push" });
+      }
     }
   };
 
@@ -43,7 +45,7 @@ export function EditionRoundProvider({ children }: EditionRoundProviderProps) {
     <EditionRoundContext.Provider
       value={{
         editionRounds,
-        selectedRoundId: filters.roundId || lastEditionRound.id,
+        selectedRoundId: filters.editionId || null,
         onRoundChange,
       }}
     >

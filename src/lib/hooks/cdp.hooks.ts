@@ -42,7 +42,7 @@ const useStorageProviderRetrievability = ({
     searchParams.set("httpRetrievability", String(httpRetrievability));
     searchParams.set("openDataOnly", String(openDataOnly));
 
-    searchParams.set("roundId", selectedRoundId);
+    if (selectedRoundId) searchParams.set("editionId", selectedRoundId);
 
     const endpoint = `/stats/acc/providers/retrievability?${searchParams.toString()}`;
     const response = await fetch(`${CDP_API_URL}${endpoint}`);
@@ -76,7 +76,7 @@ const useStorageProviderNumberOfDeals = () => {
 
   const fetchData = async () => {
     const searchParams = new URLSearchParams();
-    searchParams.set("roundId", selectedRoundId);
+    if (selectedRoundId) searchParams.set("editionId", selectedRoundId);
 
     const response = await fetch(
       `${CDP_API_URL}/stats/acc/providers/clients?${searchParams.toString()}`
@@ -109,7 +109,7 @@ const useStorageProviderBiggestDeal = () => {
 
   const fetchData = async () => {
     const searchParams = new URLSearchParams();
-    searchParams.set("roundId", selectedRoundId);
+    if (selectedRoundId) searchParams.set("editionId", selectedRoundId);
 
     const response = await fetch(
       `${CDP_API_URL}/stats/acc/providers/biggest-client-distribution?${searchParams.toString()}`
@@ -152,7 +152,7 @@ const useAllocatorRetrievability = ({
     const searchParams = new URLSearchParams();
     searchParams.set("httpRetrievability", String(httpRetrievability));
     searchParams.set("openDataOnly", String(openDataOnly));
-    searchParams.set("roundId", selectedRoundId);
+    if (selectedRoundId) searchParams.set("editionId", selectedRoundId);
 
     const endpoint = `/stats/acc/allocators/retrievability?${searchParams.toString()}`;
     const response = await fetch(`${CDP_API_URL}${endpoint}`);
@@ -187,7 +187,7 @@ const useAllocatorBiggestDeal = () => {
 
   const fetchData = async () => {
     const searchParams = new URLSearchParams();
-    searchParams.set("roundId", selectedRoundId);
+    if (selectedRoundId) searchParams.set("editionId", selectedRoundId);
 
     const response = await fetch(
       `${CDP_API_URL}/stats/acc/allocators/biggest-client-distribution?${searchParams.toString()}`
@@ -230,7 +230,7 @@ export const useAllocatorAndSPClientDiversity = (options: {
 
   const fetchData = useCallback(async () => {
     const searchParams = new URLSearchParams();
-    searchParams.set("roundId", selectedRoundId);
+    if (selectedRoundId) searchParams.set("editionId", selectedRoundId);
 
     const response = await fetch(
       `${CDP_API_URL}/stats/acc/${apiMode}/clients?${searchParams.toString()}`
@@ -348,7 +348,7 @@ export function useAllocatorSPComplianceChartData(options: {
       options?.totalDealSizeMetric ? "true" : "false"
     );
 
-    fetchOptions.append("roundId", selectedRoundId);
+    if (selectedRoundId) fetchOptions.append("roundId", selectedRoundId);
 
     try {
       const response = await fetch(
@@ -482,7 +482,7 @@ export function useProvidersComplianceChartData(options?: {
       options?.totalDealSizeMetric ? "true" : "false"
     );
 
-    fetchOptions.append("roundId", selectedRoundId);
+    if (selectedRoundId) fetchOptions.append("roundId", selectedRoundId);
 
     try {
       const response = await fetch(

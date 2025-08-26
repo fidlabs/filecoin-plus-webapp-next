@@ -1,5 +1,6 @@
 "use client";
 import { ChartWrapper } from "@/app/compliance-data-portal/components/chart-wrapper";
+import { EditionRoundCheckbox } from "@/app/compliance-data-portal/components/edition-round-checkbox";
 import { StackedBarGraph } from "@/app/compliance-data-portal/components/graphs/stacked-bar-graph";
 import {
   ResponsiveHoverCard,
@@ -36,32 +37,35 @@ const ClientDiversitySP = () => {
   const unit = currentDataTab === "Count" ? "SP" : currentDataTab;
 
   return (
-    <ChartWrapper
-      title="SP Client Diversity"
-      id="ClientDiversitySP"
-      dataTabs={dataTabs}
-      currentDataTab={currentDataTab}
-      setCurrentDataTab={setCurrentDataTab}
-      selectedScale={selectedScale}
-      setSelectedScale={setSelectedScale}
-      additionalFilters={[
-        <ThresholdSelector
-          key="threshold"
-          threshold={threshold}
-          setThreshold={setThreshold}
-        />,
-      ]}
-    >
-      <StackedBarGraph
+    <>
+      <EditionRoundCheckbox />
+      <ChartWrapper
+        title="SP Client Diversity"
+        id="ClientDiversitySP"
+        dataTabs={dataTabs}
         currentDataTab={currentDataTab}
-        customPalette={gradientPalette("#FF5722", "#4CAF50", 3)}
-        usePercentage={usePercentage}
-        data={chartData}
-        scale={scale}
-        isLoading={isLoading}
-        unit={unit}
-      />
-    </ChartWrapper>
+        setCurrentDataTab={setCurrentDataTab}
+        selectedScale={selectedScale}
+        setSelectedScale={setSelectedScale}
+        additionalFilters={[
+          <ThresholdSelector
+            key="threshold"
+            threshold={threshold}
+            setThreshold={setThreshold}
+          />,
+        ]}
+      >
+        <StackedBarGraph
+          currentDataTab={currentDataTab}
+          customPalette={gradientPalette("#FF5722", "#4CAF50", 3)}
+          usePercentage={usePercentage}
+          data={chartData}
+          scale={scale}
+          isLoading={isLoading}
+          unit={unit}
+        />
+      </ChartWrapper>
+    </>
   );
 };
 
