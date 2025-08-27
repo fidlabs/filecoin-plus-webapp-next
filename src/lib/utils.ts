@@ -263,7 +263,7 @@ export function dateToYearWeek(input: Date | string): string {
 }
 
 export function objectToURLSearchParams(
-  input: Record<string, unknown>
+  input: Parameters<typeof Object.entries>[0]
 ): URLSearchParams {
   const params = new URLSearchParams();
 
@@ -295,4 +295,18 @@ export function stringToColor(input: string): string {
   }, 0);
 
   return `hsl(${hash % 360}, 90%, 60%)`;
+}
+
+const englishOrdinalRules = new Intl.PluralRules("en-US", { type: "ordinal" });
+const englishOrdinalSuffixesMap = new Map([
+  ["one", "st"],
+  ["two", "nd"],
+  ["few", "rd"],
+  ["other", "th"],
+]);
+
+export function formatEnglishOrdinals(input: number): string {
+  const rule = englishOrdinalRules.select(input);
+  const suffix = englishOrdinalSuffixesMap.get(rule);
+  return `${input}${suffix}`;
 }
