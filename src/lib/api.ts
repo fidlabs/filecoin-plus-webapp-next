@@ -373,8 +373,13 @@ function assertIsIPNIMisreportingHistoricalReponse(
   }
 }
 
-export async function fetchIPNIMisreportingHistoricalData(): Promise<IPNIMisreportingHistoricalReponse> {
-  const endpoint = `${CDP_API_URL}/stats/acc/providers/aggregated-ipni-status-weekly`;
+export async function fetchIPNIMisreportingHistoricalData(
+  roundId: string | null
+): Promise<IPNIMisreportingHistoricalReponse> {
+  const searchParams = new URLSearchParams();
+  if (roundId) searchParams.append("editionId", roundId);
+
+  const endpoint = `${CDP_API_URL}/stats/acc/providers/aggregated-ipni-status-weekly?${searchParams.toString()}`;
   const response = await fetch(endpoint);
 
   if (!response.ok) {

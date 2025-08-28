@@ -1,6 +1,7 @@
 "use client";
 
 import { ChartWrapper } from "@/app/compliance-data-portal/components/chart-wrapper";
+import { EditionRoundCheckbox } from "@/app/compliance-data-portal/components/edition-round-checkbox";
 import { StackedBarGraph } from "@/app/compliance-data-portal/components/graphs/stacked-bar-graph";
 import { useChartScale } from "@/lib/hooks/useChartScale";
 import { type ComponentProps, useMemo } from "react";
@@ -44,31 +45,35 @@ export function IPNIMisreportingHistoricalChart({
   }, [calcPercentage, data]);
 
   return (
-    <ChartWrapper
-      title="IPNI Misreporting Over Time"
-      id="IPNIMisreportingOverTime"
-      addons={[
-        {
-          name: "What's here?",
-          size: 3,
-          value: (
-            <p>
-              A chart showing Storage Providers IPNI reporting status over time.
-            </p>
-          ),
-        },
-      ]}
-      selectedScale={selectedScale}
-      setSelectedScale={setSelectedScale}
-    >
-      <StackedBarGraph
-        currentDataTab="Count"
-        data={graphData}
-        isLoading={false}
-        unit="SP"
-        scale={scale}
-        usePercentage={calcPercentage}
-      />
-    </ChartWrapper>
+    <>
+      <EditionRoundCheckbox />
+      <ChartWrapper
+        title="IPNI Misreporting Over Time"
+        id="IPNIMisreportingOverTime"
+        addons={[
+          {
+            name: "What's here?",
+            size: 3,
+            value: (
+              <p>
+                A chart showing Storage Providers IPNI reporting status over
+                time.
+              </p>
+            ),
+          },
+        ]}
+        selectedScale={selectedScale}
+        setSelectedScale={setSelectedScale}
+      >
+        <StackedBarGraph
+          currentDataTab="Count"
+          data={graphData}
+          isLoading={false}
+          unit="SP"
+          scale={scale}
+          usePercentage={calcPercentage}
+        />
+      </ChartWrapper>
+    </>
   );
 }

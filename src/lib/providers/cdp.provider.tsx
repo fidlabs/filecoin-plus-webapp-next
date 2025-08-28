@@ -1,12 +1,12 @@
 "use client";
 
+import { ICDPRange } from "@/lib/interfaces/cdp/cdp.interface";
 import {
   createContext,
   PropsWithChildren,
   useCallback,
   useContext,
 } from "react";
-import { ICDPRange } from "@/lib/interfaces/cdp/cdp.interface";
 
 export const barTabs = ["3 groups", "6 groups", "All"];
 export const dataTabs = ["PiB", "Count"];

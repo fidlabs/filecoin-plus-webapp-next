@@ -2,6 +2,7 @@ import { Navigation } from "@/app/compliance-data-portal/components/navigation";
 import { JsonLd } from "@/components/json.ld";
 import { PageTitle } from "@/components/ui/title";
 import { CdpProvider } from "@/lib/providers/cdp.provider";
+import { EditionRoundProvider } from "@/lib/providers/edition-round-provider";
 import { generatePageMetadata } from "@/lib/utils";
 import { Metadata } from "next";
 import { ReactNode } from "react";
@@ -154,7 +155,9 @@ const ComplianceLayout = ({
           <PageTitle>Compliance overview</PageTitle>
           <div className="mt-9 flex gap-5 w-full">
             <Navigation />
-            <div className="flex-1">{children}</div>
+            <div className="flex-1">
+              <EditionRoundProvider>{children}</EditionRoundProvider>
+            </div>
           </div>
         </CdpProvider>
       </main>

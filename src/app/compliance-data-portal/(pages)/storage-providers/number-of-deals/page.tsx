@@ -4,6 +4,7 @@ import { StackedBarGraph } from "@/app/compliance-data-portal/components/graphs/
 import { ChartWrapper } from "@/app/compliance-data-portal/components/chart-wrapper";
 import { useCDPChartDataEngine } from "@/app/compliance-data-portal/hooks/useCDPChartDataEngine";
 import { barTabs, dataTabs } from "@/lib/providers/cdp.provider";
+import { EditionRoundCheckbox } from "@/app/compliance-data-portal/components/edition-round-checkbox";
 
 const StorageProviderNumberOfAllocations = () => {
   const {
@@ -27,39 +28,42 @@ const StorageProviderNumberOfAllocations = () => {
   const unit = currentDataTab === "Count" ? "provider" : currentDataTab;
 
   return (
-    <ChartWrapper
-      title="Number of Allocations"
-      tabs={barTabs}
-      dataTabs={dataTabs}
-      currentDataTab={currentDataTab}
-      setCurrentDataTab={setCurrentDataTab}
-      currentTab={currentTab}
-      setCurrentTab={setCurrentTab}
-      id="NumberOfDealsSP"
-      selectedScale={selectedScale}
-      setSelectedScale={setSelectedScale}
-      addons={[
-        {
-          name: "Total number of providers",
-          value: data?.count,
-        },
-        {
-          name: "What's here?",
-          size: 2,
-          value: "Chart is showing how many client each provider has",
-        },
-      ]}
-    >
-      <StackedBarGraph
-        customPalette={palette}
-        usePercentage={usePercentage}
-        data={chartData}
-        scale={scale}
-        isLoading={isLoading}
-        unit={unit}
+    <>
+      <EditionRoundCheckbox />
+      <ChartWrapper
+        title="Number of Allocations"
+        tabs={barTabs}
+        dataTabs={dataTabs}
         currentDataTab={currentDataTab}
-      />
-    </ChartWrapper>
+        setCurrentDataTab={setCurrentDataTab}
+        currentTab={currentTab}
+        setCurrentTab={setCurrentTab}
+        id="NumberOfDealsSP"
+        selectedScale={selectedScale}
+        setSelectedScale={setSelectedScale}
+        addons={[
+          {
+            name: "Total number of providers",
+            value: data?.count,
+          },
+          {
+            name: "What's here?",
+            size: 2,
+            value: "Chart is showing how many client each provider has",
+          },
+        ]}
+      >
+        <StackedBarGraph
+          customPalette={palette}
+          usePercentage={usePercentage}
+          data={chartData}
+          scale={scale}
+          isLoading={isLoading}
+          unit={unit}
+          currentDataTab={currentDataTab}
+        />
+      </ChartWrapper>
+    </>
   );
 };
 
