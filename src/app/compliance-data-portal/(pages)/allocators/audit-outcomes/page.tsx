@@ -7,6 +7,8 @@ import {
   type AllocatorsAuditOutcomesChartProps,
 } from "./components/allocators-audit-outcomes-chart";
 
+export const revalidate = 300;
+
 interface PageProps {
   searchParams: Record<string, string | undefined>;
 }

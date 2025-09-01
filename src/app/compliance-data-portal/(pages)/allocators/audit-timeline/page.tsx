@@ -1,32 +1,88 @@
-"use client";
-import { useAuditTimeline } from "@/lib/hooks/google.hooks";
-import { ChartWrapper } from "@/app/compliance-data-portal/components/chart-wrapper";
-import { StackedBarGraph } from "@/app/compliance-data-portal/components/graphs/stacked-bar-graph";
-import { useState } from "react";
+import {
+  fetchAllocatorsAuditTimesByMonth,
+  fetchAllocatorsAuditTimesByRound,
+} from "@/lib/api";
+import {
+  AuditTimeChart,
+  AuditTimeChartProps,
+} from "./components/audit-times-chart";
 
-const AllocatorAuditTimeline = () => {
-  const [currentScale, setCurrentScale] = useState("linear");
+export const revalidate = 300;
 
-  const { results, loading } = useAuditTimeline(currentScale);
+interface PageProps {
+  searchParams: Record<string, string | undefined>;
+}
+
+interface PageData {
+  chartDataByRound: AuditTimeChartProps["chartDataByRound"];
+  chartDataByMonth: AuditTimeChartProps["chartDataByMonth"];
+}
+
+interface FetchPageDataParamters {
+  editionId?: number;
+}
+
+async function fetchPageData({
+  editionId,
+}: FetchPageDataParamters): Promise<PageData> {
+  const [auditTimesPerRound, auditTimesPerMonth] = await Promise.all([
+    fetchAllocatorsAuditTimesByRound({ editionId: editionId?.toString() }),
+    fetchAllocatorsAuditTimesByMonth({ editionId: editionId?.toString() }),
+  ]);
+
+  const roundsCount = Object.values(auditTimesPerRound).reduce(
+    (max, values) => {
+      return values === null ? max : Math.max(max, values.length);
+    },
+    0
+  );
+
+  const chartDataByRound: PageData["chartDataByRound"] = [
+    ...Array(roundsCount),
+  ].map((_, roundIndex) => {
+    return {
+      name: `Audit ${roundIndex + 1}`,
+      averageAllocationTimeSecs:
+        auditTimesPerRound.averageAllocationTimesSecs?.[roundIndex],
+      averageAuditTimeSecs:
+        auditTimesPerRound.averageAuditTimesSecs?.[roundIndex],
+      averageConversationTimeSecs:
+        auditTimesPerRound.averageConversationTimesSecs?.[roundIndex],
+    };
+  });
+
+  const chartDataByMonth: PageData["chartDataByMonth"] = auditTimesPerMonth.map(
+    (entry) => {
+      return {
+        name: new Date(entry.month).toLocaleDateString("en-US", {
+          month: "short",
+          year: "2-digit",
+        }),
+        averageAuditTimeSecs: entry.averageAuditTimeSecs,
+        averageAllocationTimeSecs: entry.averageAllocationTimeSecs,
+      };
+    }
+  );
+
+  return {
+    chartDataByRound,
+    chartDataByMonth,
+  };
+}
+
+export default async function AllocatorAuditTimesChart({
+  searchParams,
+}: PageProps) {
+  const { chartDataByRound, chartDataByMonth } = await fetchPageData({
+    editionId: searchParams.roundId
+      ? parseInt(searchParams.roundId, 10)
+      : undefined,
+  });
 
   return (
-    <ChartWrapper
-      title="Governance Compliance Audit Timeline"
-      id="AuditTimelineAllocator"
-      scales={["linear", "percent"]}
-      selectedScale={currentScale}
-      setSelectedScale={setCurrentScale}
-    >
-      <StackedBarGraph
-        currentDataTab={"Count"}
-        usePercentage={currentScale === "percent"}
-        data={results}
-        unit={"day"}
-        isLoading={loading}
-        customPalette={["#525252", "#66a61e"]}
-      />
-    </ChartWrapper>
+    <AuditTimeChart
+      chartDataByMonth={chartDataByMonth}
+      chartDataByRound={chartDataByRound}
+    />
   );
-};
-
-export default AllocatorAuditTimeline;
+}

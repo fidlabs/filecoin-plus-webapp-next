@@ -683,19 +683,18 @@ function assertIsAllocatorsAuditOutcomesResponse(
   const result = allocatorsAuditOutcomesResponseSchema.safeParse(input);
 
   if (!result.success) {
-    console.log(result.error.errors);
     throw new TypeError(
       "Invalid response from CDP API while fetching allocators audit outcomes"
     );
   }
 }
 
-export interface FetchAllocatorsAuditOutcomesParams {
+export interface FetchAllocatorsAuditOutcomesParameters {
   editionId?: string;
 }
 
 export async function fetchAllocatorsAuditOutcomes(
-  params: FetchAllocatorsAuditOutcomesParams
+  params: FetchAllocatorsAuditOutcomesParameters
 ): Promise<AllocatorsAuditOutcomesResponse> {
   const endpoint = `${CDP_API_URL}/allocators/audit-outcomes?${objectToURLSearchParams(params)}`;
   const response = await fetch(endpoint, { next: { revalidate: 300 } });
@@ -708,5 +707,100 @@ export async function fetchAllocatorsAuditOutcomes(
 
   const data = await response.json();
   assertIsAllocatorsAuditOutcomesResponse(data);
+  return data;
+}
+
+// ---- ALLOCATORS'S AUDIT TIMES BY ROUND
+const allocatorsAuditTimesByRoundEnum = z.enum([
+  "averageConversationTimesSecs",
+  "averageAuditTimesSecs",
+  "averageAllocationTimesSecs",
+]);
+
+const allocatorsAuditTimesByRoundResponseSchema = z.record(
+  allocatorsAuditTimesByRoundEnum,
+  z.array(z.number()).nullable()
+);
+
+export type AllocatorsAuditTimesByRoundResponse = z.infer<
+  typeof allocatorsAuditTimesByRoundResponseSchema
+>;
+
+function assertIsAllocatorsAuditTimesByRoundResponse(
+  input: unknown
+): asserts input is AllocatorsAuditTimesByRoundResponse {
+  const result = allocatorsAuditTimesByRoundResponseSchema.safeParse(input);
+
+  if (!result.success) {
+    throw new TypeError(
+      "Invalid response from CDP API while fetching allocators audit times by round"
+    );
+  }
+}
+
+export interface FetchAllocatorsAuditTimesByRoundParameters {
+  editionId?: string;
+}
+
+export async function fetchAllocatorsAuditTimesByRound(
+  params: FetchAllocatorsAuditOutcomesParameters
+): Promise<AllocatorsAuditTimesByRoundResponse> {
+  const endpoint = `${CDP_API_URL}/allocators/audit-times-by-round?${objectToURLSearchParams(params)}`;
+  const response = await fetch(endpoint, { next: { revalidate: 300 } });
+
+  if (!response.ok) {
+    throw new Error(
+      `CDP API returned status ${response.status} when fetching allocator's audit times by round; URL: ${endpoint}`
+    );
+  }
+
+  const data = await response.json();
+  assertIsAllocatorsAuditTimesByRoundResponse(data);
+  return data;
+}
+
+// ---- ALLOCATORS'S AUDIT TIMES BY MONTH
+const allocatorsAuditTimesByMonthResponseSchema = z.array(
+  z.object({
+    month: z.string(),
+    averageAuditTimeSecs: z.number(),
+    averageAllocationTimeSecs: z.number(),
+  })
+);
+
+export type AllocatorsAuditTimesByMonthResponse = z.infer<
+  typeof allocatorsAuditTimesByMonthResponseSchema
+>;
+
+function assertIsAllocatorsAuditTimesByMonthResponse(
+  input: unknown
+): asserts input is AllocatorsAuditTimesByMonthResponse {
+  const result = allocatorsAuditTimesByMonthResponseSchema.safeParse(input);
+
+  if (!result.success) {
+    throw new TypeError(
+      "Invalid response from CDP API while fetching allocators audit times by month"
+    );
+  }
+}
+
+export interface FetchAllocatorsAuditTimesByMonthParameters {
+  editionId?: string;
+}
+
+export async function fetchAllocatorsAuditTimesByMonth(
+  params: FetchAllocatorsAuditOutcomesParameters
+): Promise<AllocatorsAuditTimesByMonthResponse> {
+  const endpoint = `${CDP_API_URL}/allocators/audit-times-by-month?${objectToURLSearchParams(params)}`;
+  const response = await fetch(endpoint, { next: { revalidate: 300 } });
+
+  if (!response.ok) {
+    throw new Error(
+      `CDP API returned status ${response.status} when fetching allocator's audit times by month; URL: ${endpoint}`
+    );
+  }
+
+  const data = await response.json();
+  assertIsAllocatorsAuditTimesByMonthResponse(data);
   return data;
 }
