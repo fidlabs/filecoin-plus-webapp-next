@@ -1,6 +1,7 @@
 "use client";
 
 import { ChartWrapper } from "@/app/compliance-data-portal/components/chart-wrapper";
+import { EditionRoundSelect } from "@/app/compliance-data-portal/components/edition-round-select";
 import { AllocatorsAuditOutcomesResponse } from "@/lib/api";
 import { useCallback, useMemo, useState } from "react";
 import {
@@ -70,6 +71,7 @@ export function AllocatorsAuditOutcomesChart({
       selectedScale={currentScale}
       setCurrentTab={setCurrentTab}
       setSelectedScale={setCurrentScale}
+      additionalFilters={[<EditionRoundSelect />]}
     >
       <ResponsiveContainer width="100%" height={chartData.length * 30 + 60}>
         <BarChart

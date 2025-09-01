@@ -1,5 +1,6 @@
 "use client";
 
+import { EditionRoundSelect } from "@/app/compliance-data-portal/components/edition-round-select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useSearchParamsFilters } from "@/lib/hooks/use-search-params-filters";
 import { cn } from "@/lib/utils";
@@ -19,6 +20,9 @@ export function AuditStatesChartFilters({
 
   return (
     <div {...rest} className={cn("flex flex-wrap gap-x-4 gap-y-1", className)}>
+      <div>
+        <EditionRoundSelect label="Edition:" />
+      </div>
       <div className="flex gap-1 items-center">
         <Checkbox
           id="show-inactive"

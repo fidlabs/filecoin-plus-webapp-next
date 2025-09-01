@@ -74,8 +74,8 @@ export default async function AllocatorAuditTimesChart({
   searchParams,
 }: PageProps) {
   const { chartDataByRound, chartDataByMonth } = await fetchPageData({
-    editionId: searchParams.roundId
-      ? parseInt(searchParams.roundId, 10)
+    editionId: searchParams.editionId
+      ? parseInt(searchParams.editionId, 10)
       : undefined,
   });
 

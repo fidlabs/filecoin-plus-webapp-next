@@ -1,6 +1,7 @@
 "use client";
 
 import { ChartWrapper } from "@/app/compliance-data-portal/components/chart-wrapper";
+import { EditionRoundSelect } from "@/app/compliance-data-portal/components/edition-round-select";
 import { palette } from "@/lib/utils";
 import { useCallback, useMemo, useState } from "react";
 import {
@@ -56,6 +57,7 @@ export function AuditTimeChart({
       tabs={tabs}
       currentTab={tab}
       setCurrentTab={setTab}
+      additionalFilters={[<EditionRoundSelect />]}
     >
       <ResponsiveContainer
         width="100%"

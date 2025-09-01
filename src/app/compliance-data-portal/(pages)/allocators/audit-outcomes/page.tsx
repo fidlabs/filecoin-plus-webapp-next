@@ -61,7 +61,9 @@ export default async function AllocatorsAuditOutcomesPage({
   searchParams,
 }: PageProps) {
   const { dataByCount, dataByDatacap } = await fetchPageData({
-    editionId: searchParams.roundId ? parseInt(searchParams.roundId) : 6,
+    editionId: searchParams.editionId
+      ? parseInt(searchParams.editionId, 10)
+      : 6,
   });
 
   return (

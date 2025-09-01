@@ -42,8 +42,8 @@ export default async function AllocatorsAuditStatePage({
   searchParams,
 }: PageProps) {
   const auditStates = await loadData({
-    editionId: searchParams.roundId
-      ? parseInt(searchParams.roundId, 10)
+    editionId: searchParams.editionId
+      ? parseInt(searchParams.editionId, 10)
       : undefined,
     showInactive: searchParams.showInactive === "true",
     showAuditedOnly: searchParams.showAuditedOnly === "true",
