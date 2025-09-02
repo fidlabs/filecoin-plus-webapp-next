@@ -5,10 +5,7 @@ import { EditionRoundCheckbox } from "@/app/compliance-data-portal/components/ed
 import { StackedBarGraph } from "@/app/compliance-data-portal/components/graphs/stacked-bar-graph";
 import useWeeklyChartData from "@/app/compliance-data-portal/hooks/useWeeklyChartData";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  useEditionRound,
-  useStorageProviderRetrievability,
-} from "@/lib/hooks/cdp.hooks";
+import { useStorageProviderRetrievability } from "@/lib/hooks/cdp.hooks";
 import { useSearchParamsFilters } from "@/lib/hooks/use-search-params-filters";
 import { useChartScale } from "@/lib/hooks/useChartScale";
 import { barTabs, dataTabs } from "@/lib/providers/cdp.provider";
