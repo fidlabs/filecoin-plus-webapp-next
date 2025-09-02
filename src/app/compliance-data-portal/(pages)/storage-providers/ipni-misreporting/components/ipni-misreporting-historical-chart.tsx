@@ -36,7 +36,7 @@ export function IPNIMisreportingHistoricalChart({
     updateFilter("roundId", roundId, {
       navigationMethod: "push",
     });
-  }, [roundId]);
+  }, [roundId, updateFilter]);
 
   const graphData = useMemo(() => {
     if (!calcPercentage) {

@@ -71,7 +71,7 @@ export function AllocatorsAuditOutcomesChart({
       selectedScale={currentScale}
       setCurrentTab={setCurrentTab}
       setSelectedScale={setCurrentScale}
-      additionalFilters={[<EditionRoundSelect />]}
+      additionalFilters={[<EditionRoundSelect key="edition-round-select" />]}
     >
       <ResponsiveContainer width="100%" height={chartData.length * 30 + 60}>
         <BarChart

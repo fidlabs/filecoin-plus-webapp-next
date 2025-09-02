@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AllocatorsAuditStatesResponse } from "@/lib/api";
-import { formatEnglishOrdinals, palette } from "@/lib/utils";
+import { formatEnglishOrdinals } from "@/lib/utils";
 import { uniq } from "lodash";
 import { useCallback, useMemo } from "react";
 import {

@@ -10,7 +10,7 @@ export interface Link {
 
 type SankeyTreeExtras = Record<string, unknown>;
 
-export type SankeyTree<E extends SankeyTreeExtras = {}> = {
+export type SankeyTree<E extends SankeyTreeExtras = Record<string, never>> = {
   name: string;
   value: number;
   leafs: SankeyTree<E>[];
@@ -24,17 +24,17 @@ function* createIndexGenerator(): Generator<number, number> {
   }
 }
 
-export function getNodesFromSankeyTree<T extends SankeyTreeExtras = {}>(
-  tree: SankeyTree<T>
-): Array<Node & T> {
+export function getNodesFromSankeyTree<
+  T extends SankeyTreeExtras = Record<string, never>,
+>(tree: SankeyTree<T>): Array<Node & T> {
   const { name, leafs, ...restOfTree } = tree;
 
   return [
     {
       ...(restOfTree as unknown as T),
-      name: tree.name,
+      name,
     },
-    ...tree.leafs.flatMap(getNodesFromSankeyTree),
+    ...leafs.flatMap(getNodesFromSankeyTree),
   ];
 }
 

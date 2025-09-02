@@ -57,7 +57,7 @@ export function AuditTimeChart({
       tabs={tabs}
       currentTab={tab}
       setCurrentTab={setTab}
-      additionalFilters={[<EditionRoundSelect />]}
+      additionalFilters={[<EditionRoundSelect key="edition-round-select" />]}
     >
       <ResponsiveContainer
         width="100%"
