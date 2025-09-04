@@ -76,16 +76,6 @@ export function DatacapFlow() {
       </CardHeader>
       <CardContent className="px-0">
         <DCFlowSankey snapshotDate={snapshotDate} />
-        <p className="text-sm text-center text-muted-foreground">
-          Showing state as of{" "}
-          <strong className="font-semibold">
-            {(snapshotDate ?? new UTCDate()).toLocaleDateString("en-US", {
-              day: "numeric",
-              month: "long",
-              year: "numeric",
-            })}
-          </strong>
-        </p>
       </CardContent>
     </Card>
   );

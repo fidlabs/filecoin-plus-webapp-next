@@ -650,6 +650,7 @@ function bigintToPercentage(
 
 const allocatorsDCFlowSchema = z.object({
   cutoffDate: z.string().datetime(),
+  filPlusEditionId: z.number(),
   data: z.array(
     z.object({
       metapathwayType: z.enum(["MDMA", "RKH"]).nullable(),
@@ -659,6 +660,26 @@ const allocatorsDCFlowSchema = z.object({
           "Enterprise Data",
           "Automated Allocator",
           "Other",
+        ])
+        .nullable(),
+      pathway: z
+        .enum([
+          "Manual",
+          "Automatic",
+          "Market-based",
+          "RFA",
+          "Manual Pathway MetaAllocator",
+          "Experimental Pathway MetaAllocator",
+        ])
+        .nullable(),
+      typeOfAllocator: z
+        .enum([
+          "Manual Pathway MetaAllocator",
+          "Manual",
+          "Automatic",
+          "Market-based",
+          "RFA",
+          "Novel allocator not on RFA",
         ])
         .nullable(),
       allocatorId: z.string(),
@@ -676,6 +697,7 @@ function assertIsAllocatorsDCFlowData(
   const result = allocatorsDCFlowSchema.safeParse(input);
 
   if (!result.success) {
+    console.warn(result.error.errors);
     throw new TypeError(
       "Invalid response from CDP when fetching allocators DC Flow"
     );
@@ -684,9 +706,14 @@ function assertIsAllocatorsDCFlowData(
 
 export function useAllocatorsDCFlow(cutoffDate?: Date) {
   const fetcher = useCallback(async (url: string) => {
-    const response = await fetchData(url);
-    assertIsAllocatorsDCFlowData(response);
-    return response;
+    try {
+      const response = await fetchData(url);
+      assertIsAllocatorsDCFlowData(response);
+      return response;
+    } catch (error) {
+      console.warn(error);
+      throw error;
+    }
   }, []);
 
   const params = new URLSearchParams();

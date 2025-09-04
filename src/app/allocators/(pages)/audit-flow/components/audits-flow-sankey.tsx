@@ -18,7 +18,7 @@ import {
   Node,
   SankeyTree,
 } from "@/lib/sankey-utils";
-import { isPlainObject } from "@/lib/utils";
+import { isPlainObject, partition } from "@/lib/utils";
 import NextLink from "next/link";
 import { ReactNode, useCallback, useMemo } from "react";
 import {
@@ -71,18 +71,6 @@ interface NodeProps {
 
 export interface AuditsFlowSankeyProps {
   data: AllocatorsAuditStatesResponse;
-}
-
-function partition<T>(input: T[], matchFn: (item: T) => boolean): [T[], T[]] {
-  return input.reduce<[T[], T[]]>(
-    ([matching, notMatching], item) => {
-      const matches = matchFn(item);
-      const nextMatching = matches ? [...matching, item] : matching;
-      const nextNotMatching = matches ? notMatching : [...notMatching, item];
-      return [nextMatching, nextNotMatching];
-    },
-    [[], []]
-  );
 }
 
 function getTreeNameForOutcome(outcome: AuditOutcome): string {
