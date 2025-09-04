@@ -204,6 +204,21 @@ export function isPlainObject(
   return !!input && typeof input === "object" && !Array.isArray(input);
 }
 
+export function partition<T>(
+  input: T[],
+  matchFn: (item: T) => boolean
+): [T[], T[]] {
+  return input.reduce<[T[], T[]]>(
+    ([matching, notMatching], item) => {
+      const matches = matchFn(item);
+      const nextMatching = matches ? [...matching, item] : matching;
+      const nextNotMatching = matches ? notMatching : [...notMatching, item];
+      return [nextMatching, nextNotMatching];
+    },
+    [[], []]
+  );
+}
+
 export function groupBy<
   T,
   Key extends string,
