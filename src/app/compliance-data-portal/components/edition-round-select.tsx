@@ -7,25 +7,51 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useEditionRound } from "@/lib/hooks/cdp.hooks";
+import { useSearchParamsFilters } from "@/lib/hooks/use-search-params-filters";
+import { useCallback, type ReactNode } from "react";
 
-export function EditionRoundSelect() {
-  const { selectedRoundId, onRoundChange, editionRounds } = useEditionRound();
+type Round = (typeof rounds)[number];
+
+export interface EditionRoundSelectProps {
+  defaultValue?: Round;
+  label?: ReactNode;
+  queryParamName?: string;
+}
+
+const rounds = ["5", "6"] as const;
+const availableValues = rounds as unknown as string[];
+
+export function EditionRoundSelect({
+  defaultValue = "6",
+  label = null,
+  queryParamName = "editionId",
+}: EditionRoundSelectProps) {
+  const { filters, updateFilter } = useSearchParamsFilters();
+  const value =
+    !!filters[queryParamName] &&
+    availableValues.includes(filters[queryParamName])
+      ? filters[queryParamName]
+      : defaultValue;
+
+  const handleRoundChange = useCallback(
+    (value: string) => {
+      updateFilter(queryParamName, value);
+    },
+    [updateFilter, queryParamName]
+  );
 
   return (
-    <div className="flex items-center mb-4 bg-white rounded-md p-6">
-      <span className="mr-2">Edition:</span>
-      <Select
-        value={selectedRoundId ?? editionRounds[editionRounds.length - 1].id}
-        onValueChange={onRoundChange}
-      >
+    <div className="flex items-center">
+      {!!label && <span className="mr-2">{label}</span>}
+
+      <Select value={value} onValueChange={handleRoundChange}>
         <SelectTrigger className="bg-white text-black border border-gray-300 hover:bg-gray-100 gap-2">
-          <SelectValue placeholder="test" />
+          <SelectValue placeholder="Select edition round..." />
         </SelectTrigger>
         <SelectContent>
-          {editionRounds.map((round) => (
-            <SelectItem key={`round_${round.id}`} value={round.id}>
-              {round.name}
+          {availableValues.map((round) => (
+            <SelectItem key={`select_item_round_${round}`} value={round}>
+              Round {round}
             </SelectItem>
           ))}
         </SelectContent>

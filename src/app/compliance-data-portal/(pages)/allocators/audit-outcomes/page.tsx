@@ -1,76 +1,75 @@
-"use client";
-import { useGoogleTrustLevels } from "@/lib/hooks/google.hooks";
-import { ChartWrapper } from "@/app/compliance-data-portal/components/chart-wrapper";
-import { StackedBarGraph } from "@/app/compliance-data-portal/components/graphs/stacked-bar-graph";
-import { useState } from "react";
+import {
+  type AllocatorsAuditOutcomesResponse,
+  fetchAllocatorsAuditOutcomes,
+} from "@/lib/api";
+import {
+  AllocatorsAuditOutcomesChart,
+  type AllocatorsAuditOutcomesChartProps,
+} from "./components/allocators-audit-outcomes-chart";
 
-const AllocatorTrustLevels = () => {
-  const [currentScale, setCurrentScale] = useState("linear");
-  const [currentTab, setCurrentTab] = useState("PiB");
+export const revalidate = 300;
 
-  const { results, loading } = useGoogleTrustLevels(currentScale, currentTab);
+interface PageProps {
+  searchParams: Record<string, string | undefined>;
+}
 
-  const unit = currentTab === "Count" ? "allocator" : currentTab;
+type Entry = AllocatorsAuditOutcomesResponse[number];
+type ChartEntry = AllocatorsAuditOutcomesChartProps["dataByCount"][number];
+
+interface PageData {
+  dataByCount: AllocatorsAuditOutcomesChartProps["dataByCount"];
+  dataByDatacap: AllocatorsAuditOutcomesChartProps["dataByDatacap"];
+}
+
+interface FetchPageDataParams {
+  editionId: number;
+}
+
+function entryToChartEntry(
+  entry: Entry,
+  type: "datacap" | "count"
+): ChartEntry {
+  const values = entry[type];
+
+  return {
+    month: new Date(entry.month).toLocaleDateString("en-US", {
+      month: "short",
+      year: "2-digit",
+    }),
+    unknown: values.unknown,
+    failed: values.failed,
+    passedConditionally: values.passedConditionally,
+    passed: values.passed,
+    notAudited: values.notAudited,
+  };
+}
+
+async function fetchPageData({
+  editionId,
+}: FetchPageDataParams): Promise<PageData> {
+  const response = await fetchAllocatorsAuditOutcomes({
+    editionId: String(editionId),
+  });
+
+  return {
+    dataByCount: response.map((entry) => entryToChartEntry(entry, "count")),
+    dataByDatacap: response.map((entry) => entryToChartEntry(entry, "datacap")),
+  };
+}
+
+export default async function AllocatorsAuditOutcomesPage({
+  searchParams,
+}: PageProps) {
+  const { dataByCount, dataByDatacap } = await fetchPageData({
+    editionId: searchParams.editionId
+      ? parseInt(searchParams.editionId, 10)
+      : 6,
+  });
 
   return (
-    <ChartWrapper
-      title="Governance Compliance Audit Outcomes"
-      id="AuditOutcomesAllocator"
-      tabs={["PiB", "Count"]}
-      scales={["linear", "percent"]}
-      currentTab={currentTab}
-      selectedScale={currentScale}
-      setCurrentTab={setCurrentTab}
-      setSelectedScale={setCurrentScale}
-      addons={[
-        {
-          name: "What is this chart",
-          size: 3,
-          expandable: true,
-          defaultExpanded: false,
-          value: (
-            <div>
-              <ul className="list-disc">
-                <p className="mb-1">
-                  The Fil+ Governance Team conducts audits of the Allocators
-                  when an Allocator is at 75% of DataCap tranche usage. Based on
-                  the historical behaviour of the Allocator, the team decides
-                  the size of the next allocation of Data Cap:
-                </p>
-                <li className="ml-4">
-                  If the Allocator showed compliance, they will receive the same
-                  or double the previous DataCap allocation.
-                </li>
-                <li className="ml-4">
-                  If the Allocator breached some of their rules, the Governance
-                  Team may decide they are partially compliant and allocate half
-                  of the previous allocation, giving an Allocator a chance to
-                  build up trust again.
-                </li>
-                <li className="ml-4">
-                  If the Allocator exhibited gross misconduct, they will be
-                  deemed non-compliant and will not receive any more DataCap.
-                </li>
-                <li className="ml-4">
-                  Non audited Allocators have not yet used up their initial
-                  5PiBs of DataCap allocation”
-                </li>
-              </ul>
-            </div>
-          ),
-        },
-      ]}
-    >
-      <StackedBarGraph
-        currentDataTab={currentTab}
-        usePercentage={currentScale === "percent"}
-        data={results}
-        unit={unit}
-        isLoading={loading}
-        customPalette={["#525252", "#ff0029", "#cf8c00", "#66a61e"]}
-      />
-    </ChartWrapper>
+    <AllocatorsAuditOutcomesChart
+      dataByCount={dataByCount}
+      dataByDatacap={dataByDatacap}
+    />
   );
-};
-
-export default AllocatorTrustLevels;
+}

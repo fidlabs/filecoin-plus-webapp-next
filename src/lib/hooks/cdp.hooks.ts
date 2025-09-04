@@ -74,7 +74,7 @@ const useStorageProviderRetrievability = ({
 const useStorageProviderNumberOfDeals = () => {
   const { selectedRoundId } = useEditionRound();
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     const searchParams = new URLSearchParams();
     if (selectedRoundId) searchParams.set("editionId", selectedRoundId);
 
@@ -86,7 +86,7 @@ const useStorageProviderNumberOfDeals = () => {
       count: data?.total,
       buckets: data?.results,
     } as ICDPUnifiedHistogram;
-  };
+  }, [selectedRoundId]);
 
   const [data, setData] = useState<ICDPUnifiedHistogram | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
@@ -96,7 +96,7 @@ const useStorageProviderNumberOfDeals = () => {
     fetchData()
       .then(setData)
       .then(() => setIsLoading(false));
-  }, [selectedRoundId]);
+  }, [fetchData, selectedRoundId]);
 
   return {
     data,
@@ -107,7 +107,7 @@ const useStorageProviderNumberOfDeals = () => {
 const useStorageProviderBiggestDeal = () => {
   const { selectedRoundId } = useEditionRound();
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     const searchParams = new URLSearchParams();
     if (selectedRoundId) searchParams.set("editionId", selectedRoundId);
 
@@ -119,7 +119,7 @@ const useStorageProviderBiggestDeal = () => {
       count: data?.total,
       buckets: data?.results,
     } as ICDPUnifiedHistogram;
-  };
+  }, [selectedRoundId]);
 
   const [data, setData] = useState<ICDPUnifiedHistogram | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
@@ -129,7 +129,7 @@ const useStorageProviderBiggestDeal = () => {
     fetchData()
       .then(setData)
       .then(() => setIsLoading(false));
-  }, [selectedRoundId]);
+  }, [fetchData, selectedRoundId]);
 
   return {
     data,
@@ -185,7 +185,7 @@ const useAllocatorRetrievability = ({
 const useAllocatorBiggestDeal = () => {
   const { selectedRoundId } = useEditionRound();
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     const searchParams = new URLSearchParams();
     if (selectedRoundId) searchParams.set("editionId", selectedRoundId);
 
@@ -197,7 +197,7 @@ const useAllocatorBiggestDeal = () => {
       count: data?.total,
       buckets: data?.results,
     } as ICDPUnifiedHistogram;
-  };
+  }, [selectedRoundId]);
 
   const [data, setData] = useState<ICDPUnifiedHistogram | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
@@ -207,7 +207,7 @@ const useAllocatorBiggestDeal = () => {
     fetchData()
       .then(setData)
       .then(() => setIsLoading(false));
-  }, [selectedRoundId]);
+  }, [fetchData, selectedRoundId]);
 
   return {
     data,
@@ -405,7 +405,7 @@ export function useAllocatorSPComplianceChartData(options: {
 
       return asPercentage ? bigintToPercentage(value, total, 6) : Number(value);
     },
-    [asPercentage, mode, selectedRoundId]
+    [asPercentage, mode]
   );
 
   const chartData = useMemo<ChartData>(() => {
@@ -551,7 +551,7 @@ export function useProvidersComplianceChartData(options?: {
         nonCompliantName: "Non Compliant",
       };
     });
-  }, [asPercentage, data, mode, selectedRoundId]);
+  }, [asPercentage, data, mode]);
 
   return {
     averageSuccessRate: data?.averageSuccessRate,
