@@ -88,6 +88,7 @@ export interface IClientReportStorageProviderDistribution {
   ipni_reported_claims_count: string | undefined;
   claims_count: string | undefined;
   location: IGenericReportLocation;
+  piece_working_url: string | undefined;
 }
 
 export interface IGenericReportLocation {

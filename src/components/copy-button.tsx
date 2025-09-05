@@ -24,7 +24,6 @@ export function CopyButton({
     navigator.clipboard
       .writeText(copyText)
       .then(() => {
-        console.log("COPIED");
         toast.success(successText);
       })
       .catch((error) => alert(error));
