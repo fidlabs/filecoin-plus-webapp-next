@@ -1,5 +1,6 @@
 "use client";
 import { useReportsDetails } from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/providers/reports-details.provider";
+import { CopyButton } from "@/components/copy-button";
 import { CompareIcon } from "@/components/icons/compare.icon";
 import { DataTable } from "@/components/ui/data-table";
 import {
@@ -9,12 +10,18 @@ import {
 } from "@/components/ui/hover-card";
 import { RandomPieceAvailabilityTooltip } from "@/components/ui/random-piece-availability-tooltip";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   IClientReportStorageProviderDistribution,
   IPNIReportingStatus,
 } from "@/lib/interfaces/cdp/cdp.interface";
 import { convertBytesToIEC } from "@/lib/utils";
 import { ColumnDef, RowSelectionState } from "@tanstack/react-table";
-import { InfoIcon } from "lucide-react";
+import { FileWarning, InfoIcon } from "lucide-react";
 import Link from "next/link";
 import { useMemo } from "react";
 
@@ -260,7 +267,7 @@ const useReportViewProvidersColumns = (compareMode: boolean) => {
         ) as number;
 
         return (
-          <div className="h-full flex items-center justify-end gap-1">
+          <div className="h-full flex items-center justify-center gap-1">
             <span>{(successRate * 100).toFixed(2)}%</span>
             {compareMode && (
               <CompareIcon
@@ -290,7 +297,7 @@ const useReportViewProvidersColumns = (compareMode: boolean) => {
         ) as number;
 
         return (
-          <div className="h-full flex items-center justify-end gap-1">
+          <div className="h-full flex items-center justify-center gap-1">
             <span>{(successRate * 100).toFixed(2)}%</span>
             {compareMode && (
               <CompareIcon
@@ -318,13 +325,43 @@ const useReportViewProvidersColumns = (compareMode: boolean) => {
         ) as number;
 
         return (
-          <div className="h-full flex items-center justify-end gap-1">
+          <div className="h-full flex items-center justify-center gap-1">
             <span>{(successRate * 100).toFixed(2)}%</span>
             {compareMode && (
               <CompareIcon
                 compare={
                   row.original.retrievability_success_rate_url_finder_compare
                 }
+              />
+            )}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "piece_working_url",
+      header: () => {
+        return <div className="whitespace-nowrap">Piece URL</div>;
+      },
+      cell: ({ row }) => {
+        const pieceWorkingUrl = row.getValue("piece_working_url") as string;
+
+        return (
+          <div className="h-full flex items-center justify-center">
+            {!pieceWorkingUrl ? (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <FileWarning size={15} />
+                  </TooltipTrigger>
+                  <TooltipContent>Sample piece URL not found</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            ) : (
+              <CopyButton
+                tooltipText="Copy sample piece URL"
+                copyText={pieceWorkingUrl}
+                successText="Copied piece URL to clipboard"
               />
             )}
           </div>
