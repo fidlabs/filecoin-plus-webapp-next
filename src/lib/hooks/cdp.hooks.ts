@@ -653,7 +653,7 @@ const allocatorsDCFlowSchema = z.object({
   filPlusEditionId: z.number(),
   data: z.array(
     z.object({
-      metapathwayType: z.enum(["MDMA", "RKH"]).nullable(),
+      metapathwayType: z.enum(["MDMA", "RKH", "AMA", "ORMA"]).nullable(),
       applicationAudit: z
         .enum([
           "Public Open",

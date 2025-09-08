@@ -228,6 +228,44 @@ function prepareDefaultTree(dcFlowData: AllocatorsDCFlowData): DCFlowTree {
     (allocator) => allocator.applicationAudit === "Automated Allocator"
   );
 
+  const amaAllocators = allAllocators.filter((allocator) => {
+    return allocator.metapathwayType === "AMA";
+  });
+
+  const amaTree: DCFlowTree = {
+    name: "Automated Allocators MetaAllocator",
+    value: Number(sumAllocatorsDatacap(amaAllocators)),
+    allocators: amaAllocators,
+    leafs: [
+      {
+        name: "AMA Hidden Child",
+        value: 0,
+        allocators: [],
+        leafs: [],
+        hidden: true,
+      },
+    ],
+  };
+
+  const ormaAllocators = allAllocators.filter((allocator) => {
+    return allocator.metapathwayType === "ORMA";
+  });
+
+  const ormaTree: DCFlowTree = {
+    name: "On Ramp MetaAllocator",
+    value: Number(sumAllocatorsDatacap(ormaAllocators)),
+    allocators: ormaAllocators,
+    leafs: [
+      {
+        name: "ORMA Hidden Child",
+        value: 0,
+        allocators: [],
+        leafs: [],
+        hidden: true,
+      },
+    ],
+  };
+
   const otherAllocators = allAllocators.filter((allocator) => {
     return (
       allocator.metapathwayType === "RKH" &&
@@ -242,34 +280,63 @@ function prepareDefaultTree(dcFlowData: AllocatorsDCFlowData): DCFlowTree {
     }
   );
 
+  const directRKHDatacap = sumAllocatorsDatacap(directRKHAllocators);
+
   return {
     name: "Root Key Holder",
     value: Number(sumAllocatorsDatacap(allAllocators)),
     allocators: allAllocators,
     leafs: [
       {
-        name: "MDMA",
+        name: "Manual Diligence MetaAllocator",
         value: Number(sumAllocatorsDatacap(mdmaAllocators)),
         allocators: mdmaAllocators,
         leafs: mdmaTrees,
       },
       {
+        name: "Experimental Pathway MetaAllocator",
+        value: Number(sumAllocatorsDatacap(epmaAllocators)),
+        allocators: epmaAllocators,
+        leafs: [
+          {
+            name: "EPMA Hidden Child",
+            value: 0,
+            allocators: [],
+            leafs: [],
+            hidden: true,
+          },
+        ],
+      },
+      amaTree,
+      ormaTree,
+      {
         name: "Automated",
         value: Number(sumAllocatorsDatacap(automatedAllocators)),
         allocators: automatedAllocators,
-        leafs: [],
-      },
-      {
-        name: "EPMA",
-        value: Number(sumAllocatorsDatacap(epmaAllocators)),
-        allocators: epmaAllocators,
-        leafs: [],
+        leafs: [
+          {
+            name: "Automated Hidden Child",
+            value: 0,
+            allocators: [],
+            leafs: [],
+            hidden: true,
+          },
+        ],
       },
       {
         name: "Direct RKH",
-        value: Number(sumAllocatorsDatacap(directRKHAllocators)),
+        value: Number(directRKHDatacap),
         allocators: directRKHAllocators,
-        leafs: [],
+        hidden: directRKHDatacap === 0n,
+        leafs: [
+          {
+            name: "Direct RKH Hidden Child",
+            value: 0,
+            allocators: [],
+            leafs: [],
+            hidden: true,
+          },
+        ],
       },
     ],
   };
