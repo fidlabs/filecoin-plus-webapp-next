@@ -60,6 +60,13 @@ export interface DCFlowSankeyProps {
 
 const mdmaAllocatorId = "f03358620";
 const epmaAllocatorId = "f03521515";
+const faucetMetaallocatorId = "f03136591";
+const faucetAllocatorId = "f03220716";
+
+// List of allocators that are groups on the chart and we show
+// allocators under them. Need to filter them out to avoid showing
+// duplicate datacap
+const filteredAllocators = [mdmaAllocatorId, faucetMetaallocatorId];
 
 function sumAllocatorsDatacap(allocators: Allocator[]): bigint {
   return allocators.reduce(
@@ -190,7 +197,7 @@ function prepareDefaultTree(dcFlowData: AllocatorsDCFlowData): DCFlowTree {
     }
 
     // Filter out MDMA as it is it's own category on the Sankey
-    if (allocator.allocatorId === mdmaAllocatorId) {
+    if (filteredAllocators.includes(allocator.allocatorId)) {
       return false;
     }
 
@@ -266,7 +273,14 @@ function prepareDefaultTree(dcFlowData: AllocatorsDCFlowData): DCFlowTree {
     ],
   };
 
-  const otherAllocators = allAllocators.filter((allocator) => {
+  const [faucetAllocators, nonFaucetAllocators] = partition(
+    allAllocators,
+    (candidate) => {
+      return candidate.allocatorId === faucetAllocatorId;
+    }
+  );
+
+  const otherAllocators = nonFaucetAllocators.filter((allocator) => {
     return (
       allocator.metapathwayType === "RKH" &&
       allocator.applicationAudit !== "Automated Allocator"
@@ -324,6 +338,21 @@ function prepareDefaultTree(dcFlowData: AllocatorsDCFlowData): DCFlowTree {
         ],
       },
       {
+        name: "Faucet",
+        value: Number(sumAllocatorsDatacap(faucetAllocators)),
+        leafs: [
+          {
+            name: "Faucet Hidden Child",
+            value: 0,
+            allocators: [],
+            leafs: [],
+            hidden: true,
+          },
+        ],
+        allocators: faucetAllocators.length > 0 ? faucetAllocators : [],
+        hidden: faucetAllocators.length === 0,
+      },
+      {
         name: "Direct RKH",
         value: Number(directRKHDatacap),
         allocators: directRKHAllocators,
@@ -338,7 +367,9 @@ function prepareDefaultTree(dcFlowData: AllocatorsDCFlowData): DCFlowTree {
           },
         ],
       },
-    ],
+    ].sort((a, b) => {
+      return b.value - a.value;
+    }),
   };
 }
 
