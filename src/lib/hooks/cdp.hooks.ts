@@ -8,6 +8,9 @@ import { z } from "zod";
 import { CDP_API_URL } from "../constants";
 import { useEditionRound } from "../providers/edition-round-provider";
 import { dateToYearWeek, groupBy, mapObject } from "../utils";
+import { numericalStringSchema } from "../zod-extensions";
+import { fetchData } from "../api";
+import useSWR from "swr";
 
 type AllocatorSPSComplianceMetric =
   (typeof allocatorSPsComplianceMetrics)[number];
@@ -643,6 +646,91 @@ function bigintToPercentage(
   const fraction = numeratorWithPrecision / denominator;
 
   return Number(fraction) / Math.pow(10, precision);
+}
+
+const allocatorsDCFlowSchema = z.object({
+  cutoffDate: z.string().datetime(),
+  filPlusEditionId: z.number(),
+  data: z.array(
+    z.object({
+      metapathwayType: z.enum(["MDMA", "RKH", "AMA", "ORMA"]).nullable(),
+      applicationAudit: z
+        .enum([
+          "Public Open",
+          "Enterprise Data",
+          "Automated Allocator",
+          "Other",
+        ])
+        .nullable(),
+      pathway: z
+        .enum([
+          "Manual",
+          "Automatic",
+          "Market-based",
+          "RFA",
+          "Manual Pathway MetaAllocator",
+          "Experimental Pathway MetaAllocator",
+        ])
+        .nullable(),
+      typeOfAllocator: z
+        .enum([
+          "Manual Pathway MetaAllocator",
+          "Manual",
+          "Automatic",
+          "Market-based",
+          "RFA",
+          "Novel allocator not on RFA",
+        ])
+        .nullable(),
+      allocatorId: z.string(),
+      datacap: numericalStringSchema,
+      allocatorName: z.string().nullable(),
+    })
+  ),
+});
+
+export type AllocatorsDCFlowData = z.infer<typeof allocatorsDCFlowSchema>;
+
+function assertIsAllocatorsDCFlowData(
+  input: unknown
+): asserts input is AllocatorsDCFlowData {
+  const result = allocatorsDCFlowSchema.safeParse(input);
+
+  if (!result.success) {
+    console.warn(result.error.errors);
+    throw new TypeError(
+      "Invalid response from CDP when fetching allocators DC Flow"
+    );
+  }
+}
+
+export function useAllocatorsDCFlow(cutoffDate?: Date) {
+  const fetcher = useCallback(async (url: string) => {
+    try {
+      const response = await fetchData(url);
+      assertIsAllocatorsDCFlowData(response);
+      return response;
+    } catch (error) {
+      console.warn(error);
+      throw error;
+    }
+  }, []);
+
+  const params = new URLSearchParams();
+  params.set("showInactive", "false");
+
+  if (cutoffDate) {
+    params.set("cutoffDate", cutoffDate.toISOString());
+  }
+
+  const url = `${CDP_API_URL}/allocators/dc-flow?${params.toString()}`;
+  const { data, error, isLoading } = useSWR(url, fetcher);
+
+  return {
+    data,
+    error,
+    isLoading,
+  };
 }
 
 export {
