@@ -666,6 +666,7 @@ const allocatorsDCFlowSchema = z.object({
         .enum([
           "Manual",
           "Automatic",
+          "Automated", // For some reason this applies only to Faucet
           "Market-based",
           "RFA",
           "Manual Pathway MetaAllocator",
@@ -677,6 +678,7 @@ const allocatorsDCFlowSchema = z.object({
           "Manual Pathway MetaAllocator",
           "Manual",
           "Automatic",
+          "Automated", // For some reason this applies only to Faucet
           "Market-based",
           "RFA",
           "Novel allocator not on RFA",
@@ -697,7 +699,6 @@ function assertIsAllocatorsDCFlowData(
   const result = allocatorsDCFlowSchema.safeParse(input);
 
   if (!result.success) {
-    console.warn(result.error.errors);
     throw new TypeError(
       "Invalid response from CDP when fetching allocators DC Flow"
     );

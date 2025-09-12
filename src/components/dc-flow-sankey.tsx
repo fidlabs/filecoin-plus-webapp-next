@@ -240,7 +240,7 @@ function prepareDefaultTree(dcFlowData: AllocatorsDCFlowData): DCFlowTree {
   });
 
   const amaTree: DCFlowTree = {
-    name: "Automated Allocators MetaAllocator",
+    name: "Automatic Dilligence MetaAllocator",
     value: Number(sumAllocatorsDatacap(amaAllocators)),
     allocators: amaAllocators,
     leafs: [
