@@ -75,14 +75,55 @@ function sumAllocatorsDatacap(allocators: Allocator[]): bigint {
   );
 }
 
-function prepareRound5Tree(dcFlowData: AllocatorsDCFlowData): DCFlowTree {
-  const allAllocators = dcFlowData.data.filter((allocator) => {
-    if (allocator.typeOfAllocator === null || allocator.pathway === null) {
-      return false;
-    }
+function createTreeForAllocators({
+  name,
+  allocators,
+  leafs,
+  hidden,
+  createHiddenLeaf = false,
+  hideWhenEmpty = false,
+}: Pick<DCFlowTree, "name" | "allocators" | "hidden"> &
+  Partial<Pick<DCFlowTree, "leafs">> & {
+    createHiddenLeaf?: boolean;
+    hideWhenEmpty?: boolean;
+  }): DCFlowTree {
+  const value = Number(sumAllocatorsDatacap(allocators));
+  const hiddenBecauseEmpty = hideWhenEmpty && value === 0;
 
-    return true;
-  });
+  const extraLeafs = createHiddenLeaf
+    ? [
+        {
+          name: `${name} Hidden Leafs`,
+          value: 0,
+          allocators: [],
+          leafs: [],
+          hidden: true,
+        },
+      ]
+    : [];
+
+  return {
+    name,
+    allocators,
+    hidden: hidden || hiddenBecauseEmpty,
+    value,
+    leafs: leafs ?? extraLeafs,
+  };
+}
+
+function prepareRound5Tree(dcFlowData: AllocatorsDCFlowData): DCFlowTree {
+  const allAllocators = dcFlowData.data
+    .filter((allocator) => {
+      if (allocator.typeOfAllocator === null || allocator.pathway === null) {
+        return false;
+      }
+
+      return true;
+    })
+    .toSorted((a, b) => {
+      const diff = BigInt(b.datacap) - BigInt(a.datacap);
+      return Number(diff);
+    });
 
   const automaticAllocators = allAllocators.filter((entry) => {
     return entry.pathway === "Automatic" || entry.pathway === "RFA";
@@ -108,26 +149,21 @@ function prepareRound5Tree(dcFlowData: AllocatorsDCFlowData): DCFlowTree {
       [undefined, []]
     );
 
-  const automaticTree: DCFlowTree = {
+  const automaticTree = createTreeForAllocators({
     name: "Automatic",
-    value: Number(sumAllocatorsDatacap(automaticAllocators)),
     allocators: automaticAllocators,
     leafs: [
-      {
+      createTreeForAllocators({
         name: "Direct RKH Automatic",
-        value: Number(sumAllocatorsDatacap(restOfAutomaticAllocators)),
         allocators: restOfAutomaticAllocators,
-        leafs: [],
-      },
-      {
+      }),
+      createTreeForAllocators({
         name: "Faucet",
-        value: faucetAllocator ? Number(faucetAllocator.datacap) : 0,
         allocators: faucetAllocator ? [faucetAllocator] : [],
-        leafs: [],
-        hidden: !faucetAllocator,
-      },
+        hideWhenEmpty: true,
+      }),
     ],
-  };
+  });
 
   const manualAllocators = allAllocators.filter((entry) => {
     return entry.typeOfAllocator === "Manual";
@@ -140,44 +176,30 @@ function prepareRound5Tree(dcFlowData: AllocatorsDCFlowData): DCFlowTree {
     }
   );
 
-  const manualTree: DCFlowTree = {
+  const manualTree = createTreeForAllocators({
     name: "Manual",
-    value: Number(sumAllocatorsDatacap(manualAllocators)),
     allocators: manualAllocators,
     leafs: [
-      {
+      createTreeForAllocators({
         name: "MDMA",
-        value: Number(sumAllocatorsDatacap(mdmaAllocators)),
         allocators: mdmaAllocators,
-        leafs: [],
-      },
-      {
+      }),
+      createTreeForAllocators({
         name: "Direct RKH Manual",
-        value: Number(sumAllocatorsDatacap(restOfManualAllocators)),
         allocators: restOfManualAllocators,
-        leafs: [],
-      },
+      }),
     ],
-  };
+  });
 
   const experimentalAllocators = allAllocators.filter((entry) => {
     return entry.pathway === "Experimental Pathway MetaAllocator";
   });
 
-  const experimentalTree: DCFlowTree = {
+  const experimentalTree = createTreeForAllocators({
     name: "EPMA",
-    value: Number(sumAllocatorsDatacap(experimentalAllocators)),
     allocators: experimentalAllocators,
-    leafs: [
-      {
-        name: "EPMA Hidden Child",
-        value: 0,
-        allocators: [],
-        leafs: [],
-        hidden: true,
-      },
-    ],
-  };
+    createHiddenLeaf: true,
+  });
 
   return {
     name: "Root Key Holder",
@@ -188,24 +210,32 @@ function prepareRound5Tree(dcFlowData: AllocatorsDCFlowData): DCFlowTree {
 }
 
 function prepareDefaultTree(dcFlowData: AllocatorsDCFlowData): DCFlowTree {
-  const allAllocators = dcFlowData.data.filter((allocator) => {
-    if (
-      allocator.metapathwayType === null ||
-      allocator.applicationAudit === null
-    ) {
-      return false;
+  const allAllocators = dcFlowData.data
+    .filter((allocator) => {
+      if (
+        allocator.metapathwayType === null ||
+        allocator.applicationAudit === null
+      ) {
+        return false;
+      }
+
+      // Filter out MDMA as it is it's own category on the Sankey
+      if (filteredAllocators.includes(allocator.allocatorId)) {
+        return false;
+      }
+
+      return true;
+    })
+    .toSorted((a, b) => {
+      const diff = BigInt(b.datacap) - BigInt(a.datacap);
+      return Number(diff);
+    });
+
+  const [mdmaAllocators, nonMdmaAllocators] = partition(
+    allAllocators,
+    (allocator) => {
+      return allocator.metapathwayType === "MDMA";
     }
-
-    // Filter out MDMA as it is it's own category on the Sankey
-    if (filteredAllocators.includes(allocator.allocatorId)) {
-      return false;
-    }
-
-    return true;
-  });
-
-  const mdmaAllocators = allAllocators.filter(
-    (allocator) => allocator.metapathwayType === "MDMA"
   );
 
   const mdmaTrees = Object.entries(
@@ -223,150 +253,97 @@ function prepareDefaultTree(dcFlowData: AllocatorsDCFlowData): DCFlowTree {
       };
     }, {})
   ).map<DCFlowTree>(([name, allocators]) => {
-    return {
-      name,
-      value: Number(sumAllocatorsDatacap(allocators)),
-      allocators,
-      leafs: [],
-    };
+    return createTreeForAllocators({ name, allocators });
   });
 
-  const automatedAllocators = allAllocators.filter(
-    (allocator) => allocator.applicationAudit === "Automated Allocator"
+  const mdmaTree = createTreeForAllocators({
+    name: "Manual Diligence MetaAllocator",
+    allocators: mdmaAllocators,
+    leafs: mdmaTrees,
+  });
+
+  const [amaAllocators, nonAmaAllocators] = partition(
+    nonMdmaAllocators,
+    (allocator) => {
+      return allocator.metapathwayType === "AMA";
+    }
   );
 
-  const amaAllocators = allAllocators.filter((allocator) => {
-    return allocator.metapathwayType === "AMA";
-  });
-
-  const amaTree: DCFlowTree = {
+  const amaTree = createTreeForAllocators({
     name: "Automatic Dilligence MetaAllocator",
-    value: Number(sumAllocatorsDatacap(amaAllocators)),
     allocators: amaAllocators,
-    leafs: [
-      {
-        name: "AMA Hidden Child",
-        value: 0,
-        allocators: [],
-        leafs: [],
-        hidden: true,
-      },
-    ],
-  };
-
-  const ormaAllocators = allAllocators.filter((allocator) => {
-    return allocator.metapathwayType === "ORMA";
+    createHiddenLeaf: true,
   });
 
-  const ormaTree: DCFlowTree = {
+  const [ormaAllocators, nonOrmaAllocators] = partition(
+    nonAmaAllocators,
+    (allocator) => {
+      return allocator.metapathwayType === "ORMA";
+    }
+  );
+
+  const ormaTree = createTreeForAllocators({
     name: "On Ramp MetaAllocator",
-    value: Number(sumAllocatorsDatacap(ormaAllocators)),
     allocators: ormaAllocators,
-    leafs: [
-      {
-        name: "ORMA Hidden Child",
-        value: 0,
-        allocators: [],
-        leafs: [],
-        hidden: true,
-      },
-    ],
-  };
+    createHiddenLeaf: true,
+  });
 
   const [faucetAllocators, nonFaucetAllocators] = partition(
-    allAllocators,
+    nonOrmaAllocators,
     (candidate) => {
       return candidate.allocatorId === faucetAllocatorId;
     }
   );
 
-  const otherAllocators = nonFaucetAllocators.filter((allocator) => {
-    return (
-      allocator.metapathwayType === "RKH" &&
-      allocator.applicationAudit !== "Automated Allocator"
-    );
+  const faucetTree = createTreeForAllocators({
+    name: "Faucet",
+    allocators: faucetAllocators.length > 0 ? faucetAllocators : [],
+    createHiddenLeaf: true,
+    hideWhenEmpty: true,
   });
 
-  const [epmaAllocators, directRKHAllocators] = partition(
-    otherAllocators,
+  const [epmaAllocators, nonEpmaAllocators] = partition(
+    nonFaucetAllocators,
     (allocator) => {
       return allocator.allocatorId === epmaAllocatorId;
     }
   );
 
-  const directRKHDatacap = sumAllocatorsDatacap(directRKHAllocators);
+  const epmaTree = createTreeForAllocators({
+    name: "Experimental Pathway MetaAllocator",
+    allocators: epmaAllocators,
+    createHiddenLeaf: true,
+  });
+
+  const [automatedAllocators, directRKHAllocators] = partition(
+    nonEpmaAllocators,
+    (allocator) => allocator.applicationAudit === "Automated Allocator"
+  );
+  const automatedTree = createTreeForAllocators({
+    name: "Automated",
+    allocators: automatedAllocators,
+    createHiddenLeaf: true,
+  });
+
+  const directRKHTree = createTreeForAllocators({
+    name: "Direct RKH",
+    allocators: directRKHAllocators,
+    createHiddenLeaf: true,
+    hideWhenEmpty: true,
+  });
 
   return {
     name: "Root Key Holder",
     value: Number(sumAllocatorsDatacap(allAllocators)),
     allocators: allAllocators,
     leafs: [
-      {
-        name: "Manual Diligence MetaAllocator",
-        value: Number(sumAllocatorsDatacap(mdmaAllocators)),
-        allocators: mdmaAllocators,
-        leafs: mdmaTrees,
-      },
-      {
-        name: "Experimental Pathway MetaAllocator",
-        value: Number(sumAllocatorsDatacap(epmaAllocators)),
-        allocators: epmaAllocators,
-        leafs: [
-          {
-            name: "EPMA Hidden Child",
-            value: 0,
-            allocators: [],
-            leafs: [],
-            hidden: true,
-          },
-        ],
-      },
+      mdmaTree,
+      epmaTree,
       amaTree,
       ormaTree,
-      {
-        name: "Automated",
-        value: Number(sumAllocatorsDatacap(automatedAllocators)),
-        allocators: automatedAllocators,
-        leafs: [
-          {
-            name: "Automated Hidden Child",
-            value: 0,
-            allocators: [],
-            leafs: [],
-            hidden: true,
-          },
-        ],
-      },
-      {
-        name: "Faucet",
-        value: Number(sumAllocatorsDatacap(faucetAllocators)),
-        leafs: [
-          {
-            name: "Faucet Hidden Child",
-            value: 0,
-            allocators: [],
-            leafs: [],
-            hidden: true,
-          },
-        ],
-        allocators: faucetAllocators.length > 0 ? faucetAllocators : [],
-        hidden: faucetAllocators.length === 0,
-      },
-      {
-        name: "Direct RKH",
-        value: Number(directRKHDatacap),
-        allocators: directRKHAllocators,
-        hidden: directRKHDatacap === 0n,
-        leafs: [
-          {
-            name: "Direct RKH Hidden Child",
-            value: 0,
-            allocators: [],
-            leafs: [],
-            hidden: true,
-          },
-        ],
-      },
+      automatedTree,
+      directRKHTree,
+      faucetTree,
     ].sort((a, b) => {
       return b.value - a.value;
     }),
