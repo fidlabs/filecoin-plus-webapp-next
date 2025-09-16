@@ -317,12 +317,19 @@ function prepareDefaultTree(dcFlowData: AllocatorsDCFlowData): DCFlowTree {
 
   const [automatedAllocators, directRKHAllocators] = partition(
     nonEpmaAllocators,
-    (allocator) => allocator.applicationAudit === "Automated Allocator"
+    (allocator) => {
+      return (
+        allocator.applicationAudit === "Automated Allocator" ||
+        allocator.applicationAudit === "Automated"
+      );
+    }
   );
+
   const automatedTree = createTreeForAllocators({
     name: "Automated",
     allocators: automatedAllocators,
     createHiddenLeaf: true,
+    hideWhenEmpty: true,
   });
 
   const directRKHTree = createTreeForAllocators({

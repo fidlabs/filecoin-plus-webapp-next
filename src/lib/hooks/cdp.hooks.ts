@@ -660,6 +660,7 @@ const allocatorsDCFlowSchema = z.object({
           "Enterprise Data",
           "Automated Allocator",
           "Other",
+          "Automated",
         ])
         .nullable(),
       pathway: z
@@ -707,7 +708,6 @@ function assertIsAllocatorsDCFlowData(
 
 export function useAllocatorsDCFlow(cutoffDate?: Date) {
   const fetcher = useCallback(async (url: string) => {
-    console.log(url);
     const response = await fetchData(url);
     assertIsAllocatorsDCFlowData(response);
     return response;
