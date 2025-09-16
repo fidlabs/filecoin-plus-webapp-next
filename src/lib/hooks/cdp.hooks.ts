@@ -707,14 +707,10 @@ function assertIsAllocatorsDCFlowData(
 
 export function useAllocatorsDCFlow(cutoffDate?: Date) {
   const fetcher = useCallback(async (url: string) => {
-    try {
-      const response = await fetchData(url);
-      assertIsAllocatorsDCFlowData(response);
-      return response;
-    } catch (error) {
-      console.warn(error);
-      throw error;
-    }
+    console.log(url);
+    const response = await fetchData(url);
+    assertIsAllocatorsDCFlowData(response);
+    return response;
   }, []);
 
   const params = new URLSearchParams();
