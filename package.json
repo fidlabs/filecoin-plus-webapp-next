@@ -1,6 +1,6 @@
 {
   "name": "filecoin-plus-webapp-next",
-  "version": "1.19.2",
+  "version": "1.19.3",
   "private": true,
   "scripts": {
     "dev": "next dev",
