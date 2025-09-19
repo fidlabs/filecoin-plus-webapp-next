@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-export const revalidate = 30;
+export const revalidate = 0;
 
 interface PageProps {
   params: {
