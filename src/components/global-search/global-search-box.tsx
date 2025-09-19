@@ -460,6 +460,12 @@ const GlobalSearchBox = () => {
           tags: ["allocators", "allocator", "reports", "reporting"],
           link: `/allocators/${allocator.addressId}/reports`,
         });
+        actions.push({
+          name: `${allocator.name ?? allocator.addressId} - Score`,
+          group: `${allocator.name ?? allocator.addressId}`,
+          tags: ["allocators", "allocator", "score"],
+          link: `/allocators/${allocator.addressId}/score`,
+        });
       });
 
       apiSearch[1].value.data.forEach((client) => {
