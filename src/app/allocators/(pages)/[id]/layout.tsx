@@ -15,7 +15,7 @@ async function fetchJsonUrl(id: string): Promise<string | null> {
     filter: id,
   });
   const allocator = allocatorsResponse.data.at(0);
-  return allocator ? allocator.application_json_url : null;
+  return allocator ? allocator.applicationJsonUrl : null;
 }
 
 const fetchData = cache(async (id: string) => {
