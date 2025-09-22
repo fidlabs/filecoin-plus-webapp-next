@@ -8,7 +8,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
 import { ITabNavigatorTab } from "@/components/ui/tab-navigator";
-import { getClientLatestClaimsByClientId, getClients } from "@/lib/api";
+import { getClientLatestClaimsByClientId } from "@/lib/api";
 import { useParamsQuery } from "@/lib/hooks/useParamsQuery";
 import { IClientLatestClaimsResponse } from "@/lib/interfaces/dmob/client.interface";
 import { useMemo } from "react";
