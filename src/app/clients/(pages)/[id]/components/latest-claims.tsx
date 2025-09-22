@@ -8,7 +8,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
 import { ITabNavigatorTab } from "@/components/ui/tab-navigator";
-import { getClients } from "@/lib/api";
+import { getClientLatestClaimsByClientId, getClients } from "@/lib/api";
 import { useParamsQuery } from "@/lib/hooks/useParamsQuery";
 import { IClientLatestClaimsResponse } from "@/lib/interfaces/dmob/client.interface";
 import { useMemo } from "react";
@@ -72,12 +72,16 @@ export function LatestClaims({
         }
         getCsv={{
           method: async () => {
-            const data = await getClients();
+            const data = await getClientLatestClaimsByClientId(
+              clientId,
+              searchParams
+            );
+
             return {
               data: data.data as never[],
             };
           },
-          title: "clients.csv",
+          title: `${clientId}_latest_deals.csv`,
           headers: csvHeaders,
         }}
       />
