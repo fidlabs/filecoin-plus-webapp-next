@@ -39,7 +39,7 @@ export interface IAllocator {
   allowanceArray: IAllowanceArray[];
   auditStatus?: string;
   remainingDatacap: string;
-  application_json_url: string | null;
+  applicationJsonUrl: string | null;
   receivedDatacapFromMetaallocator: string | null;
   isMetaAllocator: boolean;
   allocatorsUsingMetaallocator: Array<{
