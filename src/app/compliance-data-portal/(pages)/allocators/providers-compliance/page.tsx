@@ -1,7 +1,6 @@
 "use client";
 
 import { ChartWrapper } from "@/app/compliance-data-portal/components/chart-wrapper";
-import { EditionRoundCheckbox } from "@/app/compliance-data-portal/components/edition-round-checkbox";
 import { StackedBarGraph } from "@/app/compliance-data-portal/components/graphs/stacked-bar-graph";
 import { AllocatorsComplianceThresholdSelector } from "@/components/allocators-compliance-threshold-selector";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -77,108 +76,105 @@ export default function ProviderComplianceAllocator() {
   const unit = currentDataTab === "Count" ? "allocator" : currentDataTab;
 
   return (
-    <>
-      <EditionRoundCheckbox />
-      <ChartWrapper
-        title="Allocator Compliance based on % SP Compliance"
-        id="ProviderComplianceAllocator"
-        dataTabs={dataTabs}
-        currentDataTab={currentDataTab}
-        setCurrentDataTab={setCurrentDataTab}
-        selectedScale={selectedScale}
-        addons={[
-          {
-            name: "What are the metrics",
-            size: 3,
-            value: (
-              <div>
-                <ul>
-                  <p className="font-medium text-sm text-muted-foreground">
-                    Allocator is complaint when it&apos;s SPs:
+    <ChartWrapper
+      title="Allocator Compliance based on % SP Compliance"
+      id="ProviderComplianceAllocator"
+      dataTabs={dataTabs}
+      currentDataTab={currentDataTab}
+      setCurrentDataTab={setCurrentDataTab}
+      selectedScale={selectedScale}
+      addons={[
+        {
+          name: "What are the metrics",
+          size: 3,
+          value: (
+            <div>
+              <ul>
+                <p className="font-medium text-sm text-muted-foreground">
+                  Allocator is complaint when it&apos;s SPs:
+                </p>
+                <li className="flex gap-1 items-center">
+                  <Checkbox
+                    checked={retrievabilityMetric}
+                    onCheckedChange={(checked) =>
+                      setRetrievabilityMetric(!!checked)
+                    }
+                  />
+                  <p>
+                    Have retrievability score above average{" "}
+                    {averageSuccessRate
+                      ? `(last week average: ${averageSuccessRate.toFixed(2)}%)`
+                      : ""}
+                    <StatsLink
+                      className="ml-2"
+                      href="/compliance-data-portal/allocators/retrievability"
+                    >
+                      Retrievability
+                    </StatsLink>
                   </p>
-                  <li className="flex gap-1 items-center">
-                    <Checkbox
-                      checked={retrievabilityMetric}
-                      onCheckedChange={(checked) =>
-                        setRetrievabilityMetric(!!checked)
-                      }
-                    />
-                    <p>
-                      Have retrievability score above average{" "}
-                      {averageSuccessRate
-                        ? `(last week average: ${averageSuccessRate.toFixed(2)}%)`
-                        : ""}
-                      <StatsLink
-                        className="ml-2"
-                        href="/compliance-data-portal/allocators/retrievability"
-                      >
-                        Retrievability
-                      </StatsLink>
-                    </p>
-                  </li>
-                  <li className="flex gap-1 items-center">
-                    <Checkbox
-                      checked={numberOfClientsMetric}
-                      onCheckedChange={(checked) =>
-                        setNumberOfClientsMetric(!!checked)
-                      }
-                    />
-                    <p>
-                      Have at least 3 clients
-                      <StatsLink
-                        className="ml-2"
-                        href="/compliance-data-portal/allocators/client-diversity"
-                      >
-                        Client Diversity
-                      </StatsLink>
-                    </p>
-                  </li>
-                  <li className="flex gap-1 items-center">
-                    <Checkbox
-                      checked={totalDealSizeMetric}
-                      onCheckedChange={(checked) =>
-                        setTotalDealSizeMetric(!!checked)
-                      }
-                    />
-                    <p>
-                      Has at most 30% of the DC coming from a single client
-                      <StatsLink
-                        className="ml-2"
-                        href="/compliance-data-portal/allocators/biggest-deals"
-                      >
-                        Biggest Allocation
-                      </StatsLink>
-                    </p>
-                  </li>
-                </ul>
-              </div>
-            ),
-          },
-        ]}
-        setSelectedScale={setSelectedScale}
-        additionalFilters={[
-          <AllocatorsComplianceThresholdSelector
-            key="threshold"
-            value={threshold}
-            onThresholdChange={setThreshold}
-          />,
-        ]}
-      >
-        <p className="text-sm text-center text-muted-foreground mb-4">
-          Click on a bar to see a list of Allocators for that time period,
-          matching selected criteria.
-        </p>
-        <StackedBarGraph
-          currentDataTab={currentDataTab}
-          customPalette={gradientPalette("#4CAF50", "#FF5722", 3)}
-          usePercentage={usePercentage}
-          data={chartData}
-          scale={scale}
-          isLoading={isLoading}
-          unit={unit}
-          onBarClick={handleBarClick}
-        />
-      </ChartWrapper>
-    </>
+                </li>
+                <li className="flex gap-1 items-center">
+                  <Checkbox
+                    checked={numberOfClientsMetric}
+                    onCheckedChange={(checked) =>
+                      setNumberOfClientsMetric(!!checked)
+                    }
+                  />
+                  <p>
+                    Have at least 3 clients
+                    <StatsLink
+                      className="ml-2"
+                      href="/compliance-data-portal/allocators/client-diversity"
+                    >
+                      Client Diversity
+                    </StatsLink>
+                  </p>
+                </li>
+                <li className="flex gap-1 items-center">
+                  <Checkbox
+                    checked={totalDealSizeMetric}
+                    onCheckedChange={(checked) =>
+                      setTotalDealSizeMetric(!!checked)
+                    }
+                  />
+                  <p>
+                    Has at most 30% of the DC coming from a single client
+                    <StatsLink
+                      className="ml-2"
+                      href="/compliance-data-portal/allocators/biggest-deals"
+                    >
+                      Biggest Allocation
+                    </StatsLink>
+                  </p>
+                </li>
+              </ul>
+            </div>
+          ),
+        },
+      ]}
+      setSelectedScale={setSelectedScale}
+      additionalFilters={[
+        <AllocatorsComplianceThresholdSelector
+          key="threshold"
+          value={threshold}
+          onThresholdChange={setThreshold}
+        />,
+      ]}
+    >
+      <p className="text-sm text-center text-muted-foreground mb-4">
+        Click on a bar to see a list of Allocators for that time period,
+        matching selected criteria.
+      </p>
+      <StackedBarGraph
+        currentDataTab={currentDataTab}
+        customPalette={gradientPalette("#4CAF50", "#FF5722", 3)}
+        usePercentage={usePercentage}
+        data={chartData}
+        scale={scale}
+        isLoading={isLoading}
+        unit={unit}
+        onBarClick={handleBarClick}
+      />
+    </ChartWrapper>
   );
 }
