@@ -69,3 +69,18 @@ export function getLinksFromSankeyTree<T extends SankeyTreeExtras>(
     ),
   ];
 }
+
+export function getTreeDepth<T extends SankeyTreeExtras>(
+  tree: SankeyTree<T>,
+  DONT_PASS__currentDepth = 0
+): number {
+  if (tree.leafs.length === 0) {
+    return DONT_PASS__currentDepth;
+  }
+
+  const leafsDepths = tree.leafs.map((leaf) => {
+    return getTreeDepth(leaf, DONT_PASS__currentDepth + 1);
+  });
+
+  return Math.max(...leafsDepths);
+}
