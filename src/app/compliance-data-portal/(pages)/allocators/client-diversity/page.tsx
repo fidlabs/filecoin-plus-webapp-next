@@ -1,7 +1,6 @@
 "use client";
 
 import { ChartWrapper } from "@/app/compliance-data-portal/components/chart-wrapper";
-import { EditionRoundCheckbox } from "@/app/compliance-data-portal/components/edition-round-checkbox";
 import { StackedBarGraph } from "@/app/compliance-data-portal/components/graphs/stacked-bar-graph";
 import {
   ResponsiveHoverCard,
@@ -38,35 +37,32 @@ const ClientDiversityAllocator = () => {
   const unit = currentDataTab === "Count" ? "allocator" : currentDataTab;
 
   return (
-    <>
-      <EditionRoundCheckbox />
-      <ChartWrapper
-        title="Allocator Client Diversity"
-        id="ClientDiversityAllocator"
-        dataTabs={dataTabs}
+    <ChartWrapper
+      title="Allocator Client Diversity"
+      id="ClientDiversityAllocator"
+      dataTabs={dataTabs}
+      currentDataTab={currentDataTab}
+      setCurrentDataTab={setCurrentDataTab}
+      selectedScale={selectedScale}
+      setSelectedScale={setSelectedScale}
+      additionalFilters={[
+        <ThresholdSelector
+          key="threshold"
+          threshold={threshold}
+          setThreshold={setThreshold}
+        />,
+      ]}
+    >
+      <StackedBarGraph
         currentDataTab={currentDataTab}
-        setCurrentDataTab={setCurrentDataTab}
-        selectedScale={selectedScale}
-        setSelectedScale={setSelectedScale}
-        additionalFilters={[
-          <ThresholdSelector
-            key="threshold"
-            threshold={threshold}
-            setThreshold={setThreshold}
-          />,
-        ]}
-      >
-        <StackedBarGraph
-          currentDataTab={currentDataTab}
-          customPalette={gradientPalette("#FF5722", "#4CAF50", 3)}
-          usePercentage={usePercentage}
-          data={chartData}
-          scale={scale}
-          isLoading={isLoading}
-          unit={unit}
-        />
-      </ChartWrapper>
-    </>
+        customPalette={gradientPalette("#FF5722", "#4CAF50", 3)}
+        usePercentage={usePercentage}
+        data={chartData}
+        scale={scale}
+        isLoading={isLoading}
+        unit={unit}
+      />
+    </ChartWrapper>
   );
 };
 

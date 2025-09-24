@@ -351,7 +351,7 @@ export function useAllocatorSPComplianceChartData(options: {
       options?.totalDealSizeMetric ? "true" : "false"
     );
 
-    if (selectedRoundId) fetchOptions.append("editionId", selectedRoundId);
+    if (selectedRoundId) fetchOptions.append("roundId", selectedRoundId);
 
     try {
       const response = await fetch(
@@ -485,7 +485,7 @@ export function useProvidersComplianceChartData(options?: {
       options?.totalDealSizeMetric ? "true" : "false"
     );
 
-    if (selectedRoundId) fetchOptions.append("editionId", selectedRoundId);
+    if (selectedRoundId) fetchOptions.append("roundId", selectedRoundId);
 
     try {
       const response = await fetch(

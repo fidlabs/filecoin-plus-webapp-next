@@ -1,7 +1,6 @@
 "use client";
 
 import { ChartWrapper } from "@/app/compliance-data-portal/components/chart-wrapper";
-import { EditionRoundCheckbox } from "@/app/compliance-data-portal/components/edition-round-checkbox";
 import { StackedBarGraph } from "@/app/compliance-data-portal/components/graphs/stacked-bar-graph";
 import useWeeklyChartData from "@/app/compliance-data-portal/hooks/useWeeklyChartData";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -71,75 +70,71 @@ export default function StorageProviderRetrievabilityPage() {
   }, [calcPercentage]);
 
   return (
-    <>
-      {" "}
-      <EditionRoundCheckbox />
-      <ChartWrapper
-        title="Retrievability Score"
-        tabs={barTabs}
-        dataTabs={dataTabs}
+    <ChartWrapper
+      title="Retrievability Score"
+      tabs={barTabs}
+      dataTabs={dataTabs}
+      currentDataTab={currentDataTab}
+      setCurrentDataTab={setCurrentDataTab}
+      currentTab={currentTab}
+      setCurrentTab={setCurrentTab}
+      id="RetrievabilityScoreSP"
+      addons={[
+        {
+          name: "All time average",
+          value: !!data?.avgSuccessRatePct ? (
+            data?.avgSuccessRatePct.toFixed(2) + "%"
+          ) : (
+            <LoaderCircle className="animate-spin" />
+          ),
+        },
+      ]}
+      selectedScale={selectedScale}
+      setSelectedScale={setSelectedScale}
+      additionalFilters={[
+        <div
+          key="http-retrievability-toggle"
+          className="flex items-center space-x-2 py-3.5 px-2"
+        >
+          <Checkbox
+            id="http-retrievability"
+            checked={httpRetrievability}
+            onCheckedChange={handleHTTPRetrievabilityToggleChange}
+          />
+          <label
+            className="text-sm font-medium leading-none"
+            htmlFor="http-retrievability"
+          >
+            HTTP Retrievability
+          </label>
+        </div>,
+        <div
+          key="open-data-toggle"
+          className="flex items-center space-x-2 py-3.5 px-2"
+        >
+          <Checkbox
+            id="open-data"
+            checked={openDataOnly}
+            onCheckedChange={handleOpenDataToggleChange}
+          />
+          <label
+            className="text-sm font-medium leading-none"
+            htmlFor="open-data"
+          >
+            Open Data Only
+          </label>
+        </div>,
+      ]}
+    >
+      <StackedBarGraph
         currentDataTab={currentDataTab}
-        setCurrentDataTab={setCurrentDataTab}
-        currentTab={currentTab}
-        setCurrentTab={setCurrentTab}
-        id="RetrievabilityScoreSP"
-        addons={[
-          {
-            name: "All time average",
-            value: !!data?.avgSuccessRatePct ? (
-              data?.avgSuccessRatePct.toFixed(2) + "%"
-            ) : (
-              <LoaderCircle className="animate-spin" />
-            ),
-          },
-        ]}
-        selectedScale={selectedScale}
-        setSelectedScale={setSelectedScale}
-        additionalFilters={[
-          <div
-            key="http-retrievability-toggle"
-            className="flex items-center space-x-2 py-3.5 px-2"
-          >
-            <Checkbox
-              id="http-retrievability"
-              checked={httpRetrievability}
-              onCheckedChange={handleHTTPRetrievabilityToggleChange}
-            />
-            <label
-              className="text-sm font-medium leading-none"
-              htmlFor="http-retrievability"
-            >
-              HTTP Retrievability
-            </label>
-          </div>,
-          <div
-            key="open-data-toggle"
-            className="flex items-center space-x-2 py-3.5 px-2"
-          >
-            <Checkbox
-              id="open-data"
-              checked={openDataOnly}
-              onCheckedChange={handleOpenDataToggleChange}
-            />
-            <label
-              className="text-sm font-medium leading-none"
-              htmlFor="open-data"
-            >
-              Open Data Only
-            </label>
-          </div>,
-        ]}
-      >
-        <StackedBarGraph
-          currentDataTab={currentDataTab}
-          customPalette={palette}
-          usePercentage={usePercentage}
-          data={chartData}
-          scale={scale}
-          isLoading={isLoading}
-          unit={unit}
-        />
-      </ChartWrapper>
-    </>
+        customPalette={palette}
+        usePercentage={usePercentage}
+        data={chartData}
+        scale={scale}
+        isLoading={isLoading}
+        unit={unit}
+      />
+    </ChartWrapper>
   );
 }
