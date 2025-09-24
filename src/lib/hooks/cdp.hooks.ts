@@ -661,6 +661,7 @@ const allocatorsDCFlowSchema = z.object({
           "Automated Allocator",
           "Other",
           "Automated",
+          "On-Ramps",
         ])
         .nullable(),
       pathway: z
