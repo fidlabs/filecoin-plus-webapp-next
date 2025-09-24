@@ -507,7 +507,7 @@ export function DCFlowSankey({ snapshotDate }: DCFlowSankeyProps) {
       links,
     };
 
-    return [chartData, Math.max(600, nonHiddenNonParentNodesCount * 64)];
+    return [chartData, Math.max(800, nonHiddenNonParentNodesCount * 64)];
   }, [allocatorsDCFlowData, selectedNode]);
 
   const handleSankeyClick = useCallback<SankeyClickHandler>(
