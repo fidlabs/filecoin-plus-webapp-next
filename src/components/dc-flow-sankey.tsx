@@ -8,14 +8,16 @@ import {
 import {
   getLinksFromSankeyTree,
   getNodesFromSankeyTree,
+  getTreeDepth,
   Link,
   Node,
   SankeyTree,
 } from "@/lib/sankey-utils";
 import { isPlainObject, partition } from "@/lib/utils";
+import { UTCDate } from "@date-fns/utc";
 import { filesize } from "filesize";
 import NextLink from "next/link";
-import { ReactNode, useCallback, useMemo } from "react";
+import { ReactNode, useCallback, useMemo, useState } from "react";
 import { ResponsiveContainer, Sankey, Tooltip, TooltipProps } from "recharts";
 import { Button } from "./ui/button";
 import { ChartLoader } from "./ui/chart-loader";
@@ -27,19 +29,18 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
-import { UTCDate } from "@date-fns/utc";
 
 type Allocator = AllocatorsDCFlowData["data"][number];
 
-type DCFlowTree = SankeyTree<{
+type DCFlowExtras = {
   allocators: Allocator[];
+  expandable?: boolean;
   hidden?: boolean;
-}>;
-
-type DCFlowNode = Node & {
-  allocators: Allocator[];
-  hidden?: boolean;
+  totalDatacap: bigint;
 };
+
+type DCFlowTree = SankeyTree<DCFlowExtras>;
+type DCFlowNode = Node & DCFlowExtras;
 
 interface ChartData {
   nodes: DCFlowNode[];
@@ -54,14 +55,52 @@ interface NodeProps {
   payload: DCFlowNode;
 }
 
+// Sankey click types are incomplete
+interface SankeyNodeClickParameters {
+  payload: DCFlowNode;
+}
+interface SankeyLinkClickParameters {
+  payload: {
+    source: DCFlowNode;
+    target: DCFlowNode;
+  };
+}
+interface SankeyClickHandler {
+  (
+    parameters: SankeyNodeClickParameters,
+    elementType: "node",
+    event: unknown
+  ): void;
+  (
+    parameters: SankeyLinkClickParameters,
+    elementType: "link",
+    event: unknown
+  ): void;
+}
+
 export interface DCFlowSankeyProps {
   snapshotDate?: Date;
 }
+
+const nodeNamesDict = {
+  RKH: "Root Key Holder",
+  MDMA: "Manual Diligence MetaAllocator",
+  EPMA: "Experimental Pathway MetaAllocator",
+  ADMA: "Automatic Dilligence MetaAllocator",
+  ORMA: "On Ramp MetaAllocator",
+  Automatic: "Automatic",
+  Manual: "Manual",
+  DirectRKH: "Direct RKH",
+  DirectRKHAutomatic: "Direct RKH Automatic",
+  DirectRKHManual: "Direct RKH Manual",
+  Faucet: "Faucet",
+} as const satisfies Record<string, string>;
 
 const mdmaAllocatorId = "f03358620";
 const epmaAllocatorId = "f03521515";
 const faucetMetaallocatorId = "f03136591";
 const faucetAllocatorId = "f03220716";
+const ormaAllocatorId = "f03634130";
 
 // List of allocators that are groups on the chart and we show
 // allocators under them. Need to filter them out to avoid showing
@@ -80,34 +119,23 @@ function createTreeForAllocators({
   allocators,
   leafs,
   hidden,
-  createHiddenLeaf = false,
   hideWhenEmpty = false,
 }: Pick<DCFlowTree, "name" | "allocators" | "hidden"> &
   Partial<Pick<DCFlowTree, "leafs">> & {
-    createHiddenLeaf?: boolean;
     hideWhenEmpty?: boolean;
   }): DCFlowTree {
-  const value = Number(sumAllocatorsDatacap(allocators));
+  const totalDatacap = sumAllocatorsDatacap(allocators);
+  const value = Number(totalDatacap);
   const hiddenBecauseEmpty = hideWhenEmpty && value === 0;
-
-  const extraLeafs = createHiddenLeaf
-    ? [
-        {
-          name: `${name} Hidden Leafs`,
-          value: 0,
-          allocators: [],
-          leafs: [],
-          hidden: true,
-        },
-      ]
-    : [];
 
   return {
     name,
     allocators,
+    totalDatacap,
     hidden: hidden || hiddenBecauseEmpty,
     value,
-    leafs: leafs ?? extraLeafs,
+    leafs: leafs ?? [],
+    expandable: (!leafs || leafs.length === 0) && allocators.length > 1,
   };
 }
 
@@ -124,6 +152,8 @@ function prepareRound5Tree(dcFlowData: AllocatorsDCFlowData): DCFlowTree {
       const diff = BigInt(b.datacap) - BigInt(a.datacap);
       return Number(diff);
     });
+
+  const allAllocatorsDatacap = sumAllocatorsDatacap(allAllocators);
 
   const automaticAllocators = allAllocators.filter((entry) => {
     return entry.pathway === "Automatic" || entry.pathway === "RFA";
@@ -150,15 +180,15 @@ function prepareRound5Tree(dcFlowData: AllocatorsDCFlowData): DCFlowTree {
     );
 
   const automaticTree = createTreeForAllocators({
-    name: "Automatic",
+    name: nodeNamesDict.Automatic,
     allocators: automaticAllocators,
     leafs: [
       createTreeForAllocators({
-        name: "Direct RKH Automatic",
+        name: nodeNamesDict.DirectRKHAutomatic,
         allocators: restOfAutomaticAllocators,
       }),
       createTreeForAllocators({
-        name: "Faucet",
+        name: nodeNamesDict.Faucet,
         allocators: faucetAllocator ? [faucetAllocator] : [],
         hideWhenEmpty: true,
       }),
@@ -177,15 +207,15 @@ function prepareRound5Tree(dcFlowData: AllocatorsDCFlowData): DCFlowTree {
   );
 
   const manualTree = createTreeForAllocators({
-    name: "Manual",
+    name: nodeNamesDict.Manual,
     allocators: manualAllocators,
     leafs: [
       createTreeForAllocators({
-        name: "MDMA",
+        name: nodeNamesDict.MDMA,
         allocators: mdmaAllocators,
       }),
       createTreeForAllocators({
-        name: "Direct RKH Manual",
+        name: nodeNamesDict.DirectRKHManual,
         allocators: restOfManualAllocators,
       }),
     ],
@@ -196,14 +226,14 @@ function prepareRound5Tree(dcFlowData: AllocatorsDCFlowData): DCFlowTree {
   });
 
   const experimentalTree = createTreeForAllocators({
-    name: "EPMA",
+    name: nodeNamesDict.EPMA,
     allocators: experimentalAllocators,
-    createHiddenLeaf: true,
   });
 
   return {
-    name: "Root Key Holder",
-    value: Number(sumAllocatorsDatacap(allAllocators)),
+    name: nodeNamesDict.RKH,
+    totalDatacap: allAllocatorsDatacap,
+    value: Number(allAllocatorsDatacap),
     leafs: [automaticTree, manualTree, experimentalTree],
     allocators: allAllocators,
   };
@@ -231,6 +261,8 @@ function prepareDefaultTree(dcFlowData: AllocatorsDCFlowData): DCFlowTree {
       return Number(diff);
     });
 
+  const allAllocatorsDatacap = sumAllocatorsDatacap(allAllocators);
+
   const [mdmaAllocators, nonMdmaAllocators] = partition(
     allAllocators,
     (allocator) => {
@@ -253,11 +285,14 @@ function prepareDefaultTree(dcFlowData: AllocatorsDCFlowData): DCFlowTree {
       };
     }, {})
   ).map<DCFlowTree>(([name, allocators]) => {
-    return createTreeForAllocators({ name, allocators });
+    return createTreeForAllocators({
+      name,
+      allocators,
+    });
   });
 
   const mdmaTree = createTreeForAllocators({
-    name: "Manual Diligence MetaAllocator",
+    name: nodeNamesDict.MDMA,
     allocators: mdmaAllocators,
     leafs: mdmaTrees,
   });
@@ -270,22 +305,28 @@ function prepareDefaultTree(dcFlowData: AllocatorsDCFlowData): DCFlowTree {
   );
 
   const amaTree = createTreeForAllocators({
-    name: "Automatic Dilligence MetaAllocator",
+    name: nodeNamesDict.ADMA,
     allocators: amaAllocators,
-    createHiddenLeaf: true,
   });
 
   const [ormaAllocators, nonOrmaAllocators] = partition(
     nonAmaAllocators,
     (allocator) => {
-      return allocator.metapathwayType === "ORMA";
+      return (
+        allocator.allocatorId === ormaAllocatorId ||
+        allocator.metapathwayType === "ORMA"
+      );
     }
   );
 
   const ormaTree = createTreeForAllocators({
-    name: "On Ramp MetaAllocator",
-    allocators: ormaAllocators,
-    createHiddenLeaf: true,
+    name: nodeNamesDict.ORMA,
+    allocators:
+      ormaAllocators.length > 1
+        ? ormaAllocators.filter((allocator) => {
+            return allocator.allocatorId !== ormaAllocatorId;
+          })
+        : ormaAllocators,
   });
 
   const [faucetAllocators, nonFaucetAllocators] = partition(
@@ -296,9 +337,8 @@ function prepareDefaultTree(dcFlowData: AllocatorsDCFlowData): DCFlowTree {
   );
 
   const faucetTree = createTreeForAllocators({
-    name: "Faucet",
+    name: nodeNamesDict.Faucet,
     allocators: faucetAllocators.length > 0 ? faucetAllocators : [],
-    createHiddenLeaf: true,
     hideWhenEmpty: true,
   });
 
@@ -310,9 +350,8 @@ function prepareDefaultTree(dcFlowData: AllocatorsDCFlowData): DCFlowTree {
   );
 
   const epmaTree = createTreeForAllocators({
-    name: "Experimental Pathway MetaAllocator",
+    name: nodeNamesDict.EPMA,
     allocators: epmaAllocators,
-    createHiddenLeaf: true,
   });
 
   const [automatedAllocators, directRKHAllocators] = partition(
@@ -326,22 +365,21 @@ function prepareDefaultTree(dcFlowData: AllocatorsDCFlowData): DCFlowTree {
   );
 
   const automatedTree = createTreeForAllocators({
-    name: "Automated",
+    name: nodeNamesDict.Automatic,
     allocators: automatedAllocators,
-    createHiddenLeaf: true,
     hideWhenEmpty: true,
   });
 
   const directRKHTree = createTreeForAllocators({
-    name: "Direct RKH",
+    name: nodeNamesDict.DirectRKH,
     allocators: directRKHAllocators,
-    createHiddenLeaf: true,
     hideWhenEmpty: true,
   });
 
   return {
-    name: "Root Key Holder",
-    value: Number(sumAllocatorsDatacap(allAllocators)),
+    name: nodeNamesDict.RKH,
+    totalDatacap: allAllocatorsDatacap,
+    value: Number(allAllocatorsDatacap),
     allocators: allAllocators,
     leafs: [
       mdmaTree,
@@ -357,34 +395,141 @@ function prepareDefaultTree(dcFlowData: AllocatorsDCFlowData): DCFlowTree {
   };
 }
 
-function dcFlowDataToChartData(
-  dcFlowData: AllocatorsDCFlowData
-): ChartData | null {
-  const tree =
-    dcFlowData.filPlusEditionId === 5
-      ? prepareRound5Tree(dcFlowData)
-      : prepareDefaultTree(dcFlowData);
+function dcFlowDataToDCFlowTree(dcFlowData: AllocatorsDCFlowData): DCFlowTree {
+  return dcFlowData.filPlusEditionId === 5
+    ? prepareRound5Tree(dcFlowData)
+    : prepareDefaultTree(dcFlowData);
+}
+
+function expandAllocatorTree(
+  tree: DCFlowTree,
+  expandedNodeName: string | null
+): DCFlowTree {
+  if (tree.name === expandedNodeName && tree.leafs.length === 0) {
+    return {
+      ...tree,
+      leafs: tree.allocators.map((allocator) => {
+        const rawName = allocator.allocatorName ?? allocator.allocatorId;
+        const name =
+          rawName.length > 20 ? rawName.slice(0, 20) + "..." : rawName;
+        const totalDatacap = BigInt(allocator.datacap);
+
+        return {
+          name,
+          value: Number(totalDatacap),
+          allocators: [allocator],
+          totalDatacap,
+          leafs: [],
+        };
+      }),
+    };
+  }
 
   return {
-    nodes: getNodesFromSankeyTree(tree),
-    links: getLinksFromSankeyTree(tree),
+    ...tree,
+    leafs: tree.leafs.map((leaf) => {
+      return expandAllocatorTree(leaf, expandedNodeName);
+    }),
+  };
+}
+
+function padTreeToDepth(
+  tree: DCFlowTree,
+  DONT_PASS__remainingPadding: number | null = null
+): DCFlowTree {
+  if (DONT_PASS__remainingPadding === 0) {
+    return tree;
+  }
+
+  const nextPadding =
+    DONT_PASS__remainingPadding === null
+      ? getTreeDepth(tree) - 1
+      : DONT_PASS__remainingPadding - 1;
+
+  return {
+    ...tree,
+    leafs:
+      tree.leafs.length === 0
+        ? [
+            padTreeToDepth(
+              {
+                name: "Hidden",
+                value: 0,
+                allocators: [],
+                leafs: [],
+                totalDatacap: 0n,
+                hidden: true,
+              },
+              nextPadding
+            ),
+          ]
+        : tree.leafs.map((leaf) => {
+            return padTreeToDepth(leaf, nextPadding);
+          }),
   };
 }
 
 export function DCFlowSankey({ snapshotDate }: DCFlowSankeyProps) {
+  const [selectedNode, setSelectedNode] = useState<string | null>(null);
   const {
     data: allocatorsDCFlowData,
     error,
     isLoading,
   } = useAllocatorsDCFlow(snapshotDate);
 
-  const chartData = useMemo<ChartData | null>(() => {
+  const [chartData, chartHeight] = useMemo<[ChartData | null, number]>(() => {
     if (!allocatorsDCFlowData) {
-      return null;
+      return [null, 0];
     }
 
-    return dcFlowDataToChartData(allocatorsDCFlowData);
-  }, [allocatorsDCFlowData]);
+    const tree = dcFlowDataToDCFlowTree(allocatorsDCFlowData);
+    const expandedTree = expandAllocatorTree(tree, selectedNode);
+    const paddedTree = padTreeToDepth(expandedTree);
+    const nodes = getNodesFromSankeyTree(paddedTree);
+    const links = getLinksFromSankeyTree(paddedTree);
+
+    const nonHiddenNonParentNodes = nodes.filter((node, nodeIndex) => {
+      if (node.hidden) {
+        return false;
+      }
+
+      const hasChildNodes = links.some((link) => {
+        return link.source === nodeIndex && !nodes[link.target].hidden;
+      });
+
+      return !hasChildNodes;
+    });
+
+    const nonHiddenNonParentNodesCount = nonHiddenNonParentNodes.length;
+
+    const chartData: ChartData = {
+      nodes,
+      links,
+    };
+
+    return [chartData, Math.max(800, nonHiddenNonParentNodesCount * 64)];
+  }, [allocatorsDCFlowData, selectedNode]);
+
+  const handleSankeyClick = useCallback<SankeyClickHandler>(
+    (params, elementType) => {
+      if (elementType === "node") {
+        const nodeClickParams = params as SankeyNodeClickParameters;
+        const { allocators, expandable } = nodeClickParams.payload;
+
+        if (expandable) {
+          setSelectedNode((currentSelectedNode) => {
+            return currentSelectedNode === nodeClickParams.payload.name
+              ? null
+              : nodeClickParams.payload.name;
+          });
+        } else if (allocators.length === 1) {
+          const allocator = allocators[0];
+          window.open(`/allocators/${allocator.allocatorId}`, "_blank");
+        }
+      }
+    },
+    []
+  );
 
   const renderTooltipContent = useCallback(
     ({ payload }: TooltipProps<number, string>): ReactNode => {
@@ -416,11 +561,26 @@ export function DCFlowSankey({ snapshotDate }: DCFlowSankeyProps) {
               <p>{filesize(value, { standard: "iec" }) + " Datacap"}</p>
             )}
 
-            {allocatorsCount > 0 && (
+            {!!nodeData.expandable && (
               <>
                 <p>{allocatorsCount} Allocators</p>
                 <p className="text-xs text-muted-foreground mt-4">
-                  Click on the node to see more details
+                  Click on the node to expand / contract
+                </p>
+              </>
+            )}
+
+            {!nodeData.expandable && allocatorsCount === 1 && (
+              <p className="text-xs text-muted-foreground mt-4">
+                Click on the node to see allocator details
+              </p>
+            )}
+
+            {!nodeData.expandable && allocatorsCount > 1 && (
+              <>
+                <p>{allocatorsCount} Allocators</p>
+                <p className="text-xs text-muted-foreground mt-4">
+                  Click on the node to see list of allocators
                 </p>
               </>
             )}
@@ -432,7 +592,9 @@ export function DCFlowSankey({ snapshotDate }: DCFlowSankeyProps) {
   );
 
   return (
-    <div className="h-[620px] flex flex-col justify-center items-center">
+    <div
+      className={`h-[${chartHeight + 20}px] max-w-full overflow-y-auto flex flex-col justify-center items-center`}
+    >
       {isLoading && <ChartLoader />}
 
       {!isLoading && !!error && (
@@ -447,7 +609,7 @@ export function DCFlowSankey({ snapshotDate }: DCFlowSankeyProps) {
 
       {!isLoading && !error && !!chartData && (
         <>
-          <ResponsiveContainer width="100%" height={600}>
+          <ResponsiveContainer width="100%" height={chartHeight}>
             <Sankey
               data={chartData}
               node={CustomSankeyNode}
@@ -460,6 +622,7 @@ export function DCFlowSankey({ snapshotDate }: DCFlowSankeyProps) {
                 top: 100,
                 bottom: 50,
               }}
+              onClick={handleSankeyClick}
             >
               <Tooltip content={renderTooltipContent} />
             </Sankey>
@@ -486,64 +649,34 @@ export function DCFlowSankey({ snapshotDate }: DCFlowSankeyProps) {
 }
 
 function CustomSankeyNode({ x, y, width, height, payload }: NodeProps) {
-  const { name, allocators, hidden = false } = payload;
+  const {
+    name,
+    allocators,
+    expandable = false,
+    hidden = false,
+    totalDatacap,
+  } = payload;
 
   if (hidden || isNaN(x) || isNaN(y)) {
     return <g transform={`translate(${x},${y})`}></g>;
   }
 
-  const totalDatacap = sumAllocatorsDatacap(allocators);
+  const totalDatacapString = filesize(totalDatacap, { standard: "iec" });
   const clickable = allocators.length > 0;
 
-  const rectElement = (
-    <rect
-      x={-width}
-      y={-5}
-      width={width * 2}
-      rx={4}
-      height={height + 10}
+  const content = (
+    <g
+      transform={`translate(${x},${y})`}
       cursor={!clickable ? "default" : "pointer"}
-      fill={!clickable ? "var(--color-horizon)" : "var(--color-dodger-blue)"}
-    />
-  );
-
-  const totalDatacapString = filesize(totalDatacap, { standard: "iec" });
-
-  return (
-    <g transform={`translate(${x},${y})`}>
-      {clickable ? (
-        <Dialog>
-          <DialogTrigger asChild>{rectElement}</DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>{name}</DialogTitle>
-              <DialogDescription>
-                {totalDatacapString} total datacap
-              </DialogDescription>
-            </DialogHeader>
-
-            <ul className="max-h-[500px] overflow-auto flex flex-col gap-2">
-              {allocators.map(({ allocatorId, allocatorName, datacap }) => (
-                <li key={allocatorId}>
-                  <div>
-                    <Button variant="link" asChild>
-                      <NextLink href={`/allocators/${allocatorId}`}>
-                        {allocatorName ?? allocatorId}
-                      </NextLink>
-                    </Button>
-                  </div>
-                  <div className="text-sm">
-                    <span className="text-muted-foreground">Datacap:</span>{" "}
-                    {filesize(datacap, { standard: "iec" })}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </DialogContent>
-        </Dialog>
-      ) : (
-        rectElement
-      )}
+    >
+      <rect
+        x={-width}
+        y={-5}
+        width={width * 2}
+        rx={4}
+        height={height + 10}
+        fill={!clickable ? "var(--color-horizon)" : "var(--color-dodger-blue)"}
+      />
       <text
         x={width * 1.5}
         y={height / 2 - 7}
@@ -557,5 +690,39 @@ function CustomSankeyNode({ x, y, width, height, payload }: NodeProps) {
         {totalDatacapString}
       </text>
     </g>
+  );
+
+  return !expandable && allocators.length > 1 ? (
+    <Dialog>
+      <DialogTrigger asChild>{content}</DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{name}</DialogTitle>
+          <DialogDescription>
+            {totalDatacapString} total datacap
+          </DialogDescription>
+        </DialogHeader>
+
+        <ul className="max-h-[500px] overflow-auto flex flex-col gap-2">
+          {allocators.map(({ allocatorId, allocatorName, datacap }) => (
+            <li key={allocatorId}>
+              <div>
+                <Button variant="link" asChild>
+                  <NextLink href={`/allocators/${allocatorId}`}>
+                    {allocatorName ?? allocatorId}
+                  </NextLink>
+                </Button>
+              </div>
+              <div className="text-sm">
+                <span className="text-muted-foreground">Datacap:</span>{" "}
+                {filesize(datacap, { standard: "iec" })}
+              </div>
+            </li>
+          ))}
+        </ul>
+      </DialogContent>
+    </Dialog>
+  ) : (
+    content
   );
 }
