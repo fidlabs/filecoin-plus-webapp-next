@@ -31,7 +31,10 @@ export function AllocatorReportScoringSection() {
             key={index}
             className="p-4 border-b [&:not(:last-child)]:border-r-2 flex items-center space-x-2"
           >
-            <AllocatorScoreBadge scoringResults={report.scoring_results} />
+            <AllocatorScoreBadge
+              scoringResults={report.scoring_results}
+              averageScore={report.all_allocators_score_avg}
+            />
             <div>
               <p className="text-sm text-muted-foreground">
                 Total Allocator Score

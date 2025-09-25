@@ -4,13 +4,14 @@ import { type HTMLAttributes } from "react";
 
 type BaseProps = Omit<HTMLAttributes<HTMLDivElement>, "children">;
 export interface AllocatorScoreBadgeProps extends BaseProps {
+  averageScore?: number | null;
   scoringResults: AllocatorScoringResult[];
   size?: number;
   thickness?: number;
 }
-// #d1d5db
 
 export function AllocatorScoreBadge({
+  averageScore,
   className,
   scoringResults,
   size = 96,
@@ -32,7 +33,11 @@ export function AllocatorScoreBadge({
 
   const circleRadius = (size - thickness) / 2;
   const circumference = 2 * Math.PI * circleRadius;
-  const ratio = totalScore / maxTotalScore;
+  const ratio = maxTotalScore !== 0 ? totalScore / maxTotalScore : 0;
+  const averageRatio =
+    typeof averageScore === "number" && maxTotalScore !== 0
+      ? averageScore / maxTotalScore
+      : 0;
 
   return (
     <div
@@ -60,6 +65,17 @@ export function AllocatorScoreBadge({
           fill="none"
           stroke="#d1d5db"
           strokeWidth={thickness}
+        />
+
+        <circle
+          className="-rotate-90 origin-center"
+          cx={size / 2}
+          cy={size / 2}
+          r={circleRadius}
+          fill="none"
+          stroke="#aaa"
+          strokeWidth={thickness}
+          strokeDasharray={`${circumference * averageRatio} ${circumference * (1 - averageRatio)}`}
         />
 
         <circle

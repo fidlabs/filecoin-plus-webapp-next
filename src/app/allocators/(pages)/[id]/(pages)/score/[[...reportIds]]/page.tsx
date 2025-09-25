@@ -109,9 +109,21 @@ export default async function AllocatorScorePage({ params }: PageProps) {
             pageData.reportObsolete && "lg:justify-between"
           )}
         >
-          <AllocatorScoreBadge
-            scoringResults={pageData.report.scoring_results}
-          />
+          <div className="flex items-center space-x-2">
+            <AllocatorScoreBadge
+              averageScore={pageData.report.all_allocators_score_avg}
+              scoringResults={pageData.report.scoring_results}
+            />
+            <div>
+              <p className="text-sm font-semibold">Allocator Score</p>
+              {typeof pageData.report.all_allocators_score_avg === "number" && (
+                <p className="text-xs text-muted-foreground">
+                  Average Score:{" "}
+                  {+pageData.report.all_allocators_score_avg.toFixed(2)}
+                </p>
+              )}
+            </div>
+          </div>
 
           {pageData.reportObsolete && (
             <div className="max-w-[420px]">

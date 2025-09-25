@@ -375,6 +375,7 @@ export interface ICDPAllocatorFullReport {
   check_results: Array<AllocatorReportCheck>;
   avg_secs_to_first_deal: number;
   scoring_results: AllocatorScoringResult[];
+  all_allocators_score_avg: number | null;
 }
 
 export interface AllocatorFullReportNotFoundClient {
