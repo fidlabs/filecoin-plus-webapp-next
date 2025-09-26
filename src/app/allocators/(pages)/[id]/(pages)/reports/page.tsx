@@ -34,6 +34,11 @@ const AllocatorReportsPage = async (pageParams: IPageProps) => {
       href: `/allocators/${pageParams.params.id}/reports`,
       value: "reports",
     },
+    {
+      label: "Score",
+      href: `/allocators/${pageParams.params.id}/score`,
+      value: "score",
+    },
   ] as ITabNavigatorTab[];
 
   return (
