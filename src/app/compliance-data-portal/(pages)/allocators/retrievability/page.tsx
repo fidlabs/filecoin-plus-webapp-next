@@ -2,6 +2,7 @@
 
 import { ChartWrapper } from "@/app/compliance-data-portal/components/chart-wrapper";
 import { StackedBarGraph } from "@/app/compliance-data-portal/components/graphs/stacked-bar-graph";
+import { RetrievabilityTypeSelect } from "@/app/compliance-data-portal/components/retrievability-type-select";
 import useWeeklyChartData from "@/app/compliance-data-portal/hooks/useWeeklyChartData";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAllocatorRetrievability } from "@/lib/hooks/cdp.hooks";
@@ -13,17 +14,17 @@ import { type ComponentProps, useCallback, useEffect, useState } from "react";
 type CheckboxProps = ComponentProps<typeof Checkbox>;
 type CheckedChangeHandler = NonNullable<CheckboxProps["onCheckedChange"]>;
 
-const httpRetrievabilityFilterKey = "httpRetrievability";
+const retrievabilityFilterKey = "retrievabilityType";
 const openDataFilterKey = "openDataOnly";
 
 export default function AllocatorRetrievabilityPage() {
   const { filters, updateFilter } = useSearchParamsFilters();
-  const httpRetrievability = filters[httpRetrievabilityFilterKey] === "true";
+  const retrievabilityType = filters[retrievabilityFilterKey] ?? "rpa";
   const openDataOnly = filters[openDataFilterKey] === "true";
   const [usePercentage, setUsePercentage] = useState(false);
 
   const { data, isLoading } = useAllocatorRetrievability({
-    httpRetrievability,
+    retrievabilityType,
     openDataOnly,
   });
 
@@ -43,17 +44,6 @@ export default function AllocatorRetrievabilityPage() {
 
   const { scale, calcPercentage, selectedScale, setSelectedScale } =
     useChartScale(minValue);
-
-  const handleHTTPRetrievabilityToggleChange =
-    useCallback<CheckedChangeHandler>(
-      (state) => {
-        updateFilter(
-          httpRetrievabilityFilterKey,
-          state === true ? "true" : undefined
-        );
-      },
-      [updateFilter]
-    );
 
   const handleOpenDataToggleChange = useCallback<CheckedChangeHandler>(
     (state) => {
@@ -83,19 +73,12 @@ export default function AllocatorRetrievabilityPage() {
       additionalFilters={[
         <div
           key="http-retrievability-toggle"
-          className="flex items-center space-x-2 py-3.5 px-2"
+          className="flex items-center space-x-2"
         >
-          <Checkbox
-            id="http-retrievability"
-            checked={httpRetrievability}
-            onCheckedChange={handleHTTPRetrievabilityToggleChange}
+          <RetrievabilityTypeSelect
+            label="Retrievability Type"
+            defaultValue="rpa"
           />
-          <label
-            className="text-sm font-medium leading-none"
-            htmlFor="http-retrievability"
-          >
-            HTTP Retrievability
-          </label>
         </div>,
         <div
           key="open-data-toggle"
