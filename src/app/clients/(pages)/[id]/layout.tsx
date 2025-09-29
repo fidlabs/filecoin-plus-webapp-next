@@ -28,12 +28,16 @@ async function fetchClientData(clientId: string): Promise<ClientData | null> {
     return null;
   }
 
+  const githubUrl = client.allowanceArray.find((entry) => {
+    return typeof entry.auditTrail === "string";
+  })?.auditTrail;
+
   return {
     id: client.addressId,
     name: client.name,
     remainingDatacap: client.remainingDatacap,
     allocatedDatacap: client.initialAllowance,
-    githubUrl: client.allowanceArray?.[0]?.auditTrail,
+    githubUrl,
   };
 }
 
