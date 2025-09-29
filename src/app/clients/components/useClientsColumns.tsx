@@ -6,7 +6,6 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import { type IClient } from "@/lib/interfaces/dmob/client.interface";
-import { type IAllowanceArray } from "@/lib/interfaces/dmob/dmob.interface";
 import { calculateDateFromHeight, convertBytesToIEC } from "@/lib/utils";
 import { ColumnDef } from "@tanstack/react-table";
 import { InfoIcon } from "lucide-react";
