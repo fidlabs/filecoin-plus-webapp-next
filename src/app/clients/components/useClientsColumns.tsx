@@ -30,9 +30,9 @@ export const useClientsColumns = (filterCallback: FilterCallback) => {
         const allowanceArraySorted = row.original.allowanceArray.sort(
           (a, b) => +b.height - +a.height
         );
-        const allowanceArrayHead: IAllowanceArray | undefined =
-          allowanceArraySorted[0];
-        const githubLink = allowanceArrayHead?.auditTrail;
+        const githubLink = allowanceArraySorted.find((entry) => {
+          return typeof entry.auditTrail === "string";
+        })?.auditTrail;
 
         return (
           <div className="flex gap-1 items-center">
