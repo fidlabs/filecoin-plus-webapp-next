@@ -55,7 +55,7 @@ export function LatestClaims({
   return (
     <Card>
       <GenericContentHeader
-        placeholder="Storage Provider ID"
+        placeholder="SP ID or Piece CID"
         sticky
         fixedHeight={false}
         navigation={tabs}
