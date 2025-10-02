@@ -63,6 +63,8 @@ export interface IClientLatestClaimsResponse
     pages: number;
     total: number;
   };
+  totalSumOfDdoPieceSize: string;
+  totalSumOfNonDdoPieceSize: string;
 }
 
 export interface IClientProviderBreakdownResponse {
