@@ -8,6 +8,7 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
+  Legend,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -73,7 +74,7 @@ export function AllocatorsAuditOutcomesChart({
       setSelectedScale={setCurrentScale}
       additionalFilters={[<EditionRoundSelect key="edition-round-select" />]}
     >
-      <ResponsiveContainer width="100%" height={chartData.length * 30 + 60}>
+      <ResponsiveContainer width="100%" height={chartData.length * 30 + 80}>
         <BarChart
           data={chartData}
           layout="vertical"
@@ -100,7 +101,7 @@ export function AllocatorsAuditOutcomesChart({
           <Bar
             dataKey="notAudited"
             stackId="month"
-            fill="#66a61e"
+            fill="#888"
             name="Not Audited"
           />
           <YAxis dataKey="month" type="category" interval={0} fontSize={14} />
@@ -108,6 +109,13 @@ export function AllocatorsAuditOutcomesChart({
             type="number"
             tickFormatter={formatValue}
             domain={[0, maxValue]}
+          />
+          <Legend
+            align="center"
+            verticalAlign="bottom"
+            wrapperStyle={{
+              fontSize: 12,
+            }}
           />
         </BarChart>
       </ResponsiveContainer>
