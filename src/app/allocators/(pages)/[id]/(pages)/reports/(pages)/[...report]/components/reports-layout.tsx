@@ -11,17 +11,18 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { AllocatorReportDataTypesSection } from "./allocator-report-data-types-section";
 import { AllocatorReportOverviewSection } from "./allocator-report-overview-section";
+import { AllocatorReportScoringSection } from "./allocator-report-scoring-section";
+
+function parseId(id: string) {
+  if (id.length > 10) {
+    return id.substring(0, 8) + "..." + id.substring(id.length - 4);
+  } else {
+    return id;
+  }
+}
 
 export function ReportsLayout() {
   const { colsStyle, reports } = useReportsDetails();
-
-  const parseId = (id: string) => {
-    if (id.length > 10) {
-      return id.substring(0, 8) + "..." + id.substring(id.length - 4);
-    } else {
-      return id;
-    }
-  };
 
   return (
     <div className={cn(reports.length > 2 ? "mx-4" : "main-content")}>
@@ -55,6 +56,7 @@ export function ReportsLayout() {
               );
             })}
           </div>
+          <AllocatorReportScoringSection />
           <AllocatorReportOverviewSection />
           <AllocatorReportDataTypesSection />
           <ClientsView />
