@@ -11,8 +11,17 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { AllocatorReportDataTypesSection } from "./allocator-report-data-types-section";
 import { AllocatorReportOverviewSection } from "./allocator-report-overview-section";
+import {
+  IAllocatorReportClientPaginationQuery,
+  IAllocatorReportProviderPaginationQuery,
+} from "@/lib/interfaces/api.interface";
 
-export function ReportsLayout() {
+export function ReportsLayout({
+  queryParams,
+}: {
+  queryParams?: IAllocatorReportClientPaginationQuery &
+    IAllocatorReportProviderPaginationQuery;
+}) {
   const { colsStyle, reports } = useReportsDetails();
 
   const parseId = (id: string) => {
@@ -57,8 +66,18 @@ export function ReportsLayout() {
           </div>
           <AllocatorReportOverviewSection />
           <AllocatorReportDataTypesSection />
-          <ClientsView />
-          <ProvidersView />
+          <ClientsView
+            queryParams={{
+              clientPaginationPage: queryParams?.clientPaginationPage,
+              clientPaginationLimit: queryParams?.clientPaginationLimit,
+            }}
+          />
+          <ProvidersView
+            queryParams={{
+              providerPaginationPage: queryParams?.providerPaginationPage,
+              providerPaginationLimit: queryParams?.providerPaginationLimit,
+            }}
+          />
         </CardContent>
       </Card>
     </div>

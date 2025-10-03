@@ -1,9 +1,10 @@
+import { compareReportValue } from "@/lib/helpers/cpd.helpers";
 import {
+  AllocatorFullReportNotFoundClient,
   ICDPAllocatorFullReport,
-  AllocatorFullReportClient,
+  ICDPAllocatorFullReportClient,
   ICDPAllocatorFullReportStorageProviderDistribution,
 } from "@/lib/interfaces/cdp/cdp.interface";
-import { compareReportValue } from "@/lib/helpers/cpd.helpers";
 import { uniq } from "lodash";
 
 export const parseProviderDistribution = (
@@ -29,24 +30,25 @@ export const parseProviderDistribution = (
 
 export const parseReport = (
   report: ICDPAllocatorFullReport,
-  allCLients: AllocatorFullReportClient[],
+  allCLients: ICDPAllocatorFullReportClient[],
   allProviders: ICDPAllocatorFullReportStorageProviderDistribution[]
-) => {
-  report.storage_provider_distribution = parseProviderDistribution([
+): ICDPAllocatorFullReport => {
+  report.storage_provider_distribution.data = parseProviderDistribution([
     ...allProviders.filter(
       (provider) =>
-        !report.storage_provider_distribution.find(
+        !report.storage_provider_distribution.data.find(
           (p) => p.provider === provider.provider
         )
     ),
-    ...report.storage_provider_distribution,
+    ...report.storage_provider_distribution.data,
   ]);
 
-  report.clients = [
+  report.clients.data = [
     ...allCLients.filter(
-      (client) => !report.clients.find((c) => c.client_id === client.client_id)
+      (client) =>
+        !report.clients.data.find((c) => c.client_id === client.client_id)
     ),
-    ...report.clients,
+    ...report.clients.data,
   ].sort((a, b) => a.client_id.localeCompare(b.client_id));
 
   return report;
@@ -63,28 +65,33 @@ export const compareReports = (reports: ICDPAllocatorFullReport[]) => {
     }
     return {
       ...report,
-      storage_provider_distribution: report.storage_provider_distribution.map(
-        (provider, providerIndex) => {
-          return {
-            ...provider,
-            total_deal_size_compare: compareReportValue(
-              +provider.total_deal_size,
-              +reports[index - 1].storage_provider_distribution[providerIndex]
-                .total_deal_size
-            ),
-            unique_data_size_compare: compareReportValue(
-              +provider.unique_data_size,
-              +reports[index - 1].storage_provider_distribution[providerIndex]
-                .unique_data_size
-            ),
-            perc_of_total_datacap_compare: compareReportValue(
-              +provider.perc_of_total_datacap,
-              +reports[index - 1].storage_provider_distribution[providerIndex]
-                .perc_of_total_datacap
-            ),
-          };
-        }
-      ),
+      storage_provider_distribution: {
+        data: report.storage_provider_distribution.data.map(
+          (provider, providerIndex) => {
+            return {
+              ...provider,
+              total_deal_size_compare: compareReportValue(
+                +provider.total_deal_size,
+                +reports[index - 1].storage_provider_distribution.data[
+                  providerIndex
+                ].total_deal_size
+              ),
+              unique_data_size_compare: compareReportValue(
+                +provider.unique_data_size,
+                +reports[index - 1].storage_provider_distribution.data[
+                  providerIndex
+                ].unique_data_size
+              ),
+              perc_of_total_datacap_compare: compareReportValue(
+                +provider.perc_of_total_datacap,
+                +reports[index - 1].storage_provider_distribution.data[
+                  providerIndex
+                ].perc_of_total_datacap
+              ),
+            };
+          }
+        ),
+      },
     };
   });
 };
@@ -116,7 +123,7 @@ export const prepareEmptyProviders = (allProviders: string[]) => {
   );
 };
 
-export const prepareEmtyClients = (allClients: string[]) => {
+export const prepareEmptyClients = (allClients: string[]) => {
   return uniq(allClients).map(
     (client_id) =>
       ({
@@ -127,27 +134,30 @@ export const prepareEmtyClients = (allClients: string[]) => {
         total_allocations: "",
         application_url: "",
         application_timestamp: "",
-      }) as AllocatorFullReportClient
+      }) as AllocatorFullReportNotFoundClient
   );
 };
 
 export const parseReports = (reports: ICDPAllocatorFullReport[]) => {
-  const allClients = prepareEmtyClients(
+  const allClients = prepareEmptyClients(
     reports
-      .map((report) => report.clients.map((provider) => provider.client_id))
+      .map((report) => report.clients.data.map((client) => client.client_id))
       .flat()
   );
+
   const allProviders = prepareEmptyProviders(
     reports
       .map((report) =>
-        report.storage_provider_distribution.map(
+        report.storage_provider_distribution.data.map(
           (provider) => provider.provider
         )
       )
       .flat()
   );
+
   const richReports = reports.map((report) =>
     parseReport(report, allClients, allProviders)
   );
+
   return compareReports(richReports);
 };

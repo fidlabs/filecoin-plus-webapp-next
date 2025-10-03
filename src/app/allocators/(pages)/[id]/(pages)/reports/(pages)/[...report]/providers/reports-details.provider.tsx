@@ -1,9 +1,10 @@
 "use client";
 import {
   ICDPAllocatorFullReport,
-  AllocatorFullReportClient,
+  ICDPAllocatorFullReportClient,
   ICDPAllocatorFullReportStorageProviderDistribution,
 } from "@/lib/interfaces/cdp/cdp.interface";
+import { calculateAverage, calculateMapScale } from "@/lib/utils";
 import {
   createContext,
   CSSProperties,
@@ -12,11 +13,10 @@ import {
   useMemo,
   useState,
 } from "react";
-import { calculateAverage, calculateMapScale } from "@/lib/utils";
 
 interface IReportsDetailsContext {
   reports: ICDPAllocatorFullReport[];
-  clients: AllocatorFullReportClient[][];
+  clients: ICDPAllocatorFullReportClient[][];
   providersDistribution: ICDPAllocatorFullReportStorageProviderDistribution[][];
   compareMode: boolean;
   toggleCompareMode: () => void;
@@ -67,11 +67,11 @@ const ReportsDetailsProvider = ({
   );
 
   const clients = useMemo(
-    () => reports.map((report) => report.clients),
+    () => reports.map((report) => report.clients.data),
     [reports]
   );
   const providersDistribution = useMemo(
-    () => reports.map((report) => report.storage_provider_distribution),
+    () => reports.map((report) => report.storage_provider_distribution.data),
     [reports]
   );
 

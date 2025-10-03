@@ -183,9 +183,10 @@ export async function getClientReportById(clientId: string, reportId: string) {
 
 export async function getAllocatorReportById(
   allocatorId: string,
-  reportId: string
+  reportId: string,
+  query?: IApiQuery
 ) {
-  const url = `${CDP_API_URL}/allocator-report/${allocatorId}/${reportId}`;
+  const url = `${CDP_API_URL}/allocator-report/${allocatorId}/${reportId}${parseQuery(query)}`;
   const response = await fetch(url);
   throwHTTPErrorOrSkip(
     response,
