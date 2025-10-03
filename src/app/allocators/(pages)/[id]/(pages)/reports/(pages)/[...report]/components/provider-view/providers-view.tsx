@@ -1,12 +1,17 @@
 "use client";
-import { useReportsDetails } from "@/app/allocators/(pages)/[id]/(pages)/reports/(pages)/[...report]/providers/reports-details.provider";
 import { ProviderMap } from "@/app/allocators/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/provider-view/provider-map";
 import { ProviderTable } from "@/app/allocators/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/provider-view/provider-table";
+import { useReportsDetails } from "@/app/allocators/(pages)/[id]/(pages)/reports/(pages)/[...report]/providers/reports-details.provider";
 import { useScrollObserver } from "@/lib/hooks/useScrollObserver";
+import { IAllocatorReportProviderPaginationQuery } from "@/lib/interfaces/api.interface";
 import { cn } from "@/lib/utils";
 
-const ProvidersView = () => {
-  const { colsStyle, colsSpanStyle, providersDistribution } =
+const ProvidersView = ({
+  queryParams,
+}: {
+  queryParams?: IAllocatorReportProviderPaginationQuery;
+}) => {
+  const { colsStyle, colsSpanStyle, providersDistribution, reports } =
     useReportsDetails();
 
   const { top, ref } = useScrollObserver();
@@ -33,12 +38,15 @@ const ProvidersView = () => {
           <div key={index} className="border-b [&:not(:last-child)]:border-r-2">
             <div className="p-4 flex items-center gap-1">
               Number of providers:{" "}
-              {
-                providerDistribution.filter((provider) => !provider.not_found)
-                  .length
-              }
+              {reports[0].storage_provider_distribution.pagination?.total}
             </div>
-            <ProviderTable providerDistribution={providerDistribution} />
+            <ProviderTable
+              providerDistribution={providerDistribution}
+              queryParams={queryParams}
+              totalPages={
+                reports[0].storage_provider_distribution.pagination?.total
+              }
+            />
             <ProviderMap providerDistribution={providerDistribution} />
           </div>
         );

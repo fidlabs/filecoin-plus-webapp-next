@@ -4,6 +4,7 @@ import { ClientsViewTable } from "@/app/allocators/(pages)/[id]/(pages)/reports/
 import { useReportsDetails } from "@/app/allocators/(pages)/[id]/(pages)/reports/(pages)/[...report]/providers/reports-details.provider";
 import { HealthCheck } from "@/components/health-check";
 import { useScrollObserver } from "@/lib/hooks/useScrollObserver";
+import { IAllocatorReportClientPaginationQuery } from "@/lib/interfaces/api.interface";
 import {
   AllocatorReportCheckType,
   ClientReportCheckType,
@@ -34,7 +35,11 @@ const checkTypes = [
   ClientReportCheckType.DEAL_DATA_REPLICATION_HIGH_REPLICA,
 ];
 
-export function ClientsView() {
+export function ClientsView({
+  queryParams,
+}: {
+  queryParams?: IAllocatorReportClientPaginationQuery;
+}) {
   const { colsStyle, colsSpanStyle, reports } = useReportsDetails();
   const { top, ref } = useScrollObserver();
 
@@ -76,7 +81,7 @@ export function ClientsView() {
       </div>
 
       {reports.map((report, index) => {
-        const idsUsingContract = report.clients
+        const idsUsingContract = report.clients.data
           .filter((client) => !client.not_found && client.using_client_contract)
           .map((client) => client.client_id);
 
@@ -95,7 +100,7 @@ export function ClientsView() {
             );
           })?.metadata.violating_ids ?? [];
 
-        const foundClients = report.clients.filter(
+        const foundClients = report.clients.data.filter(
           (client) => !client.not_found
         );
 
@@ -113,6 +118,8 @@ export function ClientsView() {
                 idsReceivingDatacapFromMultipleAllocators
               }
               idsWithNotEnoughReplicas={idsWithNotEnoughReplicas}
+              queryParams={queryParams}
+              totalPages={report.clients.pagination?.total}
             />
           </div>
         );
