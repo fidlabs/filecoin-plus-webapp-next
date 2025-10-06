@@ -327,6 +327,38 @@ export type AllocatorReportCheck =
   | AllocatorClientMultipleAllocatorsCheck
   | AllocatorClientNotEnoughCopiesCheck;
 
+export enum AllocatorScoringMetric {
+  DUPLICATED_DATA = "DUPLICATED_DATA",
+  IPNI_REPORTING = "IPNI_REPORTING",
+  HTTP_RETRIEVABILITY = "HTTP_RETRIEVABILITY",
+  URL_FINDER_RETRIEVABILITY = "URL_FINDER_RETRIEVABILITY",
+  CID_SHARING = "CID_SHARING",
+  UNIQUE_DATA_SET_SIZE = "UNIQUE_DATA_SET_SIZE",
+  EQUALITY_OF_DATACAP_DISTRIBUTION = "EQUALITY_OF_DATACAP_DISTRIBUTION",
+  CLIENT_DIVERSITY = "CLIENT_DIVERSITY",
+  CLIENT_PREVIOUS_APPLICATIONS = "CLIENT_PREVIOUS_APPLICATIONS",
+}
+
+export interface AllocatorScoringResultRange {
+  metric_value_min: number | null;
+  metric_value_max: number | null;
+  score: number;
+}
+
+export interface AllocatorScoringResult {
+  score: number;
+  metric: AllocatorScoringMetric;
+  metric_name: string;
+  metric_description: string;
+  metric_value: number;
+  metric_average: number | null;
+  metric_unit: string | null;
+  metric_value_min: number;
+  metric_value_max: number;
+  ranges: AllocatorScoringResultRange[];
+  metadata: string[];
+}
+
 export interface ICDPAllocatorFullReport {
   id: string;
   create_date: string;
@@ -344,6 +376,8 @@ export interface ICDPAllocatorFullReport {
   storage_provider_distribution: ICDPAllocatorFullReportStorageProviderDistribution[];
   check_results: Array<AllocatorReportCheck>;
   avg_secs_to_first_deal: number;
+  scoring_results: AllocatorScoringResult[];
+  all_allocators_score_avg: number | null;
 }
 
 export interface AllocatorFullReportNotFoundClient {

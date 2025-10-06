@@ -97,6 +97,11 @@ const AllocationsOverTimeChart = ({
         href: `/allocators/${allocatorId}/reports`,
         value: "reports",
       },
+      {
+        label: "Score",
+        href: `/allocators/${allocatorId}/score`,
+        value: "score",
+      },
     ] as ITabNavigatorTab[];
   }, [allocatorId]);
 
