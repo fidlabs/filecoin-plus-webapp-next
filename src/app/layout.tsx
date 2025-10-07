@@ -34,7 +34,7 @@ export default function RootLayout({
               <Header />
               <div className="pb-28 md:pb-10">
                 {children}
-                <div className="flex justify-center pt-6 md:pt-0 md:fixed md:top-12 2xl:top-0 md:right-[19px] 2xl:right-6">
+                <div className="flex justify-center pt-6 md:pt-0 md:fixed md:top-12 2xl:top-0 md:right-[19px] 2xl:right-6 z-50">
                   <Button
                     asChild
                     className="origin-right md:shadow-md md:-rotate-90  md:rounded-b-none 2xl:rounded-b-md 2xl:rounded-t-none 2xl:rotate-0"

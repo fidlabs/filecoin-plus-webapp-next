@@ -16,6 +16,7 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
+import { Container } from "./container";
 
 interface NavigationItem {
   label: string;
@@ -109,8 +110,8 @@ const Header = () => {
   const [menuOpened, setMenuOpened] = useState(false);
 
   return (
-    <header className="w-full h-[110px] text-white after:absolute after:w-full after:content-[''] relative after:bg-header after:min-h-[250px] after:-z-[1] after:top-0">
-      <div className="w-full h-full max-w-[1700px] mx-auto flex justify-between md:justify-start gap-6 pt-7 pb-10 px-4 md:px-12 text-white items-end">
+    <header className="w-full h-[110px] bg-header text-white">
+      <Container className="w-full h-full flex justify-between md:justify-start gap-6 pt-7 pb-10 text-white items-end">
         <Link
           href="/"
           className="flex gap-2 items-end mr-5"
@@ -136,7 +137,7 @@ const Header = () => {
             </SheetContent>
           </Sheet>
         </div>
-      </div>
+      </Container>
     </header>
   );
 };

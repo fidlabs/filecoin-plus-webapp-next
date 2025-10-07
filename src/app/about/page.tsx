@@ -6,7 +6,6 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
-import { PageTitle } from "@/components/ui/title";
 import {
   BookIcon,
   CodeIcon,
@@ -17,6 +16,8 @@ import { StatsLink } from "@/components/ui/stats-link";
 import Link from "next/link";
 import { WebPage, WithContext } from "schema-dts";
 import { JsonLd } from "@/components/json.ld";
+import { Container } from "@/components/container";
+import { PageHeader, PageTitle } from "@/components/page-header";
 
 const page: WithContext<WebPage> = {
   "@context": "https://schema.org",
@@ -85,8 +86,10 @@ const contentLink = {
 export default function AboutPage() {
   return (
     <JsonLd data={page}>
-      <main className="main-content flex flex-col gap-8 row-start-2 items-start">
+      <PageHeader>
         <PageTitle>About</PageTitle>
+      </PageHeader>
+      <Container className="flex flex-col gap-8 row-start-2 items-start">
         <div className="space-y-12">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-9">
             <Card className="flex flex-col">
@@ -207,7 +210,7 @@ export default function AboutPage() {
             </div>
           </div>
         </div>
-      </main>
+      </Container>
     </JsonLd>
   );
 }

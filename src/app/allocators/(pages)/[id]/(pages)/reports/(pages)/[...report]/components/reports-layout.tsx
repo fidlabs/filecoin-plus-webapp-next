@@ -5,6 +5,7 @@ import { EnableCompareButton } from "@/app/allocators/(pages)/[id]/(pages)/repor
 import { ProvidersView } from "@/app/allocators/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/provider-view/providers-view";
 import { useReportsDetails } from "@/app/allocators/(pages)/[id]/(pages)/reports/(pages)/[...report]/providers/reports-details.provider";
 import { ClientOnlyWrapper } from "@/components/client-only-wrapper";
+import { Container } from "@/components/container";
 import { GenericContentHeader } from "@/components/generic-content-view";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -24,45 +25,48 @@ function parseId(id: string) {
 export function ReportsLayout() {
   const { colsStyle, reports } = useReportsDetails();
 
-  return (
-    <div className={cn(reports.length > 2 ? "mx-4" : "main-content")}>
-      <Card>
-        <GenericContentHeader
-          header="Report Detail"
-          sticky
-          addons={reports.length >= 2 && <EnableCompareButton />}
-          fixedHeight={true}
-        />
-        <CardContent className="p-0">
-          <div
-            className={cn("grid border-b sticky top-[90px] bg-white z-10")}
-            style={colsStyle}
-          >
-            {reports.map((report, index) => {
-              return (
-                <div
-                  key={index}
-                  className="[&:not(:last-child)]:border-r-2 p-4 flex gap-1 items-center"
-                >
-                  Report{" "}
-                  <span className="font-semibold">{parseId(report.id)}</span>{" "}
-                  from{" "}
-                  <ClientOnlyWrapper>
-                    <span className="font-semibold">
-                      {format(new Date(report.create_date), "yyyy-MM-dd HH:mm")}
-                    </span>
-                  </ClientOnlyWrapper>
-                </div>
-              );
-            })}
-          </div>
-          <AllocatorReportScoringSection />
-          <AllocatorReportOverviewSection />
-          <AllocatorReportDataTypesSection />
-          <ClientsView />
-          <ProvidersView />
-        </CardContent>
-      </Card>
-    </div>
+  const content = (
+    <Card>
+      <GenericContentHeader
+        header="Report Detail"
+        sticky
+        addons={reports.length >= 2 && <EnableCompareButton />}
+        fixedHeight={true}
+      />
+      <CardContent className="p-0">
+        <div
+          className={cn("grid border-b sticky top-[90px] bg-white z-10")}
+          style={colsStyle}
+        >
+          {reports.map((report, index) => {
+            return (
+              <div
+                key={index}
+                className="[&:not(:last-child)]:border-r-2 p-4 flex gap-1 items-center"
+              >
+                Report{" "}
+                <span className="font-semibold">{parseId(report.id)}</span> from{" "}
+                <ClientOnlyWrapper>
+                  <span className="font-semibold">
+                    {format(new Date(report.create_date), "yyyy-MM-dd HH:mm")}
+                  </span>
+                </ClientOnlyWrapper>
+              </div>
+            );
+          })}
+        </div>
+        <AllocatorReportScoringSection />
+        <AllocatorReportOverviewSection />
+        <AllocatorReportDataTypesSection />
+        <ClientsView />
+        <ProvidersView />
+      </CardContent>
+    </Card>
+  );
+
+  return reports.length > 2 ? (
+    <div className="mx-4">{content}</div>
+  ) : (
+    <Container>{content}</Container>
   );
 }

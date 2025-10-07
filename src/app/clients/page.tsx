@@ -1,12 +1,13 @@
 import { Metadata } from "next";
 import { ClientsList } from "@/app/clients/components/clients-list";
 import { Suspense } from "react";
-import { PageHeader, PageSubTitle, PageTitle } from "@/components/ui/title";
 import { IClientsQuery } from "@/lib/interfaces/api.interface";
 import { getClients } from "@/lib/api";
 import { ItemList, WithContext } from "schema-dts";
 import { JsonLd } from "@/components/json.ld";
 import { generatePageMetadata } from "@/lib/utils";
+import { Container } from "@/components/container";
+import { PageHeader, PageSubtitle, PageTitle } from "@/components/page-header";
 
 export const metadata: Metadata = generatePageMetadata({
   title: "Fil+ DataCap Stats | Clients",
@@ -19,7 +20,7 @@ interface PageProps {
   searchParams: IClientsQuery;
 }
 
-const ClientsPage = async ({ searchParams }: PageProps) => {
+export default async function ClientsPage({ searchParams }: PageProps) {
   const currentParams = {
     page: searchParams?.page ?? "1",
     limit: searchParams?.limit ?? "10",
@@ -44,19 +45,15 @@ const ClientsPage = async ({ searchParams }: PageProps) => {
 
   return (
     <JsonLd data={listJsonLD}>
-      <main className="main-content">
-        <PageHeader>
-          <PageTitle>Clients</PageTitle>
-          <PageSubTitle>
-            View all clients participating in Filecoin
-          </PageSubTitle>
-        </PageHeader>
+      <PageHeader>
+        <PageTitle>Clients</PageTitle>
+        <PageSubtitle>View all clients participating in Filecoin</PageSubtitle>
+      </PageHeader>
+      <Container>
         <Suspense>
           <ClientsList clients={clients} params={currentParams} />
         </Suspense>
-      </main>
+      </Container>
     </JsonLd>
   );
-};
-
-export default ClientsPage;
+}

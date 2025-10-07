@@ -1,3 +1,4 @@
+import { Container } from "@/components/container";
 import { DCFlowSankey } from "@/components/dc-flow-sankey";
 import { GenericContentHeader } from "@/components/generic-content-view";
 import { JsonLd } from "@/components/json.ld";
@@ -24,8 +25,8 @@ export default async function DatacapFlowPage() {
 
   return (
     <JsonLd data={jsonLdData}>
-      <main className="main-content">
-        <Card className="mt-[50px]">
+      <Container>
+        <Card className="mt-12">
           <GenericContentHeader
             selected={allocatorsTabs[1].value}
             navigation={allocatorsTabs}
@@ -33,7 +34,7 @@ export default async function DatacapFlowPage() {
 
           <DCFlowSankey />
         </Card>
-      </main>
+      </Container>
     </JsonLd>
   );
 }
