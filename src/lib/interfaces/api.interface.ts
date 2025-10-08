@@ -23,3 +23,13 @@ export interface IStorageProvidersQuery extends IApiQuery {
   filter: string;
   sort?: string;
 }
+
+export interface IAllocatorReportClientPaginationQuery extends IApiQuery {
+  clientPaginationPage?: string;
+  clientPaginationLimit?: string;
+}
+
+export interface IAllocatorReportProviderPaginationQuery extends IApiQuery {
+  providerPaginationPage?: string;
+  providerPaginationLimit?: string;
+}
