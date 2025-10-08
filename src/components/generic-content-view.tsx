@@ -228,7 +228,7 @@ interface GenericContentFooterProps {
   currentElements?: number;
   limit?: string;
   page?: string;
-  paginationSteps?: string[];
+  pageSizeOptions?: number[];
   patchParams: (params: Partial<IApiQuery>) => void;
 }
 
@@ -238,20 +238,41 @@ const GenericContentFooter = ({
   limit,
   page,
   currentElements,
-  paginationSteps = ["10", "15", "25"],
+  pageSizeOptions = [10, 15, 25],
 }: GenericContentFooterProps) => {
   if (!limit || !page) {
     return <></>;
   }
+
+  const handlePageChange = useCallback(
+    (page: number) => {
+      patchParams({
+        page: page.toString(),
+      });
+    },
+    [patchParams]
+  );
+
+  const handlePageSizeChange = useCallback(
+    (pageSize: number) => {
+      patchParams({
+        limit: pageSize.toString(),
+        page: "1",
+      });
+    },
+    [patchParams]
+  );
+
   return (
     <CardFooter className="border-t w-full p-3">
       {total && (
         <Paginator
           page={+page}
-          perPage={+limit}
+          pageSize={+limit}
           total={+total}
-          paginationSteps={paginationSteps}
-          patchParams={patchParams}
+          pageSizeOptions={pageSizeOptions}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
         />
       )}
       {!total && (
@@ -259,7 +280,7 @@ const GenericContentFooter = ({
           page={+page}
           perPage={+limit}
           currentElements={currentElements ?? 0}
-          paginationSteps={paginationSteps}
+          paginationSteps={pageSizeOptions.map(String)}
           patchParams={patchParams}
         />
       )}

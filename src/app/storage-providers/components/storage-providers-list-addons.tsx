@@ -11,25 +11,16 @@ import { StorageProvidersCSVExportButton } from "./storage-providers-csv-export-
 
 export interface StorageProvidersListAddonsProps {
   complianceWeek?: Week;
+  onSearch(searchPhrase: string): void;
 }
 
 export function StorageProvidersListAddons({
   complianceWeek,
+  onSearch,
 }: StorageProvidersListAddonsProps) {
   const { updateFilters } = useSearchParamsFilters();
   const [searchPhrase, setSearchPhrase] = useState("");
-
-  const search = useCallback(
-    (searchPhrase: string) => {
-      updateFilters({
-        filter: searchPhrase,
-        page: "1",
-      });
-    },
-    [updateFilters]
-  );
-
-  const searchDebounced = useDebounceCallback(search, 150);
+  const searchDebounced = useDebounceCallback(onSearch, 150);
 
   const handleSearchPhraseChange = useCallback<
     ChangeEventHandler<HTMLInputElement>

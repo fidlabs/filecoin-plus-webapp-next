@@ -1,10 +1,11 @@
-import { StorageProvidersList } from "@/app/storage-providers/components/storage-providers-list";
-import { getStorageProviders } from "@/lib/api";
-import { IStorageProvidersQuery } from "@/lib/interfaces/api.interface";
+import { Container } from "@/components/container";
+import { PageHeader, PageTitle } from "@/components/page-header";
+import { QueryKey } from "@/lib/constants";
 import { generatePageMetadata } from "@/lib/utils";
 import { Metadata } from "next";
-import { StorageProvidersListJsonLd } from "../components/storage-providers-list-json-ld";
-import { StorageProvidersListAddons } from "../components/storage-providers-list-addons";
+import { SWRConfig, unstable_serialize } from "swr";
+import { StorageProvidersListWidget } from "../components/storage-providers-list-widget";
+import { fetchStorageProvidersList } from "../storage-providers-data";
 
 export const metadata: Metadata = generatePageMetadata({
   title: "Fil+ DataCap Stats | Storage Providers",
@@ -13,36 +14,24 @@ export const metadata: Metadata = generatePageMetadata({
   url: "https://datacapstats.io/storage-providers",
 });
 
-interface PageProps {
-  searchParams: IStorageProvidersQuery;
-}
-
-const defaultParams = {
-  page: "1",
-  limit: "10",
-};
-
-export default async function StorageProvidersPage({
-  searchParams,
-}: PageProps) {
-  const storageProvidersResponse = await getStorageProviders({
-    ...defaultParams,
-    ...searchParams,
-  });
+export default async function StorageProvidersPage() {
+  const storageProvidersList = await fetchStorageProvidersList();
 
   return (
-    <StorageProvidersListJsonLd
-      storageProviders={storageProvidersResponse.data}
+    <SWRConfig
+      value={{
+        fallback: {
+          [unstable_serialize([QueryKey.STORAGE_PROVIDERS_LIST, {}])]:
+            storageProvidersList,
+        },
+      }}
     >
-      <div className="px-4 pt-6 flex flex-wrap gap-4 items-center justify-between">
-        <h2 className="text-lg font-medium">Storage Providers List</h2>
-        <StorageProvidersListAddons />
-      </div>
-
-      <StorageProvidersList
-        storageProviders={storageProvidersResponse.data}
-        totalCount={storageProvidersResponse.count}
-      />
-    </StorageProvidersListJsonLd>
+      <PageHeader className="mb-8">
+        <PageTitle>Storage Providers</PageTitle>
+      </PageHeader>
+      <Container>
+        <StorageProvidersListWidget />
+      </Container>
+    </SWRConfig>
   );
 }

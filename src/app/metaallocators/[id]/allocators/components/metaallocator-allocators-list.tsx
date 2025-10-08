@@ -189,6 +189,25 @@ export function MetaallocatorAllocatorsList({
     [sortingState, updateFilters]
   );
 
+  const handlePageChange = useCallback(
+    (page: number) => {
+      updateFilters({
+        page: page.toString(),
+      });
+    },
+    [updateFilters]
+  );
+
+  const handlePageSizeChange = useCallback(
+    (pageSize: number) => {
+      updateFilters({
+        limit: pageSize.toString(),
+        page: "1",
+      });
+    },
+    [updateFilters]
+  );
+
   const table = useReactTable({
     data: allocatorsReponse.data,
     columns,
@@ -267,10 +286,11 @@ export function MetaallocatorAllocatorsList({
         <CardFooter className="border-t w-full p-3">
           <Paginator
             page={filters.page ? parseInt(filters.page, 10) : 1}
-            perPage={filters.limit ? parseInt(filters.limit, 10) : 10}
+            pageSize={filters.limit ? parseInt(filters.limit, 10) : 10}
             total={allocatorsReponse.count}
-            paginationSteps={["10", "15", "25"]}
-            patchParams={updateFilters}
+            pageSizeOptions={[10, 15, 25]}
+            onPageChange={handlePageChange}
+            onPageSizeChange={handlePageSizeChange}
           />
         </CardFooter>
       )}

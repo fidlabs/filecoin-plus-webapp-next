@@ -5,9 +5,9 @@ import { PageHeader, PageTitle } from "@/components/page-header";
 import { CdpProvider } from "@/lib/providers/cdp.provider";
 import { EditionRoundProvider } from "@/lib/providers/edition-round-provider";
 import { generatePageMetadata } from "@/lib/utils";
-import { Metadata } from "next";
-import { ReactNode } from "react";
-import { Dataset, WithContext } from "schema-dts";
+import { type Metadata } from "next";
+import { type PropsWithChildren } from "react";
+import type { Dataset, WithContext } from "schema-dts";
 
 export const metadata: Metadata = generatePageMetadata({
   title: "Fil+ DataCap Stats | Compliance Overview",
@@ -144,11 +144,7 @@ const dataset: WithContext<Dataset>[] = [
   },
 ];
 
-const ComplianceLayout = ({
-  children,
-}: Readonly<{
-  children: ReactNode;
-}>) => {
+export default function ComplianceLayout({ children }: PropsWithChildren) {
   return (
     <JsonLd data={dataset}>
       <CdpProvider>
@@ -168,6 +164,4 @@ const ComplianceLayout = ({
       </CdpProvider>
     </JsonLd>
   );
-};
-
-export default ComplianceLayout;
+}
