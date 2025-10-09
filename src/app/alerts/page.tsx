@@ -1,3 +1,4 @@
+import { Container } from "@/components/container";
 import {
   Card,
   CardDescription,
@@ -100,7 +101,7 @@ export default async function AlertsPage({ searchParams }: PageProps) {
   const maybeSelectedWeek = safeWeekFromString(searchParams.week);
 
   return (
-    <div className="flex flex-col gap-12">
+    <Container className="flex flex-col gap-12">
       <Card>
         <CardHeader className="flex-col items-start">
           <CardTitle>Alerts Over Time</CardTitle>
@@ -116,6 +117,6 @@ export default async function AlertsPage({ searchParams }: PageProps) {
       </Card>
 
       <AlertsList data={alertsData} />
-    </div>
+    </Container>
   );
 }

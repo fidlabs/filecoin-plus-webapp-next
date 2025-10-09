@@ -1,4 +1,6 @@
+import { Container } from "@/components/container";
 import { JsonLd } from "@/components/json.ld";
+import { PageHeader, PageSubtitle, PageTitle } from "@/components/page-header";
 import {
   Card,
   CardContent,
@@ -6,7 +8,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { PageHeader, PageSubTitle, PageTitle } from "@/components/ui/title";
 import {
   fetchAllocatorsDailyReportChecks,
   fetchAllocatorsReportChecksWeeks,
@@ -117,15 +118,15 @@ export default async function AlertsLayout({ children }: PropsWithChildren) {
 
   return (
     <JsonLd data={jsonLdData}>
-      <main className="main-content flex flex-col gap-8">
+      <main className="flex flex-col gap-8">
         <PageHeader>
           <PageTitle>Alerts</PageTitle>
-          <PageSubTitle>
+          <PageSubtitle>
             Alerts regarding the state of Filecoin Plus program.
-          </PageSubTitle>
+          </PageSubtitle>
         </PageHeader>
 
-        <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 content-evenly">
+        <Container className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 content-evenly">
           {stats.map(({ heading, subtext, content }, index) => (
             <Card key={index}>
               <CardHeader>
@@ -135,7 +136,7 @@ export default async function AlertsLayout({ children }: PropsWithChildren) {
               <CardContent>{content}</CardContent>
             </Card>
           ))}
-        </div>
+        </Container>
 
         {children}
       </main>

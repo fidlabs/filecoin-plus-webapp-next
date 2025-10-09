@@ -1,6 +1,7 @@
 import { Navigation } from "@/app/compliance-data-portal/components/navigation";
+import { Container } from "@/components/container";
 import { JsonLd } from "@/components/json.ld";
-import { PageTitle } from "@/components/ui/title";
+import { PageHeader, PageTitle } from "@/components/page-header";
 import { CdpProvider } from "@/lib/providers/cdp.provider";
 import { EditionRoundProvider } from "@/lib/providers/edition-round-provider";
 import { generatePageMetadata } from "@/lib/utils";
@@ -150,17 +151,21 @@ const ComplianceLayout = ({
 }>) => {
   return (
     <JsonLd data={dataset}>
-      <main className="main-content flex flex-col justify-start gap-8 row-start-2 items-start">
-        <CdpProvider>
-          <PageTitle>Compliance overview</PageTitle>
-          <div className="mt-9 flex gap-5 w-full">
+      <CdpProvider>
+        <main>
+          <PageHeader>
+            <PageTitle>
+              <PageTitle>Compliance overview</PageTitle>
+            </PageTitle>
+          </PageHeader>
+          <Container className="mt-9 flex gap-5 w-full">
             <Navigation />
             <div className="flex-1">
               <EditionRoundProvider>{children}</EditionRoundProvider>
             </div>
-          </div>
-        </CdpProvider>
-      </main>
+          </Container>
+        </main>
+      </CdpProvider>
     </JsonLd>
   );
 };

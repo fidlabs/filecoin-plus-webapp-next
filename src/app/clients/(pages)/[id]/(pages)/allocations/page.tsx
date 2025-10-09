@@ -1,11 +1,12 @@
-import { GenericContentHeader } from "@/components/generic-content-view";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { AllocationsChart } from "@/app/clients/(pages)/[id]/(pages)/allocations/components/allocations-chart";
 import { AllocationsListTable } from "@/app/clients/(pages)/[id]/(pages)/allocations/components/allocations-list-table";
 import { AllocatorsListTable } from "@/app/clients/(pages)/[id]/(pages)/allocations/components/allocators-list-table";
-import { AllocationsChart } from "@/app/clients/(pages)/[id]/(pages)/allocations/components/allocations-chart";
+import { Container } from "@/components/container";
+import { GenericContentHeader } from "@/components/generic-content-view";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ITabNavigatorTab } from "@/components/ui/tab-navigator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getClientAllocationsById } from "@/lib/api";
-import { ITabNavigatorTab } from "@/components/ui/tab-navigator";
 
 interface IPageProps {
   params: { id: string };
@@ -38,7 +39,7 @@ const ClientAllocationsPage = async (pageParams: IPageProps) => {
   ] as ITabNavigatorTab[];
 
   return (
-    <div className="main-content">
+    <Container>
       <Card>
         <GenericContentHeader
           placeholder="Storage Provider ID"
@@ -70,7 +71,7 @@ const ClientAllocationsPage = async (pageParams: IPageProps) => {
           <AllocatorsListTable allocationsData={data} />
         </CardContent>
       </Card>
-    </div>
+    </Container>
   );
 };
 

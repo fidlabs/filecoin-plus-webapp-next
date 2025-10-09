@@ -1,6 +1,7 @@
 import { FilecoinPulseButton } from "@/components/filecoin-pulse-button";
 import { GithubButton } from "@/components/github-button";
 import { JsonLd } from "@/components/json.ld";
+import { PageHeader, PageSubtitle, PageTitle } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ResponsiveView } from "@/components/ui/responsive-view";
 import { getAllocatorById, getAllocators } from "@/lib/api";
@@ -68,16 +69,21 @@ const AllocatorDetailsLayout = async ({
   return (
     <JsonLd data={person}>
       <main>
-        <div className="main-content flex w-full justify-between mb-4">
-          <div className="text-white">
-            <h1 className="text-3xl leading-relaxed font-semibold">
+        <PageHeader
+          className="mb-8"
+          containerProps={{
+            className: "flex w-full justify-between",
+          }}
+        >
+          <div>
+            <PageTitle>
               {allocatorResponse.name && allocatorResponse.name.length > 0
                 ? allocatorResponse.name
                 : allocatorResponse.addressId}
-            </h1>
-            <p className="text-sm leading-none mb-4">
+            </PageTitle>
+            <PageSubtitle className="mb-4">
               Allocator ID: {allocatorResponse?.addressId}
-            </p>
+            </PageSubtitle>
             <div className="flex items-center gap-2">
               <FilecoinPulseButton url={createAllocatorLink(params.id)}>
                 <span className="lg:hidden">Pulse</span>
@@ -105,7 +111,7 @@ const AllocatorDetailsLayout = async ({
               </Card>
             </div>
           </ResponsiveView>
-        </div>
+        </PageHeader>
         <Suspense>{children}</Suspense>
       </main>
     </JsonLd>

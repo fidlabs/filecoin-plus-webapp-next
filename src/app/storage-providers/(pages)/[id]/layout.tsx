@@ -1,10 +1,11 @@
+import { Container } from "@/components/container";
+import { FilecoinPulseButton } from "@/components/filecoin-pulse-button";
+import { PageHeader, PageTitle } from "@/components/page-header";
 import { getStorageProviderById } from "@/lib/api";
+import { createStorageProviderLink } from "@/lib/filecoin-pulse";
+import { generatePageMetadata } from "@/lib/utils";
 import { Metadata } from "next";
 import { cache, PropsWithChildren, Suspense } from "react";
-import { PageHeader, PageTitle } from "@/components/ui/title";
-import { generatePageMetadata } from "@/lib/utils";
-import { createStorageProviderLink } from "@/lib/filecoin-pulse";
-import { FilecoinPulseButton } from "@/components/filecoin-pulse-button";
 
 const fetchData = cache(async (id: string) => {
   return await getStorageProviderById(id, {
@@ -44,19 +45,17 @@ export default async function StorageProviderDetailsLayout({
   const spResponse = await fetchData(params.id);
 
   return (
-    <main className="main-content">
-      <div className="flex w-full justify-between mb-4">
-        <PageHeader>
-          <div className="flex gap-4 items-end">
-            <PageTitle>{spResponse?.providerId}</PageTitle>
-            <FilecoinPulseButton url={createStorageProviderLink(params.id)}>
-              <span className="lg:hidden">Pulse</span>
-              <span className="hidden lg:inline">View on Filecoin Pulse</span>
-            </FilecoinPulseButton>
-          </div>
-        </PageHeader>
-      </div>
-      <Suspense>{children}</Suspense>
-    </main>
+    <>
+      <PageHeader className="mb-8">
+        <PageTitle className="mb-2">{spResponse?.providerId}</PageTitle>
+        <FilecoinPulseButton url={createStorageProviderLink(params.id)}>
+          <span className="lg:hidden">Pulse</span>
+          <span className="hidden lg:inline">View on Filecoin Pulse</span>
+        </FilecoinPulseButton>
+      </PageHeader>
+      <Container>
+        <Suspense>{children}</Suspense>
+      </Container>
+    </>
   );
 }

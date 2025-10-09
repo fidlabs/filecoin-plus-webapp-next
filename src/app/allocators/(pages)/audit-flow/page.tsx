@@ -1,11 +1,12 @@
+import { EditionRoundSelect } from "@/app/compliance-data-portal/components/edition-round-select";
+import { Container } from "@/components/container";
 import { GenericContentHeader } from "@/components/generic-content-view";
 import { JsonLd } from "@/components/json.ld";
 import { Card } from "@/components/ui/card";
+import { fetchAllocatorsAuditStates } from "@/lib/api";
 import { Organization, WithContext } from "schema-dts";
 import { allocatorsTabs } from "../../constants";
 import { AuditsFlowSankey } from "./components/audits-flow-sankey";
-import { fetchAllocatorsAuditStates } from "@/lib/api";
-import { EditionRoundSelect } from "@/app/compliance-data-portal/components/edition-round-select";
 
 export const revalidate = 300;
 
@@ -30,8 +31,8 @@ export default async function AllocatorsAuditsFlowPage({
 
   return (
     <JsonLd data={jsonLdData}>
-      <main className="main-content">
-        <Card className="mt-[50px]">
+      <Container>
+        <Card className="mt-12">
           <GenericContentHeader
             selected={allocatorsTabs[2].value}
             navigation={allocatorsTabs}
@@ -39,7 +40,7 @@ export default async function AllocatorsAuditsFlowPage({
           />
           <AuditsFlowSankey data={data} />
         </Card>
-      </main>
+      </Container>
     </JsonLd>
   );
 }

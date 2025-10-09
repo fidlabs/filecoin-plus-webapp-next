@@ -1,5 +1,6 @@
 import { AllocatorScoreBadge } from "@/components/allocator-score-badge";
 import { AllocatorScoreResultChart } from "@/components/allocator-score-result-chart";
+import { Container } from "@/components/container";
 import { GenericContentHeader } from "@/components/generic-content-view";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -94,7 +95,7 @@ export default async function AllocatorScorePage({ params }: PageProps) {
   ] as ITabNavigatorTab[];
 
   return (
-    <div className="main-content">
+    <Container>
       <Card className="mb-6">
         <GenericContentHeader
           sticky
@@ -148,6 +149,6 @@ export default async function AllocatorScorePage({ params }: PageProps) {
           );
         })}
       </div>
-    </div>
+    </Container>
   );
 }

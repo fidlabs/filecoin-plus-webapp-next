@@ -81,10 +81,6 @@
       opacity 0.2s ease-in-out;
   }
 
-  .main-content {
-    @apply w-full max-w-[1700px] mx-auto px-4 md:px-12;
-  }
-
   .active + .active {
     @apply rounded-t-none;
   }

@@ -1,4 +1,5 @@
 import { LatestClaims } from "@/app/clients/(pages)/[id]/components/latest-claims";
+import { Container } from "@/components/container";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ResponsiveView } from "@/components/ui/responsive-view";
 import { getClientLatestClaimsByClientId } from "@/lib/api";
@@ -26,7 +27,7 @@ const ClientDetailsPage = async (pageParams: IPageProps) => {
   const data = await getClientLatestClaimsByClientId(clientId, currentParams);
 
   return (
-    <div className="main-content">
+    <Container>
       <Suspense>
         <div className="md:min-w-fit flex">
           <ResponsiveView>
@@ -56,7 +57,7 @@ const ClientDetailsPage = async (pageParams: IPageProps) => {
           searchParams={currentParams}
         />
       </Suspense>
-    </div>
+    </Container>
   );
 };
 

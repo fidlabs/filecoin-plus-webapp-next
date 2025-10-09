@@ -1,8 +1,9 @@
 import { Charts } from "@/app/(dashboard)/components/charts";
 import { DatacapFlow } from "@/app/(dashboard)/components/datacap-flow";
 import { Stats } from "@/app/(dashboard)/components/stats";
+import { Container } from "@/components/container";
 import { JsonLd } from "@/components/json.ld";
-import { PageHeader, PageSubTitle, PageTitle } from "@/components/ui/title";
+import { PageHeader, PageSubtitle, PageTitle } from "@/components/page-header";
 import {
   getAllocators,
   getDataCapAllocationsWeekly,
@@ -37,14 +38,14 @@ export default async function Home() {
 
   return (
     <JsonLd data={page}>
-      <main className="main-content flex flex-col gap-8 items-start">
+      <main className="flex flex-col gap-8">
         <PageHeader>
           <PageTitle>State of Fil+</PageTitle>
-          <PageSubTitle>
+          <PageSubtitle>
             Quick statistics and metrics about the Filecoin Plus program.
-          </PageSubTitle>
+          </PageSubtitle>
         </PageHeader>
-        <div className="flex flex-col gap-6 w-full">
+        <Container className="flex flex-col gap-6 w-full">
           <Stats />
           <Charts
             stats={stats}
@@ -53,7 +54,7 @@ export default async function Home() {
             allocators={allocators}
           />
           <DatacapFlow />
-        </div>
+        </Container>
       </main>
     </JsonLd>
   );
