@@ -315,8 +315,8 @@ function CustomSankeyNode({ x, y, width, height, payload }: NodeProps) {
   }, 0);
   const color = getColorForNodeName(name);
   const fallbackColor = !clickable
-    ? "var(--color-horizon)"
-    : "var(--color-dodger-blue)";
+    ? "hsl(var(--color-horizon))"
+    : "hsl(var(--color-dodger-blue))";
 
   const rectElement = (
     <rect

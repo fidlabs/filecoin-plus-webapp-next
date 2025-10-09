@@ -37,7 +37,7 @@
     --chart-5: hsl(27 87% 67%);
     --radius: 0.5rem;
     --color-link: hsl(206, 100%, 31%);
-    --color-dodger-blue: hsl(206, 100%, 50%);
+    --color-dodger-blue: 206 100% 50%;
     --color-solitude: hsl(210, 36%, 96%);
     --color-medium-turquoise: hsl(184, 58%, 51%);
     --color-oyster-bay: hsl(212, 33%, 89%);

@@ -1,0 +1,501 @@
+"use client";
+
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { QueryKey } from "@/lib/constants";
+import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
+import { bigintToPercentage, cn, objectToURLSearchParams } from "@/lib/utils";
+import { weekFromDate, weekToReadableString, weekToString } from "@/lib/weeks";
+import { scaleSymlog } from "d3-scale";
+import { filesize } from "filesize";
+import { CheckIcon, LoaderCircleIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { MouseEventHandler, useCallback, useMemo, useState } from "react";
+import {
+  Area,
+  AreaChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+import { CategoricalChartFunc } from "recharts/types/chart/generateCategoricalChart";
+import useSWR from "swr";
+import {
+  fetchStorageProvidersComplianceData,
+  FetchStorageProvidersComplianceDataParameters,
+} from "../storage-providers-data";
+
+interface StorageProvidersComplianceWidgetProps {
+  animationDuration?: number;
+}
+
+interface ChartDataEntry {
+  date: string;
+  compliant: number;
+  partiallyCompliant: number;
+  nonCompliant: number;
+}
+
+interface Stat {
+  value: string;
+  percentageChange: number;
+  label: string;
+}
+
+const scales = ["linear", "percentage", "log"] as const;
+const modes = ["datacap", "count"] as const;
+
+const scalesLabelDict: Record<(typeof scales)[number], string> = {
+  linear: "Linear",
+  percentage: "Percentage",
+  log: "Log",
+};
+
+const modesLabelDict: Record<(typeof modes)[number], string> = {
+  datacap: "PiB",
+  count: "Count",
+};
+
+const colors = {
+  compliant: "#66a61e",
+  partiallyCompliant: "orange",
+  nonCompliant: "#ff0029",
+} as const;
+
+const changeFormatter = new Intl.NumberFormat("en-US", {
+  signDisplay: "exceptZero",
+  style: "percent",
+});
+
+export function StorageProvidersComplianceWidget({
+  animationDuration = 500,
+}: StorageProvidersComplianceWidgetProps) {
+  const [editionId, setEditionId] = useState<string>();
+  const [retrievabilityMetricToggled, setRetrievabilityMetricToggled] =
+    useState(true);
+  const [numberOfClientsMetricToggled, setNumberOfClientsMetricToggled] =
+    useState(true);
+  const [totalDealSizeMetricToggled, setTotalDealSizeMetricToggled] =
+    useState(true);
+  const [scale, setScale] = useState<string>(scales[0]);
+  const [mode, setMode] = useState<string>(modes[0]);
+  const { push: navigate } = useRouter();
+
+  const parameters: FetchStorageProvidersComplianceDataParameters = {
+    editionId,
+    retrievability: retrievabilityMetricToggled,
+    numberOfClients: numberOfClientsMetricToggled,
+    totalDealSize: totalDealSizeMetricToggled,
+  };
+
+  const { data, isLoading } = useSWR(
+    [QueryKey.STORAGE_PROVIDERS_COMPLIANCE_DATA, parameters],
+    ([, fetchParameters]) =>
+      fetchStorageProvidersComplianceData(fetchParameters),
+    {
+      keepPreviousData: true,
+    }
+  );
+  const isLongLoading = useDelayedFlag(isLoading, 500);
+
+  const stats = useMemo<Stat[]>(() => {
+    const [previousIntervalData, currentIntervalData] =
+      data?.results.slice(-2) ?? [];
+    const [
+      [previousCompliantDatacap, previousCompliantSPCount],
+      [currentCompliantDatacap, currentCompliantSPCount],
+    ] = [previousIntervalData, currentIntervalData].map((entry) => {
+      if (!entry) {
+        return [0n, 0n];
+      }
+
+      return [
+        BigInt(entry.compliantSpsTotalDatacap),
+        BigInt(entry.compliantSps),
+      ];
+    });
+
+    return [
+      {
+        value: filesize(currentCompliantDatacap, { standard: "iec" }),
+        label: "Compliant DC",
+        percentageChange:
+          bigintToPercentage(
+            currentCompliantDatacap,
+            previousCompliantDatacap,
+            2
+          ) - 100,
+      },
+      {
+        value: currentCompliantSPCount.toString(),
+        label: "Compliant SPs",
+        percentageChange:
+          bigintToPercentage(
+            currentCompliantSPCount,
+            previousCompliantSPCount,
+            2
+          ) - 100,
+      },
+    ];
+  }, [data]);
+
+  const chartData = useMemo<ChartDataEntry[]>(() => {
+    if (!data) {
+      return [];
+    }
+
+    return data.results.map<ChartDataEntry>((result) => {
+      const [compliant, partiallyCompliant, nonCompliant] =
+        mode === "datacap"
+          ? [
+              result.compliantSpsTotalDatacap,
+              result.partiallyCompliantSpsTotalDatacap,
+              result.nonCompliantSpsTotalDatacap,
+            ].map(BigInt)
+          : [
+              result.compliantSps,
+              result.partiallyCompliantSps,
+              result.nonCompliantSps,
+            ].map(BigInt);
+
+      if (scale === "percentage") {
+        const total = compliant + partiallyCompliant + nonCompliant;
+
+        return {
+          date: result.week,
+          compliant: bigintToPercentage(compliant, total, 6),
+          partiallyCompliant: bigintToPercentage(partiallyCompliant, total, 6),
+          nonCompliant: bigintToPercentage(nonCompliant, total, 6),
+        };
+      }
+
+      return {
+        date: result.week,
+        compliant: Number(compliant),
+        partiallyCompliant: Number(partiallyCompliant),
+        nonCompliant: Number(nonCompliant),
+      };
+    });
+  }, [data, mode, scale]);
+
+  const formatDate = useCallback((value: unknown) => {
+    if (typeof value !== "string") {
+      return String(value);
+    }
+
+    return weekToReadableString(weekFromDate(value));
+  }, []);
+
+  const formatValue = useCallback(
+    (value: string | number) => {
+      if (scale === "percentage") {
+        return (
+          parseFloat(
+            typeof value === "string" ? value : value.toFixed(2)
+          ).toString() + "%"
+        );
+      }
+
+      if (mode === "datacap") {
+        return filesize(value, { standard: "iec" });
+      }
+
+      return String(value);
+    },
+    [mode, scale]
+  );
+
+  const handleEditionChange = useCallback((value: string) => {
+    setEditionId(value === "all" ? undefined : value);
+  }, []);
+
+  const handleChartClick = useCallback<CategoricalChartFunc>(
+    (state) => {
+      if (typeof state.activeLabel !== "string") {
+        return;
+      }
+
+      const week = weekFromDate(state.activeLabel);
+      const weekString = week ? weekToString(week) : "latest";
+
+      const searchParams = objectToURLSearchParams(
+        {
+          complianceScore: "compliant",
+          retrievability: retrievabilityMetricToggled,
+          numberOfClients: numberOfClientsMetricToggled,
+          totalDealSize: totalDealSizeMetricToggled,
+        },
+        true
+      );
+
+      searchParams.set("complianceScore", "compliant");
+      searchParams.set("retrievability", String(retrievabilityMetricToggled));
+      searchParams.set("numberOfClients", String(numberOfClientsMetricToggled));
+      searchParams.set("totalDealSize", String(totalDealSizeMetricToggled));
+
+      navigate(
+        `/storage-providers/compliance/${weekString}?${searchParams.toString()}`
+      );
+    },
+    [
+      navigate,
+      numberOfClientsMetricToggled,
+      retrievabilityMetricToggled,
+      totalDealSizeMetricToggled,
+    ]
+  );
+
+  return (
+    <Card id="compliance" className="pb-4">
+      <header className="px-4 py-4">
+        <h3 className="text-md font-medium">Compliance</h3>
+        <p className="text-xs text-muted-foreground">
+          Select metrics below to see Storage Providers compliance
+        </p>
+      </header>
+
+      <div className="px-4 pb-4 mb-4 flex flex-wrap gap-2 border-b">
+        <ComplianceMetricTile
+          label="Retrievability score above average"
+          active={retrievabilityMetricToggled}
+          action={{
+            label: "Retrievability",
+            callback() {},
+          }}
+          onToggle={setRetrievabilityMetricToggled}
+        />
+
+        <ComplianceMetricTile
+          label="At least 3 clients"
+          active={numberOfClientsMetricToggled}
+          action={{
+            label: "Client Diversity",
+            callback() {},
+          }}
+          onToggle={setNumberOfClientsMetricToggled}
+        />
+
+        <ComplianceMetricTile
+          label="At most 30% DC from a single client"
+          active={totalDealSizeMetricToggled}
+          action={{
+            label: "Biggest Allocation",
+            callback() {},
+          }}
+          onToggle={setTotalDealSizeMetricToggled}
+        />
+      </div>
+
+      <div className="px-4 mb-8 flex flex-wrap gap-y-4 justify-between items-start">
+        <div className="flex flex-wrap gap-x-8">
+          {stats.map((stat, index) => {
+            const changeText = changeFormatter.format(
+              stat.percentageChange / 100
+            );
+
+            return (
+              <div key={index}>
+                {!isLoading ? (
+                  <p className="text-2xl font-medium">
+                    {stat.value}{" "}
+                    <span
+                      className={cn(
+                        "font-light text-muted-foreground",
+                        changeText.startsWith("+") && "text-green-500",
+                        changeText.startsWith("-") && "text-red-500"
+                      )}
+                    >
+                      ({changeText})
+                    </span>
+                  </p>
+                ) : (
+                  <div className="py-1">
+                    <Skeleton className="h-6 w-[160px]" />
+                  </div>
+                )}
+
+                <p className="text-xs font-medium text-muted-foreground">
+                  {stat.label}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <Select
+            value={editionId ?? "all"}
+            onValueChange={handleEditionChange}
+          >
+            <SelectTrigger className="bg-background">
+              <SelectValue placeholder="All Editions" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Editions</SelectItem>
+              <SelectItem value="5">Edition 5</SelectItem>
+              <SelectItem value="6">Edition 6</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Tabs value={scale} onValueChange={setScale}>
+            <TabsList>
+              {scales.map((possibleScale) => (
+                <TabsTrigger key={possibleScale} value={possibleScale}>
+                  {scalesLabelDict[possibleScale]}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
+
+          <Tabs value={mode} onValueChange={setMode}>
+            <TabsList>
+              {modes.map((possibleMode) => (
+                <TabsTrigger key={possibleMode} value={possibleMode}>
+                  {modesLabelDict[possibleMode]}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
+        </div>
+      </div>
+
+      <div className="px-4 mb-2">
+        <p className="text-xs text-muted-foreground text-center">
+          Hover and click on the chart to see a list of Storage Providers
+          matching selected criteria for that week.
+        </p>
+      </div>
+
+      <div className="relative">
+        <ResponsiveContainer width="100%" height={400} debounce={500}>
+          <AreaChart
+            data={chartData}
+            margin={{
+              left: 24,
+              right: 16,
+              bottom: 32,
+              top: 32,
+            }}
+            onClick={handleChartClick}
+          >
+            <XAxis
+              dataKey="date"
+              fontSize={12}
+              tickFormatter={formatDate}
+              angle={90}
+              tickMargin={24}
+            />
+            <YAxis
+              fontSize={14}
+              tickFormatter={formatValue}
+              scale={scale === "log" ? scaleSymlog().constant(1) : "linear"}
+            />
+            <Tooltip formatter={formatValue} labelFormatter={formatDate} />
+            <Area
+              className="cursor-pointer"
+              type="monotone"
+              stackId="values"
+              dataKey="compliant"
+              name="Compliant"
+              animationDuration={animationDuration}
+              stroke={colors.compliant}
+              fill={colors.compliant}
+            />
+            <Area
+              type="monotone"
+              stackId="values"
+              dataKey="partiallyCompliant"
+              name="Partially Compliant"
+              animationDuration={animationDuration}
+              stroke={colors.partiallyCompliant}
+              fill={colors.partiallyCompliant}
+            />
+            <Area
+              type="monotone"
+              stackId="values"
+              dataKey="nonCompliant"
+              name="Non Compliant"
+              animationDuration={animationDuration}
+              stroke={colors.nonCompliant}
+              fill={colors.nonCompliant}
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+        <div
+          className={cn(
+            "absolute top-0 left-0 w-full h-full items-center justify-center bg-black/10 hidden",
+            (!data || isLongLoading) && "flex"
+          )}
+        >
+          <LoaderCircleIcon
+            size={50}
+            className="animate-spin text-dodger-blue"
+          />
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+interface ComplianceMetricTileProps {
+  action: {
+    label: string;
+    callback(): void;
+  };
+  active: boolean;
+  label: string;
+  onToggle(nextState: boolean): void;
+}
+
+function ComplianceMetricTile({
+  action,
+  active,
+  label,
+  onToggle,
+}: ComplianceMetricTileProps) {
+  const handleClick = useCallback(() => {
+    onToggle(!active);
+  }, [active, onToggle]);
+
+  const handleActionClick = useCallback<MouseEventHandler>(
+    (event) => {
+      event.stopPropagation();
+      action.callback();
+    },
+    [action.callback]
+  );
+
+  return (
+    <div
+      className={cn(
+        "cursor-pointer flex items-center gap-x-4 border rounded-full pl-3 pr-6 py-1 bg-black/5 border-black/20 text-muted-foreground",
+        active && "bg-dodger-blue/10 border-dodger-blue/50"
+      )}
+      onClick={handleClick}
+    >
+      <CheckIcon className={cn(!active && "text-gray-300")} />
+      <div>
+        <p className={cn("text-sm font-medium", !active && "text-gray-400")}>
+          {label}
+        </p>
+        <Button
+          className={cn("text-xs", !active && "text-gray-400")}
+          variant="link"
+          onClick={handleActionClick}
+        >
+          {action.label}
+        </Button>
+      </div>
+    </div>
+  );
+}

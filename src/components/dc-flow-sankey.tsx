@@ -675,7 +675,9 @@ function CustomSankeyNode({ x, y, width, height, payload }: NodeProps) {
         width={width * 2}
         rx={4}
         height={height + 10}
-        fill={!clickable ? "var(--color-horizon)" : "var(--color-dodger-blue)"}
+        fill={
+          !clickable ? "var(--color-horizon)" : "hsl(var(--color-dodger-blue))"
+        }
       />
       <text
         x={width * 1.5}

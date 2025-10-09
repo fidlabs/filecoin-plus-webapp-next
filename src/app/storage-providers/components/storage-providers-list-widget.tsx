@@ -16,8 +16,7 @@ import {
 import { StorageProvidersListAddons } from "./storage-providers-list-addons";
 import { cn } from "@/lib/utils";
 import { LoaderCircleIcon } from "lucide-react";
-
-const longLoadingDelayMs = 1000;
+import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
 
 export function StorageProvidersListWidget() {
   const [parameters, setParameters] =
@@ -29,9 +28,9 @@ export function StorageProvidersListWidget() {
       keepPreviousData: true,
     }
   );
+  const isLongLoading = useDelayedFlag(isLoading, 1000);
 
   const hasData = typeof data !== "undefined";
-  const [isLongLoading, setIsLongLoading] = useState(false);
   const showLoader = !hasData || isLongLoading;
 
   const sorting: StorageProvidersListProps["sorting"] = useMemo(() => {
@@ -79,18 +78,6 @@ export function StorageProvidersListWidget() {
     [updateParameters]
   );
 
-  useEffect(() => {
-    if (isLoading) {
-      const timeoutId = setTimeout(() => {
-        setIsLongLoading(true);
-      }, longLoadingDelayMs);
-
-      return () => {
-        clearTimeout(timeoutId);
-      };
-    }
-  }, [isLoading]);
-
   return (
     <Card>
       <div className="px-4 pt-6 mb-2 flex flex-wrap gap-4 items-center justify-between">
@@ -107,8 +94,8 @@ export function StorageProvidersListWidget() {
 
         <div
           className={cn(
-            "absolute top-0 left-0 w-full h-full flex items-center justify-center bg-black/5 hidden",
-            showLoader && "block"
+            "absolute top-0 left-0 w-full h-full items-center justify-center bg-black/5 hidden",
+            showLoader && "flex"
           )}
         >
           <LoaderCircleIcon

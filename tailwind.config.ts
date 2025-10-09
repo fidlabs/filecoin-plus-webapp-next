@@ -19,7 +19,7 @@ const config: Config = {
         link: "var(--color-link)",
         "mountain-meadow": "var(--color-mountain-meadow)",
         "echo-blue": "var(--color-echo-blue)",
-        "dodger-blue": "var(--color-dodger-blue)",
+        "dodger-blue": "hsl(var(--color-dodger-blue) / <alpha-value>)",
         "oyster-bay": "var(--color-oyster-bay)",
         "medium-turquoise": "var(--color-medium-turquoise)",
         card: {
