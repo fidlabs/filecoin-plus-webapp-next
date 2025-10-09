@@ -8,6 +8,10 @@ import { ClientOnlyWrapper } from "@/components/client-only-wrapper";
 import { Container } from "@/components/container";
 import { GenericContentHeader } from "@/components/generic-content-view";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  IAllocatorReportClientPaginationQuery,
+  IAllocatorReportProviderPaginationQuery,
+} from "@/lib/interfaces/api.interface";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { AllocatorReportDataTypesSection } from "./allocator-report-data-types-section";
@@ -22,7 +26,12 @@ function parseId(id: string) {
   }
 }
 
-export function ReportsLayout() {
+export function ReportsLayout({
+  queryParams,
+}: {
+  queryParams?: IAllocatorReportClientPaginationQuery &
+    IAllocatorReportProviderPaginationQuery;
+}) {
   const { colsStyle, reports } = useReportsDetails();
 
   const content = (
@@ -58,8 +67,18 @@ export function ReportsLayout() {
         <AllocatorReportScoringSection />
         <AllocatorReportOverviewSection />
         <AllocatorReportDataTypesSection />
-        <ClientsView />
-        <ProvidersView />
+        <ClientsView
+          queryParams={{
+            clientPaginationPage: queryParams?.clientPaginationPage,
+            clientPaginationLimit: queryParams?.clientPaginationLimit,
+          }}
+        />
+        <ProvidersView
+          queryParams={{
+            providerPaginationPage: queryParams?.providerPaginationPage,
+            providerPaginationLimit: queryParams?.providerPaginationLimit,
+          }}
+        />
       </CardContent>
     </Card>
   );

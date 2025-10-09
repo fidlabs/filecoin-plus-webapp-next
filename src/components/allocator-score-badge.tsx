@@ -19,7 +19,7 @@ export function AllocatorScoreBadge({
   thickness = 4,
   ...rest
 }: AllocatorScoreBadgeProps) {
-  const [totalScore, maxTotalScore] = scoringResults.reduce(
+  const [totalScore, maxTotalScore] = scoringResults?.reduce(
     ([currentTotalScore, currentMaxTotalScore], result) => {
       const maxScore = Math.max(...result.ranges.map((range) => range.score));
 

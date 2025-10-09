@@ -372,8 +372,8 @@ export interface ICDPAllocatorFullReport {
   audit: unknown;
   required_copies: string;
   required_sps: string;
-  clients: AllocatorFullReportClient[];
-  storage_provider_distribution: ICDPAllocatorFullReportStorageProviderDistribution[];
+  clients: AllocatorFullReportPaginationClient;
+  storage_provider_distribution: AllocatorFullReportPaginationStorageProviderDistribution;
   check_results: Array<AllocatorReportCheck>;
   avg_secs_to_first_deal: number;
   scoring_results: AllocatorScoringResult[];
@@ -403,9 +403,31 @@ export interface AllocatorFullReportFoundClient {
   avg_secs_to_first_deal: number;
 }
 
-export type AllocatorFullReportClient =
+export type AllocatorFullReportPaginationStorageProviderDistribution = {
+  pagination?: {
+    page: number;
+    pages: number;
+    limit: number;
+    total: number;
+  };
+  count?: number;
+  data: ICDPAllocatorFullReportStorageProviderDistribution[];
+};
+
+export type ICDPAllocatorFullReportClient =
   | AllocatorFullReportFoundClient
   | AllocatorFullReportNotFoundClient;
+
+export type AllocatorFullReportPaginationClient = {
+  pagination?: {
+    page: number;
+    pages: number;
+    limit: number;
+    total: number;
+  };
+  count?: number;
+  data: ICDPAllocatorFullReportClient[];
+};
 
 export interface ICDPAllocatorFullReportClientAllocation {
   allocation: string;
