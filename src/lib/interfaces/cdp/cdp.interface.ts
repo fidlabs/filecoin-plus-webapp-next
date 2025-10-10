@@ -292,6 +292,7 @@ export type IClientReportsResponse = IClientReportHeader[];
 export enum AllocatorReportCheckType {
   CLIENT_MULTIPLE_ALLOCATORS = "CLIENT_MULTIPLE_ALLOCATORS",
   CLIENT_NOT_ENOUGH_COPIES = "CLIENT_NOT_ENOUGH_COPIES",
+  MANUAL_ALLOCATION_SCHEDULE = "MANUAL_ALLOCATION_SCHEDULE",
 }
 
 type AllocatorReportCheckBase<
