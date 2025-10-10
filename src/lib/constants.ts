@@ -6,4 +6,9 @@ export const DEFAULT_EDITION_ROUND_ID =
 export enum QueryKey {
   STORAGE_PROVIDERS_LIST = "storage_providers_list",
   STORAGE_PROVIDERS_COMPLIANCE_DATA = "storage_providers_compliance_data",
+  STORAGE_PROVIDERS_RETRIEVABILITY_DATA = "storage_providers_retrievability_data",
+}
+
+export enum StorageProvidersPageSectionId {
+  RETRIEVABILITY = "retrievability",
 }

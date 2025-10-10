@@ -1,6 +1,7 @@
 import { getStorageProviders } from "@/lib/api";
 import { CDP_API_URL } from "@/lib/constants";
 import { throwHTTPErrorOrSkip } from "@/lib/http-errors";
+import { ICDPHistogramResult } from "@/lib/interfaces/cdp/cdp.interface";
 import { objectToURLSearchParams } from "@/lib/utils";
 import { weekFromDate } from "@/lib/weeks";
 import { z } from "zod";
@@ -124,10 +125,56 @@ function assertIsWeeksResponse(input: unknown): asserts input is WeeksResponse {
 }
 
 export async function fetchStorageProvidersComplianceDataWeeks() {
-  const response = await fetch(
-    `${CDP_API_URL}/stats/acc/providers/compliance-data`
+  const endpoint = `${CDP_API_URL}/stats/acc/providers/compliance-data`;
+  const response = await fetch(endpoint);
+
+  throwHTTPErrorOrSkip(
+    response,
+    `CDP API returned status ${response.status} when fetching storage providers compliance data weeks; URL: ${endpoint}`
   );
+
   const json = await response.json();
   assertIsWeeksResponse(json);
   return json.results.map((result) => weekFromDate(result.week)).toReversed();
+}
+
+// Retrievability
+export interface FetchStorageProvidersRetrievabilityDataParameters {
+  editionId?: string;
+  openDataOnly?: boolean;
+  retrievabilityType?: "rpa" | "http";
+}
+
+export type FetchStorageProvidersRetrievabilityDataReturnType =
+  ICDPHistogramResult;
+
+export async function fetchStorageProvidersRetrievabilityData(
+  parameters?: FetchStorageProvidersRetrievabilityDataParameters
+): Promise<FetchStorageProvidersRetrievabilityDataReturnType> {
+  const {
+    editionId,
+    openDataOnly = false,
+    retrievabilityType,
+  } = parameters ?? {};
+
+  const searchParams = objectToURLSearchParams(
+    {
+      editionId,
+      openDataOnly,
+      // TODO: change to retrievability type when CDP is ready
+      httpRetrievability: retrievabilityType === "http",
+    },
+    true
+  );
+
+  const endpoint = `${CDP_API_URL}/stats/acc/providers/retrievability?${searchParams.toString()}`;
+  const response = await fetch(endpoint);
+
+  throwHTTPErrorOrSkip(
+    response,
+    `CDP API returned status ${response.status} when fetching storage providers retrievability data; URL: ${endpoint}`
+  );
+
+  const json = await response.json();
+  return json as ICDPHistogramResult;
 }

@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { QueryKey } from "@/lib/constants";
+import { QueryKey, StorageProvidersPageSectionId } from "@/lib/constants";
 import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
 import { bigintToPercentage, cn, objectToURLSearchParams } from "@/lib/utils";
 import { weekFromDate, weekToReadableString, weekToString } from "@/lib/weeks";
@@ -34,6 +34,8 @@ import {
   fetchStorageProvidersComplianceData,
   FetchStorageProvidersComplianceDataParameters,
 } from "../storage-providers-data";
+import { ChartStat } from "@/components/chart-stat";
+import Link from "next/link";
 
 interface StorageProvidersComplianceWidgetProps {
   animationDuration?: number;
@@ -71,11 +73,6 @@ const colors = {
   partiallyCompliant: "orange",
   nonCompliant: "#ff0029",
 } as const;
-
-const changeFormatter = new Intl.NumberFormat("en-US", {
-  signDisplay: "exceptZero",
-  style: "percent",
-});
 
 export function StorageProvidersComplianceWidget({
   animationDuration = 500,
@@ -270,7 +267,7 @@ export function StorageProvidersComplianceWidget({
           active={retrievabilityMetricToggled}
           action={{
             label: "Retrievability",
-            callback() {},
+            url: `/storage-providers#${StorageProvidersPageSectionId.RETRIEVABILITY}`,
           }}
           onToggle={setRetrievabilityMetricToggled}
         />
@@ -280,7 +277,7 @@ export function StorageProvidersComplianceWidget({
           active={numberOfClientsMetricToggled}
           action={{
             label: "Client Diversity",
-            callback() {},
+            url: `/storage-providers`,
           }}
           onToggle={setNumberOfClientsMetricToggled}
         />
@@ -290,7 +287,7 @@ export function StorageProvidersComplianceWidget({
           active={totalDealSizeMetricToggled}
           action={{
             label: "Biggest Allocation",
-            callback() {},
+            url: `/storage-providers`,
           }}
           onToggle={setTotalDealSizeMetricToggled}
         />
@@ -299,35 +296,14 @@ export function StorageProvidersComplianceWidget({
       <div className="px-4 mb-8 flex flex-wrap gap-y-4 justify-between items-start">
         <div className="flex flex-wrap gap-x-8">
           {stats.map((stat, index) => {
-            const changeText = changeFormatter.format(
-              stat.percentageChange / 100
-            );
-
             return (
-              <div key={index}>
-                {!isLoading ? (
-                  <p className="text-2xl font-medium">
-                    {stat.value}{" "}
-                    <span
-                      className={cn(
-                        "font-light text-muted-foreground",
-                        changeText.startsWith("+") && "text-green-500",
-                        changeText.startsWith("-") && "text-red-500"
-                      )}
-                    >
-                      ({changeText})
-                    </span>
-                  </p>
-                ) : (
-                  <div className="py-1">
-                    <Skeleton className="h-6 w-[160px]" />
-                  </div>
-                )}
-
-                <p className="text-xs font-medium text-muted-foreground">
-                  {stat.label}
-                </p>
-              </div>
+              <ChartStat
+                key={`stat_${index}`}
+                label={stat.label}
+                value={stat.value}
+                percentageChange={stat.percentageChange / 100}
+                placeholderWidth={160}
+              />
             );
           })}
         </div>
@@ -450,7 +426,7 @@ export function StorageProvidersComplianceWidget({
 interface ComplianceMetricTileProps {
   action: {
     label: string;
-    callback(): void;
+    url: string;
   };
   active: boolean;
   label: string;
@@ -467,13 +443,9 @@ function ComplianceMetricTile({
     onToggle(!active);
   }, [active, onToggle]);
 
-  const handleActionClick = useCallback<MouseEventHandler>(
-    (event) => {
-      event.stopPropagation();
-      action.callback();
-    },
-    [action.callback]
-  );
+  const handleActionClick = useCallback<MouseEventHandler>((event) => {
+    event.stopPropagation();
+  }, []);
 
   return (
     <div
@@ -489,11 +461,12 @@ function ComplianceMetricTile({
           {label}
         </p>
         <Button
+          asChild
           className={cn("text-xs", !active && "text-gray-400")}
           variant="link"
           onClick={handleActionClick}
         >
-          {action.label}
+          <Link href={action.url}>{action.label}</Link>
         </Button>
       </div>
     </div>
