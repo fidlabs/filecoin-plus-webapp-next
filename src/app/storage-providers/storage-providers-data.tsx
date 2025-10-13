@@ -212,3 +212,35 @@ export async function fetchStorageProvidersClientDiversityData(
   const json = await response.json();
   return json as ICDPHistogram;
 }
+
+// Biggest client distribution
+export interface FetchStorageProvidersClientDistributionDataParameters {
+  editionId?: string;
+}
+
+export type FetchStorageProvidersClientDistributionDataReturnType =
+  ICDPHistogram;
+
+export async function fetchStorageProvidersClientDistributionData(
+  parameters?: FetchStorageProvidersClientDistributionDataParameters
+): Promise<FetchStorageProvidersClientDistributionDataReturnType> {
+  const { editionId } = parameters ?? {};
+
+  const searchParams = objectToURLSearchParams(
+    {
+      editionId,
+    },
+    true
+  );
+
+  const endpoint = `${CDP_API_URL}/stats/acc/providers/biggest-client-distribution?${searchParams.toString()}`;
+  const response = await fetch(endpoint);
+
+  throwHTTPErrorOrSkip(
+    response,
+    `CDP API returned status ${response.status} when fetching storage providers biggest client distribution data; URL: ${endpoint}`
+  );
+
+  const json = await response.json();
+  return json as ICDPHistogram;
+}

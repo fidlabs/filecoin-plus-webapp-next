@@ -288,7 +288,7 @@ export function StorageProvidersComplianceWidget({
           active={totalDealSizeMetricToggled}
           action={{
             label: "Biggest Allocation",
-            url: `/storage-providers`,
+            url: `/storage-providers#${StorageProvidersPageSectionId.CLIENT_DISTRIBUTION}`,
           }}
           onToggle={setTotalDealSizeMetricToggled}
         />

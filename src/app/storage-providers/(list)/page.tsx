@@ -7,6 +7,8 @@ import { SWRConfig, unstable_serialize } from "swr";
 import { StorageProvidersComplianceWidget } from "../components/storage-providers-compliance-widget";
 import { StorageProvidersListWidget } from "../components/storage-providers-list-widget";
 import {
+  fetchStorageProvidersClientDistributionData,
+  FetchStorageProvidersClientDistributionDataParameters,
   fetchStorageProvidersClientDiversityData,
   FetchStorageProvidersClientDiversityDataParameters,
   fetchStorageProvidersComplianceData,
@@ -17,6 +19,7 @@ import {
 } from "../storage-providers-data";
 import { StorageProvidersRetrievabilityWidget } from "../components/storage-providers-retrievability-widget";
 import { StorageProvidersClientDiversityWidget } from "../components/storage-providers-client-diversity-widget";
+import { StorageProvidersClientDistributionWidget } from "../components/storage-providers-client-distributon-widget";
 
 export const revalidate = 300;
 
@@ -47,17 +50,26 @@ const clientDiversityDataDefaultParams: FetchStorageProvidersClientDiversityData
     editionId: undefined,
   };
 
+const clientDistributionDataDefaultParams: FetchStorageProvidersClientDistributionDataParameters =
+  {
+    editionId: undefined,
+  };
+
 export default async function StorageProvidersPage() {
   const [
     listResult,
     complianceDataResult,
     retrievabilityDataResult,
-    clientDiversityDataResults,
+    clientDiversityDataResult,
+    clientDistributionDataResult,
   ] = await Promise.allSettled([
     fetchStorageProvidersList(),
     fetchStorageProvidersComplianceData(complianceDataDefaultParams),
     fetchStorageProvidersRetrievabilityData(retrievabilityDataDefaultParams),
     fetchStorageProvidersClientDiversityData(clientDiversityDataDefaultParams),
+    fetchStorageProvidersClientDistributionData(
+      clientDistributionDataDefaultParams
+    ),
   ]);
 
   return (
@@ -84,8 +96,15 @@ export default async function StorageProvidersPage() {
             QueryKey.STORAGE_PROVIDERS_CLIENT_DIVERSITY_DATA,
             clientDiversityDataDefaultParams,
           ])]:
-            clientDiversityDataResults.status === "fulfilled"
-              ? clientDiversityDataResults.value
+            clientDiversityDataResult.status === "fulfilled"
+              ? clientDiversityDataResult.value
+              : undefined,
+          [unstable_serialize([
+            QueryKey.STORAGE_PROVIDERS_CLIENT_DISTRIBUTION_DATA,
+            clientDistributionDataDefaultParams,
+          ])]:
+            clientDistributionDataResult.status === "fulfilled"
+              ? clientDistributionDataResult.value
               : undefined,
         },
       }}
@@ -104,6 +123,9 @@ export default async function StorageProvidersPage() {
         />
         <StorageProvidersClientDiversityWidget
           id={StorageProvidersPageSectionId.CLIENT_DIVERSITY}
+        />
+        <StorageProvidersClientDistributionWidget
+          id={StorageProvidersPageSectionId.CLIENT_DISTRIBUTION}
         />
       </Container>
     </SWRConfig>
