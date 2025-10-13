@@ -19,48 +19,6 @@ export const revalidate = 300; // 5 minutes
 
 const dataset: WithContext<Dataset>[] = [
   {
-    // SP Retrievability Score
-    "@context": "https://schema.org",
-    "@type": "Dataset",
-    name: "Fil+ DataCap Stats | Storage Provider's Retrievability score",
-    description:
-      "Storage Provider's Retrievability score presented as a weekly histogram",
-    url: "https://datacapstats.io/compliance-data-portal",
-    creator: {
-      "@type": "Organization",
-      name: "Filecoin Incentive Design Labs",
-      url: "https://www.fidl.tech",
-    },
-  },
-  {
-    // SP Number of allocations
-    "@context": "https://schema.org",
-    "@type": "Dataset",
-    name: "Fil+ DataCap Stats | Storage Provider's number of Allocations",
-    description:
-      "Number Storage Provider's clients presented as a weekly histogram",
-    url: "https://datacapstats.io/compliance-data-portal",
-    creator: {
-      "@type": "Organization",
-      name: "Filecoin Incentive Design Labs",
-      url: "https://www.fidl.tech",
-    },
-  },
-  {
-    // SP Size Of The Biggest client allocation
-    "@context": "https://schema.org",
-    "@type": "Dataset",
-    name: "Fil+ DataCap Stats | Storage Provider's biggest allocation",
-    description:
-      "Histogram representing what % of the total data cap used comes from the single client of Storage Provider",
-    url: "https://datacapstats.io/compliance-data-portal",
-    creator: {
-      "@type": "Organization",
-      name: "Filecoin Incentive Design Labs",
-      url: "https://www.fild.tech",
-    },
-  },
-  {
     // SP Compliance
     "@context": "https://schema.org",
     "@type": "Dataset",
