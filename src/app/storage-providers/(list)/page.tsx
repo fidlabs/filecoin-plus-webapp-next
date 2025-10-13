@@ -20,6 +20,7 @@ import {
 import { StorageProvidersRetrievabilityWidget } from "../components/storage-providers-retrievability-widget";
 import { StorageProvidersClientDiversityWidget } from "../components/storage-providers-client-diversity-widget";
 import { StorageProvidersClientDistributionWidget } from "../components/storage-providers-client-distributon-widget";
+import { StorageProvidersIPNIMisreportingWidget } from "../components/storage-providers-ipni-misreporting-widget";
 
 export const revalidate = 300;
 
@@ -127,6 +128,7 @@ export default async function StorageProvidersPage() {
         <StorageProvidersClientDistributionWidget
           id={StorageProvidersPageSectionId.CLIENT_DISTRIBUTION}
         />
+        <StorageProvidersIPNIMisreportingWidget />
       </Container>
     </SWRConfig>
   );

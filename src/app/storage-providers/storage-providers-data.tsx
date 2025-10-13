@@ -244,3 +244,57 @@ export async function fetchStorageProvidersClientDistributionData(
   const json = await response.json();
   return json as ICDPHistogram;
 }
+
+// IPNI Mistreporting
+export type IPNIMisreportingResponse = z.infer<typeof ipniMisreportingSchema>;
+
+export interface FetchStorageProvidersIPNIMistreportingDataParameters {
+  editionId?: string;
+}
+
+export type FetchStorageProvidersIPNIMistreportingDataReturnType =
+  IPNIMisreportingResponse;
+
+const ipniMisreportingSchema = z.object({
+  results: z.array(
+    z.object({
+      week: z.string().datetime(),
+      misreporting: z.number(),
+      notReporting: z.number(),
+      ok: z.number(),
+      total: z.number(),
+    })
+  ),
+});
+
+function assertIsIPNIMisreportingReponse(
+  input: unknown
+): asserts input is IPNIMisreportingResponse {
+  const result = ipniMisreportingSchema.safeParse(input);
+
+  if (!result.success) {
+    throw new TypeError(
+      "Invalid response from CDP API when fetching SPs historical IPNI status"
+    );
+  }
+}
+
+export async function fetchStorageProvidersIPNIMisreportingData(
+  parameters?: FetchStorageProvidersIPNIMistreportingDataParameters
+): Promise<IPNIMisreportingResponse> {
+  const { editionId } = parameters ?? {};
+  const searchParams = objectToURLSearchParams({ editionId }, true);
+
+  const endpoint = `${CDP_API_URL}/stats/acc/providers/aggregated-ipni-status-weekly?${searchParams.toString()}`;
+  const response = await fetch(endpoint);
+
+  if (!response.ok) {
+    throw new Error(
+      `CDP API returned status ${response.status} when fetching SPs historical IPNI status`
+    );
+  }
+
+  const data = await response.json();
+  assertIsIPNIMisreportingReponse(data);
+  return data;
+}
