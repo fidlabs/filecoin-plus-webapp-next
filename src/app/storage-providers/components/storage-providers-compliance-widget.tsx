@@ -22,7 +22,13 @@ import { filesize } from "filesize";
 import { CheckIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { MouseEventHandler, useCallback, useMemo, useState } from "react";
+import {
+  type ComponentProps,
+  type MouseEventHandler,
+  useCallback,
+  useMemo,
+  useState,
+} from "react";
 import {
   Area,
   AreaChart,
@@ -38,7 +44,9 @@ import {
   FetchStorageProvidersComplianceDataParameters,
 } from "../storage-providers-data";
 
-interface StorageProvidersComplianceWidgetProps {
+type CardProps = ComponentProps<typeof Card>;
+export interface StorageProvidersComplianceWidgetProps
+  extends Omit<CardProps, "children"> {
   animationDuration?: number;
 }
 
@@ -77,6 +85,8 @@ const colors = {
 
 export function StorageProvidersComplianceWidget({
   animationDuration = 500,
+  className,
+  ...rest
 }: StorageProvidersComplianceWidgetProps) {
   const [editionId, setEditionId] = useState<string>();
   const [retrievabilityMetricToggled, setRetrievabilityMetricToggled] =
@@ -254,7 +264,7 @@ export function StorageProvidersComplianceWidget({
   );
 
   return (
-    <Card id="compliance" className="pb-4">
+    <Card {...rest} className={cn("pb-6", className)}>
       <header className="px-4 py-4">
         <h3 className="text-md font-medium">Compliance</h3>
         <p className="text-xs text-muted-foreground">

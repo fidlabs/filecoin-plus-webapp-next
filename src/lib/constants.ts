@@ -13,7 +13,10 @@ export enum QueryKey {
 }
 
 export enum StorageProvidersPageSectionId {
+  COMPLIANCE = "compliance",
+  LIST = "list",
   RETRIEVABILITY = "retrievability",
   CLIENT_DIVERSITY = "client_diversity",
   CLIENT_DISTRIBUTION = "client_distribution",
+  IPNI_MISREPORTING = "ipni_misreporting",
 }

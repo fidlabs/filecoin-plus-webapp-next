@@ -6,7 +6,7 @@ import { Paginator } from "@/components/ui/pagination";
 import { QueryKey } from "@/lib/constants";
 import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
 import { cn } from "@/lib/utils";
-import { useCallback, useMemo, useState } from "react";
+import { type ComponentProps, useCallback, useMemo, useState } from "react";
 import useSWR from "swr";
 import {
   fetchStorageProvidersList,
@@ -18,7 +18,12 @@ import {
 } from "./storage-providers-list";
 import { StorageProvidersListAddons } from "./storage-providers-list-addons";
 
-export function StorageProvidersListWidget() {
+type CardProps = ComponentProps<typeof Card>;
+export type StorageProvidersListWidgetProps = Omit<CardProps, "children">;
+
+export function StorageProvidersListWidget(
+  props: StorageProvidersListWidgetProps
+) {
   const [parameters, setParameters] =
     useState<FetchStorageProvidersListParameters>({});
   const { data, isLoading } = useSWR(
@@ -79,7 +84,7 @@ export function StorageProvidersListWidget() {
   );
 
   return (
-    <Card>
+    <Card {...props}>
       <div className="px-4 pt-6 mb-2 flex flex-wrap gap-4 items-center justify-between">
         <h2 className="text-lg font-medium">Storage Providers List</h2>
         <StorageProvidersListAddons onSearch={handleSearch} />

@@ -21,6 +21,10 @@ import { StorageProvidersRetrievabilityWidget } from "../components/storage-prov
 import { StorageProvidersClientDiversityWidget } from "../components/storage-providers-client-diversity-widget";
 import { StorageProvidersClientDistributionWidget } from "../components/storage-providers-client-distributon-widget";
 import { StorageProvidersIPNIMisreportingWidget } from "../components/storage-providers-ipni-misreporting-widget";
+import {
+  IdBasedStickyTabNaviation,
+  IdBasedStickyTabNaviationProps,
+} from "@/components/sticky-tab-navigation";
 
 export const revalidate = 300;
 
@@ -55,6 +59,15 @@ const clientDistributionDataDefaultParams: FetchStorageProvidersClientDistributi
   {
     editionId: undefined,
   };
+
+const sectionTabs = {
+  [StorageProvidersPageSectionId.COMPLIANCE]: "Compliance",
+  [StorageProvidersPageSectionId.LIST]: "List",
+  [StorageProvidersPageSectionId.RETRIEVABILITY]: "Retrievability",
+  [StorageProvidersPageSectionId.CLIENT_DIVERSITY]: "Client Diversity",
+  [StorageProvidersPageSectionId.CLIENT_DISTRIBUTION]: "Client Distribution",
+  [StorageProvidersPageSectionId.IPNI_MISREPORTING]: "IPNI Misreporting",
+} as const satisfies IdBasedStickyTabNaviationProps["tabs"];
 
 export default async function StorageProvidersPage() {
   const [
@@ -110,15 +123,18 @@ export default async function StorageProvidersPage() {
         },
       }}
     >
-      <PageHeader className="mb-8">
+      <PageHeader>
         <PageTitle>Storage Providers</PageTitle>
         <PageSubtitle>
           Compliance dashboard and listing for Storage Providers
         </PageSubtitle>
       </PageHeader>
+      <IdBasedStickyTabNaviation className="mb-8" tabs={sectionTabs} />
       <Container className="grid gap-y-8">
-        <StorageProvidersComplianceWidget />
-        <StorageProvidersListWidget />
+        <StorageProvidersComplianceWidget
+          id={StorageProvidersPageSectionId.COMPLIANCE}
+        />
+        <StorageProvidersListWidget id={StorageProvidersPageSectionId.LIST} />
         <StorageProvidersRetrievabilityWidget
           id={StorageProvidersPageSectionId.RETRIEVABILITY}
         />
@@ -128,7 +144,9 @@ export default async function StorageProvidersPage() {
         <StorageProvidersClientDistributionWidget
           id={StorageProvidersPageSectionId.CLIENT_DISTRIBUTION}
         />
-        <StorageProvidersIPNIMisreportingWidget />
+        <StorageProvidersIPNIMisreportingWidget
+          id={StorageProvidersPageSectionId.IPNI_MISREPORTING}
+        />
       </Container>
     </SWRConfig>
   );

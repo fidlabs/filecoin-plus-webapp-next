@@ -15,7 +15,7 @@ import { QueryKey } from "@/lib/constants";
 import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
 import { weekFromDate, weekToReadableString } from "@/lib/weeks";
 import { scaleSymlog } from "d3-scale";
-import { useCallback, useMemo, useState } from "react";
+import { ComponentProps, useCallback, useMemo, useState } from "react";
 import {
   Area,
   AreaChart,
@@ -29,8 +29,11 @@ import {
   fetchStorageProvidersIPNIMisreportingData,
   FetchStorageProvidersIPNIMistreportingDataParameters,
 } from "../storage-providers-data";
+import { cn } from "@/lib/utils";
 
-interface StorageProvidersComplianceWidgetProps {
+type CardProps = ComponentProps<typeof Card>;
+export interface StorageProvidersComplianceWidgetProps
+  extends Omit<CardProps, "children"> {
   animationDuration?: number;
 }
 
@@ -67,6 +70,8 @@ const percentageFormatter = new Intl.NumberFormat("en-US", {
 
 export function StorageProvidersIPNIMisreportingWidget({
   animationDuration = 500,
+  className,
+  ...rest
 }: StorageProvidersComplianceWidgetProps) {
   const [editionId, setEditionId] = useState<string>();
   const [scale, setScale] = useState<string>(scales[0]);
@@ -136,7 +141,7 @@ export function StorageProvidersIPNIMisreportingWidget({
   }, []);
 
   return (
-    <Card className="pb-6">
+    <Card {...rest} className={cn("pb-6", className)}>
       <header className="px-4 py-4">
         <h3 className="text-md font-medium">IPNI Mistreporting</h3>
         <p className="text-xs text-muted-foreground">
