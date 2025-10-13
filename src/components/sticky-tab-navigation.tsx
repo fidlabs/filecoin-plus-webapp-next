@@ -81,7 +81,14 @@ export function IdBasedStickyTabNaviation({
     }, []);
 
   const intersectionObserver = useMemo(() => {
-    return new IntersectionObserver(intersectionObserverCallback, {
+    if (
+      typeof window === "undefined" ||
+      typeof window.IntersectionObserver === "undefined"
+    ) {
+      return null;
+    }
+
+    return new window.IntersectionObserver(intersectionObserverCallback, {
       root: null,
       rootMargin: "0px",
       threshold: 0.7,
@@ -89,17 +96,19 @@ export function IdBasedStickyTabNaviation({
   }, [intersectionObserverCallback]);
 
   useEffect(() => {
-    Object.keys(tabs).forEach((id) => {
-      const element = document.getElementById(id);
+    if (intersectionObserver) {
+      Object.keys(tabs).forEach((id) => {
+        const element = document.getElementById(id);
 
-      if (element) {
-        intersectionObserver.observe(element);
-      }
-    });
+        if (element) {
+          intersectionObserver.observe(element);
+        }
+      });
 
-    return () => {
-      intersectionObserver.disconnect();
-    };
+      return () => {
+        intersectionObserver.disconnect();
+      };
+    }
   }, [intersectionObserver, tabs]);
 
   return (
