@@ -16,7 +16,7 @@ export enum StorageProvidersPageSectionId {
   COMPLIANCE = "compliance",
   LIST = "list",
   RETRIEVABILITY = "retrievability",
-  CLIENT_DIVERSITY = "client_diversity",
-  CLIENT_DISTRIBUTION = "client_distribution",
-  IPNI_MISREPORTING = "ipni_misreporting",
+  CLIENT_DIVERSITY = "client-diversity",
+  CLIENT_DISTRIBUTION = "client-distribution",
+  IPNI_MISREPORTING = "ipni-misreporting",
 }
