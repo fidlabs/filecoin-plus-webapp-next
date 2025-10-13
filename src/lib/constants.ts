@@ -7,8 +7,10 @@ export enum QueryKey {
   STORAGE_PROVIDERS_LIST = "storage_providers_list",
   STORAGE_PROVIDERS_COMPLIANCE_DATA = "storage_providers_compliance_data",
   STORAGE_PROVIDERS_RETRIEVABILITY_DATA = "storage_providers_retrievability_data",
+  STORAGE_PROVIDERS_CLIENT_DIVERSITY_DATA = "storage_providers_client_diversity_data",
 }
 
 export enum StorageProvidersPageSectionId {
   RETRIEVABILITY = "retrievability",
+  CLIENT_DIVERSITY = "client_diversity",
 }

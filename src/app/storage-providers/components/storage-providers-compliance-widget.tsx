@@ -1,5 +1,8 @@
 "use client";
 
+import { ChartStat } from "@/components/chart-stat";
+import { ChartTooltip } from "@/components/chart-tooltip";
+import { OverlayLoader } from "@/components/overlay-loader";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -9,7 +12,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { QueryKey, StorageProvidersPageSectionId } from "@/lib/constants";
 import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
@@ -17,7 +19,8 @@ import { bigintToPercentage, cn, objectToURLSearchParams } from "@/lib/utils";
 import { weekFromDate, weekToReadableString, weekToString } from "@/lib/weeks";
 import { scaleSymlog } from "d3-scale";
 import { filesize } from "filesize";
-import { CheckIcon, LoaderCircleIcon } from "lucide-react";
+import { CheckIcon } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { MouseEventHandler, useCallback, useMemo, useState } from "react";
 import {
@@ -34,8 +37,6 @@ import {
   fetchStorageProvidersComplianceData,
   FetchStorageProvidersComplianceDataParameters,
 } from "../storage-providers-data";
-import { ChartStat } from "@/components/chart-stat";
-import Link from "next/link";
 
 interface StorageProvidersComplianceWidgetProps {
   animationDuration?: number;
@@ -277,7 +278,7 @@ export function StorageProvidersComplianceWidget({
           active={numberOfClientsMetricToggled}
           action={{
             label: "Client Diversity",
-            url: `/storage-providers`,
+            url: `/storage-providers#${StorageProvidersPageSectionId.CLIENT_DIVERSITY}`,
           }}
           onToggle={setNumberOfClientsMetricToggled}
         />
@@ -376,7 +377,6 @@ export function StorageProvidersComplianceWidget({
               tickFormatter={formatValue}
               scale={scale === "log" ? scaleSymlog().constant(1) : "linear"}
             />
-            <Tooltip formatter={formatValue} labelFormatter={formatDate} />
             <Area
               className="cursor-pointer"
               type="monotone"
@@ -405,19 +405,14 @@ export function StorageProvidersComplianceWidget({
               stroke={colors.nonCompliant}
               fill={colors.nonCompliant}
             />
+            <Tooltip<string | number, string>
+              formatter={formatValue}
+              labelFormatter={formatDate}
+              content={ChartTooltip}
+            />
           </AreaChart>
         </ResponsiveContainer>
-        <div
-          className={cn(
-            "absolute top-0 left-0 w-full h-full items-center justify-center bg-black/10 hidden",
-            (!data || isLongLoading) && "flex"
-          )}
-        >
-          <LoaderCircleIcon
-            size={50}
-            className="animate-spin text-dodger-blue"
-          />
-        </div>
+        {<OverlayLoader show={!data || isLongLoading} />}
       </div>
     </Card>
   );

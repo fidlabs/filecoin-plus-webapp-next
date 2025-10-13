@@ -1,7 +1,10 @@
 import { getStorageProviders } from "@/lib/api";
 import { CDP_API_URL } from "@/lib/constants";
 import { throwHTTPErrorOrSkip } from "@/lib/http-errors";
-import { ICDPHistogramResult } from "@/lib/interfaces/cdp/cdp.interface";
+import {
+  ICDPHistogram,
+  ICDPHistogramResult,
+} from "@/lib/interfaces/cdp/cdp.interface";
 import { objectToURLSearchParams } from "@/lib/utils";
 import { weekFromDate } from "@/lib/weeks";
 import { z } from "zod";
@@ -177,4 +180,35 @@ export async function fetchStorageProvidersRetrievabilityData(
 
   const json = await response.json();
   return json as ICDPHistogramResult;
+}
+
+// Client diversity
+export interface FetchStorageProvidersClientDiversityDataParameters {
+  editionId?: string;
+}
+
+export type FetchStorageProvidersClientDiversityDataReturnType = ICDPHistogram;
+
+export async function fetchStorageProvidersClientDiversityData(
+  parameters?: FetchStorageProvidersClientDiversityDataParameters
+): Promise<FetchStorageProvidersClientDiversityDataReturnType> {
+  const { editionId } = parameters ?? {};
+
+  const searchParams = objectToURLSearchParams(
+    {
+      editionId,
+    },
+    true
+  );
+
+  const endpoint = `${CDP_API_URL}/stats/acc/providers/clients?${searchParams.toString()}`;
+  const response = await fetch(endpoint);
+
+  throwHTTPErrorOrSkip(
+    response,
+    `CDP API returned status ${response.status} when fetching storage providers client diversity data; URL: ${endpoint}`
+  );
+
+  const json = await response.json();
+  return json as ICDPHistogram;
 }

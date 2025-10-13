@@ -15,8 +15,6 @@ import {
   StorageProvidersComplianceFiltersProps,
 } from "./storage-providers-compliance-filters";
 
-const longLoadingDelayMs = 1000;
-
 export interface StorageProvidersComplianceListWidgetProps {
   selectedWeek: StorageProvidersComplianceFiltersProps["selectedWeek"];
   storageProvidersList: FetchStorageProvidersListReturnType;
@@ -43,19 +41,9 @@ export function StorageProvidersComplianceListWidget({
     };
   }, [filters.sort, filters.order]);
 
-  const page = maybeStringToInt(filters.page, 1);
-  const limit = maybeStringToInt(filters.page, 10);
-
   const handleSort = useCallback<StorageProvidersListProps["onSort"]>(
     (sort, order) => {
       updateFilters({ sort, order });
-    },
-    [updateFilters]
-  );
-
-  const handlePageChange = useCallback(
-    (page: number) => {
-      updateFilters({ page: page.toString() });
     },
     [updateFilters]
   );
@@ -96,16 +84,4 @@ export function StorageProvidersComplianceListWidget({
       />
     </Card>
   );
-}
-
-function maybeStringToInt(
-  input: string | undefined,
-  defaultValue: number
-): number {
-  if (typeof input !== "string") {
-    return defaultValue;
-  }
-
-  const numericValue = parseInt(input, 10);
-  return isNaN(numericValue) ? defaultValue : numericValue;
 }

@@ -240,10 +240,6 @@ const GenericContentFooter = ({
   currentElements,
   pageSizeOptions = [10, 15, 25],
 }: GenericContentFooterProps) => {
-  if (!limit || !page) {
-    return <></>;
-  }
-
   const handlePageChange = useCallback(
     (page: number) => {
       patchParams({
@@ -262,6 +258,10 @@ const GenericContentFooter = ({
     },
     [patchParams]
   );
+
+  if (!limit || !page) {
+    return <></>;
+  }
 
   return (
     <CardFooter className="border-t w-full p-3">

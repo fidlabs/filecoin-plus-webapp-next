@@ -15,7 +15,7 @@ export function useDelayedFlag(input: boolean, delayMs: number): boolean {
     } else {
       setValue(false);
     }
-  }, [input]);
+  }, [delayMs, input]);
 
   return value;
 }

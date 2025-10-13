@@ -1,9 +1,12 @@
 "use client";
 
+import { OverlayLoader } from "@/components/overlay-loader";
 import { Card, CardFooter } from "@/components/ui/card";
 import { Paginator } from "@/components/ui/pagination";
 import { QueryKey } from "@/lib/constants";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
+import { cn } from "@/lib/utils";
+import { useCallback, useMemo, useState } from "react";
 import useSWR from "swr";
 import {
   fetchStorageProvidersList,
@@ -14,9 +17,6 @@ import {
   StorageProvidersListProps,
 } from "./storage-providers-list";
 import { StorageProvidersListAddons } from "./storage-providers-list-addons";
-import { cn } from "@/lib/utils";
-import { LoaderCircleIcon } from "lucide-react";
-import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
 
 export function StorageProvidersListWidget() {
   const [parameters, setParameters] =
@@ -92,17 +92,7 @@ export function StorageProvidersListWidget() {
           onSort={handleSort}
         />
 
-        <div
-          className={cn(
-            "absolute top-0 left-0 w-full h-full items-center justify-center bg-black/5 hidden",
-            showLoader && "flex"
-          )}
-        >
-          <LoaderCircleIcon
-            size={50}
-            className="animate-spin text-dodger-blue"
-          />
-        </div>
+        {<OverlayLoader show={showLoader} />}
       </div>
 
       <CardFooter className="border-t w-full p-3">

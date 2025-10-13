@@ -1,7 +1,15 @@
 "use client";
 
 import { ChartStat } from "@/components/chart-stat";
+import {
+  ChartTooltipContainer,
+  ChartTooltipGrid,
+  ChartTooltipHeader,
+  ChartTooltipTitle,
+} from "@/components/chart-tooltip";
+import { OverlayLoader } from "@/components/overlay-loader";
 import { Card } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -16,7 +24,6 @@ import { bigintToPercentage, cn, gradientPalette } from "@/lib/utils";
 import { weekFromDate, weekToReadableString } from "@/lib/weeks";
 import { scaleSymlog } from "d3-scale";
 import { filesize } from "filesize";
-import { LoaderCircleIcon } from "lucide-react";
 import { type ComponentProps, useCallback, useMemo, useState } from "react";
 import {
   Area,
@@ -33,7 +40,6 @@ import {
   fetchStorageProvidersRetrievabilityData,
   FetchStorageProvidersRetrievabilityDataParameters,
 } from "../storage-providers-data";
-import { Checkbox } from "@/components/ui/checkbox";
 
 type CardProps = ComponentProps<typeof Card>;
 type CheckboxProps = ComponentProps<typeof Checkbox>;
@@ -505,17 +511,7 @@ export function StorageProvidersRetrievabilityWidget({
             />
           </ComposedChart>
         </ResponsiveContainer>
-        <div
-          className={cn(
-            "absolute top-0 left-0 w-full h-full items-center justify-center bg-black/10 hidden",
-            (!data || isLongLoading) && "flex"
-          )}
-        >
-          <LoaderCircleIcon
-            size={50}
-            className="animate-spin text-dodger-blue"
-          />
-        </div>
+        {<OverlayLoader show={!data || isLongLoading} />}
       </div>
     </Card>
   );
@@ -542,14 +538,10 @@ function CustomTooltipContent(props: TooltipProps<number | string, string>) {
       : props.payload.toSpliced(averagePayloadIndex, 1);
 
   return (
-    <div
-      className="bg-white shadow-f-card p-4 rounded-md"
-      style={{
-        maxWidth: "min(50vw, 400px)",
-      }}
-    >
-      <div className="mb-3">
-        <h5 className="text-md font-medium">{labelText}</h5>
+    <ChartTooltipContainer>
+      <ChartTooltipHeader>
+        <ChartTooltipTitle>{labelText}</ChartTooltipTitle>
+
         {!!averagePayload && typeof averagePayload.value === "number" && (
           <p className="text-sm">
             {averagePayload.name}:{" "}
@@ -566,39 +558,9 @@ function CustomTooltipContent(props: TooltipProps<number | string, string>) {
             </strong>
           </p>
         )}
-      </div>
+      </ChartTooltipHeader>
 
-      <div className="flex flex-wrap gap-x-4 gap-y-2">
-        {groupsPayloads.map((payload, index) => {
-          return (
-            <div key={payload.dataKey ?? index}>
-              <p
-                className="text-lg font-medium"
-                style={{
-                  color: payload.stroke,
-                }}
-              >
-                {props.formatter
-                  ? props.formatter(
-                      payload.value ?? "",
-                      payload.name ?? "",
-                      payload,
-                      index,
-                      props.payload ?? []
-                    )
-                  : payload.value}
-              </p>
-              {!!payload.name && (
-                <p className="text-xs text-muted-foreground">
-                  {payload.dataKey === "averageSuccessRate"
-                    ? "Average"
-                    : payload.name}
-                </p>
-              )}
-            </div>
-          );
-        })}
-      </div>
-    </div>
+      <ChartTooltipGrid payload={groupsPayloads} formatter={props.formatter} />
+    </ChartTooltipContainer>
   );
 }

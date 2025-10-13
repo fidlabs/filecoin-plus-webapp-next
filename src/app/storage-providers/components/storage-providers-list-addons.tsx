@@ -2,7 +2,6 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useSearchParamsFilters } from "@/lib/hooks/use-search-params-filters";
 import { type Week } from "@/lib/weeks";
 import { XIcon } from "lucide-react";
 import { type ChangeEventHandler, useCallback, useState } from "react";
@@ -18,7 +17,6 @@ export function StorageProvidersListAddons({
   complianceWeek,
   onSearch,
 }: StorageProvidersListAddonsProps) {
-  const { updateFilters } = useSearchParamsFilters();
   const [searchPhrase, setSearchPhrase] = useState("");
   const searchDebounced = useDebounceCallback(onSearch, 150);
 
