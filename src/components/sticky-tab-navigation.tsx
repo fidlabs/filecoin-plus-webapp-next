@@ -1,37 +1,42 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import Link from "next/link";
 import {
-  ReactNode,
+  forwardRef,
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type HTMLAttributes,
+  type LegacyRef,
   type LiHTMLAttributes,
+  type ReactNode,
 } from "react";
 import { Container } from "./container";
-import { cn } from "@/lib/utils";
 
 export interface StickyTabNavigationProps
-  extends HTMLAttributes<HTMLDivElement> {}
+  extends HTMLAttributes<HTMLDivElement> {
+  containerRef?: LegacyRef<HTMLDivElement>;
+}
 
-export function StickyTabNavigation({
-  children,
-  className,
-  ...rest
-}: StickyTabNavigationProps) {
+export const StickyTabNavigation = forwardRef<
+  HTMLDivElement,
+  StickyTabNavigationProps
+>(({ children, className, containerRef, ...rest }, ref) => {
   return (
     <nav
       {...rest}
       className={cn("sticky top-0 bg-header text-white z-40", className)}
+      ref={ref}
     >
-      <Container className="overflow-y-auto no-scrollbar">
+      <Container className="overflow-y-auto no-scrollbar" ref={containerRef}>
         <ul className="flex">{children}</ul>
       </Container>
     </nav>
   );
-}
+});
 
 export interface StickyTabNavigationItemProps
   extends LiHTMLAttributes<HTMLLIElement> {
@@ -68,6 +73,7 @@ export function IdBasedStickyTabNaviation({
   ...rest
 }: IdBasedStickyTabNaviationProps) {
   const [activeId, setActiveId] = useState(Object.keys(tabs)[0]);
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
   const intersectionObserverCallback =
     useCallback<IntersectionObserverCallback>((entries) => {
@@ -111,13 +117,39 @@ export function IdBasedStickyTabNaviation({
     }
   }, [intersectionObserver, tabs]);
 
+  useEffect(() => {
+    const container = containerRef.current;
+
+    if (container === null) {
+      return;
+    }
+
+    const element = document.getElementById(createTabIdForId(activeId));
+
+    if (!element) {
+      return;
+    }
+
+    const scrollLeft =
+      element.offsetLeft - container.offsetWidth + element.clientWidth;
+    container.scrollTo({ left: Math.max(scrollLeft, 0), behavior: "smooth" });
+  }, [activeId]);
+
   return (
-    <StickyTabNavigation {...rest}>
+    <StickyTabNavigation {...rest} containerRef={containerRef}>
       {Object.entries(tabs).map(([id, label]) => (
-        <StickyTabNavigationItem key={id} active={id === activeId}>
+        <StickyTabNavigationItem
+          id={createTabIdForId(id)}
+          key={id}
+          active={id === activeId}
+        >
           <Link href={`#${id}`}>{label}</Link>
         </StickyTabNavigationItem>
       ))}
     </StickyTabNavigation>
   );
+}
+
+function createTabIdForId(id: string): string {
+  return `${id}_tab`;
 }
