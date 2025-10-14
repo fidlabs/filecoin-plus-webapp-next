@@ -130,7 +130,7 @@ export default async function StorageProvidersPage() {
         </PageSubtitle>
       </PageHeader>
       <IdBasedStickyTabNaviation className="mb-8" tabs={sectionTabs} />
-      <Container className="grid gap-y-8">
+      <Container className="flex flex-col gap-y-8">
         <StorageProvidersComplianceWidget
           id={StorageProvidersPageSectionId.COMPLIANCE}
         />
