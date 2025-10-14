@@ -145,7 +145,7 @@ export async function fetchStorageProvidersComplianceDataWeeks() {
 export interface FetchStorageProvidersRetrievabilityDataParameters {
   editionId?: string;
   openDataOnly?: boolean;
-  retrievabilityType?: "rpa" | "http";
+  retrievabilityType?: "urlFinder" | "http";
 }
 
 export type FetchStorageProvidersRetrievabilityDataReturnType =
@@ -164,8 +164,7 @@ export async function fetchStorageProvidersRetrievabilityData(
     {
       editionId,
       openDataOnly,
-      // TODO: change to retrievability type when CDP is ready
-      httpRetrievability: retrievabilityType === "http",
+      retrievabilityType,
     },
     true
   );

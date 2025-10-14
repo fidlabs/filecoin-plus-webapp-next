@@ -141,7 +141,7 @@ export function StorageProvidersRetrievabilityWidget({
 }: StorageProvidersRetrievabilityWidgetProps) {
   const [editionId, setEditionId] = useState<string>();
   const [retrievabilityType, setRetrievabilityType] =
-    useState<RetrievabilityType>("rpa");
+    useState<RetrievabilityType>("urlFinder");
   const [openDataOnly, setOpenDataOnly] = useState(false);
   const [scale, setScale] = useState<string>(scales[0]);
   const [mode, setMode] = useState<string>(modes[0]);
@@ -326,7 +326,7 @@ export function StorageProvidersRetrievabilityWidget({
   }, []);
 
   const handleRetrievabilityTypeChange = useCallback((value: string) => {
-    setRetrievabilityType(value === "rpa" ? "rpa" : "http");
+    setRetrievabilityType(value === "urlFinder" ? "urlFinder" : "http");
   }, []);
 
   const handleOpenDataToggleChange = useCallback<CheckedChangeHandler>(
@@ -365,7 +365,7 @@ export function StorageProvidersRetrievabilityWidget({
             onValueChange={handleRetrievabilityTypeChange}
           >
             <TabsList>
-              <TabsTrigger value="rpa">RPA</TabsTrigger>
+              <TabsTrigger value="urlFinder">RPA</TabsTrigger>
               <TabsTrigger value="http">HTTP</TabsTrigger>
             </TabsList>
           </Tabs>
