@@ -167,10 +167,7 @@ export function StorageProvidersIPNIMisreportingWidget({
       return {
         value: formatValue(currentValue),
         label: reportingStateLabelDict[reportingState],
-        percentageChange:
-          (bigintToPercentage(BigInt(currentValue), BigInt(previousValue), 2) -
-            100) /
-          100,
+        percentageChange: currentValue / previousValue - 1,
       };
     });
   }, [chartData, formatValue]);
