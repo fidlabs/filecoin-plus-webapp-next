@@ -1,5 +1,6 @@
 "use client";
 
+import { ChartStat } from "@/components/chart-stat";
 import { ChartTooltip } from "@/components/chart-tooltip";
 import { OverlayLoader } from "@/components/overlay-loader";
 import { Card } from "@/components/ui/card";
@@ -13,6 +14,7 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { QueryKey } from "@/lib/constants";
 import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
+import { cn } from "@/lib/utils";
 import { weekFromDate, weekToReadableString } from "@/lib/weeks";
 import { scaleSymlog } from "d3-scale";
 import { ComponentProps, useCallback, useMemo, useState } from "react";
@@ -29,8 +31,6 @@ import {
   fetchStorageProvidersIPNIMisreportingData,
   FetchStorageProvidersIPNIMistreportingDataParameters,
 } from "../storage-providers-data";
-import { bigintToPercentage, cn } from "@/lib/utils";
-import { ChartStat } from "@/components/chart-stat";
 
 type CardProps = ComponentProps<typeof Card>;
 export interface StorageProvidersComplianceWidgetProps
