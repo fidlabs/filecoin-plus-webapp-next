@@ -37,6 +37,7 @@ export const StickyTabNavigation = forwardRef<
     </nav>
   );
 });
+StickyTabNavigation.displayName = "StickyTabNavigation";
 
 export interface StickyTabNavigationItemProps
   extends LiHTMLAttributes<HTMLLIElement> {
