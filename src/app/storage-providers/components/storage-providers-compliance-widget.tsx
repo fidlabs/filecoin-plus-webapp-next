@@ -398,6 +398,7 @@ export function StorageProvidersComplianceWidget({
               fill={colors.compliant}
             />
             <Area
+              className="cursor-pointer"
               type="monotone"
               stackId="values"
               dataKey="partiallyCompliant"
@@ -407,6 +408,7 @@ export function StorageProvidersComplianceWidget({
               fill={colors.partiallyCompliant}
             />
             <Area
+              className="cursor-pointer"
               type="monotone"
               stackId="values"
               dataKey="nonCompliant"
