@@ -364,7 +364,7 @@ export function StorageProvidersComplianceWidget({
       </div>
 
       <div className="relative">
-        <ResponsiveContainer width="100%" height={400} debounce={500}>
+        <ResponsiveContainer width="100%" height={400} debounce={200}>
           <AreaChart
             data={chartData}
             margin={{

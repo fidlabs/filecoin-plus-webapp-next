@@ -220,7 +220,7 @@ export function StorageProvidersClientDiversityWidget({
       </div>
 
       <div className="relative">
-        <ResponsiveContainer width="100%" height={500}>
+        <ResponsiveContainer width="100%" height={500} debounce={200}>
           <AreaChart
             data={chartData}
             margin={{

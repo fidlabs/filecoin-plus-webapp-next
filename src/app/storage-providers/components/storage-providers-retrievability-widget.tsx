@@ -434,7 +434,7 @@ export function StorageProvidersRetrievabilityWidget({
       </div>
 
       <div className="relative">
-        <ResponsiveContainer width="100%" height={400} debounce={500}>
+        <ResponsiveContainer width="100%" height={400} debounce={200}>
           <ComposedChart
             data={chartData}
             margin={{
