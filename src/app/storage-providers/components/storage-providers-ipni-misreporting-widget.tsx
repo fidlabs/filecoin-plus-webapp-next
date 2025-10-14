@@ -29,7 +29,8 @@ import {
   fetchStorageProvidersIPNIMisreportingData,
   FetchStorageProvidersIPNIMistreportingDataParameters,
 } from "../storage-providers-data";
-import { cn } from "@/lib/utils";
+import { bigintToPercentage, cn } from "@/lib/utils";
+import { ChartStat } from "@/components/chart-stat";
 
 type CardProps = ComponentProps<typeof Card>;
 export interface StorageProvidersComplianceWidgetProps
@@ -41,6 +42,12 @@ type ReportingState = (typeof reportingStates)[number];
 type ChartDataEntry = {
   date: string;
 } & Record<ReportingState, number>;
+
+interface Stat {
+  value: string;
+  percentageChange?: number;
+  label: string;
+}
 
 const reportingStates = ["notReporting", "misreporting", "ok"] as const;
 const scales = ["linear", "percentage", "log"] as const;
@@ -136,6 +143,38 @@ export function StorageProvidersIPNIMisreportingWidget({
     [scale]
   );
 
+  const stats = useMemo<Stat[]>(() => {
+    const [currentIntervalData, previousIntervalData] = chartData
+      .slice(-2)
+      .reverse();
+
+    if (!currentIntervalData) {
+      return [];
+    }
+
+    return reportingStates.toReversed().map<Stat>((reportingState) => {
+      const currentValue = currentIntervalData[reportingState];
+
+      if (!previousIntervalData) {
+        return {
+          value: formatValue(currentValue),
+          label: reportingStateLabelDict[reportingState],
+        };
+      }
+
+      const previousValue = previousIntervalData[reportingState];
+
+      return {
+        value: formatValue(currentValue),
+        label: reportingStateLabelDict[reportingState],
+        percentageChange:
+          (bigintToPercentage(BigInt(currentValue), BigInt(previousValue), 2) -
+            100) /
+          100,
+      };
+    });
+  }, [chartData, formatValue]);
+
   const handleEditionChange = useCallback((value: string) => {
     setEditionId(value === "all" ? undefined : value);
   }, []);
@@ -170,6 +209,20 @@ export function StorageProvidersIPNIMisreportingWidget({
             <SelectItem value="6">Edition 6</SelectItem>
           </SelectContent>
         </Select>
+      </div>
+
+      <div className="px-4 flex flex-wrap gap-x-8">
+        {stats.map((stat, index) => {
+          return (
+            <ChartStat
+              key={`stat_${index}`}
+              label={stat.label}
+              value={stat.value}
+              percentageChange={stat.percentageChange}
+              placeholderWidth={160}
+            />
+          );
+        })}
       </div>
 
       <div className="relative">
