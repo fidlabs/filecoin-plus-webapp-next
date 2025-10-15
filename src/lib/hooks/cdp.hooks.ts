@@ -30,19 +30,21 @@ const allocatorSPsComplianceMetrics = [
 ] as const;
 
 interface UseStorageProviderRetrievabilityParameters {
-  httpRetrievability?: boolean;
+  retrievabilityType?: string;
   openDataOnly?: boolean;
 }
 
 const useStorageProviderRetrievability = ({
-  httpRetrievability = false,
+  retrievabilityType = undefined,
   openDataOnly = false,
 }: UseStorageProviderRetrievabilityParameters) => {
   const { selectedRoundId } = useEditionRound();
 
   const fetchData = useCallback(async () => {
     const searchParams = new URLSearchParams();
-    searchParams.set("httpRetrievability", String(httpRetrievability));
+    if (retrievabilityType)
+      searchParams.set("retrievabilityType", String(retrievabilityType));
+
     searchParams.set("openDataOnly", String(openDataOnly));
 
     if (selectedRoundId) searchParams.set("editionId", selectedRoundId);
@@ -55,7 +57,7 @@ const useStorageProviderRetrievability = ({
       count: data?.histogram?.total,
       buckets: data?.histogram?.results,
     } as ICDPUnifiedHistogram;
-  }, [httpRetrievability, openDataOnly, selectedRoundId]);
+  }, [retrievabilityType, openDataOnly, selectedRoundId]);
 
   const [data, setData] = useState<ICDPUnifiedHistogram | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
@@ -141,19 +143,21 @@ const useStorageProviderBiggestDeal = () => {
 };
 
 interface UseAllocatorRetrievabilityParameters {
-  httpRetrievability?: boolean;
+  retrievabilityType?: string;
   openDataOnly?: boolean;
 }
 
 const useAllocatorRetrievability = ({
-  httpRetrievability = false,
+  retrievabilityType = undefined,
   openDataOnly = false,
 }: UseAllocatorRetrievabilityParameters) => {
   const { selectedRoundId } = useEditionRound();
 
   const fetchData = useCallback(async () => {
     const searchParams = new URLSearchParams();
-    searchParams.set("httpRetrievability", String(httpRetrievability));
+    if (retrievabilityType)
+      searchParams.set("retrievabilityType", String(retrievabilityType));
+
     searchParams.set("openDataOnly", String(openDataOnly));
     if (selectedRoundId) searchParams.set("editionId", selectedRoundId);
 
@@ -166,7 +170,7 @@ const useAllocatorRetrievability = ({
       count: data?.histogram?.total,
       buckets: data?.histogram?.results,
     } as ICDPUnifiedHistogram;
-  }, [httpRetrievability, openDataOnly, selectedRoundId]);
+  }, [retrievabilityType, openDataOnly, selectedRoundId]);
 
   const [data, setData] = useState<ICDPUnifiedHistogram | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
