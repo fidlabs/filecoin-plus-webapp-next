@@ -47,7 +47,7 @@ const retrievabilityDataDefaultParams: FetchStorageProvidersRetrievabilityDataPa
   {
     editionId: undefined,
     openDataOnly: false,
-    retrievabilityType: "rpa",
+    retrievabilityType: "urlFinder",
   };
 
 const clientDiversityDataDefaultParams: FetchStorageProvidersClientDiversityDataParameters =
