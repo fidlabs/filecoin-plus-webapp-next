@@ -4,7 +4,6 @@ import {
   StorageProvidersList,
   StorageProvidersListProps,
 } from "@/app/storage-providers/components/storage-providers-list";
-import { StorageProvidersListAddons } from "@/app/storage-providers/components/storage-providers-list-addons";
 import { FetchStorageProvidersListReturnType } from "@/app/storage-providers/storage-providers-data";
 import { GenericContentFooter } from "@/components/generic-content-view";
 import { Card } from "@/components/ui/card";
@@ -48,27 +47,19 @@ export function StorageProvidersComplianceListWidget({
     [updateFilters]
   );
 
-  const handleSearch = useCallback(
-    (searchPhrase: string) => {
-      updateFilters({ provider: searchPhrase });
-    },
-    [updateFilters]
-  );
-
   return (
     <Card>
-      <div className="px-4 pt-6 mb-2">
-        <h2 className="text-lg font-medium mb-4">Storage Providers List</h2>
-
-        <div className="flex flex-wrap gap-4 justify-between">
-          <StorageProvidersComplianceFilters
-            selectedWeek={selectedWeek}
-            weeks={weeks}
-          />
-
-          <StorageProvidersListAddons onSearch={handleSearch} />
-        </div>
+      <div className="px-4 pt-6 mb-6">
+        <h2 className="text-lg font-medium">Storage Providers List</h2>
+        <p className="text-xs text-muted-foreground">
+          Select metrics and adjust filter below to update the list
+        </p>
       </div>
+
+      <StorageProvidersComplianceFilters
+        selectedWeek={selectedWeek}
+        weeks={weeks}
+      />
 
       <StorageProvidersList
         storageProviders={storageProvidersList.storageProviders}

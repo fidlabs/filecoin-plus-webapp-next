@@ -5,6 +5,14 @@ import { filesize } from "filesize";
 import { Metadata } from "next";
 import { getWeek, getWeekYear } from "date-fns";
 
+export type KeysMatchingType<T, V> = {
+  [K in keyof T]-?: T[K] extends V ? K : never;
+}[keyof T];
+
+export type OnlyPropsMatchingType<T, V> = {
+  [K in KeysMatchingType<T, V>]: T[K];
+};
+
 const mpn65 = [
   "#0091ff",
   "#ff0029",
@@ -250,7 +258,7 @@ export function groupBy<
   }, initialValue as Result);
 }
 
-export function mapObject<InputType, MappedType, Key extends string>(
+export function mapObject<InputType, MappedType, Key extends string = string>(
   input: Record<Key, InputType>,
   mapFn: (item: InputType) => MappedType
 ): Record<Key, MappedType> {

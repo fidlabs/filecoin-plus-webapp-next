@@ -3,7 +3,6 @@
 import { ChartStat } from "@/components/chart-stat";
 import { ChartTooltip } from "@/components/chart-tooltip";
 import { OverlayLoader } from "@/components/overlay-loader";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
   Select,
@@ -13,22 +12,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { QueryKey, StorageProvidersPageSectionId } from "@/lib/constants";
+import { QueryKey } from "@/lib/constants";
 import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
 import { bigintToPercentage, cn, objectToURLSearchParams } from "@/lib/utils";
 import { weekFromDate, weekToReadableString, weekToString } from "@/lib/weeks";
 import { scaleSymlog } from "d3-scale";
 import { filesize } from "filesize";
-import { CheckIcon } from "lucide-react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {
-  type ComponentProps,
-  type MouseEventHandler,
-  useCallback,
-  useMemo,
-  useState,
-} from "react";
+import { type ComponentProps, useCallback, useMemo, useState } from "react";
 import {
   Area,
   AreaChart,
@@ -43,6 +34,10 @@ import {
   fetchStorageProvidersComplianceData,
   FetchStorageProvidersComplianceDataParameters,
 } from "../storage-providers-data";
+import {
+  StorageProvidersComplianceMetricsSelector,
+  StorageProvidersComplianceMetricsSelectorProps,
+} from "./storage-providers-compliance-metrics-selector";
 
 type CardProps = ComponentProps<typeof Card>;
 export interface StorageProvidersComplianceWidgetProps
@@ -88,23 +83,17 @@ export function StorageProvidersComplianceWidget({
   className,
   ...rest
 }: StorageProvidersComplianceWidgetProps) {
-  const [editionId, setEditionId] = useState<string>();
-  const [retrievabilityMetricToggled, setRetrievabilityMetricToggled] =
-    useState(true);
-  const [numberOfClientsMetricToggled, setNumberOfClientsMetricToggled] =
-    useState(true);
-  const [totalDealSizeMetricToggled, setTotalDealSizeMetricToggled] =
-    useState(true);
   const [scale, setScale] = useState<string>(scales[0]);
   const [mode, setMode] = useState<string>(modes[0]);
   const { push: navigate } = useRouter();
 
-  const parameters: FetchStorageProvidersComplianceDataParameters = {
-    editionId,
-    retrievability: retrievabilityMetricToggled,
-    numberOfClients: numberOfClientsMetricToggled,
-    totalDealSize: totalDealSizeMetricToggled,
-  };
+  const [parameters, setParameters] =
+    useState<FetchStorageProvidersComplianceDataParameters>({
+      editionId: undefined,
+      retrievability: true,
+      numberOfClients: true,
+      totalDealSize: true,
+    });
 
   const { data, isLoading } = useSWR(
     [QueryKey.STORAGE_PROVIDERS_COMPLIANCE_DATA, parameters],
@@ -224,7 +213,19 @@ export function StorageProvidersComplianceWidget({
   );
 
   const handleEditionChange = useCallback((value: string) => {
-    setEditionId(value === "all" ? undefined : value);
+    setParameters((currentParameters) => ({
+      ...currentParameters,
+      editionId: value === "all" ? undefined : value,
+    }));
+  }, []);
+
+  const handleMetricsChange = useCallback<
+    StorageProvidersComplianceMetricsSelectorProps["onMetricsChange"]
+  >((metrics) => {
+    setParameters((currentParameters) => ({
+      ...currentParameters,
+      ...metrics,
+    }));
   }, []);
 
   const handleChartClick = useCallback<CategoricalChartFunc>(
@@ -239,28 +240,18 @@ export function StorageProvidersComplianceWidget({
       const searchParams = objectToURLSearchParams(
         {
           complianceScore: "compliant",
-          retrievability: retrievabilityMetricToggled,
-          numberOfClients: numberOfClientsMetricToggled,
-          totalDealSize: totalDealSizeMetricToggled,
+          retrievability: parameters.retrievability,
+          numberOfClients: parameters.numberOfClients,
+          totalDealSize: parameters.totalDealSize,
         },
         true
       );
-
-      searchParams.set("complianceScore", "compliant");
-      searchParams.set("retrievability", String(retrievabilityMetricToggled));
-      searchParams.set("numberOfClients", String(numberOfClientsMetricToggled));
-      searchParams.set("totalDealSize", String(totalDealSizeMetricToggled));
 
       navigate(
         `/storage-providers/compliance/${weekString}?${searchParams.toString()}`
       );
     },
-    [
-      navigate,
-      numberOfClientsMetricToggled,
-      retrievabilityMetricToggled,
-      totalDealSizeMetricToggled,
-    ]
+    [navigate, parameters]
   );
 
   return (
@@ -272,35 +263,11 @@ export function StorageProvidersComplianceWidget({
         </p>
       </header>
 
-      <div className="px-4 pb-4 mb-4 flex flex-wrap gap-2 border-b">
-        <ComplianceMetricTile
-          label="Retrievability score above average"
-          active={retrievabilityMetricToggled}
-          action={{
-            label: "Retrievability",
-            url: `/storage-providers#${StorageProvidersPageSectionId.RETRIEVABILITY}`,
-          }}
-          onToggle={setRetrievabilityMetricToggled}
-        />
-
-        <ComplianceMetricTile
-          label="At least 3 clients"
-          active={numberOfClientsMetricToggled}
-          action={{
-            label: "Client Diversity",
-            url: `/storage-providers#${StorageProvidersPageSectionId.CLIENT_DIVERSITY}`,
-          }}
-          onToggle={setNumberOfClientsMetricToggled}
-        />
-
-        <ComplianceMetricTile
-          label="At most 30% DC from a single client"
-          active={totalDealSizeMetricToggled}
-          action={{
-            label: "Biggest Allocation",
-            url: `/storage-providers#${StorageProvidersPageSectionId.CLIENT_DISTRIBUTION}`,
-          }}
-          onToggle={setTotalDealSizeMetricToggled}
+      <div className="px-4 pb-4 mb-4 border-b">
+        <StorageProvidersComplianceMetricsSelector
+          includeDisabledMetricsOnChange
+          metrics={parameters}
+          onMetricsChange={handleMetricsChange}
         />
       </div>
 
@@ -321,7 +288,7 @@ export function StorageProvidersComplianceWidget({
 
         <div className="flex flex-wrap items-center gap-2">
           <Select
-            value={editionId ?? "all"}
+            value={parameters.editionId ?? "all"}
             onValueChange={handleEditionChange}
           >
             <SelectTrigger className="bg-background">
@@ -427,55 +394,5 @@ export function StorageProvidersComplianceWidget({
         {<OverlayLoader show={!data || isLongLoading} />}
       </div>
     </Card>
-  );
-}
-
-interface ComplianceMetricTileProps {
-  action: {
-    label: string;
-    url: string;
-  };
-  active: boolean;
-  label: string;
-  onToggle(nextState: boolean): void;
-}
-
-function ComplianceMetricTile({
-  action,
-  active,
-  label,
-  onToggle,
-}: ComplianceMetricTileProps) {
-  const handleClick = useCallback(() => {
-    onToggle(!active);
-  }, [active, onToggle]);
-
-  const handleActionClick = useCallback<MouseEventHandler>((event) => {
-    event.stopPropagation();
-  }, []);
-
-  return (
-    <div
-      className={cn(
-        "cursor-pointer flex items-center gap-x-4 border rounded-full pl-3 pr-6 py-1 bg-black/5 border-black/20 text-muted-foreground",
-        active && "bg-dodger-blue/10 border-dodger-blue/50"
-      )}
-      onClick={handleClick}
-    >
-      <CheckIcon className={cn(!active && "text-gray-300")} />
-      <div>
-        <p className={cn("text-sm font-medium", !active && "text-gray-400")}>
-          {label}
-        </p>
-        <Button
-          asChild
-          className={cn("text-xs", !active && "text-gray-400")}
-          variant="link"
-          onClick={handleActionClick}
-        >
-          <Link href={action.url}>{action.label}</Link>
-        </Button>
-      </div>
-    </div>
   );
 }
