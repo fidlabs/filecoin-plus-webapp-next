@@ -1,5 +1,6 @@
 "use client";
 import { useReportsDetails } from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/providers/reports-details.provider";
+import { GenericContentFooter } from "@/components/generic-content-view";
 import { DataTable } from "@/components/ui/data-table";
 import {
   HoverCard,
@@ -7,11 +8,13 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import { RandomPieceAvailabilityTooltip } from "@/components/ui/random-piece-availability-tooltip";
+import { useSearchParamsFilters } from "@/lib/hooks/use-search-params-filters";
+import { IAllocatorReportProviderPaginationQuery } from "@/lib/interfaces/api.interface";
 import { ICDPAllocatorFullReportStorageProviderDistribution } from "@/lib/interfaces/cdp/cdp.interface";
 import { convertBytesToIEC } from "@/lib/utils";
 import { ColumnDef, RowSelectionState } from "@tanstack/react-table";
 import Link from "next/link";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 
 // const comparableValues = ['up', 'down']
 
@@ -216,13 +219,17 @@ const useReportViewProvidersColumns = (/*compareMode: boolean*/) => {
 
 interface IReportViewProviderMapProps {
   providerDistribution: ICDPAllocatorFullReportStorageProviderDistribution[];
+  queryParams?: IAllocatorReportProviderPaginationQuery;
+  totalPages?: number;
 }
 
 const ProviderTable = ({
   providerDistribution,
+  queryParams,
+  totalPages,
 }: IReportViewProviderMapProps) => {
   const { compareMode } = useReportsDetails();
-
+  const { filters, updateFilters } = useSearchParamsFilters();
   const { columns } = useReportViewProvidersColumns();
 
   const rowSelection = useMemo(() => {
@@ -239,12 +246,29 @@ const ProviderTable = ({
     return selection;
   }, [providerDistribution, compareMode]);
 
+  const updateCustomProviderPagination = useCallback(
+    (params: IAllocatorReportProviderPaginationQuery) => {
+      updateFilters({
+        providerPaginationPage: params.page ?? filters.providerPaginationPage,
+        providerPaginationLimit:
+          params.limit ?? filters.providerPaginationLimit,
+      });
+    },
+    [updateFilters, filters]
+  );
+
   return (
     <div className="border-b border-t table-select-warning">
       <DataTable
         columns={columns}
         data={providerDistribution}
         rowSelection={rowSelection}
+      />
+      <GenericContentFooter
+        page={queryParams?.providerPaginationPage}
+        limit={queryParams?.providerPaginationLimit}
+        total={totalPages?.toString() ?? "0"}
+        patchParams={updateCustomProviderPagination}
       />
     </div>
   );

@@ -1,16 +1,17 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { GenericContentHeader } from "@/components/generic-content-view";
-import { ReportsTable } from "@/app/clients/(pages)/[id]/(pages)/reports/components/reports.table";
 import { NewReportButton } from "@/app/clients/(pages)/[id]/(pages)/reports/components/new-report.button";
-import { getClientReports } from "@/lib/api";
+import { ReportsTable } from "@/app/clients/(pages)/[id]/(pages)/reports/components/reports.table";
+import { Container } from "@/components/container";
+import { GenericContentHeader } from "@/components/generic-content-view";
+import { Card, CardContent } from "@/components/ui/card";
 import { ITabNavigatorTab } from "@/components/ui/tab-navigator";
+import { getClientReports } from "@/lib/api";
 import { revalidatePath } from "next/cache";
 
-interface IPageProps {
+interface PageProps {
   params: { id: string };
 }
 
-const ClientReportsPage = async (pageParams: IPageProps) => {
+export default async function ClientReportsPage(pageParams: PageProps) {
   const data = await getClientReports(pageParams.params.id);
 
   const refetch = async () => {
@@ -42,7 +43,7 @@ const ClientReportsPage = async (pageParams: IPageProps) => {
   ] as ITabNavigatorTab[];
 
   return (
-    <div className="main-content">
+    <Container>
       <Card>
         <GenericContentHeader
           placeholder="Storage Provider ID"
@@ -66,8 +67,6 @@ const ClientReportsPage = async (pageParams: IPageProps) => {
           {!!data?.length && <ReportsTable reportsData={data} />}
         </CardContent>
       </Card>
-    </div>
+    </Container>
   );
-};
-
-export default ClientReportsPage;
+}

@@ -1,6 +1,7 @@
 import { FilecoinPulseButton } from "@/components/filecoin-pulse-button";
 import { GithubButton } from "@/components/github-button";
 import { JsonLd } from "@/components/json.ld";
+import { PageHeader, PageSubtitle, PageTitle } from "@/components/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ResponsiveView } from "@/components/ui/responsive-view";
 import { getClients } from "@/lib/api";
@@ -28,12 +29,16 @@ async function fetchClientData(clientId: string): Promise<ClientData | null> {
     return null;
   }
 
+  const githubUrl = client.allowanceArray.find((entry) => {
+    return typeof entry.auditTrail === "string";
+  })?.auditTrail;
+
   return {
     id: client.addressId,
     name: client.name,
     remainingDatacap: client.remainingDatacap,
     allocatedDatacap: client.initialAllowance,
-    githubUrl: client.allowanceArray?.[0]?.auditTrail,
+    githubUrl,
   };
 }
 
@@ -93,14 +98,21 @@ export default async function ClientDetailsLayout({
 
   return (
     <JsonLd data={person}>
-      <div className="flex w-full justify-between mb-4 main-content">
-        <div className="text-white min-w-0">
-          <h1 className="text-3xl leading-relaxed font-semibold truncate">
-            <ClientLink clientId={params.id}>{clientData.name}</ClientLink>
-          </h1>
-          <p className="text-sm leading-none mb-4">
+      <PageHeader
+        className="mb-4"
+        containerProps={{
+          className: "flex justify-between",
+        }}
+      >
+        <div>
+          <PageTitle className="truncate">
+            <ClientLink clientId={params.id}>
+              {clientData.name ?? clientData.id}
+            </ClientLink>
+          </PageTitle>
+          <PageSubtitle className="mb-4">
             Client ID: <ClientLink clientId={params.id}>{params.id}</ClientLink>
-          </p>
+          </PageSubtitle>
           <div className="flex items-center gap-2">
             {!!clientData.githubUrl && (
               <GithubButton url={clientData.githubUrl}>
@@ -138,7 +150,7 @@ export default async function ClientDetailsLayout({
             </div>
           </ResponsiveView>
         </div>
-      </div>
+      </PageHeader>
       <Suspense>{children}</Suspense>
     </JsonLd>
   );

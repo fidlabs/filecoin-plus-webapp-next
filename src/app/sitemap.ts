@@ -29,12 +29,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/compliance-data-portal/old-datacap/allocated-to-clients",
     "/compliance-data-portal/old-datacap/owned-by-clients",
     "/compliance-data-portal/old-datacap/spent-by-clients",
-    "/compliance-data-portal/storage-providers/compliance",
-    "/compliance-data-portal/storage-providers/retrievability",
-    "/compliance-data-portal/storage-providers/number-of-deals",
-    "/compliance-data-portal/storage-providers/biggest-deals",
-    "/compliance-data-portal/storage-providers/ipni-misreporting",
-    "/compliance-data-portal/storage-providers/client-diversity",
   ];
 
   const staticSitemapEntries = staticRoutes.map((route) => ({

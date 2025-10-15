@@ -1,7 +1,8 @@
+import { VerifiedClientsList } from "@/app/allocators/(pages)/[id]/components/verified-clients-list";
+import { Container } from "@/components/container";
 import { getAllocatorById } from "@/lib/api";
 import { IApiQuery } from "@/lib/interfaces/api.interface";
 import { Suspense } from "react";
-import { VerifiedClientsList } from "@/app/allocators/(pages)/[id]/components/verified-clients-list";
 
 interface IPageProps {
   params: { id: string };
@@ -22,7 +23,7 @@ const AllocatorDetailsPage = async (pageParams: IPageProps) => {
   const data = await getAllocatorById(allocatorId, currentParams);
 
   return (
-    <div className="main-content">
+    <Container>
       <Suspense>
         <VerifiedClientsList
           allocatorId={allocatorId}
@@ -30,7 +31,7 @@ const AllocatorDetailsPage = async (pageParams: IPageProps) => {
           searchParams={currentParams}
         />
       </Suspense>
-    </div>
+    </Container>
   );
 };
 

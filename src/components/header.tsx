@@ -16,6 +16,7 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown } from "lucide-react";
+import { Container } from "./container";
 
 interface NavigationItem {
   label: string;
@@ -109,8 +110,8 @@ const Header = () => {
   const [menuOpened, setMenuOpened] = useState(false);
 
   return (
-    <header className="w-full h-[110px] text-white after:absolute after:w-full after:content-[''] relative after:bg-header after:min-h-[250px] after:-z-[1] after:top-0">
-      <div className="w-full h-full max-w-[1700px] mx-auto flex justify-between md:justify-start gap-6 pt-7 pb-10 px-4 md:px-12 text-white items-end">
+    <header className="w-full h-[110px] bg-header text-white">
+      <Container className="w-full h-full flex justify-between xl:justify-start gap-6 pt-7 pb-10 text-white items-end">
         <Link
           href="/"
           className="flex gap-2 items-end mr-5"
@@ -119,9 +120,9 @@ const Header = () => {
           <LogoIcon className="w-[40px] h-[40px]" />
           <TextLogoIcon className="w-auto h-[30px]" />
         </Link>
-        <NavMenu className="hidden md:flex" />
+        <NavMenu className="hidden xl:flex" />
         <GlobalSearchBox />
-        <div className="md:hidden">
+        <div className="xl:hidden">
           <Sheet open={menuOpened} onOpenChange={setMenuOpened}>
             <SheetTrigger aria-label="Mobile nav menu trigegr">
               <MenuIcon />
@@ -130,13 +131,13 @@ const Header = () => {
               <div>
                 <NavMenu
                   onClick={() => setMenuOpened(false)}
-                  className="md:hidden flex-col w-min !after:hidden"
+                  className="xl:hidden flex-col w-min !after:hidden"
                 />
               </div>
             </SheetContent>
           </Sheet>
         </div>
-      </div>
+      </Container>
     </header>
   );
 };
@@ -165,7 +166,7 @@ const NavMenu = ({
 
           return (
             <Fragment key={key}>
-              <div className="hidden md:flex">
+              <div className="hidden xl:flex">
                 <DropdownMenu>
                   <DropdownMenuTrigger
                     className={cn("nav-link flex items-center gap-1", {
@@ -190,7 +191,7 @@ const NavMenu = ({
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
-              <div className="md:hidden">
+              <div className="xl:hidden">
                 <h3 className="text-base font-semibold">{item.label}</h3>
                 <div className="flex flex-col mt-6 gap-2">
                   {item.items.map((innerItem, index) => (

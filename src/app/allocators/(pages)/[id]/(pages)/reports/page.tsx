@@ -5,6 +5,7 @@ import { NewReportButton } from "@/app/allocators/(pages)/[id]/(pages)/reports/c
 import { getAllocatorReports } from "@/lib/api";
 import { ITabNavigatorTab } from "@/components/ui/tab-navigator";
 import { revalidatePath } from "next/cache";
+import { Container } from "@/components/container";
 
 interface IPageProps {
   params: { id: string };
@@ -34,10 +35,15 @@ const AllocatorReportsPage = async (pageParams: IPageProps) => {
       href: `/allocators/${pageParams.params.id}/reports`,
       value: "reports",
     },
+    {
+      label: "Score",
+      href: `/allocators/${pageParams.params.id}/score`,
+      value: "score",
+    },
   ] as ITabNavigatorTab[];
 
   return (
-    <div className="main-content">
+    <Container>
       <Card>
         <GenericContentHeader
           sticky
@@ -60,7 +66,7 @@ const AllocatorReportsPage = async (pageParams: IPageProps) => {
           {!!data?.length && <ReportsTable reportsData={data} />}
         </CardContent>
       </Card>
-    </div>
+    </Container>
   );
 };
 

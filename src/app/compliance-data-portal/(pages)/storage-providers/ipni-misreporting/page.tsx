@@ -1,39 +1,8 @@
-import { fetchIPNIMisreportingHistoricalData } from "@/lib/api";
-import { dateToYearWeek } from "@/lib/utils";
-import {
-  IPNIMisreportingHistoricalChart,
-  IPNIMisreportingHistoricalChartProps,
-} from "./components/ipni-misreporting-historical-chart";
+import { StorageProvidersPageSectionId } from "@/lib/constants";
+import { permanentRedirect } from "next/navigation";
 
-export const revalidate = 300;
-
-type ChartData = IPNIMisreportingHistoricalChartProps["data"];
-
-async function loadChartData(roundId: string | null): Promise<ChartData> {
-  const apiData = await fetchIPNIMisreportingHistoricalData(roundId);
-
-  const chartData: ChartData = apiData.results.map((item) => {
-    return {
-      name: dateToYearWeek(item.week),
-      notReporting: item.notReporting,
-      notReportingName: "IPNI Not Reporting",
-      misreporting: item.misreporting,
-      misreportingName: "IPNI Misreporting",
-      ok: item.ok,
-      okName: "IPNI OK",
-    };
-  });
-
-  return chartData;
-}
-
-export default async function IPNIMisreportingPage({
-  searchParams,
-}: {
-  searchParams?: { [key: string]: string | string[] | undefined };
-}) {
-  const roundId = searchParams?.["editionId"] as string;
-  const chartData = await loadChartData(roundId);
-
-  return <IPNIMisreportingHistoricalChart data={chartData} roundId={roundId} />;
+export default function IPNIMisreportingPage() {
+  permanentRedirect(
+    `/storage-providers#${StorageProvidersPageSectionId.IPNI_MISREPORTING}`
+  );
 }

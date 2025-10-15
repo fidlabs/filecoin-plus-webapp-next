@@ -1,12 +1,13 @@
 import { Navigation } from "@/app/compliance-data-portal/components/navigation";
+import { Container } from "@/components/container";
 import { JsonLd } from "@/components/json.ld";
-import { PageTitle } from "@/components/ui/title";
+import { PageHeader, PageTitle } from "@/components/page-header";
 import { CdpProvider } from "@/lib/providers/cdp.provider";
 import { EditionRoundProvider } from "@/lib/providers/edition-round-provider";
 import { generatePageMetadata } from "@/lib/utils";
-import { Metadata } from "next";
-import { ReactNode } from "react";
-import { Dataset, WithContext } from "schema-dts";
+import { type Metadata } from "next";
+import { type PropsWithChildren } from "react";
+import type { Dataset, WithContext } from "schema-dts";
 
 export const metadata: Metadata = generatePageMetadata({
   title: "Fil+ DataCap Stats | Compliance Overview",
@@ -17,48 +18,6 @@ export const metadata: Metadata = generatePageMetadata({
 export const revalidate = 300; // 5 minutes
 
 const dataset: WithContext<Dataset>[] = [
-  {
-    // SP Retrievability Score
-    "@context": "https://schema.org",
-    "@type": "Dataset",
-    name: "Fil+ DataCap Stats | Storage Provider's Retrievability score",
-    description:
-      "Storage Provider's Retrievability score presented as a weekly histogram",
-    url: "https://datacapstats.io/compliance-data-portal",
-    creator: {
-      "@type": "Organization",
-      name: "Filecoin Incentive Design Labs",
-      url: "https://www.fidl.tech",
-    },
-  },
-  {
-    // SP Number of allocations
-    "@context": "https://schema.org",
-    "@type": "Dataset",
-    name: "Fil+ DataCap Stats | Storage Provider's number of Allocations",
-    description:
-      "Number Storage Provider's clients presented as a weekly histogram",
-    url: "https://datacapstats.io/compliance-data-portal",
-    creator: {
-      "@type": "Organization",
-      name: "Filecoin Incentive Design Labs",
-      url: "https://www.fidl.tech",
-    },
-  },
-  {
-    // SP Size Of The Biggest client allocation
-    "@context": "https://schema.org",
-    "@type": "Dataset",
-    name: "Fil+ DataCap Stats | Storage Provider's biggest allocation",
-    description:
-      "Histogram representing what % of the total data cap used comes from the single client of Storage Provider",
-    url: "https://datacapstats.io/compliance-data-portal",
-    creator: {
-      "@type": "Organization",
-      name: "Filecoin Incentive Design Labs",
-      url: "https://www.fild.tech",
-    },
-  },
   {
     // SP Compliance
     "@context": "https://schema.org",
@@ -143,26 +102,24 @@ const dataset: WithContext<Dataset>[] = [
   },
 ];
 
-const ComplianceLayout = ({
-  children,
-}: Readonly<{
-  children: ReactNode;
-}>) => {
+export default function ComplianceLayout({ children }: PropsWithChildren) {
   return (
     <JsonLd data={dataset}>
-      <main className="main-content flex flex-col justify-start gap-8 row-start-2 items-start">
-        <CdpProvider>
-          <PageTitle>Compliance overview</PageTitle>
-          <div className="mt-9 flex gap-5 w-full">
+      <CdpProvider>
+        <main>
+          <PageHeader>
+            <PageTitle>
+              <PageTitle>Compliance overview</PageTitle>
+            </PageTitle>
+          </PageHeader>
+          <Container className="mt-9 flex gap-5 w-full">
             <Navigation />
             <div className="flex-1">
               <EditionRoundProvider>{children}</EditionRoundProvider>
             </div>
-          </div>
-        </CdpProvider>
-      </main>
+          </Container>
+        </main>
+      </CdpProvider>
     </JsonLd>
   );
-};
-
-export default ComplianceLayout;
+}

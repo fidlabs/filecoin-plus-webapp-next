@@ -1,3 +1,4 @@
+import { Container } from "@/components/container";
 import { Card } from "@/components/ui/card";
 import { getAllocators } from "@/lib/api";
 import Link from "next/link";
@@ -30,19 +31,21 @@ export default async function MetaallocatorAllocatorsListLayout({
   const metaallocatorName = await getMetaallocatorName(params.id);
 
   return (
-    <main className="main-content">
-      <Card className="mt-[50px]">
-        <div className="px-4 pt-6">
-          <h2 className="text-lg font-medium">
-            Allocators under{" "}
-            <Link className="underline" href={`/allocators/${params.id}`}>
-              {metaallocatorName}
-            </Link>
-          </h2>
-        </div>
+    <main>
+      <Container>
+        <Card className="mt-[50px]">
+          <div className="px-4 pt-6">
+            <h2 className="text-lg font-medium">
+              Allocators under{" "}
+              <Link className="underline" href={`/allocators/${params.id}`}>
+                {metaallocatorName}
+              </Link>
+            </h2>
+          </div>
 
-        {children}
-      </Card>
+          {children}
+        </Card>
+      </Container>
     </main>
   );
 }

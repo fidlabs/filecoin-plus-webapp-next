@@ -6,6 +6,15 @@
   .text-balance {
     @apply text-balance;
   }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }
 
 @layer base {
@@ -37,7 +46,7 @@
     --chart-5: hsl(27 87% 67%);
     --radius: 0.5rem;
     --color-link: hsl(206, 100%, 31%);
-    --color-dodger-blue: hsl(206, 100%, 50%);
+    --color-dodger-blue: 206 100% 50%;
     --color-solitude: hsl(210, 36%, 96%);
     --color-medium-turquoise: hsl(184, 58%, 51%);
     --color-oyster-bay: hsl(212, 33%, 89%);
@@ -79,10 +88,6 @@
     transition:
       max-height 0.25s 0.1s cubic-bezier(0, 0.55, 0.45, 1),
       opacity 0.2s ease-in-out;
-  }
-
-  .main-content {
-    @apply w-full max-w-[1700px] mx-auto px-4 md:px-12;
   }
 
   .active + .active {

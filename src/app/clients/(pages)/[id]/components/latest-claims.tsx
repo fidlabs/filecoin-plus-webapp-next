@@ -55,7 +55,7 @@ export function LatestClaims({
   return (
     <Card>
       <GenericContentHeader
-        placeholder="Storage Provider ID"
+        placeholder="SP ID or Piece CID"
         sticky
         fixedHeight={false}
         navigation={tabs}
@@ -92,7 +92,7 @@ export function LatestClaims({
         page={data.pagination.page.toString(10)}
         total={data.pagination.total.toString(10)}
         limit={data.pagination.limit.toString(10)}
-        paginationSteps={["15", "25", "50"]}
+        pageSizeOptions={[15, 25, 50]}
         patchParams={patchParams}
       />
     </Card>

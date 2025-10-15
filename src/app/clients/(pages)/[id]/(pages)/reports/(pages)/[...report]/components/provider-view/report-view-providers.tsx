@@ -36,8 +36,10 @@ export function ReportViewProviders() {
             <div className="flex items-center gap-1">
               {securityChecks[index] && (
                 <HealthCheck
-                  security={securityChecks[index]?.filter((item) =>
-                    item.check.startsWith("STORAGE_PROVIDER_DISTRIBUTION")
+                  security={securityChecks[index]?.filter(
+                    (item) =>
+                      item.check.startsWith("STORAGE_PROVIDER_DISTRIBUTION") ||
+                      item.check.startsWith("STORAGE_PROVIDER_URL_FINDER")
                   )}
                 />
               )}

@@ -278,13 +278,18 @@ export function dateToYearWeek(input: Date | string): string {
 }
 
 export function objectToURLSearchParams(
-  input: Parameters<typeof Object.entries>[0]
+  input: Parameters<typeof Object.entries>[0],
+  coerce = false
 ): URLSearchParams {
   const params = new URLSearchParams();
 
   Object.entries(input).forEach(([key, value]) => {
-    if (typeof value === "string" && value !== "") {
-      params.set(key, value);
+    const isValudValue = coerce
+      ? typeof value !== "undefined" && value !== null
+      : typeof value === "string";
+
+    if (isValudValue && value !== "") {
+      params.set(key, String(value));
     }
   });
 
@@ -324,4 +329,20 @@ export function formatEnglishOrdinals(input: number): string {
   const rule = englishOrdinalRules.select(input);
   const suffix = englishOrdinalSuffixesMap.get(rule);
   return `${input}${suffix}`;
+}
+
+export function bigintToPercentage(
+  numerator: bigint,
+  denominator: bigint,
+  precision = 2
+): number {
+  if (denominator === 0n) {
+    return 0;
+  }
+
+  const precisionExponent = 10n ** BigInt(2 + precision);
+  const numeratorWithPrecision = numerator * precisionExponent;
+  const fraction = numeratorWithPrecision / denominator;
+
+  return Number(fraction) / Math.pow(10, precision);
 }

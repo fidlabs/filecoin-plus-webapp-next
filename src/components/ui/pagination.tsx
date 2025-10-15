@@ -3,7 +3,7 @@
 import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ButtonProps, buttonVariants } from "@/components/ui/button";
-import { ComponentProps, forwardRef, useMemo } from "react";
+import { ComponentProps, forwardRef, useCallback, useMemo } from "react";
 import {
   Select,
   SelectContent,
@@ -14,10 +14,11 @@ import { IApiQuery } from "@/lib/interfaces/api.interface";
 
 interface PaginatorProps {
   page: number;
-  perPage: number;
+  pageSize: number;
+  pageSizeOptions?: number[];
   total: number;
-  paginationSteps?: string[];
-  patchParams: (params: Partial<IApiQuery>) => void;
+  onPageChange(nextPage: number): void;
+  onPageSizeChange?(nextPageSize: number): void;
 }
 
 interface InfinitePaginatorProps {
@@ -30,51 +31,71 @@ interface InfinitePaginatorProps {
 
 const Paginator = ({
   page,
-  patchParams,
-  perPage,
+  pageSize,
+  pageSizeOptions,
   total,
-  paginationSteps,
+  onPageChange,
+  onPageSizeChange,
 }: PaginatorProps) => {
-  const startPage = 1;
-  const endPage = useMemo(() => Math.ceil(total / perPage), [perPage, total]);
+  const lastPage = useMemo(
+    () => Math.ceil(total / pageSize),
+    [pageSize, total]
+  );
 
   const visiblePages = useMemo(() => {
     let pages = [];
 
-    const lowerBound = Math.max(page - 1, startPage);
-    const upperBound = Math.min(page + 1, endPage);
+    const lowerBound = Math.max(page - 1, 1);
+    const upperBound = Math.min(page + 1, lastPage);
 
-    if (lowerBound === startPage) {
-      pages = [startPage, startPage + 1, startPage + 2].filter(
-        (p) => p <= endPage
-      );
-    } else if (upperBound === endPage) {
-      pages = [endPage - 2, endPage - 1, endPage].filter((p) => p >= startPage);
+    if (lowerBound === 1) {
+      pages = [1, 2, 3].filter((p) => p <= lastPage);
+    } else if (upperBound === lastPage) {
+      pages = [lastPage - 2, lastPage - 1, lastPage].filter((p) => p >= 1);
     } else {
       pages = [lowerBound, page, upperBound];
     }
     return pages;
-  }, [endPage, page]);
+  }, [lastPage, page]);
 
   const showPreviousEllipsis = useMemo(
-    () => visiblePages[0] > startPage + 1,
+    () => visiblePages[0] > 2,
     [visiblePages]
   );
   const showNextEllipsis = useMemo(
-    () => visiblePages[visiblePages.length - 1] < endPage - 1,
-    [endPage, visiblePages]
+    () => visiblePages[visiblePages.length - 1] < lastPage - 1,
+    [lastPage, visiblePages]
   );
-  const showFirstPage = useMemo(
-    () => visiblePages[0] > startPage,
-    [visiblePages]
-  );
+  const showFirstPage = useMemo(() => visiblePages[0] > 1, [visiblePages]);
   const showEndPage = useMemo(
-    () => visiblePages[visiblePages.length - 1] < endPage,
-    [endPage, visiblePages]
+    () => visiblePages[visiblePages.length - 1] < lastPage,
+    [lastPage, visiblePages]
   );
 
-  const canGoBack = useMemo(() => page > startPage, [page, startPage]);
-  const canGoForward = useMemo(() => page < endPage, [endPage, page]);
+  const canGoBack = useMemo(() => page > 1, [page]);
+  const canGoForward = useMemo(() => page < lastPage, [lastPage, page]);
+
+  const handlePreviousPageButtonClick = useCallback(() => {
+    onPageChange(page - 1);
+  }, [onPageChange, page]);
+
+  const handleNextPageButtonClick = useCallback(() => {
+    onPageChange(page + 1);
+  }, [onPageChange, page]);
+
+  const handlePageSizeSelectValueChange = useCallback(
+    (value: string) => {
+      const numericValue = parseInt(value);
+
+      if (isNaN(numericValue)) {
+        return;
+      }
+
+      onPageSizeChange?.(numericValue);
+      onPageChange(1);
+    },
+    [onPageChange, onPageSizeChange]
+  );
 
   return (
     <div className="flex w-full justify-between">
@@ -82,91 +103,96 @@ const Paginator = ({
         <PaginationContent>
           <PaginationItem
             className={cn(!canGoBack && "pointer-events-none")}
-            onClick={() => patchParams({ page: (page - 1).toString() })}
+            onClick={handlePreviousPageButtonClick}
           >
             <PaginationPrevious />
           </PaginationItem>
+
           {showFirstPage && (
-            <PaginationItem
-              className="hidden md:block"
-              onClick={() =>
-                patchParams({
-                  page: startPage.toString(),
-                })
-              }
-            >
-              <PaginationLink isActive={startPage === page}>
-                {startPage}
-              </PaginationLink>
-            </PaginationItem>
+            <PaginatorPage
+              page={1}
+              isActive={page === 1}
+              onPageChange={onPageChange}
+            />
           )}
+
           {showPreviousEllipsis && (
             <PaginationEllipsis className="hidden md:flex" />
           )}
+
           {visiblePages.map((pageNumber) => (
-            <PaginationItem
-              className={cn(pageNumber === page && "pointer-events-none")}
-              key={pageNumber}
-              onClick={() =>
-                patchParams({
-                  page: pageNumber.toString(),
-                })
-              }
-            >
-              <PaginationLink isActive={pageNumber === page}>
-                {pageNumber}
-              </PaginationLink>
-            </PaginationItem>
+            <PaginatorPage
+              key={`page_${pageNumber}`}
+              page={pageNumber}
+              isActive={pageNumber === page}
+              onPageChange={onPageChange}
+            />
           ))}
+
           {showNextEllipsis && (
             <PaginationEllipsis className="hidden md:flex" />
           )}
+
           {showEndPage && (
-            <PaginationItem
-              className="hidden md:block"
-              onClick={() =>
-                patchParams({
-                  page: endPage.toString(),
-                })
-              }
-            >
-              <PaginationLink isActive={endPage === page}>
-                {endPage}
-              </PaginationLink>
-            </PaginationItem>
+            <PaginatorPage
+              page={lastPage}
+              isActive={page === lastPage}
+              onPageChange={onPageChange}
+            />
           )}
+
           <PaginationItem
             className={cn(!canGoForward && "pointer-events-none")}
-            onClick={() =>
-              patchParams({
-                page: (page + 1).toString(),
-              })
-            }
+            onClick={handleNextPageButtonClick}
           >
             <PaginationNext />
           </PaginationItem>
         </PaginationContent>
       </Pagination>
-      <div className="flex gap-2 font-semibold items-center text-muted-foreground">
-        <p className="hidden md:block">View</p>
-        <Select
-          value={perPage.toString()}
-          onValueChange={(val) => patchParams({ limit: val, page: "1" })}
-        >
-          <SelectTrigger className="bg-background">{perPage}</SelectTrigger>
-          <SelectContent>
-            {paginationSteps?.map((step) => (
-              <SelectItem key={step} value={step}>
-                {step}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <p className="hidden md:block">items per page</p>
-      </div>
+
+      {!!pageSizeOptions && (
+        <div className="flex gap-2 font-semibold items-center text-muted-foreground">
+          <p className="hidden md:block">View</p>
+          <Select
+            value={pageSize.toString()}
+            onValueChange={handlePageSizeSelectValueChange}
+          >
+            <SelectTrigger className="bg-background">{pageSize}</SelectTrigger>
+            <SelectContent>
+              {pageSizeOptions.map((option) => (
+                <SelectItem key={option} value={String(option)}>
+                  {option}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <p className="hidden md:block">items per page</p>
+        </div>
+      )}
     </div>
   );
 };
+
+interface PaginatorPageProps {
+  isActive: boolean;
+  page: number;
+  onPageChange(nextPage: number): void;
+}
+
+function PaginatorPage({ isActive, page, onPageChange }: PaginatorPageProps) {
+  const handleClick = useCallback(() => {
+    onPageChange(page);
+  }, [onPageChange, page]);
+
+  return (
+    <PaginationItem
+      className={cn(isActive && "pointer-events-none")}
+      onClick={handleClick}
+    >
+      <PaginationLink isActive={isActive}>{page}</PaginationLink>
+    </PaginationItem>
+  );
+}
 
 const InfinitePaginator = ({
   page,

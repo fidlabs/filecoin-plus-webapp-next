@@ -133,6 +133,8 @@ export enum ClientReportCheckType {
   STORAGE_PROVIDER_DISTRIBUTION_PROVIDERS_UNKNOWN_LOCATION = "STORAGE_PROVIDER_DISTRIBUTION_PROVIDERS_UNKNOWN_LOCATION",
   STORAGE_PROVIDER_DISTRIBUTION_PROVIDERS_RETRIEVABILITY_ZERO = "STORAGE_PROVIDER_DISTRIBUTION_PROVIDERS_RETRIEVABILITY_ZERO",
   STORAGE_PROVIDER_DISTRIBUTION_PROVIDERS_RETRIEVABILITY_75 = "STORAGE_PROVIDER_DISTRIBUTION_PROVIDERS_RETRIEVABILITY_75",
+  STORAGE_PROVIDER_URL_FINDER_RETRIEVABILITY_ZERO = "STORAGE_PROVIDER_URL_FINDER_RETRIEVABILITY_ZERO",
+  STORAGE_PROVIDER_URL_FINDER_RETRIEVABILITY_75 = "STORAGE_PROVIDER_URL_FINDER_RETRIEVABILITY_75",
   DEAL_DATA_REPLICATION_LOW_REPLICA = "DEAL_DATA_REPLICATION_LOW_REPLICA",
   DEAL_DATA_REPLICATION_CID_SHARING = "DEAL_DATA_REPLICATION_CID_SHARING",
   STORAGE_PROVIDER_DISTRIBUTION_PROVIDERS_IPNI_MISREPORTING = "STORAGE_PROVIDER_DISTRIBUTION_PROVIDERS_IPNI_MISREPORTING",
@@ -325,6 +327,38 @@ export type AllocatorReportCheck =
   | AllocatorClientMultipleAllocatorsCheck
   | AllocatorClientNotEnoughCopiesCheck;
 
+export enum AllocatorScoringMetric {
+  DUPLICATED_DATA = "DUPLICATED_DATA",
+  IPNI_REPORTING = "IPNI_REPORTING",
+  HTTP_RETRIEVABILITY = "HTTP_RETRIEVABILITY",
+  URL_FINDER_RETRIEVABILITY = "URL_FINDER_RETRIEVABILITY",
+  CID_SHARING = "CID_SHARING",
+  UNIQUE_DATA_SET_SIZE = "UNIQUE_DATA_SET_SIZE",
+  EQUALITY_OF_DATACAP_DISTRIBUTION = "EQUALITY_OF_DATACAP_DISTRIBUTION",
+  CLIENT_DIVERSITY = "CLIENT_DIVERSITY",
+  CLIENT_PREVIOUS_APPLICATIONS = "CLIENT_PREVIOUS_APPLICATIONS",
+}
+
+export interface AllocatorScoringResultRange {
+  metric_value_min: number | null;
+  metric_value_max: number | null;
+  score: number;
+}
+
+export interface AllocatorScoringResult {
+  score: number;
+  metric: AllocatorScoringMetric;
+  metric_name: string;
+  metric_description: string;
+  metric_value: number;
+  metric_average: number | null;
+  metric_unit: string | null;
+  metric_value_min: number;
+  metric_value_max: number;
+  ranges: AllocatorScoringResultRange[];
+  metadata: string[];
+}
+
 export interface ICDPAllocatorFullReport {
   id: string;
   create_date: string;
@@ -338,10 +372,12 @@ export interface ICDPAllocatorFullReport {
   audit: unknown;
   required_copies: string;
   required_sps: string;
-  clients: AllocatorFullReportClient[];
-  storage_provider_distribution: ICDPAllocatorFullReportStorageProviderDistribution[];
+  clients: AllocatorFullReportPaginationClient;
+  storage_provider_distribution: AllocatorFullReportPaginationStorageProviderDistribution;
   check_results: Array<AllocatorReportCheck>;
   avg_secs_to_first_deal: number;
+  scoring_results: AllocatorScoringResult[];
+  all_allocators_score_avg: number | null;
 }
 
 export interface AllocatorFullReportNotFoundClient {
@@ -367,9 +403,31 @@ export interface AllocatorFullReportFoundClient {
   avg_secs_to_first_deal: number;
 }
 
-export type AllocatorFullReportClient =
+export type AllocatorFullReportPaginationStorageProviderDistribution = {
+  pagination?: {
+    page: number;
+    pages: number;
+    limit: number;
+    total: number;
+  };
+  count?: number;
+  data: ICDPAllocatorFullReportStorageProviderDistribution[];
+};
+
+export type ICDPAllocatorFullReportClient =
   | AllocatorFullReportFoundClient
   | AllocatorFullReportNotFoundClient;
+
+export type AllocatorFullReportPaginationClient = {
+  pagination?: {
+    page: number;
+    pages: number;
+    limit: number;
+    total: number;
+  };
+  count?: number;
+  data: ICDPAllocatorFullReportClient[];
+};
 
 export interface ICDPAllocatorFullReportClientAllocation {
   allocation: string;

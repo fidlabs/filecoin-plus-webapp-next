@@ -1,8 +1,9 @@
-import { getClientProviderBreakdownById } from "@/lib/api";
 import { ProvidersList } from "@/app/clients/(pages)/[id]/(pages)/providers/components/client-providers";
-import { Card } from "@/components/ui/card";
+import { Container } from "@/components/container";
 import { GenericContentHeader } from "@/components/generic-content-view";
+import { Card } from "@/components/ui/card";
 import { ITabNavigatorTab } from "@/components/ui/tab-navigator";
+import { getClientProviderBreakdownById } from "@/lib/api";
 
 export const revalidate = 300;
 
@@ -40,7 +41,7 @@ export default async function ClientProviderBreakdownPage(
   ] as ITabNavigatorTab[];
 
   return (
-    <div className="main-content">
+    <Container>
       <Card>
         <GenericContentHeader
           sticky
@@ -58,6 +59,6 @@ export default async function ClientProviderBreakdownPage(
         )}
         {data.stats.length > 0 && <ProvidersList data={data} />}
       </Card>
-    </div>
+    </Container>
   );
 }
