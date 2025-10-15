@@ -16,11 +16,11 @@ export interface RetrievabilityTypeSelectProps {
   queryParamName?: string;
 }
 
-const retrievabilityType = ["http", "rpa"] as const;
+const retrievabilityType = ["http", "urlFinder"] as const;
 const availableValues = retrievabilityType as unknown as string[];
 
 export function RetrievabilityTypeSelect({
-  defaultValue = "rpa",
+  defaultValue = "urlFinder",
   label = null,
   queryParamName = "retrievabilityType",
 }: RetrievabilityTypeSelectProps) {
@@ -53,7 +53,7 @@ export function RetrievabilityTypeSelect({
               key={`select_item_retrieveability_type_${type}`}
               value={type}
             >
-              {type.toUpperCase()}
+              {type === "urlFinder" ? "RPA" : "HTTP"}
             </SelectItem>
           ))}
         </SelectContent>
