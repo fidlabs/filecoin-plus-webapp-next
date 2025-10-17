@@ -57,7 +57,7 @@ export function AllocatorsLeaderboard({
               <div className="min-w-0">
                 <LeaderboardText className="whitespace-nowrap overflow-hidden text-ellipsis">
                   <Button asChild variant="link">
-                    <Link href={`/allocators/${score.allocatorId}`}>
+                    <Link href={`/allocators/${score.allocatorId}/score`}>
                       {score.allocatorName}
                     </Link>
                   </Button>
