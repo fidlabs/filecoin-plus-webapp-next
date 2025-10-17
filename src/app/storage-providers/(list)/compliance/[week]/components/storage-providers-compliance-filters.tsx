@@ -1,9 +1,10 @@
 "use client";
 
 import {
-  ComplianceMetricsSelector,
-  ComplianceMetricsSelectorProps,
-} from "@/components/compliance-metrics-selector";
+  StorageProvidersComplianceMetricsSelector,
+  StorageProvidersComplianceMetricsSelectorProps,
+} from "@/app/storage-providers/components/storage-providers-compliance-metrics-selector";
+import { StorageProvidersListAddons } from "@/app/storage-providers/components/storage-providers-list-addons";
 import { ComplianceScoreSelector } from "@/components/compliance-score-selector";
 import { WeekSelector } from "@/components/week-selector";
 import { useSearchParamsFilters } from "@/lib/hooks/use-search-params-filters";
@@ -24,8 +25,8 @@ export function StorageProvidersComplianceFilters({
   const { push } = useRouter();
   const { filters, updateFilters } = useSearchParamsFilters();
 
-  const metricsConfig = useMemo<
-    ComplianceMetricsSelectorProps["metricsConfig"]
+  const metrics = useMemo<
+    StorageProvidersComplianceMetricsSelectorProps["metrics"]
   >(() => {
     return {
       retrievability: filters.retrievability !== "false",
@@ -58,36 +59,59 @@ export function StorageProvidersComplianceFilters({
     [updateFilters]
   );
 
-  const handleMetricsConfigChange = useCallback<
-    ComplianceMetricsSelectorProps["onConfigChange"]
+  const handleMetricsChange = useCallback<
+    NonNullable<
+      StorageProvidersComplianceMetricsSelectorProps["onMetricsChange"]
+    >
   >(
-    (metricsConfig) => {
-      updateFilters({
-        ...mapObject(metricsConfig, String),
+    (metrics) => {
+      console.log("FOO", metrics);
+      const newFilters = {
+        ...mapObject<boolean | undefined, string>(metrics, (value) => {
+          return String(!!value);
+        }),
         page: "1",
-      });
+      };
+
+      console.log(newFilters);
+
+      updateFilters(newFilters);
+    },
+    [updateFilters]
+  );
+
+  const handleSearch = useCallback(
+    (searchPhrase: string) => {
+      updateFilters({ provider: searchPhrase });
     },
     [updateFilters]
   );
 
   return (
-    <div className="flex flex-wrap gap-4">
-      {weeks.length > 0 && (
-        <WeekSelector
-          selectedWeek={selectedWeek}
-          weeks={weeks}
-          onWeekSelect={handleWeekChange}
-        />
-      )}
+    <div className="px-4 pb-4 mb-4">
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
+        <div className="flex flex-wrap gap-4">
+          {weeks.length > 0 && (
+            <WeekSelector
+              selectedWeek={selectedWeek}
+              weeks={weeks}
+              onWeekSelect={handleWeekChange}
+            />
+          )}
 
-      <ComplianceScoreSelector
-        selectedOption={filters.complianceScore}
-        onOptionSelect={handleComplianceScoreChange}
-      />
+          <ComplianceScoreSelector
+            selectedOption={filters.complianceScore}
+            onOptionSelect={handleComplianceScoreChange}
+          />
+        </div>
 
-      <ComplianceMetricsSelector
-        metricsConfig={metricsConfig}
-        onConfigChange={handleMetricsConfigChange}
+        <StorageProvidersListAddons onSearch={handleSearch} />
+      </div>
+
+      <StorageProvidersComplianceMetricsSelector
+        includeDisabledMetricsOnChange
+        metrics={metrics}
+        onMetricsChange={handleMetricsChange}
       />
     </div>
   );

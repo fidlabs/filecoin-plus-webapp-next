@@ -1,3 +1,5 @@
-const CompliancePage = () => <></>;
+import { redirect } from "next/navigation";
 
-export default CompliancePage;
+export default function CompliancePage() {
+  return redirect(`/compliance-data-portal/allocators/retrievability`);
+}

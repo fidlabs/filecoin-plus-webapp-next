@@ -13,7 +13,7 @@ export function StorageProvidersListJsonLd({
 }: StorageProvidersListJsonLdProps) {
   const jsonLdData: WithContext<ItemList> = {
     "@context": "https://schema.org",
-    name: "Allocators",
+    name: "Storage Providers",
     "@type": "ItemList",
     itemListElement: storageProviders.map((sp, index) => ({
       "@type": "ListItem",

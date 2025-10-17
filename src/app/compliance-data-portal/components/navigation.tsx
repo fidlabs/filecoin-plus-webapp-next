@@ -10,41 +10,6 @@ import { useMediaQuery } from "usehooks-ts";
 
 const nav = [
   {
-    group: "SPs",
-    links: [
-      {
-        id: "ComplianceSP",
-        link: "/compliance-data-portal/storage-providers/compliance",
-        label: "Compliance",
-      },
-      {
-        id: "RetrievabilityScoreSP",
-        link: "/compliance-data-portal/storage-providers/retrievability",
-        label: "Retrievability Score",
-      },
-      {
-        id: "NumberOfDealsSP",
-        link: "/compliance-data-portal/storage-providers/number-of-deals",
-        label: "Number of Allocations",
-      },
-      {
-        id: "BiggestDealsSP",
-        link: "/compliance-data-portal/storage-providers/biggest-deals",
-        label: "Biggest Allocation",
-      },
-      {
-        id: "IpniMisreporting",
-        link: `/compliance-data-portal/storage-providers/ipni-misreporting`,
-        label: "IPNI Misreporting",
-      },
-      {
-        id: "ClientDiversitySP",
-        link: "/compliance-data-portal/storage-providers/client-diversity",
-        label: "Client Diversity",
-      },
-    ],
-  },
-  {
     group: "Allocators",
     links: [
       {

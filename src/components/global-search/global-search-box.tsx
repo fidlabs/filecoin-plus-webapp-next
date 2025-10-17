@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/command";
 import { Separator } from "@/components/ui/separator";
 import { getAllocators, getClients, getStorageProviders } from "@/lib/api";
+import { StorageProvidersPageSectionId } from "@/lib/constants";
 import { IAllocatorsResponse } from "@/lib/interfaces/dmob/allocator.interface";
 import { IClientsResponse } from "@/lib/interfaces/dmob/client.interface";
 import { IStorageProvidersResponse } from "@/lib/interfaces/dmob/sp.interface";
@@ -286,8 +287,8 @@ const defaultActions = [
   },
 
   {
-    name: "Compliance Data Portal - Storage Providers Compliance",
-    group: "Compliance Data Portal - Storage Providers",
+    name: "Storage Providers Compliance",
+    group: "Storage Providers",
     tags: [
       "compliance",
       "data",
@@ -298,11 +299,11 @@ const defaultActions = [
       "providers",
       "compliance",
     ],
-    link: "/compliance-data-portal/storage-providers/compliance",
+    link: `/storage-providers#${StorageProvidersPageSectionId.COMPLIANCE}`,
   },
   {
-    name: "Compliance Data Portal - Storage Providers Retrievability",
-    group: "Compliance Data Portal - Storage Providers",
+    name: "Storage Providers Retrievability",
+    group: "Storage Providers",
     tags: [
       "compliance",
       "data",
@@ -313,27 +314,11 @@ const defaultActions = [
       "providers",
       "retrievability",
     ],
-    link: "/compliance-data-portal/storage-providers/retrievability",
+    link: `/storage-providers#${StorageProvidersPageSectionId.RETRIEVABILITY}`,
   },
   {
-    name: "Compliance Data Portal - Storage Providers Number of Deals",
-    group: "Compliance Data Portal - Storage Providers",
-    tags: [
-      "compliance",
-      "data",
-      "portal",
-      "chart",
-      "cdp",
-      "storage",
-      "providers",
-      "number",
-      "deals",
-    ],
-    link: "/compliance-data-portal/storage-providers/number-of-deals",
-  },
-  {
-    name: "Compliance Data Portal - Storage Providers Biggest Deals",
-    group: "Compliance Data Portal - Storage Providers",
+    name: "Storage Providers Biggest Deals",
+    group: "Storage Providers",
     tags: [
       "compliance",
       "data",
@@ -345,11 +330,11 @@ const defaultActions = [
       "biggest",
       "deals",
     ],
-    link: "/compliance-data-portal/storage-providers/biggest-deals",
+    link: `/storage-providers#${StorageProvidersPageSectionId.CLIENT_DISTRIBUTION}`,
   },
   {
-    name: "Compliance Data Portal - Storage Providers IPNI Misreporting",
-    group: "Compliance Data Portal - Storage Providers",
+    name: "Storage Providers IPNI Misreporting",
+    group: "Storage Providers",
     tags: [
       "compliance",
       "data",
@@ -361,11 +346,11 @@ const defaultActions = [
       "ipni",
       "misreporting",
     ],
-    link: `/compliance-data-portal/storage-providers/ipni-misreporting`,
+    link: `/storage-providers#${StorageProvidersPageSectionId.IPNI_MISREPORTING}`,
   },
   {
-    name: "Compliance Data Portal - Storage Providers Client Diversity",
-    group: "Compliance Data Portal - Storage Providers",
+    name: "Storage Providers Client Diversity",
+    group: "Storage Providers",
     tags: [
       "compliance",
       "data",
@@ -377,7 +362,7 @@ const defaultActions = [
       "client",
       "diversity",
     ],
-    link: "/compliance-data-portal/storage-providers/client-diversity",
+    link: `/storage-providers#${StorageProvidersPageSectionId.CLIENT_DIVERSITY}`,
   },
 ] as Action[];
 

@@ -5,6 +5,14 @@ import { filesize } from "filesize";
 import { Metadata } from "next";
 import { getWeek, getWeekYear } from "date-fns";
 
+export type KeysMatchingType<T, V> = {
+  [K in keyof T]-?: T[K] extends V ? K : never;
+}[keyof T];
+
+export type OnlyPropsMatchingType<T, V> = {
+  [K in KeysMatchingType<T, V>]: T[K];
+};
+
 const mpn65 = [
   "#0091ff",
   "#ff0029",
@@ -250,7 +258,7 @@ export function groupBy<
   }, initialValue as Result);
 }
 
-export function mapObject<InputType, MappedType, Key extends string>(
+export function mapObject<InputType, MappedType, Key extends string = string>(
   input: Record<Key, InputType>,
   mapFn: (item: InputType) => MappedType
 ): Record<Key, MappedType> {
@@ -278,13 +286,18 @@ export function dateToYearWeek(input: Date | string): string {
 }
 
 export function objectToURLSearchParams(
-  input: Parameters<typeof Object.entries>[0]
+  input: Parameters<typeof Object.entries>[0],
+  coerce = false
 ): URLSearchParams {
   const params = new URLSearchParams();
 
   Object.entries(input).forEach(([key, value]) => {
-    if (typeof value === "string" && value !== "") {
-      params.set(key, value);
+    const isValudValue = coerce
+      ? typeof value !== "undefined" && value !== null
+      : typeof value === "string";
+
+    if (isValudValue && value !== "") {
+      params.set(key, String(value));
     }
   });
 
@@ -324,4 +337,20 @@ export function formatEnglishOrdinals(input: number): string {
   const rule = englishOrdinalRules.select(input);
   const suffix = englishOrdinalSuffixesMap.get(rule);
   return `${input}${suffix}`;
+}
+
+export function bigintToPercentage(
+  numerator: bigint,
+  denominator: bigint,
+  precision = 2
+): number {
+  if (denominator === 0n) {
+    return 0;
+  }
+
+  const precisionExponent = 10n ** BigInt(2 + precision);
+  const numeratorWithPrecision = numerator * precisionExponent;
+  const fraction = numeratorWithPrecision / denominator;
+
+  return Number(fraction) / Math.pow(10, precision);
 }
