@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/select";
 import { IApiQuery } from "@/lib/interfaces/api.interface";
 
-interface PaginatorProps {
+export interface PaginatorProps {
   page: number;
   pageSize: number;
   pageSizeOptions?: number[];

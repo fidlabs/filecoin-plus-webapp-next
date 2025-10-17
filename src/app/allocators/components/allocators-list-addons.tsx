@@ -1,15 +1,12 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { useSearchParamsFilters } from "@/lib/hooks/use-search-params-filters";
 import { cn } from "@/lib/utils";
 import { type Week } from "@/lib/weeks";
 import { XIcon } from "lucide-react";
 import {
   type ChangeEventHandler,
-  type ComponentProps,
   type HTMLAttributes,
   useCallback,
   useState,
@@ -17,32 +14,20 @@ import {
 import { useDebounceCallback } from "usehooks-ts";
 import { AllocatorsCSVExportButton } from "./allocators-csv-export-button";
 
-type CheckboxProps = ComponentProps<typeof Checkbox>;
-type CheckedChangeHandler = NonNullable<CheckboxProps["onCheckedChange"]>;
 type BaseProps = Omit<HTMLAttributes<HTMLDivElement>, "children">;
 export interface AllocatorsListAddonsProps extends BaseProps {
   complianceWeek?: Week;
+  onSearch(searchPhrase: string): void;
 }
 
 export function AllocatorsListAddons({
   className,
   complianceWeek,
+  onSearch,
   ...rest
 }: AllocatorsListAddonsProps) {
-  const { filters, updateFilters } = useSearchParamsFilters();
   const [searchPhrase, setSearchPhrase] = useState("");
-
-  const search = useCallback(
-    (searchPhrase: string) => {
-      updateFilters({
-        filter: searchPhrase,
-        page: "1",
-      });
-    },
-    [updateFilters]
-  );
-
-  const searchDebounced = useDebounceCallback(search, 150);
+  const searchDebounced = useDebounceCallback(onSearch, 150);
 
   const handleSearchPhraseChange = useCallback<
     ChangeEventHandler<HTMLInputElement>
@@ -60,19 +45,9 @@ export function AllocatorsListAddons({
     searchDebounced("");
   }, [searchDebounced]);
 
-  const handleShowInactiveChange = useCallback<CheckedChangeHandler>(
-    (state) => {
-      updateFilters({
-        showInactive: state === true ? "true" : "false",
-        page: "1",
-      });
-    },
-    [updateFilters]
-  );
-
   return (
     <div {...rest} className={cn("flex flex-wrap gap-4", className)}>
-      <div className="relative w-full md:max-w-[270px] ">
+      <div className="relative w-[270px] ">
         <Input
           className="bg-background w-full text-[18px] lg:text-base"
           placeholder="Search by ID / Address / Name"
@@ -92,20 +67,6 @@ export function AllocatorsListAddons({
       </div>
 
       <AllocatorsCSVExportButton complianceWeek={complianceWeek} />
-
-      <div className="flex items-center space-x-2">
-        <Checkbox
-          id="show-inactive"
-          checked={filters.showInactive === "true"}
-          onCheckedChange={handleShowInactiveChange}
-        />
-        <label
-          className="text-sm font-medium leading-none"
-          htmlFor="show-inactive"
-        >
-          Show Inactive
-        </label>
-      </div>
     </div>
   );
 }

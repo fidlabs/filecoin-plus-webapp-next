@@ -38,16 +38,7 @@ const navigation: Array<NavigationItem | NavigationGroup> = [
   },
   {
     label: "Allocators",
-    items: [
-      {
-        label: "Allocators List",
-        path: "/allocators",
-      },
-      {
-        label: "Metaaallocators List",
-        path: "/metaallocators",
-      },
-    ],
+    path: "/allocators",
   },
   {
     label: "Clients",

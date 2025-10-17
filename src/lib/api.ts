@@ -628,12 +628,15 @@ function assertIsAllocatorsAuditStateResponse(
   }
 }
 
-export interface FetchAllocatorsAuditStatesParams {
+export interface FetchAllocatorsAuditStatesParameters {
   editionId?: string;
 }
 
+export type FetchAllocatorsAuditStatesReturnType =
+  AllocatorsAuditStatesResponse;
+
 export async function fetchAllocatorsAuditStates(
-  params: FetchAllocatorsAuditStatesParams
+  params: FetchAllocatorsAuditStatesParameters
 ): Promise<AllocatorsAuditStatesResponse> {
   const endpoint = `${CDP_API_URL}/allocators/audit-states?${objectToURLSearchParams(params)}`;
   const response = await fetch(endpoint, { next: { revalidate: 300 } });
