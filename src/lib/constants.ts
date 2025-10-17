@@ -19,6 +19,7 @@ export enum AllocatorsPageSectionId {
   METAALLOCATORS_LIST = "metaallocator-list",
   DC_FLOW = "dc-flow",
   AUDITS_FLOW = "audits-flow",
+  LEADERBOARDS = "leaderboards",
 }
 
 export enum StorageProvidersPageSectionId {

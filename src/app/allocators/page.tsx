@@ -9,7 +9,11 @@ import { generatePageMetadata } from "@/lib/utils";
 import { type Metadata } from "next";
 import { SWRConfig, unstable_serialize } from "swr";
 import { AllocatorsListWidget } from "./components/allocators-list-widget";
-import { fetchAllocators, FetchAllocatorsParameters } from "./allocators-data";
+import {
+  fetchAllocators,
+  fetchAllocatorScoreRanking,
+  FetchAllocatorsParameters,
+} from "./allocators-data";
 import { MetaallocatorsListWidget } from "./components/metaallocators-list-widget";
 import { DCFlowWidget } from "./components/dc-flow-widget";
 import {
@@ -17,6 +21,7 @@ import {
   FetchAllocatorsAuditStatesParameters,
 } from "@/lib/api";
 import { AuditsFlowWidget } from "./components/audits-flow-widget";
+import { AllocatorsLeaderboards } from "./components/allocators-leaderboards";
 
 export const revalidate = 300;
 
@@ -31,6 +36,7 @@ const sectionTabs = {
   [AllocatorsPageSectionId.METAALLOCATORS_LIST]: "Metaallocators List",
   [AllocatorsPageSectionId.DC_FLOW]: "DC Flow",
   [AllocatorsPageSectionId.AUDITS_FLOW]: "Audits Flow",
+  [AllocatorsPageSectionId.LEADERBOARDS]: "Leaderboards",
 } as const satisfies IdBasedStickyTabNaviationProps["tabs"];
 
 export const allocatorsListDefaultParameters: FetchAllocatorsParameters = {
@@ -55,12 +61,19 @@ export const auditsFlowDefaultParameters: FetchAllocatorsAuditStatesParameters =
   };
 
 export default async function AllocatorsPage() {
+  const fallbackRequests = Promise.allSettled([
+    fetchAllocators(allocatorsListDefaultParameters),
+    fetchAllocators(metaallocatorsListDefaultParameters),
+    fetchAllocatorsAuditStates(auditsFlowDefaultParameters),
+  ]);
+
+  const [settledResults, allocatorScoreRanking] = await Promise.all([
+    fallbackRequests,
+    fetchAllocatorScoreRanking(),
+  ]);
+
   const [fetchAllocatorsResult, fetchMetaalloctorsResult, auditsFlowResult] =
-    await Promise.allSettled([
-      fetchAllocators(allocatorsListDefaultParameters),
-      fetchAllocators(metaallocatorsListDefaultParameters),
-      fetchAllocatorsAuditStates(auditsFlowDefaultParameters),
-    ]);
+    settledResults;
 
   const fallback = {
     [unstable_serialize([
@@ -103,6 +116,10 @@ export default async function AllocatorsPage() {
         <AuditsFlowWidget
           id={AllocatorsPageSectionId.AUDITS_FLOW}
           defaultParameters={auditsFlowDefaultParameters}
+        />
+        <AllocatorsLeaderboards
+          id={AllocatorsPageSectionId.LEADERBOARDS}
+          scores={allocatorScoreRanking}
         />
       </Container>
     </SWRConfig>
