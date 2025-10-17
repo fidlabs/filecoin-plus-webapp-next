@@ -144,7 +144,7 @@ export function LeaderboardPagination({
     if (page < maxPage) {
       onPageChange(page + 1);
     }
-  }, [onPageChange, page]);
+  }, [maxPage, onPageChange, page]);
 
   return (
     <Pagination {...rest} className={cn("p-3 select-none", className)}>
