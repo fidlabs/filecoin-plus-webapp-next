@@ -39,7 +39,7 @@ const sectionTabs = {
   [AllocatorsPageSectionId.LEADERBOARDS]: "Leaderboards",
 } as const satisfies IdBasedStickyTabNaviationProps["tabs"];
 
-export const allocatorsListDefaultParameters: FetchAllocatorsParameters = {
+const allocatorsListDefaultParameters: FetchAllocatorsParameters = {
   page: 1,
   limit: 10,
   filter: "",
@@ -47,7 +47,7 @@ export const allocatorsListDefaultParameters: FetchAllocatorsParameters = {
   isMetaallocator: false,
 };
 
-export const metaallocatorsListDefaultParameters: FetchAllocatorsParameters = {
+const metaallocatorsListDefaultParameters: FetchAllocatorsParameters = {
   page: 1,
   limit: 10,
   filter: "",
@@ -55,10 +55,9 @@ export const metaallocatorsListDefaultParameters: FetchAllocatorsParameters = {
   isMetaallocator: true,
 };
 
-export const auditsFlowDefaultParameters: FetchAllocatorsAuditStatesParameters =
-  {
-    editionId: "6",
-  };
+const auditsFlowDefaultParameters: FetchAllocatorsAuditStatesParameters = {
+  editionId: "6",
+};
 
 export default async function AllocatorsPage() {
   const fallbackRequests = Promise.allSettled([
