@@ -1,7 +1,7 @@
 import { CDP_API_URL } from "@/lib/constants";
 import { throwHTTPErrorOrSkip } from "@/lib/http-errors";
 import { IAllocatorsResponse } from "@/lib/interfaces/dmob/allocator.interface";
-import { assertSchema, objectToURLSearchParams } from "@/lib/utils";
+import { objectToURLSearchParams } from "@/lib/utils";
 import { z } from "zod";
 
 // Allocators list
@@ -125,51 +125,6 @@ export async function fetchAllocatorsSPsComplianceData(
   const data = await response.json();
 
   assertIsAllocatorsSPsComplianceData(data);
-
-  return data;
-}
-
-// Score ranking
-type ScoreRankingDataType = z.infer<typeof scoreRankingDataTypeEnum>;
-type ScoreRankingResponse = z.infer<typeof scoreRankingResponseSchema>;
-
-export interface FetchAllocatorScoreRankingParameters {
-  dataType?: ScoreRankingDataType;
-}
-
-export type FetchAllocatorScoreRankingReturnType = ScoreRankingResponse;
-
-const scoreRankingDataTypeEnum = z.enum(["openData", "enterprise"]);
-const scoreRankingResponseSchema = z.array(
-  z.object({
-    allocatorId: z.string(),
-    allocatorName: z.string(),
-    totalScore: z.number(),
-    maxPossibleScore: z.number(),
-    scorePercentage: z.string(),
-    dataType: scoreRankingDataTypeEnum,
-  })
-);
-
-export async function fetchAllocatorScoreRanking(
-  parameters: FetchAllocatorScoreRankingParameters = {}
-): Promise<FetchAllocatorScoreRankingReturnType> {
-  const searchParams = objectToURLSearchParams(parameters, true);
-  const endpoint = `${CDP_API_URL}/allocators/latest-scores?${searchParams.toString()}`;
-  const response = await fetch(endpoint);
-
-  throwHTTPErrorOrSkip(
-    response,
-    `CDP API returned status ${response.status} when fetching allocators score ranking; URL: ${endpoint}`
-  );
-
-  const data = await response.json();
-
-  assertSchema(
-    data,
-    scoreRankingResponseSchema,
-    `CDP API returned invalid response when fetching allocators score ranking; URL: ${endpoint}`
-  );
 
   return data;
 }
