@@ -130,8 +130,8 @@ export function LeaderboardPagination({
   onPageChange,
   ...rest
 }: LeaderboardPaginationProps) {
-  const end = pageSize * page;
-  const start = end - pageSize + 1;
+  const end = Math.min(pageSize * page, total);
+  const start = pageSize * (page - 1) + 1;
   const maxPage = pageSize !== 0 ? Math.ceil(total / pageSize) : total;
 
   const handlePreviousClick = useCallback(() => {
