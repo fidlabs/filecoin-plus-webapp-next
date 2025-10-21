@@ -23,11 +23,6 @@ const nav = [
         label: "Biggest Allocation",
       },
       {
-        id: "ProviderComplianceAllocator",
-        link: "/compliance-data-portal/allocators/providers-compliance",
-        label: "SP Compliance",
-      },
-      {
         id: "AuditStateAllocator",
         link: "/compliance-data-portal/allocators/audit-state",
         label: "Audit State",

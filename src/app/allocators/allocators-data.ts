@@ -88,18 +88,6 @@ type AllocatorsSPsComplianceData = z.infer<
   typeof allocatorsSPsComplianceDataSchema
 >;
 
-function assertIsAllocatorsSPsComplianceData(
-  input: unknown
-): asserts input is AllocatorsSPsComplianceData {
-  const result = allocatorsSPsComplianceDataSchema.safeParse(input);
-
-  if (!result.success) {
-    throw new TypeError(
-      "Invalid response from CDP when fetching allocators SPs compliance data"
-    );
-  }
-}
-
 export interface FetchAllocatorsSPsComplianceDataParameters {
   editionId?: string;
   retrievability?: boolean;
@@ -124,7 +112,11 @@ export async function fetchAllocatorsSPsComplianceData(
 
   const data = await response.json();
 
-  assertIsAllocatorsSPsComplianceData(data);
+  assertSchema(
+    data,
+    allocatorsSPsComplianceDataSchema,
+    `Invalid response from CDP when fetching allocators SPs compliance data; URL: ${endpoint}`
+  );
 
   return data;
 }

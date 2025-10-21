@@ -1,4 +1,5 @@
 import { Container } from "@/components/container";
+import { HeaderExtensionOverlay } from "@/components/header-extension-overlay";
 import { PageHeader, PageSubtitle, PageTitle } from "@/components/page-header";
 import { type PropsWithChildren } from "react";
 
@@ -9,13 +10,15 @@ type LayoutProps = PropsWithChildren<{
 export default function CompliantAllocatorsLayout({ children }: LayoutProps) {
   return (
     <>
-      <PageHeader className="mb-8">
+      <PageHeader>
         <PageTitle>Allocators by Compliance</PageTitle>
         <PageSubtitle>
           Browse allocators by their SPs compliance score
         </PageSubtitle>
       </PageHeader>
-      <Container>{children}</Container>
+      <HeaderExtensionOverlay>
+        <Container>{children}</Container>
+      </HeaderExtensionOverlay>
     </>
   );
 }

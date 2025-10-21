@@ -13,6 +13,8 @@ import {
   fetchAllocators,
   fetchAllocatorScoreRanking,
   FetchAllocatorsParameters,
+  fetchAllocatorsSPsComplianceData,
+  FetchAllocatorsSPsComplianceDataParameters,
 } from "./allocators-data";
 import { MetaallocatorsListWidget } from "./components/metaallocators-list-widget";
 import { DCFlowWidget } from "./components/dc-flow-widget";
@@ -22,6 +24,7 @@ import {
 } from "@/lib/api";
 import { AuditsFlowWidget } from "./components/audits-flow-widget";
 import { AllocatorsLeaderboards } from "./components/allocators-leaderboards";
+import { AllocatorsSPsComplianceWidget } from "./components/allocators-sps-compliance-widget";
 
 export const revalidate = 300;
 
@@ -32,6 +35,7 @@ export const metadata: Metadata = generatePageMetadata({
 });
 
 const sectionTabs = {
+  [AllocatorsPageSectionId.COMPLIANCE]: "Compliance",
   [AllocatorsPageSectionId.ALLOCATORS_LIST]: "Allocators List",
   [AllocatorsPageSectionId.METAALLOCATORS_LIST]: "Metaallocators List",
   [AllocatorsPageSectionId.DC_FLOW]: "DC Flow",
@@ -59,11 +63,20 @@ const auditsFlowDefaultParameters: FetchAllocatorsAuditStatesParameters = {
   editionId: "6",
 };
 
+const complianceDefaultParameters: FetchAllocatorsSPsComplianceDataParameters =
+  {
+    editionId: undefined,
+    retrievability: true,
+    numberOfClients: true,
+    totalDealSize: true,
+  };
+
 export default async function AllocatorsPage() {
   const fallbackRequests = Promise.allSettled([
     fetchAllocators(allocatorsListDefaultParameters),
     fetchAllocators(metaallocatorsListDefaultParameters),
     fetchAllocatorsAuditStates(auditsFlowDefaultParameters),
+    fetchAllocatorsSPsComplianceData(complianceDefaultParameters),
   ]);
 
   const [settledResults, allocatorScoreRanking] = await Promise.all([
@@ -71,8 +84,12 @@ export default async function AllocatorsPage() {
     fetchAllocatorScoreRanking(),
   ]);
 
-  const [fetchAllocatorsResult, fetchMetaalloctorsResult, auditsFlowResult] =
-    settledResults;
+  const [
+    fetchAllocatorsResult,
+    fetchMetaalloctorsResult,
+    auditsFlowResult,
+    complianceResult,
+  ] = settledResults;
 
   const fallback = {
     [unstable_serialize([
@@ -87,6 +104,10 @@ export default async function AllocatorsPage() {
       QueryKey.ALLOCATORS_AUDIT_STATES,
       auditsFlowDefaultParameters,
     ])]: unwrapResult(auditsFlowResult),
+    [unstable_serialize([
+      QueryKey.ALLOCATORS_SPS_COMPLIANCE_DATA,
+      complianceDefaultParameters,
+    ])]: unwrapResult(complianceResult),
   };
 
   return (
@@ -103,6 +124,7 @@ export default async function AllocatorsPage() {
       </PageHeader>
       <IdBasedStickyTabNaviation className="mb-8" tabs={sectionTabs} />
       <Container className="flex flex-col gap-y-8">
+        <AllocatorsSPsComplianceWidget />
         <AllocatorsListWidget
           id={AllocatorsPageSectionId.ALLOCATORS_LIST}
           defaultParameters={allocatorsListDefaultParameters}
