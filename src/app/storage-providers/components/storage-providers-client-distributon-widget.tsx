@@ -15,7 +15,6 @@ import { QueryKey } from "@/lib/constants";
 import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
 import { bigintToPercentage, cn, gradientPalette } from "@/lib/utils";
 import { weekFromDate, weekToReadableString } from "@/lib/weeks";
-import { scaleSymlog } from "d3-scale";
 import { filesize } from "filesize";
 import { type ComponentProps, useCallback, useMemo, useState } from "react";
 import {
@@ -342,7 +341,7 @@ export function StorageProvidersClientDistributionWidget({
             <YAxis
               fontSize={14}
               tickFormatter={formatValue}
-              scale={scale === "log" ? scaleSymlog().constant(1) : "linear"}
+              scale={scale === "log" ? "symlog" : "linear"}
             />
 
             {ranges.map((range, rangeIndex) => (

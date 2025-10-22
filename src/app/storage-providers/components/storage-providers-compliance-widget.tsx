@@ -16,7 +16,6 @@ import { QueryKey } from "@/lib/constants";
 import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
 import { bigintToPercentage, cn, objectToURLSearchParams } from "@/lib/utils";
 import { weekFromDate, weekToReadableString, weekToString } from "@/lib/weeks";
-import { scaleSymlog } from "d3-scale";
 import { filesize } from "filesize";
 import { useRouter } from "next/navigation";
 import { type ComponentProps, useCallback, useMemo, useState } from "react";
@@ -28,7 +27,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { CategoricalChartFunc } from "recharts/types/chart/generateCategoricalChart";
+import { type CategoricalChartFunc } from "recharts/types/chart/types";
 import useSWR from "swr";
 import {
   fetchStorageProvidersComplianceData,
@@ -352,7 +351,7 @@ export function StorageProvidersComplianceWidget({
             <YAxis
               fontSize={14}
               tickFormatter={formatValue}
-              scale={scale === "log" ? scaleSymlog().constant(1) : "linear"}
+              scale={scale === "log" ? "symlog" : "linear"}
             />
             <Area
               className="cursor-pointer"

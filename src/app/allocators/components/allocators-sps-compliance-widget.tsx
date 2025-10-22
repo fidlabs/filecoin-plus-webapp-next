@@ -1,5 +1,6 @@
 "use client";
 
+import { AllocatorsComplianceThresholdSelector } from "@/components/allocators-compliance-threshold-selector";
 import { ChartStat } from "@/components/chart-stat";
 import { ChartTooltip } from "@/components/chart-tooltip";
 import { OverlayLoader } from "@/components/overlay-loader";
@@ -21,7 +22,6 @@ import {
   partition,
 } from "@/lib/utils";
 import { weekFromDate, weekToReadableString, weekToString } from "@/lib/weeks";
-import { scaleSymlog } from "d3-scale";
 import { filesize } from "filesize";
 import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState, type ComponentProps } from "react";
@@ -33,7 +33,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { type CategoricalChartFunc } from "recharts/types/chart/generateCategoricalChart";
+import { type CategoricalChartFunc } from "recharts/types/chart/types";
 import useSWR from "swr";
 import {
   fetchAllocatorsSPsComplianceData,
@@ -44,7 +44,6 @@ import {
   AllocatorsSPsComplianceMetricsSelector,
   AllocatorsSPsComplianceMetricsSelectorProps,
 } from "./allocators-sps-compliance-metrics-selector";
-import { AllocatorsComplianceThresholdSelector } from "@/components/allocators-compliance-threshold-selector";
 
 type CardProps = ComponentProps<typeof Card>;
 export interface AllocatorsSPsComplianceWidgetProps
@@ -432,7 +431,7 @@ export function AllocatorsSPsComplianceWidget({
             <YAxis
               fontSize={14}
               tickFormatter={formatValue}
-              scale={scale === "log" ? scaleSymlog().constant(1) : "linear"}
+              scale={scale === "log" ? "symlog" : "linear"}
             />
 
             {areas.map((area) => (

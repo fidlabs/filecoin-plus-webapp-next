@@ -22,7 +22,6 @@ import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
 import { type ICDPRange } from "@/lib/interfaces/cdp/cdp.interface";
 import { bigintToPercentage, cn, mapObject } from "@/lib/utils";
 import { weekFromDate, weekToReadableString } from "@/lib/weeks";
-import { scaleSymlog } from "d3-scale";
 import { filesize } from "filesize";
 import { InfoIcon } from "lucide-react";
 import { type ComponentProps, useCallback, useMemo, useState } from "react";
@@ -240,7 +239,7 @@ export function AllocatorsClientDiversityWidget({
             <YAxis
               tickFormatter={formatValue}
               fontSize={14}
-              scale={scale === "log" ? scaleSymlog().constant(1) : "linear"}
+              scale={scale === "log" ? "symlog" : "linear"}
             />
 
             {groups.map((group) => (

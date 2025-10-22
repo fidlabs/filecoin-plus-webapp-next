@@ -1,4 +1,11 @@
 "use client";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { type IClientAllocationsResponse } from "@/lib/interfaces/dmob/client.interface";
+import {
+  calculateDateFromHeight,
+  convertBytesToIEC,
+  palette,
+} from "@/lib/utils";
 import { useMemo } from "react";
 import {
   Area,
@@ -7,21 +14,14 @@ import {
   ComposedChart,
   ResponsiveContainer,
   Tooltip,
-  TooltipProps,
+  type TooltipContentProps,
   XAxis,
   YAxis,
 } from "recharts";
 import {
-  calculateDateFromHeight,
-  convertBytesToIEC,
-  palette,
-} from "@/lib/utils";
-import {
   NameType,
   ValueType,
 } from "recharts/types/component/DefaultTooltipContent";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { IClientAllocationsResponse } from "@/lib/interfaces/dmob/client.interface";
 import { useMediaQuery } from "usehooks-ts";
 
 interface IProps {
@@ -29,7 +29,7 @@ interface IProps {
 }
 
 const AllocationsChart = ({ allocationsData }: IProps) => {
-  const renderTooltip = (props: TooltipProps<ValueType, NameType>) => {
+  const renderTooltip = (props: TooltipContentProps<ValueType, NameType>) => {
     const allocationData = props?.payload?.[0]?.payload;
     if (!allocationData) return null;
 

@@ -14,7 +14,7 @@ import {
   Legend,
   ResponsiveContainer,
   Tooltip,
-  TooltipProps,
+  TooltipContentProps,
   XAxis,
   YAxis,
 } from "recharts";
@@ -142,7 +142,6 @@ export function AuditStatesChart({ data }: AuditStatesChartProps) {
             <Bar
               key={`audit_${auditIndex + 1}`}
               dataKey={createAuditDatacapAccessor(auditIndex)}
-              layout="vertical"
               stackId="audits"
               style={{ stroke: "#fff", strokeWidth: 1 }}
             >
@@ -215,7 +214,7 @@ function YAxisTick(props: unknown) {
   );
 }
 
-function TooltipContent(props: TooltipProps<number, string>) {
+function TooltipContent(props: TooltipContentProps<number, string>) {
   const { label, payload } = props;
   const dataItem = payload?.[0]?.payload;
 

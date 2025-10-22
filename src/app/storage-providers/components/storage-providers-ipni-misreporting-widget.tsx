@@ -16,7 +16,6 @@ import { QueryKey } from "@/lib/constants";
 import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
 import { cn } from "@/lib/utils";
 import { weekFromDate, weekToReadableString } from "@/lib/weeks";
-import { scaleSymlog } from "d3-scale";
 import { ComponentProps, useCallback, useMemo, useState } from "react";
 import {
   Area,
@@ -243,7 +242,7 @@ export function StorageProvidersIPNIMisreportingWidget({
             <YAxis
               fontSize={14}
               tickFormatter={formatValue}
-              scale={scale === "log" ? scaleSymlog().constant(1) : "linear"}
+              scale={scale === "log" ? "symlog" : "linear"}
             />
 
             {reportingStates.map((reportingState) => (

@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
-import { HTMLAttributes } from "react";
-import { TooltipProps } from "recharts";
+import { type HTMLAttributes } from "react";
+import { type TooltipContentProps } from "recharts";
 
 type ValueType = number | string | Array<number | string>;
 type NameType = number | string;
@@ -103,7 +103,7 @@ export function ChartTooltipGrid<
 export type ChartTooltipProps<
   Value extends ValueType,
   Name extends NameType,
-> = TooltipProps<Value, Name>;
+> = TooltipContentProps<Value, Name>;
 export function ChartTooltip<Value extends ValueType, Name extends NameType>(
   props: ChartTooltipProps<Value, Name>
 ) {

@@ -1,19 +1,27 @@
 "use client";
 
 import { ChartTooltip } from "@/components/chart-tooltip";
+import { OverlayLoader } from "@/components/overlay-loader";
 import { Card } from "@/components/ui/card";
 import {
   ResponsiveHoverCard,
   ResponsiveHoverCardContent,
   ResponsiveHoverCardTrigger,
 } from "@/components/ui/responsive-hover-card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { QueryKey } from "@/lib/constants";
+import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
 import { type ICDPRange } from "@/lib/interfaces/cdp/cdp.interface";
 import { bigintToPercentage, cn, mapObject } from "@/lib/utils";
 import { weekFromDate, weekToReadableString } from "@/lib/weeks";
-import { scaleSymlog } from "d3-scale";
 import { filesize } from "filesize";
 import { InfoIcon } from "lucide-react";
 import { type ComponentProps, useCallback, useMemo, useState } from "react";
@@ -30,15 +38,6 @@ import {
   fetchStorageProvidersClientDiversityData,
   FetchStorageProvidersClientDiversityDataParameters,
 } from "../storage-providers-data";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
-import { OverlayLoader } from "@/components/overlay-loader";
 
 type Threshold = [number, number];
 type Group = (typeof groups)[number];
@@ -240,7 +239,7 @@ export function StorageProvidersClientDiversityWidget({
             <YAxis
               tickFormatter={formatValue}
               fontSize={14}
-              scale={scale === "log" ? scaleSymlog().constant(1) : "linear"}
+              scale={scale === "log" ? "symlog" : "linear"}
             />
 
             {groups.map((group) => (

@@ -22,7 +22,6 @@ import { QueryKey } from "@/lib/constants";
 import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
 import { bigintToPercentage, cn, gradientPalette } from "@/lib/utils";
 import { weekFromDate, weekToReadableString } from "@/lib/weeks";
-import { scaleSymlog } from "d3-scale";
 import { filesize } from "filesize";
 import { type ComponentProps, useCallback, useMemo, useState } from "react";
 import {
@@ -31,7 +30,7 @@ import {
   Line,
   ResponsiveContainer,
   Tooltip,
-  TooltipProps,
+  TooltipContentProps,
   XAxis,
   YAxis,
 } from "recharts";
@@ -455,7 +454,7 @@ export function StorageProvidersRetrievabilityWidget({
               yAxisId="sp"
               fontSize={14}
               tickFormatter={formatValue}
-              scale={scale === "log" ? scaleSymlog().constant(1) : "linear"}
+              scale={scale === "log" ? "symlog" : "linear"}
               label={{
                 value: mode === "datacap" ? "Datacap" : "SP count",
                 position: "insideLeft",
@@ -517,7 +516,9 @@ export function StorageProvidersRetrievabilityWidget({
   );
 }
 
-function CustomTooltipContent(props: TooltipProps<number | string, string>) {
+function CustomTooltipContent(
+  props: TooltipContentProps<number | string, string>
+) {
   if (!props.payload || props.payload.length === 0) {
     return null;
   }
