@@ -13,11 +13,6 @@ const nav = [
     group: "Allocators",
     links: [
       {
-        id: "RetrievabilityScoreAllocator",
-        link: "/compliance-data-portal/allocators/retrievability",
-        label: "Retrievability Score",
-      },
-      {
         id: "BiggestDealsAllocator",
         link: "/compliance-data-portal/allocators/biggest-deals",
         label: "Biggest Allocation",

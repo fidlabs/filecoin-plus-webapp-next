@@ -13,6 +13,8 @@ import {
   fetchAllocators,
   fetchAllocatorScoreRanking,
   FetchAllocatorsParameters,
+  fetchAllocatorsRetrievabilityData,
+  FetchAllocatorsRetrievabilityDataParameters,
   fetchAllocatorsSPsComplianceData,
   FetchAllocatorsSPsComplianceDataParameters,
 } from "./allocators-data";
@@ -25,6 +27,7 @@ import {
 import { AuditsFlowWidget } from "./components/audits-flow-widget";
 import { AllocatorsLeaderboards } from "./components/allocators-leaderboards";
 import { AllocatorsSPsComplianceWidget } from "./components/allocators-sps-compliance-widget";
+import { AllocatorsRetrievabilityWidget } from "./components/allocators-retrievability-widget";
 
 export const revalidate = 300;
 
@@ -37,6 +40,7 @@ export const metadata: Metadata = generatePageMetadata({
 const sectionTabs = {
   [AllocatorsPageSectionId.COMPLIANCE]: "Compliance",
   [AllocatorsPageSectionId.ALLOCATORS_LIST]: "Allocators List",
+  [AllocatorsPageSectionId.RETRIEVABILITY]: "Retrievability",
   [AllocatorsPageSectionId.METAALLOCATORS_LIST]: "Metaallocators List",
   [AllocatorsPageSectionId.DC_FLOW]: "DC Flow",
   [AllocatorsPageSectionId.AUDITS_FLOW]: "Audits Flow",
@@ -71,12 +75,20 @@ const complianceDefaultParameters: FetchAllocatorsSPsComplianceDataParameters =
     totalDealSize: true,
   };
 
+const retrievabilityDefaultParameters: FetchAllocatorsRetrievabilityDataParameters =
+  {
+    editionId: undefined,
+    openDataOnly: false,
+    retrievabilityType: "urlFinder",
+  };
+
 export default async function AllocatorsPage() {
   const fallbackRequests = Promise.allSettled([
     fetchAllocators(allocatorsListDefaultParameters),
     fetchAllocators(metaallocatorsListDefaultParameters),
     fetchAllocatorsAuditStates(auditsFlowDefaultParameters),
     fetchAllocatorsSPsComplianceData(complianceDefaultParameters),
+    fetchAllocatorsRetrievabilityData(retrievabilityDefaultParameters),
   ]);
 
   const [settledResults, allocatorScoreRanking] = await Promise.all([
@@ -89,6 +101,7 @@ export default async function AllocatorsPage() {
     fetchMetaalloctorsResult,
     auditsFlowResult,
     complianceResult,
+    retrievabilityResult,
   ] = settledResults;
 
   const fallback = {
@@ -108,6 +121,10 @@ export default async function AllocatorsPage() {
       QueryKey.ALLOCATORS_SPS_COMPLIANCE_DATA,
       complianceDefaultParameters,
     ])]: unwrapResult(complianceResult),
+    [unstable_serialize([
+      QueryKey.ALLOCATORS_RETRIEVABILITY,
+      retrievabilityDefaultParameters,
+    ])]: unwrapResult(retrievabilityResult),
   };
 
   return (
@@ -132,6 +149,9 @@ export default async function AllocatorsPage() {
         <MetaallocatorsListWidget
           id={AllocatorsPageSectionId.METAALLOCATORS_LIST}
           defaultParameters={metaallocatorsListDefaultParameters}
+        />
+        <AllocatorsRetrievabilityWidget
+          id={AllocatorsPageSectionId.RETRIEVABILITY}
         />
         <DCFlowWidget id={AllocatorsPageSectionId.DC_FLOW} />
         <AuditsFlowWidget

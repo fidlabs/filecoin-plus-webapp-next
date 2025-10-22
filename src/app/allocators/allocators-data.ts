@@ -1,5 +1,6 @@
 import { CDP_API_URL } from "@/lib/constants";
 import { throwHTTPErrorOrSkip } from "@/lib/http-errors";
+import { ICDPHistogramResult } from "@/lib/interfaces/cdp/cdp.interface";
 import { IAllocatorsResponse } from "@/lib/interfaces/dmob/allocator.interface";
 import { assertSchema, objectToURLSearchParams } from "@/lib/utils";
 import { z } from "zod";
@@ -164,4 +165,43 @@ export async function fetchAllocatorScoreRanking(
   );
 
   return data;
+}
+
+// Retrievability
+export interface FetchAllocatorsRetrievabilityDataParameters {
+  editionId?: string;
+  openDataOnly?: boolean;
+  retrievabilityType?: "urlFinder" | "http";
+}
+
+export type FetchAllocatorsRetrievabilityDataReturnType = ICDPHistogramResult;
+
+export async function fetchAllocatorsRetrievabilityData(
+  parameters?: FetchAllocatorsRetrievabilityDataParameters
+): Promise<FetchAllocatorsRetrievabilityDataReturnType> {
+  const {
+    editionId,
+    openDataOnly = false,
+    retrievabilityType,
+  } = parameters ?? {};
+
+  const searchParams = objectToURLSearchParams(
+    {
+      editionId,
+      openDataOnly,
+      retrievabilityType,
+    },
+    true
+  );
+
+  const endpoint = `${CDP_API_URL}/stats/acc/allocators/retrievability?${searchParams.toString()}`;
+  const response = await fetch(endpoint);
+
+  throwHTTPErrorOrSkip(
+    response,
+    `CDP API returned status ${response.status} when fetching allocators retrievability data; URL: ${endpoint}`
+  );
+
+  const json = await response.json();
+  return json as ICDPHistogramResult;
 }
