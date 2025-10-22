@@ -1,6 +1,9 @@
 import { CDP_API_URL } from "@/lib/constants";
 import { throwHTTPErrorOrSkip } from "@/lib/http-errors";
-import { ICDPHistogramResult } from "@/lib/interfaces/cdp/cdp.interface";
+import {
+  ICDPHistogram,
+  ICDPHistogramResult,
+} from "@/lib/interfaces/cdp/cdp.interface";
 import { IAllocatorsResponse } from "@/lib/interfaces/dmob/allocator.interface";
 import { assertSchema, objectToURLSearchParams } from "@/lib/utils";
 import { z } from "zod";
@@ -204,4 +207,35 @@ export async function fetchAllocatorsRetrievabilityData(
 
   const json = await response.json();
   return json as ICDPHistogramResult;
+}
+
+// Client diversity
+export interface FetchAllocatorsClientDiversityDataParameters {
+  editionId?: string;
+}
+
+export type FetchAllocatorsClientDiversityDataReturnType = ICDPHistogram;
+
+export async function fetchAllocatorsClientDiversityData(
+  parameters?: FetchAllocatorsClientDiversityDataParameters
+): Promise<FetchAllocatorsClientDiversityDataReturnType> {
+  const { editionId } = parameters ?? {};
+
+  const searchParams = objectToURLSearchParams(
+    {
+      editionId,
+    },
+    true
+  );
+
+  const endpoint = `${CDP_API_URL}/stats/acc/allocators/clients?${searchParams.toString()}`;
+  const response = await fetch(endpoint);
+
+  throwHTTPErrorOrSkip(
+    response,
+    `CDP API returned status ${response.status} when fetching allocators client diversity data; URL: ${endpoint}`
+  );
+
+  const json = await response.json();
+  return json as ICDPHistogram;
 }

@@ -11,6 +11,7 @@ import { SWRConfig, unstable_serialize } from "swr";
 import { AllocatorsListWidget } from "./components/allocators-list-widget";
 import {
   fetchAllocators,
+  fetchAllocatorsClientDiversityData,
   fetchAllocatorScoreRanking,
   FetchAllocatorsParameters,
   fetchAllocatorsRetrievabilityData,
@@ -28,6 +29,7 @@ import { AuditsFlowWidget } from "./components/audits-flow-widget";
 import { AllocatorsLeaderboards } from "./components/allocators-leaderboards";
 import { AllocatorsSPsComplianceWidget } from "./components/allocators-sps-compliance-widget";
 import { AllocatorsRetrievabilityWidget } from "./components/allocators-retrievability-widget";
+import { AllocatorsClientDiversityWidget } from "./components/allocators-client-diversity-widget";
 
 export const revalidate = 300;
 
@@ -41,6 +43,7 @@ const sectionTabs = {
   [AllocatorsPageSectionId.COMPLIANCE]: "Compliance",
   [AllocatorsPageSectionId.ALLOCATORS_LIST]: "Allocators List",
   [AllocatorsPageSectionId.RETRIEVABILITY]: "Retrievability",
+  [AllocatorsPageSectionId.CLIENT_DIVERSITY]: "Client Diversity",
   [AllocatorsPageSectionId.METAALLOCATORS_LIST]: "Metaallocators List",
   [AllocatorsPageSectionId.DC_FLOW]: "DC Flow",
   [AllocatorsPageSectionId.AUDITS_FLOW]: "Audits Flow",
@@ -89,6 +92,7 @@ export default async function AllocatorsPage() {
     fetchAllocatorsAuditStates(auditsFlowDefaultParameters),
     fetchAllocatorsSPsComplianceData(complianceDefaultParameters),
     fetchAllocatorsRetrievabilityData(retrievabilityDefaultParameters),
+    fetchAllocatorsClientDiversityData(),
   ]);
 
   const [settledResults, allocatorScoreRanking] = await Promise.all([
@@ -102,6 +106,7 @@ export default async function AllocatorsPage() {
     auditsFlowResult,
     complianceResult,
     retrievabilityResult,
+    clientDiversityResult,
   ] = settledResults;
 
   const fallback = {
@@ -125,6 +130,8 @@ export default async function AllocatorsPage() {
       QueryKey.ALLOCATORS_RETRIEVABILITY,
       retrievabilityDefaultParameters,
     ])]: unwrapResult(retrievabilityResult),
+    [unstable_serialize([QueryKey.ALLOCATORS_CLIENT_DIVERSITY, {}])]:
+      unwrapResult(clientDiversityResult),
   };
 
   return (
@@ -152,6 +159,9 @@ export default async function AllocatorsPage() {
         />
         <AllocatorsRetrievabilityWidget
           id={AllocatorsPageSectionId.RETRIEVABILITY}
+        />
+        <AllocatorsClientDiversityWidget
+          id={AllocatorsPageSectionId.CLIENT_DIVERSITY}
         />
         <DCFlowWidget id={AllocatorsPageSectionId.DC_FLOW} />
         <AuditsFlowWidget

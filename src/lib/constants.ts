@@ -8,6 +8,7 @@ export enum QueryKey {
   ALLOCATORS_AUDIT_STATES = "allocators_audist_states",
   ALLOCATORS_SPS_COMPLIANCE_DATA = "allocators_sps_compliance_data",
   ALLOCATORS_RETRIEVABILITY = "allocators_retrievability",
+  ALLOCATORS_CLIENT_DIVERSITY = "allocators_client_diversity",
   STORAGE_PROVIDERS_LIST = "storage_providers_list",
   STORAGE_PROVIDERS_COMPLIANCE_DATA = "storage_providers_compliance_data",
   STORAGE_PROVIDERS_RETRIEVABILITY_DATA = "storage_providers_retrievability_data",
