@@ -10,7 +10,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { type AllocatorsAuditStatesResponse } from "@/lib/api";
 import {
   getLinksFromSankeyTree,
   getNodesFromSankeyTree,
@@ -29,9 +28,10 @@ import {
   type TooltipContentProps,
 } from "recharts";
 import { type LinkProps, type NodeProps } from "recharts/types/chart/Sankey";
+import { type FetchAllocatorsAuditStatesReturnType } from "../allocators-data";
 
 type AuditOutcome =
-  AllocatorsAuditStatesResponse[number]["audits"][number]["outcome"];
+  FetchAllocatorsAuditStatesReturnType[number]["audits"][number]["outcome"];
 
 interface Audit {
   allocatorId: string;
@@ -63,7 +63,7 @@ interface ChartData {
 }
 
 export interface AuditsFlowSankeyProps {
-  data: AllocatorsAuditStatesResponse;
+  data: FetchAllocatorsAuditStatesReturnType;
 }
 
 function getTreeNameForOutcome(outcome: AuditOutcome): string {
@@ -112,7 +112,7 @@ function getTreeForAudit(audits: Audit[], auditIndex: number): AuditsFlowTree {
 }
 
 function auditStatesDataToChartData(
-  auditStateData: AllocatorsAuditStatesResponse
+  auditStateData: FetchAllocatorsAuditStatesReturnType
 ): ChartData {
   const [auditedAllocators, notAuditedAllocators] = partition(
     auditStateData,
