@@ -10,6 +10,8 @@ import { type Metadata } from "next";
 import { SWRConfig, unstable_serialize } from "swr";
 import {
   fetchAllocators,
+  fetchAllocatorsAuditOutcomes,
+  FetchAllocatorsAuditOutcomesParameters,
   fetchAllocatorsAuditStates,
   FetchAllocatorsAuditStatesParameters,
   fetchAllocatorsClientDistributionData,
@@ -31,6 +33,7 @@ import { AllocatorsSPsComplianceWidget } from "./components/allocators-sps-compl
 import { AuditsFlowWidget } from "./components/audits-flow-widget";
 import { DCFlowWidget } from "./components/dc-flow-widget";
 import { MetaallocatorsListWidget } from "./components/metaallocators-list-widget";
+import { AllocatorsAuditOutcomesWidget } from "./components/allocators-audit-outcomes-widget";
 
 export const revalidate = 300;
 
@@ -50,6 +53,7 @@ const sectionTabs = {
   [AllocatorsPageSectionId.DC_FLOW]: "DC Flow",
   [AllocatorsPageSectionId.AUDITS_FLOW]: "Audits Flow",
   [AllocatorsPageSectionId.AUDITS_STATE]: "Audits States",
+  [AllocatorsPageSectionId.AUDIT_OUTCOMES]: "Audit Outcomes",
   [AllocatorsPageSectionId.LEADERBOARDS]: "Leaderboards",
 } as const satisfies IdBasedStickyTabNaviationProps["tabs"];
 
@@ -88,6 +92,10 @@ const retrievabilityDefaultParameters: FetchAllocatorsRetrievabilityDataParamete
     retrievabilityType: "urlFinder",
   };
 
+const auditOutcomesDefaultParameters: FetchAllocatorsAuditOutcomesParameters = {
+  editionId: "6",
+};
+
 export default async function AllocatorsPage() {
   const fallbackRequests = Promise.allSettled([
     fetchAllocators(allocatorsListDefaultParameters),
@@ -97,6 +105,7 @@ export default async function AllocatorsPage() {
     fetchAllocatorsRetrievabilityData(retrievabilityDefaultParameters),
     fetchAllocatorsClientDiversityData(),
     fetchAllocatorsClientDistributionData(),
+    fetchAllocatorsAuditOutcomes(auditOutcomesDefaultParameters),
   ]);
 
   const [settledResults, allocatorScoreRanking] = await Promise.all([
@@ -112,6 +121,7 @@ export default async function AllocatorsPage() {
     retrievabilityResult,
     clientDiversityResult,
     clientDistributionResult,
+    auditOutcomesResult,
   ] = settledResults;
 
   const fallback = {
@@ -139,6 +149,10 @@ export default async function AllocatorsPage() {
       unwrapResult(clientDiversityResult),
     [unstable_serialize([QueryKey.ALLOCATORS_CLIENT_DISTRIBUTION, {}])]:
       unwrapResult(clientDistributionResult),
+    [unstable_serialize([
+      QueryKey.ALLOCATORS_AUDIT_OUTCOMES,
+      auditOutcomesDefaultParameters,
+    ])]: unwrapResult(auditOutcomesResult),
   };
 
   return (
@@ -182,6 +196,9 @@ export default async function AllocatorsPage() {
         />
         <AllocatorsAuditStatesWidget
           id={AllocatorsPageSectionId.AUDITS_STATE}
+        />
+        <AllocatorsAuditOutcomesWidget
+          id={AllocatorsPageSectionId.AUDIT_OUTCOMES}
         />
         <AllocatorsLeaderboards
           id={AllocatorsPageSectionId.LEADERBOARDS}

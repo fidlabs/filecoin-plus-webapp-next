@@ -329,3 +329,50 @@ export async function fetchAllocatorsAuditStates(
 
   return data;
 }
+
+// Audit outcomes
+export interface FetchAllocatorsAuditOutcomesParameters {
+  editionId?: string;
+}
+
+export type FetchAllocatorsAuditOutcomesReturnType = z.infer<
+  typeof allocatorsAuditOutcomesResponseSchema
+>;
+
+const allocatorsAuditOutcomesEnum = z.enum([
+  "unknown",
+  "failed",
+  "passed",
+  "passedConditionally",
+  "notAudited",
+]);
+
+const allocatorsAuditOutcomesResponseSchema = z.array(
+  z.object({
+    month: z.string(),
+    datacap: z.record(allocatorsAuditOutcomesEnum, z.number()),
+    count: z.record(allocatorsAuditOutcomesEnum, z.number()),
+  })
+);
+
+export async function fetchAllocatorsAuditOutcomes(
+  params: FetchAllocatorsAuditOutcomesParameters
+): Promise<FetchAllocatorsAuditOutcomesReturnType> {
+  const endpoint = `${CDP_API_URL}/allocators/audit-outcomes?${objectToURLSearchParams(params)}`;
+  const response = await fetch(endpoint, { next: { revalidate: 300 } });
+
+  throwHTTPErrorOrSkip(
+    response,
+    `CDP API returned status ${response.status} when fetching allocator's audit states; URL: ${endpoint}`
+  );
+
+  const data = await response.json();
+
+  assertSchema(
+    data,
+    allocatorsAuditOutcomesResponseSchema,
+    `Invalid response from CDP API while fetching allocators audit outcomes; URL: ${endpoint}`
+  );
+
+  return data;
+}
