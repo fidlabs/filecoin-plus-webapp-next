@@ -270,3 +270,62 @@ export async function fetchAllocatorsClientDistributionData(
   const json = await response.json();
   return json as ICDPHistogram;
 }
+
+// Allocators audit states
+const allocatorsAuditStatesResponseSchema = z.array(
+  z.object({
+    allocatorId: z.string(),
+    allocatorName: z.string().nullable(),
+    audits: z.array(
+      z.object({
+        started: z.string().datetime().nullable(),
+        ended: z.string().datetime().nullable(),
+        dc_allocated: z
+          .union([z.literal(""), z.string().datetime()])
+          .nullable(),
+        outcome: z.enum([
+          "invalid",
+          "unknown",
+          "notAudited",
+          "passed",
+          "passedConditionally",
+          "failed",
+        ]),
+        datacap_amount: z.number(),
+      })
+    ),
+  })
+);
+
+type AllocatorsAuditStatesResponse = z.infer<
+  typeof allocatorsAuditStatesResponseSchema
+>;
+
+export interface FetchAllocatorsAuditStatesParameters {
+  editionId?: string;
+}
+
+export type FetchAllocatorsAuditStatesReturnType =
+  AllocatorsAuditStatesResponse;
+
+export async function fetchAllocatorsAuditStates(
+  params: FetchAllocatorsAuditStatesParameters
+): Promise<AllocatorsAuditStatesResponse> {
+  const endpoint = `${CDP_API_URL}/allocators/audit-states?${objectToURLSearchParams(params)}`;
+  const response = await fetch(endpoint, { next: { revalidate: 300 } });
+
+  throwHTTPErrorOrSkip(
+    response,
+    `CDP API returned status ${response.status} when fetching allocator's audit states; URL: ${endpoint}`
+  );
+
+  const data = await response.json();
+
+  assertSchema(
+    data,
+    allocatorsAuditStatesResponseSchema,
+    `Invalid response from CDP API while fetching allocators audit states; URL: ${endpoint}`
+  );
+
+  return data;
+}

@@ -5,7 +5,7 @@ export const DEFAULT_EDITION_ROUND_ID =
 
 export enum QueryKey {
   ALLOCATORS_LIST = "allocators_list",
-  ALLOCATORS_AUDIT_STATES = "allocators_audist_states",
+  ALLOCATORS_AUDIT_STATES = "allocators_audit_states",
   ALLOCATORS_SPS_COMPLIANCE_DATA = "allocators_sps_compliance_data",
   ALLOCATORS_RETRIEVABILITY = "allocators_retrievability",
   ALLOCATORS_CLIENT_DIVERSITY = "allocators_client_diversity",
@@ -27,6 +27,7 @@ export enum AllocatorsPageSectionId {
   CLIENT_DISTRIBUTION = "client-distribution",
   DC_FLOW = "dc-flow",
   AUDITS_FLOW = "audits-flow",
+  AUDITS_STATE = "audits-state",
   LEADERBOARDS = "leaderboards",
 }
 

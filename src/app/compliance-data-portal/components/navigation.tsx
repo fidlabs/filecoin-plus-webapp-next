@@ -13,11 +13,6 @@ const nav = [
     group: "Allocators",
     links: [
       {
-        id: "AuditStateAllocator",
-        link: "/compliance-data-portal/allocators/audit-state",
-        label: "Audit State",
-      },
-      {
         id: "AuditOutcomesAllocator",
         link: "/compliance-data-portal/allocators/audit-outcomes",
         label: "Audit Outcomes",

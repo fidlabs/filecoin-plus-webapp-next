@@ -8,9 +8,10 @@ import { AllocatorsPageSectionId, QueryKey } from "@/lib/constants";
 import { generatePageMetadata } from "@/lib/utils";
 import { type Metadata } from "next";
 import { SWRConfig, unstable_serialize } from "swr";
-import { AllocatorsListWidget } from "./components/allocators-list-widget";
 import {
   fetchAllocators,
+  fetchAllocatorsAuditStates,
+  FetchAllocatorsAuditStatesParameters,
   fetchAllocatorsClientDistributionData,
   fetchAllocatorsClientDiversityData,
   fetchAllocatorScoreRanking,
@@ -20,18 +21,16 @@ import {
   fetchAllocatorsSPsComplianceData,
   FetchAllocatorsSPsComplianceDataParameters,
 } from "./allocators-data";
-import { MetaallocatorsListWidget } from "./components/metaallocators-list-widget";
-import { DCFlowWidget } from "./components/dc-flow-widget";
-import {
-  fetchAllocatorsAuditStates,
-  FetchAllocatorsAuditStatesParameters,
-} from "@/lib/api";
-import { AuditsFlowWidget } from "./components/audits-flow-widget";
-import { AllocatorsLeaderboards } from "./components/allocators-leaderboards";
-import { AllocatorsSPsComplianceWidget } from "./components/allocators-sps-compliance-widget";
-import { AllocatorsRetrievabilityWidget } from "./components/allocators-retrievability-widget";
-import { AllocatorsClientDiversityWidget } from "./components/allocators-client-diversity-widget";
+import { AllocatorsAuditStatesWidget } from "./components/allocators-audit-states-widget";
 import { AllocatorsClientDistributionWidget } from "./components/allocators-client-distribution-widget";
+import { AllocatorsClientDiversityWidget } from "./components/allocators-client-diversity-widget";
+import { AllocatorsLeaderboards } from "./components/allocators-leaderboards";
+import { AllocatorsListWidget } from "./components/allocators-list-widget";
+import { AllocatorsRetrievabilityWidget } from "./components/allocators-retrievability-widget";
+import { AllocatorsSPsComplianceWidget } from "./components/allocators-sps-compliance-widget";
+import { AuditsFlowWidget } from "./components/audits-flow-widget";
+import { DCFlowWidget } from "./components/dc-flow-widget";
+import { MetaallocatorsListWidget } from "./components/metaallocators-list-widget";
 
 export const revalidate = 300;
 
@@ -44,12 +43,13 @@ export const metadata: Metadata = generatePageMetadata({
 const sectionTabs = {
   [AllocatorsPageSectionId.COMPLIANCE]: "Compliance",
   [AllocatorsPageSectionId.ALLOCATORS_LIST]: "Allocators List",
+  [AllocatorsPageSectionId.METAALLOCATORS_LIST]: "Metaallocators List",
   [AllocatorsPageSectionId.RETRIEVABILITY]: "Retrievability",
   [AllocatorsPageSectionId.CLIENT_DIVERSITY]: "Client Diversity",
   [AllocatorsPageSectionId.CLIENT_DISTRIBUTION]: "Client Distribution",
-  [AllocatorsPageSectionId.METAALLOCATORS_LIST]: "Metaallocators List",
   [AllocatorsPageSectionId.DC_FLOW]: "DC Flow",
   [AllocatorsPageSectionId.AUDITS_FLOW]: "Audits Flow",
+  [AllocatorsPageSectionId.AUDITS_STATE]: "Audits States",
   [AllocatorsPageSectionId.LEADERBOARDS]: "Leaderboards",
 } as const satisfies IdBasedStickyTabNaviationProps["tabs"];
 
@@ -155,7 +155,9 @@ export default async function AllocatorsPage() {
       </PageHeader>
       <IdBasedStickyTabNaviation className="mb-8" tabs={sectionTabs} />
       <Container className="flex flex-col gap-y-8">
-        <AllocatorsSPsComplianceWidget />
+        <AllocatorsSPsComplianceWidget
+          id={AllocatorsPageSectionId.COMPLIANCE}
+        />
         <AllocatorsListWidget
           id={AllocatorsPageSectionId.ALLOCATORS_LIST}
           defaultParameters={allocatorsListDefaultParameters}
@@ -177,6 +179,9 @@ export default async function AllocatorsPage() {
         <AuditsFlowWidget
           id={AllocatorsPageSectionId.AUDITS_FLOW}
           defaultParameters={auditsFlowDefaultParameters}
+        />
+        <AllocatorsAuditStatesWidget
+          id={AllocatorsPageSectionId.AUDITS_STATE}
         />
         <AllocatorsLeaderboards
           id={AllocatorsPageSectionId.LEADERBOARDS}
