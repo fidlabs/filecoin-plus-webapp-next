@@ -174,7 +174,7 @@ export function AllocatorsClientDiversityWidget({
   return (
     <Card {...rest} className={cn("pb-6", className)}>
       <header className="px-4 py-4 max-w-[min(50vw, 200px)]">
-        <h3 className="text-md font-medium">Client Diversity</h3>
+        <h3 className="text-lg font-medium">Client Diversity</h3>
         <p className="text-xs text-muted-foreground">
           Allocators and their Datacap grouped by Clients count
         </p>

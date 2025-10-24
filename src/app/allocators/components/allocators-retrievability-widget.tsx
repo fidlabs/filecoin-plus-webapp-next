@@ -339,7 +339,7 @@ export function AllocatorsRetrievabilityWidget({
   return (
     <Card {...rest} className={cn("pb-4", className)}>
       <header className="px-4 py-4 max-w-[min(50vw, 200px)]">
-        <h3 className="text-md font-medium">Retrievability Score</h3>
+        <h3 className="text-lg font-medium">Retrievability Score</h3>
         <p className="text-xs text-muted-foreground">
           Allocators and their datacap grouped by their retrievability score.
         </p>

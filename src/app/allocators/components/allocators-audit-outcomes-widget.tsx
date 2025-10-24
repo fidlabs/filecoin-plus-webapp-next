@@ -168,7 +168,7 @@ export function AllocatorsAuditOutcomesWidget({
   return (
     <Card {...rest}>
       <header className="p-4 flex flex-wrap items-center justify-between">
-        <h3 className="text-md font-medium">Audit Outcomes</h3>
+        <h3 className="text-lg font-medium">Audit Outcomes</h3>
         <div className="flex flex-wrap items-center gap-2">
           <Select
             value={parameters.editionId}

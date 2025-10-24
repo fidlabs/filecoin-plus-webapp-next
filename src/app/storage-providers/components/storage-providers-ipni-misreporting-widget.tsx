@@ -178,7 +178,7 @@ export function StorageProvidersIPNIMisreportingWidget({
   return (
     <Card {...rest} className={cn("pb-6", className)}>
       <header className="px-4 py-4">
-        <h3 className="text-md font-medium">IPNI Mistreporting</h3>
+        <h3 className="text-lg font-medium">IPNI Mistreporting</h3>
         <p className="text-xs text-muted-foreground">
           Storage Providers IPNI reporting status over time
         </p>

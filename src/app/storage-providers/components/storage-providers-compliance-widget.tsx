@@ -256,7 +256,7 @@ export function StorageProvidersComplianceWidget({
   return (
     <Card {...rest} className={cn("pb-6", className)}>
       <header className="px-4 py-4">
-        <h3 className="text-md font-medium">Compliance</h3>
+        <h3 className="text-lg font-medium">Compliance</h3>
         <p className="text-xs text-muted-foreground">
           Select metrics below to see Storage Providers compliance
         </p>

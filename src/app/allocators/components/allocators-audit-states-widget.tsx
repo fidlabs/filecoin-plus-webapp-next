@@ -194,7 +194,7 @@ export function AllocatorsAuditStatesWidget({
 
   return (
     <Card {...rest} className={cn("p-4", className)}>
-      <h3 className="text-md font-medium">Audit States</h3>
+      <h3 className="text-lg font-medium">Audit States</h3>
       <p className="text-xs text-muted-foreground mb-4">
         Brows Allocator&apos;s audits outcomes and amounts of granted Datacap
       </p>
