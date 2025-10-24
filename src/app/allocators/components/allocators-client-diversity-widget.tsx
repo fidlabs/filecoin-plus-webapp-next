@@ -35,9 +35,9 @@ import {
 } from "recharts";
 import useSWR from "swr";
 import {
-  fetchStorageProvidersClientDiversityData,
-  FetchStorageProvidersClientDiversityDataParameters,
-} from "../storage-providers-data";
+  fetchAllocatorsClientDiversityData,
+  FetchAllocatorsClientDiversityDataParameters,
+} from "../allocators-data";
 
 type Threshold = [number, number];
 type Group = (typeof groups)[number];
@@ -48,7 +48,7 @@ type ChartDataEntry = {
 type ChartData = ChartDataEntry[];
 type CardProps = ComponentProps<typeof Card>;
 
-interface StorageProvidersClientDiversityWidgetProps
+interface AllocatorsClientDiversityWidgetProps
   extends Omit<CardProps, "children"> {
   animationDuration?: number;
 }
@@ -88,24 +88,24 @@ const percentageFormatter = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 2,
 });
 
-export function StorageProvidersClientDiversityWidget({
+export function AllocatorsClientDiversityWidget({
   animationDuration = 500,
   className,
   ...rest
-}: StorageProvidersClientDiversityWidgetProps) {
+}: AllocatorsClientDiversityWidgetProps) {
   const [scale, setScale] = useState<string>(scales[0]);
   const [mode, setMode] = useState<string>(modes[0]);
-  const [threshold, setThreshold] = useState<Threshold>([3, 15]);
+  const [threshold, setThreshold] = useState<Threshold>([3, 10]);
 
   const [editionId, setEditionId] = useState<string>();
-  const parameters: FetchStorageProvidersClientDiversityDataParameters = {
+  const parameters: FetchAllocatorsClientDiversityDataParameters = {
     editionId,
   };
 
   const { data, isLoading } = useSWR(
-    [QueryKey.STORAGE_PROVIDERS_CLIENT_DIVERSITY_DATA, parameters],
+    [QueryKey.ALLOCATORS_CLIENT_DIVERSITY, parameters],
     ([, fetchParameters]) =>
-      fetchStorageProvidersClientDiversityData(fetchParameters),
+      fetchAllocatorsClientDiversityData(fetchParameters),
     {
       keepPreviousData: true,
     }
@@ -176,7 +176,7 @@ export function StorageProvidersClientDiversityWidget({
       <header className="px-4 py-4 max-w-[min(50vw, 200px)]">
         <h3 className="text-lg font-medium">Client Diversity</h3>
         <p className="text-xs text-muted-foreground">
-          Storage Providers grouped by Clients count
+          Allocators and their Datacap grouped by Clients count
         </p>
       </header>
 
@@ -299,7 +299,7 @@ function ThresholdSlider({
           <ResponsiveHoverCardContent>
             <div className="p-4 md:p-2 font-normal">
               Use this slider to adjust the ranges for the client count for
-              storage provider
+              allocators
               <br />
               <div className="text-muted-foreground">
                 eg. {threshold[0]}-{threshold[1]} range means that:

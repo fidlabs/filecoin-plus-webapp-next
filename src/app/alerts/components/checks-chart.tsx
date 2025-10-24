@@ -4,6 +4,7 @@ import { useCallback } from "react";
 import {
   Bar,
   BarChart,
+  BarProps,
   CartesianGrid,
   ResponsiveContainer,
   Tooltip,
@@ -19,15 +20,10 @@ interface DataItem {
   failedChange: number;
 }
 
-interface BarData extends DataItem {
-  payload: DataItem;
-  [key: string]: unknown;
-}
-
 export interface ChecksChartProps {
   data: DataItem[];
   formatDate?(date: string): string;
-  onBarClick?(barData: BarData): void;
+  onBarClick?: BarProps["onClick"];
 }
 
 const passColor = "#66a61e";

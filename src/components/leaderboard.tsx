@@ -49,7 +49,7 @@ export function LeaderboardTitle({
   ...rest
 }: LeaderboardTitleProps) {
   return (
-    <h5 {...rest} className={cn("text-md font-medium", className)}>
+    <h5 {...rest} className={cn("text-lg font-medium", className)}>
       {children}
     </h5>
   );

@@ -3,7 +3,7 @@ import {
   TileSelectorItem,
   TileSelectorProps,
 } from "@/components/tile-selector";
-import { StorageProvidersPageSectionId } from "@/lib/constants";
+import { AllocatorsPageSectionId } from "@/lib/constants";
 import { OnlyPropsMatchingType } from "@/lib/utils";
 import { useCallback } from "react";
 import { FetchAllocatorsSPsComplianceDataParameters } from "../allocators-data";
@@ -63,7 +63,7 @@ export function AllocatorsSPsComplianceMetricsSelector({
         label="Retrievability score above average"
         action={{
           label: "Retrievability",
-          url: `/storage-providers#${StorageProvidersPageSectionId.RETRIEVABILITY}`,
+          url: `/allocators#${AllocatorsPageSectionId.RETRIEVABILITY}`,
         }}
         value="retrievability"
       />
@@ -72,7 +72,7 @@ export function AllocatorsSPsComplianceMetricsSelector({
         label="At least 3 clients"
         action={{
           label: "Client Diversity",
-          url: `/storage-providers#${StorageProvidersPageSectionId.CLIENT_DIVERSITY}`,
+          url: `/allocators#${AllocatorsPageSectionId.CLIENT_DIVERSITY}`,
         }}
         value="numberOfClients"
       />
@@ -81,7 +81,7 @@ export function AllocatorsSPsComplianceMetricsSelector({
         label="At most 30% DC from a single client"
         action={{
           label: "Biggest Allocation",
-          url: `/storage-providers#${StorageProvidersPageSectionId.CLIENT_DISTRIBUTION}`,
+          url: `/allocators#${AllocatorsPageSectionId.CLIENT_DISTRIBUTION}`,
         }}
         value="totalDealSize"
       />

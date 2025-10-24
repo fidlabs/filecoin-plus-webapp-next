@@ -17,8 +17,20 @@ import { isPlainObject, partition } from "@/lib/utils";
 import { UTCDate } from "@date-fns/utc";
 import { filesize } from "filesize";
 import NextLink from "next/link";
-import { ReactNode, useCallback, useMemo, useState } from "react";
-import { ResponsiveContainer, Sankey, Tooltip, TooltipProps } from "recharts";
+import {
+  ComponentProps,
+  ReactNode,
+  useCallback,
+  useMemo,
+  useState,
+} from "react";
+import {
+  ResponsiveContainer,
+  Sankey,
+  Tooltip,
+  type TooltipContentProps,
+} from "recharts";
+import { type LinkProps, type NodeProps } from "recharts/types/chart/Sankey";
 import { Button } from "./ui/button";
 import { ChartLoader } from "./ui/chart-loader";
 import {
@@ -47,37 +59,16 @@ interface ChartData {
   links: Link[];
 }
 
-interface NodeProps {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  payload: DCFlowNode;
-}
-
 // Sankey click types are incomplete
 interface SankeyNodeClickParameters {
   payload: DCFlowNode;
 }
-interface SankeyLinkClickParameters {
-  payload: {
-    source: DCFlowNode;
-    target: DCFlowNode;
-  };
-}
-interface SankeyClickHandler {
-  (
-    parameters: SankeyNodeClickParameters,
-    elementType: "node",
-    event: unknown
-  ): void;
-  (
-    parameters: SankeyLinkClickParameters,
-    elementType: "link",
-    event: unknown
-  ): void;
-}
 
+type SankeyClickHandler = (
+  item: NodeProps | LinkProps,
+  type: "link" | "node",
+  e: MouseEvent
+) => void;
 export interface DCFlowSankeyProps {
   snapshotDate?: Date;
 }
@@ -513,7 +504,7 @@ export function DCFlowSankey({ snapshotDate }: DCFlowSankeyProps) {
   const handleSankeyClick = useCallback<SankeyClickHandler>(
     (params, elementType) => {
       if (elementType === "node") {
-        const nodeClickParams = params as SankeyNodeClickParameters;
+        const nodeClickParams = params as unknown as SankeyNodeClickParameters;
         const { allocators, expandable } = nodeClickParams.payload;
 
         if (expandable) {
@@ -532,7 +523,7 @@ export function DCFlowSankey({ snapshotDate }: DCFlowSankeyProps) {
   );
 
   const renderTooltipContent = useCallback(
-    ({ payload }: TooltipProps<number, string>): ReactNode => {
+    ({ payload }: TooltipContentProps<number, string>): ReactNode => {
       const data = payload?.[0];
 
       if (!data) {
@@ -622,7 +613,11 @@ export function DCFlowSankey({ snapshotDate }: DCFlowSankeyProps) {
                 top: 100,
                 bottom: 50,
               }}
-              onClick={handleSankeyClick}
+              onClick={
+                handleSankeyClick as unknown as ComponentProps<
+                  typeof Sankey
+                >["onClick"]
+              } // I feel bad but recharts types are broken
             >
               <Tooltip content={renderTooltipContent} />
             </Sankey>
@@ -655,7 +650,7 @@ function CustomSankeyNode({ x, y, width, height, payload }: NodeProps) {
     expandable = false,
     hidden = false,
     totalDatacap,
-  } = payload;
+  } = payload as unknown as DCFlowNode;
 
   if (hidden || isNaN(x) || isNaN(y)) {
     return <g transform={`translate(${x},${y})`}></g>;

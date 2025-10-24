@@ -275,11 +275,11 @@ export function mapObject<InputType, MappedType, Key extends string = string>(
   }, {}) as Record<Key, MappedType>; // All keys will be populated eventually so we can cast the type here
 }
 
-export function capitalize(input: string): string {
+export function capitalize<T extends string>(input: T): Capitalize<T> {
   return input
     .split(" ")
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
+    .join(" ") as Capitalize<T>;
 }
 
 export function dateToYearWeek(input: Date | string): string {

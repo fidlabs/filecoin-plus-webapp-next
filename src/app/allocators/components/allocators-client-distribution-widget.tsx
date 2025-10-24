@@ -27,13 +27,13 @@ import {
 } from "recharts";
 import useSWR from "swr";
 import {
-  fetchStorageProvidersClientDistributionData,
-  FetchStorageProvidersClientDistributionDataParameters,
-} from "../storage-providers-data";
+  fetchAllocatorsClientDistributionData,
+  FetchAllocatorsClientDistributionDataParameters,
+} from "../allocators-data";
 
 type CardProps = ComponentProps<typeof Card>;
 
-interface StorageProvidersClientDistributionWidgetProps extends CardProps {
+interface AllocatorsClientDistributionWidgetProps extends CardProps {
   animationDuration?: number;
 }
 
@@ -118,11 +118,11 @@ function getLabelForRange(range: Range): string {
   return `${lowerBound}% - ${upperBound}%`;
 }
 
-export function StorageProvidersClientDistributionWidget({
+export function AllocatorsClientDistributionWidget({
   animationDuration = 500,
   className,
   ...rest
-}: StorageProvidersClientDistributionWidgetProps) {
+}: AllocatorsClientDistributionWidgetProps) {
   const [editionId, setEditionId] = useState<string>();
   const [scale, setScale] = useState<string>(scales[0]);
   const [mode, setMode] = useState<string>(modes[0]);
@@ -130,14 +130,14 @@ export function StorageProvidersClientDistributionWidget({
     groupingOptions[0]
   );
 
-  const parameters: FetchStorageProvidersClientDistributionDataParameters = {
+  const parameters: FetchAllocatorsClientDistributionDataParameters = {
     editionId,
   };
 
   const { data, isLoading } = useSWR(
-    [QueryKey.STORAGE_PROVIDERS_CLIENT_DISTRIBUTION_DATA, parameters],
+    [QueryKey.ALLOCATORS_CLIENT_DISTRIBUTION, parameters],
     ([, fetchParameters]) =>
-      fetchStorageProvidersClientDistributionData(fetchParameters),
+      fetchAllocatorsClientDistributionData(fetchParameters),
     {
       keepPreviousData: true,
     }

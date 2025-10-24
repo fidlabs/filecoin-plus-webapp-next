@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn, palette } from "@/lib/utils";
 import { type Week, weekToReadableString, weekToString } from "@/lib/weeks";
-import { scaleSymlog } from "d3-scale";
 import { filesize } from "filesize";
 import { CheckIcon } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
@@ -14,7 +13,7 @@ import {
   CartesianGrid,
   ResponsiveContainer,
   Tooltip,
-  TooltipProps,
+  TooltipContentProps,
   XAxis,
   YAxis,
 } from "recharts";
@@ -65,35 +64,6 @@ export function DatacapOverTimeByAllocatorChart({
       });
   }, [data]);
 
-  const minValue = useMemo(() => {
-    const sortedValues = data
-      .map((item) => {
-        if (selectedWeekStrings.length > 0) {
-          const weekEntry = item.entries.find((entry) =>
-            selectedWeekStrings.includes(weekToString(entry.week))
-          );
-
-          return weekEntry ? Number(weekEntry.datacap) : 0;
-        }
-
-        return item.entries.reduce(
-          (sum, entry) => sum + entry.datacap,
-          BigInt(0)
-        );
-      })
-      .toSorted((a, b) => {
-        if (a === b) {
-          return 0;
-        }
-
-        return a > b ? 1 : -1;
-      });
-
-    return !sortedValues[0] || sortedValues[0] < BigInt(1)
-      ? 1
-      : Number(sortedValues[0]);
-  }, [data, selectedWeekStrings]);
-
   const formatYAxisTick = useCallback((value: string) => {
     return filesize(value, { standard: "iec" });
   }, []);
@@ -137,7 +107,7 @@ export function DatacapOverTimeByAllocatorChart({
   }, []);
 
   const renderTooltip = useCallback(
-    (tooltipProps: TooltipProps<number, string>) => {
+    (tooltipProps: TooltipContentProps<number, string>) => {
       return (
         <CustomTooltip
           {...tooltipProps}
@@ -196,7 +166,7 @@ export function DatacapOverTimeByAllocatorChart({
           />
           <YAxis
             tickFormatter={formatYAxisTick}
-            scale={scale === "log" ? scaleSymlog().constant(minValue) : scale}
+            scale={scale === "log" ? "symlog" : scale}
             fontSize={14}
           />
           <Tooltip content={renderTooltip} />=
@@ -244,7 +214,7 @@ export function DatacapOverTimeByAllocatorChart({
   );
 }
 
-interface CustomTooltipProps extends TooltipProps<number, string> {
+interface CustomTooltipProps extends TooltipContentProps<number, string> {
   selectedWeekStrings: string[];
 }
 

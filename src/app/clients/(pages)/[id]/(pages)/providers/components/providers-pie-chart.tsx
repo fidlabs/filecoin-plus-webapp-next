@@ -1,11 +1,11 @@
 "use client";
-import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts";
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { palette } from "@/lib/utils";
 import { ActiveShape } from "@/components/ui/pie-active-shape";
 import { useClientProvidersDetails } from "@/app/clients/(pages)/[id]/(pages)/providers/components/client-providers.provider";
 
 const ProvidersPieChart = () => {
-  const { providersChartData, activeProviderIndex, setActiveProviderIndex } =
+  const { activeProviderIndex, providersChartData, setActiveProviderIndex } =
     useClientProvidersDetails();
 
   const onPieEnter = (_: unknown, index: number) => {
@@ -28,7 +28,6 @@ const ProvidersPieChart = () => {
           innerRadius={"55%"}
           fill="#8884d8"
           dataKey="value"
-          activeIndex={activeProviderIndex}
           activeShape={ActiveShape}
           onMouseEnter={onPieEnter}
           cursor={"pointer"}
@@ -37,7 +36,7 @@ const ProvidersPieChart = () => {
             window.open(`/storage-providers/${val.name}`, "_blank");
           }}
         >
-          {providersChartData.map((entry, index) => (
+          {providersChartData.map((_entry, index) => (
             <Cell
               key={`cell-${index}`}
               fill={palette(index)}
@@ -45,6 +44,11 @@ const ProvidersPieChart = () => {
             />
           ))}
         </Pie>
+        <Tooltip
+          defaultIndex={activeProviderIndex}
+          active={activeProviderIndex !== -1}
+          content={() => null}
+        />
       </PieChart>
     </ResponsiveContainer>
   );

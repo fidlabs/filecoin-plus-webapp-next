@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import Link from "next/link";
 import {
   forwardRef,
+  PointerEventHandler,
   useCallback,
   useEffect,
   useMemo,
@@ -21,17 +22,78 @@ export interface StickyTabNavigationProps
   containerRef?: LegacyRef<HTMLDivElement>;
 }
 
+interface DragScrollingState {
+  elementFrom: number;
+  pointerFrom: number;
+}
+
 export const StickyTabNavigation = forwardRef<
   HTMLDivElement,
   StickyTabNavigationProps
 >(({ children, className, containerRef, ...rest }, ref) => {
+  const [scrollingState, setScrollingState] =
+    useState<DragScrollingState | null>(null);
+  const [isDragScrolling, setIsDragScrolling] = useState(false);
+
+  const handleContainerPointerDown = useCallback<
+    PointerEventHandler<HTMLDivElement>
+  >((event) => {
+    if (event.pointerType === "mouse") {
+      setScrollingState({
+        elementFrom: event.currentTarget.scrollLeft,
+        pointerFrom: event.clientX,
+      });
+    }
+  }, []);
+
+  const handleContainerPointerMove = useCallback<
+    PointerEventHandler<HTMLDivElement>
+  >(
+    (event) => {
+      if (event.pointerType === "mouse" && scrollingState !== null) {
+        event.currentTarget.scrollTo({
+          left:
+            scrollingState.elementFrom -
+            event.clientX +
+            scrollingState.pointerFrom,
+        });
+
+        setIsDragScrolling(true);
+      }
+    },
+    [scrollingState]
+  );
+
+  const handlePointerUp = useCallback((event: PointerEvent) => {
+    if (event.pointerType === "mouse") {
+      setScrollingState(null);
+      setIsDragScrolling(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("pointerup", handlePointerUp);
+
+    return () => {
+      window.removeEventListener("pointerup", handlePointerUp);
+    };
+  }, [handlePointerUp]);
+
   return (
     <nav
       {...rest}
       className={cn("sticky top-0 bg-header text-white z-40", className)}
       ref={ref}
     >
-      <Container className="overflow-y-auto no-scrollbar" ref={containerRef}>
+      <Container
+        className={cn(
+          "overflow-y-auto no-scrollbar cursor-grab group",
+          isDragScrolling && "drag-scrolling cursor-grabbing"
+        )}
+        ref={containerRef}
+        onPointerDown={handleContainerPointerDown}
+        onPointerMove={handleContainerPointerMove}
+      >
         <ul className="flex">{children}</ul>
       </Container>
     </nav>
@@ -143,8 +205,14 @@ export function IdBasedStickyTabNaviation({
           id={createTabIdForId(id)}
           key={id}
           active={id === activeId}
+          className="p-0"
         >
-          <Link href={`#${id}`}>{label}</Link>
+          <Link
+            href={`#${id}`}
+            className="inline-block px-6 pt-4 pb-3 group-[.drag-scrolling]:pointer-events-none"
+          >
+            {label}
+          </Link>
         </StickyTabNavigationItem>
       ))}
     </StickyTabNavigation>

@@ -5,7 +5,7 @@ import { ChartLoader } from "@/components/ui/chart-loader";
 import { Scale } from "@/lib/hooks/useChartScale";
 import { convertBytesToIEC, palette } from "@/lib/utils";
 import { uniq } from "lodash";
-import { useMemo } from "react";
+import { type ComponentProps, useMemo } from "react";
 import {
   Bar,
   BarChart,
@@ -13,7 +13,7 @@ import {
   Label,
   ResponsiveContainer,
   Tooltip,
-  TooltipProps,
+  TooltipContentProps,
   XAxis,
   YAxis,
 } from "recharts";
@@ -33,7 +33,7 @@ interface Props<T extends DataItem = DataItem> {
   customPalette?: string[];
   usePercentage?: boolean;
   currentDataTab: string;
-  onBarClick?(dataItem: T): void;
+  onBarClick?: ComponentProps<typeof Bar>["onClick"];
 }
 
 export function StackedBarGraph({
@@ -48,7 +48,7 @@ export function StackedBarGraph({
 }: Props) {
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
-  const renderTooltip = (props: TooltipProps<ValueType, NameType>) => {
+  const renderTooltip = (props: TooltipContentProps<ValueType, NameType>) => {
     const payload = props?.payload?.[0]?.payload;
     if (!payload) {
       return null;
@@ -169,10 +169,8 @@ export function StackedBarGraph({
         >
           <CartesianGrid strokeDasharray="3 3" />
           <Tooltip content={renderTooltip} />
-          <Tooltip />
           {dataKeys.map((key, index) => (
             <Bar
-              layout={!isDesktop ? "vertical" : "horizontal"}
               key={key}
               dataKey={key}
               style={{
@@ -192,7 +190,6 @@ export function StackedBarGraph({
 
           {isDesktop && usePercentage && haveAverageSuccessRate && (
             <Bar
-              layout={!isDesktop ? "vertical" : "horizontal"}
               dataKey="avgSuccessRate"
               style={{ stroke: "#212121", strokeWidth: 1 }}
               fill="#252525"

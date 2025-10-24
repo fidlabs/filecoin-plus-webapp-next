@@ -55,7 +55,9 @@ export function OldDatacapBreakdownChart({
     return drilldown[selectedDataKey];
   }, [drilldown, selectedDataKey]);
 
-  const handleBarClick = useCallback((dataItem: ChartDataItem) => {
+  const handleBarClick = useCallback<
+    NonNullable<StackedBarGraphProps["onBarClick"]>
+  >((dataItem) => {
     setSelectedDataKey(dataItem.name);
   }, []);
 

@@ -6,23 +6,23 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { ChartTooltip } from "@/components/ui/chart";
+import { IFilDCAllocationsWeekly } from "@/lib/interfaces/dmob/dmob.interface";
+import { convertBytesToIEC, palette } from "@/lib/utils";
+import { memo, useMemo } from "react";
 import {
   Legend,
   Line,
   LineChart,
   ResponsiveContainer,
-  TooltipProps,
+  TooltipContentProps,
   XAxis,
   YAxis,
 } from "recharts";
-import { memo, useMemo } from "react";
-import { convertBytesToIEC, palette } from "@/lib/utils";
 import {
   NameType,
   ValueType,
 } from "recharts/types/component/DefaultTooltipContent";
-import { ChartTooltip } from "@/components/ui/chart";
-import { IFilDCAllocationsWeekly } from "@/lib/interfaces/dmob/dmob.interface";
 import { useMediaQuery } from "usehooks-ts";
 
 interface Props {
@@ -117,7 +117,7 @@ const Component = ({ data }: Props) => {
                 />
               )}
               <ChartTooltip
-                content={(props: TooltipProps<ValueType, NameType>) => {
+                content={(props: TooltipContentProps<ValueType, NameType>) => {
                   return (
                     <Card>
                       <CardHeader>
