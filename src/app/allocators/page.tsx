@@ -14,6 +14,8 @@ import {
   FetchAllocatorsAuditOutcomesParameters,
   fetchAllocatorsAuditStates,
   FetchAllocatorsAuditStatesParameters,
+  fetchAllocatorsAuditTimes,
+  FetchAllocatorsAuditTimesParameters,
   fetchAllocatorsClientDistributionData,
   fetchAllocatorsClientDiversityData,
   fetchAllocatorScoreRanking,
@@ -34,6 +36,7 @@ import { AuditsFlowWidget } from "./components/audits-flow-widget";
 import { DCFlowWidget } from "./components/dc-flow-widget";
 import { MetaallocatorsListWidget } from "./components/metaallocators-list-widget";
 import { AllocatorsAuditOutcomesWidget } from "./components/allocators-audit-outcomes-widget";
+import { AllocatorsAuditTimesWidget } from "./components/allocators-audit-times-widget";
 
 export const revalidate = 300;
 
@@ -54,6 +57,7 @@ const sectionTabs = {
   [AllocatorsPageSectionId.AUDITS_FLOW]: "Audits Flow",
   [AllocatorsPageSectionId.AUDITS_STATE]: "Audits States",
   [AllocatorsPageSectionId.AUDIT_OUTCOMES]: "Audit Outcomes",
+  [AllocatorsPageSectionId.AUDIT_TIMES]: "Audit Times",
   [AllocatorsPageSectionId.LEADERBOARDS]: "Leaderboards",
 } as const satisfies IdBasedStickyTabNaviationProps["tabs"];
 
@@ -96,6 +100,10 @@ const auditOutcomesDefaultParameters: FetchAllocatorsAuditOutcomesParameters = {
   editionId: "6",
 };
 
+const auditTimesDefaultParameters: FetchAllocatorsAuditTimesParameters = {
+  editionId: "6",
+};
+
 export default async function AllocatorsPage() {
   const fallbackRequests = Promise.allSettled([
     fetchAllocators(allocatorsListDefaultParameters),
@@ -106,6 +114,7 @@ export default async function AllocatorsPage() {
     fetchAllocatorsClientDiversityData(),
     fetchAllocatorsClientDistributionData(),
     fetchAllocatorsAuditOutcomes(auditOutcomesDefaultParameters),
+    fetchAllocatorsAuditTimes(auditTimesDefaultParameters),
   ]);
 
   const [settledResults, allocatorScoreRanking] = await Promise.all([
@@ -122,6 +131,7 @@ export default async function AllocatorsPage() {
     clientDiversityResult,
     clientDistributionResult,
     auditOutcomesResult,
+    auditTimesResult,
   ] = settledResults;
 
   const fallback = {
@@ -153,6 +163,10 @@ export default async function AllocatorsPage() {
       QueryKey.ALLOCATORS_AUDIT_OUTCOMES,
       auditOutcomesDefaultParameters,
     ])]: unwrapResult(auditOutcomesResult),
+    [unstable_serialize([
+      QueryKey.ALLOCATORS_AUDIT_TIMES,
+      auditsFlowDefaultParameters,
+    ])]: unwrapResult(auditTimesResult),
   };
 
   return (
@@ -200,6 +214,7 @@ export default async function AllocatorsPage() {
         <AllocatorsAuditOutcomesWidget
           id={AllocatorsPageSectionId.AUDIT_OUTCOMES}
         />
+        <AllocatorsAuditTimesWidget id={AllocatorsPageSectionId.AUDIT_TIMES} />
         <AllocatorsLeaderboards
           id={AllocatorsPageSectionId.LEADERBOARDS}
           scores={allocatorScoreRanking}

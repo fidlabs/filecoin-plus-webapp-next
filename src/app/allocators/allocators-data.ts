@@ -376,3 +376,83 @@ export async function fetchAllocatorsAuditOutcomes(
 
   return data;
 }
+
+// Audit times
+const allocatorsAuditTimesByRoundEnum = z.enum([
+  "averageConversationTimesSecs",
+  "averageAuditTimesSecs",
+  "averageAllocationTimesSecs",
+]);
+
+const allocatorsAuditTimesByRoundResponseSchema = z.record(
+  allocatorsAuditTimesByRoundEnum,
+  z.array(z.number()).nullable()
+);
+
+const allocatorsAuditTimesByMonthResponseSchema = z.array(
+  z.object({
+    month: z.string(),
+    averageAuditTimeSecs: z.number(),
+    averageAllocationTimeSecs: z.number(),
+  })
+);
+
+export type AllocatorsAuditTimesByRoundResponse = z.infer<
+  typeof allocatorsAuditTimesByRoundResponseSchema
+>;
+
+export type AllocatorsAuditTimesByMonthResponse = z.infer<
+  typeof allocatorsAuditTimesByMonthResponseSchema
+>;
+
+export interface FetchAllocatorsAuditTimesParameters {
+  editionId?: string;
+}
+
+export interface FetchAllocatorsAuditTimesReturnType {
+  byRound: AllocatorsAuditTimesByRoundResponse;
+  byMonth: AllocatorsAuditTimesByMonthResponse;
+}
+
+export async function fetchAllocatorsAuditTimes(
+  params: FetchAllocatorsAuditTimesParameters
+): Promise<FetchAllocatorsAuditTimesReturnType> {
+  const byRoundEndpoint = `${CDP_API_URL}/allocators/audit-times-by-round?${objectToURLSearchParams(params)}`;
+  const byMonthEndpoint = `${CDP_API_URL}/allocators/audit-times-by-month?${objectToURLSearchParams(params)}`;
+  const [byRoundResponse, byMonthResponse] = await Promise.all([
+    fetch(byRoundEndpoint),
+    fetch(byMonthEndpoint),
+  ]);
+
+  throwHTTPErrorOrSkip(
+    byRoundResponse,
+    `CDP API returned status ${byRoundResponse.status} when fetching allocator's audit times by round; URL: ${byRoundResponse}`
+  );
+
+  throwHTTPErrorOrSkip(
+    byMonthResponse,
+    `CDP API returned status ${byMonthResponse.status} when fetching allocator's audit times by month; URL: ${byMonthResponse}`
+  );
+
+  const [byRoundData, byMonthData] = await Promise.all([
+    byRoundResponse.json(),
+    byMonthResponse.json(),
+  ]);
+
+  assertSchema(
+    byRoundData,
+    allocatorsAuditTimesByRoundResponseSchema,
+    `Invalid response from CDP API while fetching allocators audit times by round; URL: ${byRoundEndpoint}`
+  );
+
+  assertSchema(
+    byMonthData,
+    allocatorsAuditTimesByMonthResponseSchema,
+    `Invalid response from CDP API while fetching allocators audit times by month; URL: ${byMonthEndpoint}`
+  );
+
+  return {
+    byRound: byRoundData,
+    byMonth: byMonthData,
+  };
+}

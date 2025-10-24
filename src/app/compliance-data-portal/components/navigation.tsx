@@ -10,21 +10,6 @@ import { useMediaQuery } from "usehooks-ts";
 
 const nav = [
   {
-    group: "Allocators",
-    links: [
-      {
-        id: "AuditOutcomesAllocator",
-        link: "/compliance-data-portal/allocators/audit-outcomes",
-        label: "Audit Outcomes",
-      },
-      {
-        id: "AuditTimelineAllocator",
-        link: "/compliance-data-portal/allocators/audit-timeline",
-        label: "Audit Times",
-      },
-    ],
-  },
-  {
     group: "Old Datacap",
     links: [
       {
