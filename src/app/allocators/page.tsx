@@ -38,6 +38,7 @@ import { MetaallocatorsListWidget } from "./components/metaallocators-list-widge
 import { AllocatorsAuditOutcomesWidget } from "./components/allocators-audit-outcomes-widget";
 import { AllocatorsAuditTimesWidget } from "./components/allocators-audit-times-widget";
 import { AllocatorsOldDatacapWidget } from "./components/allocators-old-datacap-widget";
+import { BackToTop } from "@/components/back-to-top";
 
 export const revalidate = 300;
 
@@ -222,6 +223,8 @@ export default async function AllocatorsPage() {
           scores={allocatorScoreRanking}
         />
         <AllocatorsOldDatacapWidget id={AllocatorsPageSectionId.OLD_DATACAP} />
+
+        <BackToTop />
       </Container>
     </SWRConfig>
   );

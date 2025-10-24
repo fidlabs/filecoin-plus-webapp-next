@@ -25,6 +25,7 @@ import {
   IdBasedStickyTabNaviation,
   IdBasedStickyTabNaviationProps,
 } from "@/components/sticky-tab-navigation";
+import { BackToTop } from "@/components/back-to-top";
 
 export const revalidate = 300;
 
@@ -147,6 +148,7 @@ export default async function StorageProvidersPage() {
         <StorageProvidersIPNIMisreportingWidget
           id={StorageProvidersPageSectionId.IPNI_MISREPORTING}
         />
+        <BackToTop />
       </Container>
     </SWRConfig>
   );
