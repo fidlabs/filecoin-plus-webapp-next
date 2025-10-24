@@ -28,6 +28,8 @@ import {
   FetchAllocatorsAuditOutcomesParameters,
   FetchAllocatorsAuditOutcomesReturnType,
 } from "../allocators-data";
+import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
+import { OverlayLoader } from "@/components/overlay-loader";
 
 type ChartEntry = {
   [K in keyof FetchAllocatorsAuditOutcomesReturnType[number]["datacap"]]: number;
@@ -92,10 +94,11 @@ export function AllocatorsAuditOutcomesWidget({
     useState<FetchAllocatorsAuditOutcomesParameters>({
       editionId: "6",
     });
-  const { data } = useSWR(
+  const { data, isLoading } = useSWR(
     [QueryKey.ALLOCATORS_AUDIT_OUTCOMES, parameters],
     ([, fetchParameters]) => fetchAllocatorsAuditOutcomes(fetchParameters)
   );
+  const isLongLoading = useDelayedFlag(isLoading, 500);
 
   const chartData = useMemo<ChartEntry[]>(() => {
     if (!data) {
@@ -202,51 +205,54 @@ export function AllocatorsAuditOutcomesWidget({
         </div>
       </header>
 
-      <ResponsiveContainer width="100%" height={400} debounce={200}>
-        <AreaChart
-          data={chartData}
-          margin={{
-            top: 16,
-            right: 16,
-          }}
-          stackOffset={scale === "percentage" ? "expand" : "none"}
-        >
-          <XAxis
-            dataKey="month"
-            type="category"
-            interval={0}
-            fontSize={12}
-            tickMargin={6}
-            padding={{
+      <div className="relative">
+        <ResponsiveContainer width="100%" height={400} debounce={200}>
+          <AreaChart
+            data={chartData}
+            margin={{
+              top: 16,
               right: 16,
             }}
-          />
-          <YAxis type="number" tickFormatter={formatValue} fontSize={12} />
-
-          {areas.map((area) => (
-            <Area
-              key={area}
-              dataKey={area}
-              type="monotone"
-              stackId="month"
-              fill={colors[area]}
-              stroke={colors[area]}
-              name={areasLabelDict[area]}
-              animationDuration={animationDuration}
+            stackOffset={scale === "percentage" ? "expand" : "none"}
+          >
+            <XAxis
+              dataKey="month"
+              type="category"
+              interval={0}
+              fontSize={12}
+              tickMargin={6}
+              padding={{
+                right: 16,
+              }}
             />
-          ))}
+            <YAxis type="number" tickFormatter={formatValue} fontSize={12} />
 
-          <Legend
-            align="center"
-            verticalAlign="bottom"
-            iconType="rect"
-            wrapperStyle={{
-              fontSize: 12,
-            }}
-          />
-          <Tooltip formatter={formatTooltipValue} content={ChartTooltip} />
-        </AreaChart>
-      </ResponsiveContainer>
+            {areas.map((area) => (
+              <Area
+                key={area}
+                dataKey={area}
+                type="monotone"
+                stackId="month"
+                fill={colors[area]}
+                stroke={colors[area]}
+                name={areasLabelDict[area]}
+                animationDuration={animationDuration}
+              />
+            ))}
+
+            <Legend
+              align="center"
+              verticalAlign="bottom"
+              iconType="rect"
+              wrapperStyle={{
+                fontSize: 12,
+              }}
+            />
+            <Tooltip formatter={formatTooltipValue} content={ChartTooltip} />
+          </AreaChart>
+        </ResponsiveContainer>
+        <OverlayLoader show={!data || isLongLoading} />
+      </div>
 
       <div className="p-4">
         <h5 className="text-sm font-semibold mb-2">What is this chart?</h5>
