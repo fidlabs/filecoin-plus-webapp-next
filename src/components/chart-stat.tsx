@@ -20,6 +20,7 @@ export function ChartStat({
   percentageChange,
   placeholderWidth = 100,
   value,
+  ...rest
 }: ChartStatProps) {
   const changeText =
     typeof percentageChange !== "undefined"
@@ -27,7 +28,7 @@ export function ChartStat({
       : null;
 
   return (
-    <div>
+    <div {...rest}>
       {typeof value !== "undefined" && value !== null ? (
         <p className="text-2xl font-medium">
           {value}

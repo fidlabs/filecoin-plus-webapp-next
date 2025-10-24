@@ -6,6 +6,7 @@ import {
 } from "@/lib/interfaces/cdp/cdp.interface";
 import { IAllocatorsResponse } from "@/lib/interfaces/dmob/allocator.interface";
 import { assertSchema, objectToURLSearchParams } from "@/lib/utils";
+import { numericalStringSchema } from "@/lib/zod-extensions";
 import { z } from "zod";
 
 // Allocators list
@@ -455,4 +456,47 @@ export async function fetchAllocatorsAuditTimes(
     byRound: byRoundData,
     byMonth: byMonthData,
   };
+}
+
+// Old datacap
+const allocatorsOldDatacapResponseSchema = z.object({
+  results: z.array(
+    z.object({
+      week: z.string().datetime(),
+      allocators: z.number(),
+      oldDatacap: numericalStringSchema,
+      allocations: numericalStringSchema,
+      drilldown: z.array(
+        z.object({
+          allocator: z.string(),
+          oldDatacap: numericalStringSchema,
+          allocations: numericalStringSchema,
+        })
+      ),
+    })
+  ),
+});
+
+export type FetchAllocatorsOldDatacapReturnType = z.infer<
+  typeof allocatorsOldDatacapResponseSchema
+>;
+
+export async function fetchAllocatorsOldDatacap(): Promise<FetchAllocatorsOldDatacapReturnType> {
+  const endpoint = `${CDP_API_URL}/stats/old-datacap/allocator-balance`;
+  const response = await fetch(endpoint);
+
+  throwHTTPErrorOrSkip(
+    response,
+    `CDP API returned status ${response.status} when fetching allocators' old datacap; URL: ${endpoint}`
+  );
+
+  const data = await response.json();
+
+  assertSchema(
+    data,
+    allocatorsOldDatacapResponseSchema,
+    `Invalid response from CDP API when fetching allocators old datacap; URL: ${endpoint}`
+  );
+
+  return data as FetchAllocatorsOldDatacapReturnType; // cast beacause for some reason Zod does not like custom schema here
 }

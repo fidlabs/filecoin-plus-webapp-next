@@ -37,6 +37,7 @@ import { DCFlowWidget } from "./components/dc-flow-widget";
 import { MetaallocatorsListWidget } from "./components/metaallocators-list-widget";
 import { AllocatorsAuditOutcomesWidget } from "./components/allocators-audit-outcomes-widget";
 import { AllocatorsAuditTimesWidget } from "./components/allocators-audit-times-widget";
+import { AllocatorsOldDatacapWidget } from "./components/allocators-old-datacap-widget";
 
 export const revalidate = 300;
 
@@ -59,6 +60,7 @@ const sectionTabs = {
   [AllocatorsPageSectionId.AUDIT_OUTCOMES]: "Audit Outcomes",
   [AllocatorsPageSectionId.AUDIT_TIMES]: "Audit Times",
   [AllocatorsPageSectionId.LEADERBOARDS]: "Leaderboards",
+  [AllocatorsPageSectionId.OLD_DATACAP]: "Old Datacap",
 } as const satisfies IdBasedStickyTabNaviationProps["tabs"];
 
 const allocatorsListDefaultParameters: FetchAllocatorsParameters = {
@@ -219,6 +221,7 @@ export default async function AllocatorsPage() {
           id={AllocatorsPageSectionId.LEADERBOARDS}
           scores={allocatorScoreRanking}
         />
+        <AllocatorsOldDatacapWidget id={AllocatorsPageSectionId.OLD_DATACAP} />
       </Container>
     </SWRConfig>
   );

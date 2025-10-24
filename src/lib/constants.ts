@@ -12,6 +12,7 @@ export enum QueryKey {
   ALLOCATORS_RETRIEVABILITY = "allocators_retrievability",
   ALLOCATORS_CLIENT_DIVERSITY = "allocators_client_diversity",
   ALLOCATORS_CLIENT_DISTRIBUTION = "allocators_client_distribution",
+  ALLOCATORS_OLD_DATACAP = "allocators_old_datacap",
   STORAGE_PROVIDERS_LIST = "storage_providers_list",
   STORAGE_PROVIDERS_COMPLIANCE_DATA = "storage_providers_compliance_data",
   STORAGE_PROVIDERS_RETRIEVABILITY_DATA = "storage_providers_retrievability_data",
@@ -33,6 +34,7 @@ export enum AllocatorsPageSectionId {
   AUDIT_OUTCOMES = "audit-outcomes",
   AUDIT_TIMES = "audit-times",
   LEADERBOARDS = "leaderboards",
+  OLD_DATACAP = "old-datacap",
 }
 
 export enum StorageProvidersPageSectionId {
