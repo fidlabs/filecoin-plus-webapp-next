@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/select";
 import { IApiQuery } from "@/lib/interfaces/api.interface";
 
-interface PaginatorProps {
+export interface PaginatorProps {
   page: number;
   pageSize: number;
   pageSizeOptions?: number[];
@@ -285,7 +285,7 @@ PaginationItem.displayName = "PaginationItem";
 
 type PaginationLinkProps = {
   isActive?: boolean;
-} & Pick<ButtonProps, "size"> &
+} & Pick<ButtonProps, "disabled" | "size"> &
   ComponentProps<"a">;
 
 const PaginationLink = ({
@@ -354,4 +354,14 @@ const PaginationEllipsis = ({
 );
 PaginationEllipsis.displayName = "PaginationEllipsis";
 
-export { Paginator, InfinitePaginator };
+export {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationPrevious,
+  PaginationNext,
+  PaginationLink,
+  PaginationEllipsis,
+  Paginator,
+  InfinitePaginator,
+};

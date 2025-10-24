@@ -1,46 +1,6 @@
-import { EditionRoundSelect } from "@/app/compliance-data-portal/components/edition-round-select";
-import { Container } from "@/components/container";
-import { GenericContentHeader } from "@/components/generic-content-view";
-import { JsonLd } from "@/components/json.ld";
-import { Card } from "@/components/ui/card";
-import { fetchAllocatorsAuditStates } from "@/lib/api";
-import { Organization, WithContext } from "schema-dts";
-import { allocatorsTabs } from "../../constants";
-import { AuditsFlowSankey } from "./components/audits-flow-sankey";
+import { AllocatorsPageSectionId } from "@/lib/constants";
+import { permanentRedirect } from "next/navigation";
 
-export const revalidate = 300;
-
-interface PageProps {
-  searchParams: Record<string, string | undefined>;
-}
-
-const jsonLdData: WithContext<Organization> = {
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  name: "Fil+ Allocators Audit Flow",
-  image: "https://cryptologos.cc/logos/filecoin-fil-logo.png?v=040",
-  description: "View allocators audits of Fil+ program",
-};
-
-export default async function AllocatorsAuditsFlowPage({
-  searchParams,
-}: PageProps) {
-  const data = await fetchAllocatorsAuditStates({
-    editionId: searchParams.editionId,
-  });
-
-  return (
-    <JsonLd data={jsonLdData}>
-      <Container>
-        <Card className="mt-12">
-          <GenericContentHeader
-            selected={allocatorsTabs[2].value}
-            navigation={allocatorsTabs}
-            addons={<EditionRoundSelect label="Edition:" />}
-          />
-          <AuditsFlowSankey data={data} />
-        </Card>
-      </Container>
-    </JsonLd>
-  );
+export default function AllocatorsAuditsFlowPage() {
+  permanentRedirect(`/allocators#${AllocatorsPageSectionId.AUDITS_FLOW}`);
 }

@@ -1,14 +1,15 @@
 "use client";
 
+import { OverlayLoader } from "@/components/overlay-loader";
 import { SortingButton } from "@/components/sorting-button";
 import { StringShortener } from "@/components/string-shortener";
-import { CardFooter } from "@/components/ui/card";
+import { Card, CardFooter } from "@/components/ui/card";
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import { Paginator } from "@/components/ui/pagination";
+import { Paginator, PaginatorProps } from "@/components/ui/pagination";
 import {
   Table,
   TableBody,
@@ -17,12 +18,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useSearchParamsFilters } from "@/lib/hooks/use-search-params-filters";
-import {
-  type IAllocator,
-  type IAllocatorsResponse,
-} from "@/lib/interfaces/dmob/allocator.interface";
-import { calculateDateFromHeight, convertBytesToIEC } from "@/lib/utils";
+import { QueryKey } from "@/lib/constants";
+import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
+import { calculateDateFromHeight } from "@/lib/utils";
 import {
   ColumnDef,
   flexRender,
@@ -32,15 +30,26 @@ import {
   SortingState,
   useReactTable,
 } from "@tanstack/react-table";
+import { filesize } from "filesize";
 import { CopyIcon, InfoIcon } from "lucide-react";
 import Link from "next/link";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState, type ComponentProps } from "react";
+import useSWR from "swr";
+import {
+  fetchAllocators,
+  FetchAllocatorsParameters,
+  FetchAllocatorsReturnType,
+} from "../allocators-data";
 
-export interface MetaallocatorsListProps {
-  metaallocatorsReponse: IAllocatorsResponse;
+type CardProps = ComponentProps<typeof Card>;
+export interface MetaallocatorsListWidgetProps
+  extends Omit<CardProps, "children"> {
+  defaultParameters?: FetchAllocatorsParameters;
 }
 
-const columns: ColumnDef<IAllocator>[] = [
+type Allocator = FetchAllocatorsReturnType["data"][number];
+
+const columns: ColumnDef<Allocator>[] = [
   {
     accessorKey: "addressId",
     header: "Metaallocator ID",
@@ -148,12 +157,12 @@ const columns: ColumnDef<IAllocator>[] = [
   {
     accessorKey: "allowance",
     header: "DataCap Available",
-    cell: (info) => convertBytesToIEC(info.getValue() as string),
+    cell: (info) => filesize(info.getValue() as string, { standard: "iec" }),
   },
   {
     accessorKey: "remainingDatacap",
     header: "Used DataCap",
-    cell: (info) => convertBytesToIEC(info.getValue() as string),
+    cell: (info) => filesize(info.getValue() as string, { standard: "iec" }),
   },
   {
     accessorKey: "initialAllowance",
@@ -163,7 +172,7 @@ const columns: ColumnDef<IAllocator>[] = [
       const allowanceArray = row.original.allowanceArray;
       return (
         <div className="whitespace-nowrap flex gap-1 items-center">
-          {convertBytesToIEC(initialAllowance)}
+          {filesize(initialAllowance, { standard: "iec" })}
           {!!allowanceArray?.length && (
             <HoverCard openDelay={100} closeDelay={50}>
               <HoverCardTrigger>
@@ -177,7 +186,7 @@ const columns: ColumnDef<IAllocator>[] = [
                   return (
                     <div key={index} className="grid grid-cols-7 gap-2">
                       <div className="col-span-2 text-right">
-                        {convertBytesToIEC(allowance.allowance)}
+                        {filesize(allowance.allowance, { standard: "iec" })}
                       </div>
                       <div className="col-span-5 text-sm text-muted-foreground">
                         ({calculateDateFromHeight(+allowance.height)})
@@ -194,26 +203,35 @@ const columns: ColumnDef<IAllocator>[] = [
   },
 ];
 
-export function MetaallocatorsList({
-  metaallocatorsReponse,
-}: MetaallocatorsListProps) {
-  const { filters, updateFilters } = useSearchParamsFilters();
+const pageSizeOptions = [10, 25, 50];
+
+export function MetaallocatorsListWidget({
+  defaultParameters = {},
+  ...rest
+}: MetaallocatorsListWidgetProps) {
+  const [parameters, setParameters] = useState(defaultParameters);
+  const { data, isLoading } = useSWR(
+    [QueryKey.ALLOCATORS_LIST, parameters],
+    ([, fetchParameters]) => fetchAllocators(fetchParameters),
+    {
+      keepPreviousData: true,
+      revalidateOnMount: false,
+    }
+  );
+  const isLongLoading = useDelayedFlag(isLoading, 1000);
 
   const sortingState = useMemo<SortingState>(() => {
-    if (
-      !filters.sort ||
-      (filters.order !== "asc" && filters.order !== "desc")
-    ) {
+    if (!parameters.sort || !parameters.order) {
       return [];
     }
 
     return [
       {
-        desc: filters.order === "desc",
-        id: filters.sort,
+        id: parameters.sort,
+        desc: parameters.order === "desc",
       },
     ];
-  }, [filters.sort, filters.order]);
+  }, [parameters.sort, parameters.order]);
 
   const handleSort = useCallback<OnChangeFn<SortingState>>(
     (updaterOrValue) => {
@@ -223,42 +241,48 @@ export function MetaallocatorsList({
           : updaterOrValue;
       const columnSort = nextSortingState[0];
 
-      updateFilters(
-        columnSort
-          ? {
-              sort: columnSort.id,
-              order: columnSort.desc ? "desc" : "asc",
-            }
-          : {
-              sort: undefined,
-              order: undefined,
-            }
-      );
+      const sortingParameters: Pick<
+        FetchAllocatorsParameters,
+        "sort" | "order"
+      > = columnSort
+        ? {
+            sort: columnSort.id,
+            order: columnSort.desc ? "desc" : "asc",
+          }
+        : {
+            sort: undefined,
+            order: undefined,
+          };
+
+      setParameters((currentParameters) => ({
+        ...currentParameters,
+        ...sortingParameters,
+      }));
     },
-    [sortingState, updateFilters]
+    [sortingState]
   );
 
-  const handlePageChange = useCallback(
-    (page: number) => {
-      updateFilters({
-        page: page.toString(),
-      });
+  const handlePageChange = useCallback<PaginatorProps["onPageChange"]>(
+    (page) => {
+      setParameters((currentParameters) => ({
+        ...currentParameters,
+        page,
+      }));
     },
-    [updateFilters]
+    []
   );
 
-  const handlePageSizeChange = useCallback(
-    (pageSize: number) => {
-      updateFilters({
-        limit: pageSize.toString(),
-        page: "1",
-      });
-    },
-    [updateFilters]
-  );
+  const handlePageSizeChange = useCallback<
+    NonNullable<PaginatorProps["onPageSizeChange"]>
+  >((limit) => {
+    setParameters((currentParameters) => ({
+      ...currentParameters,
+      limit,
+    }));
+  }, []);
 
   const table = useReactTable({
-    data: metaallocatorsReponse.data,
+    data: data?.data ?? [],
     columns,
     manualSorting: true,
     state: {
@@ -270,64 +294,77 @@ export function MetaallocatorsList({
   });
 
   return (
-    <>
-      <Table>
-        <TableHeader>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => {
-                const headerContent = flexRender(
-                  header.column.columnDef.header,
-                  header.getContext()
-                );
+    <Card {...rest}>
+      <div className="px-4 pt-6 mb-2 gap-4 flex flex-wrap items-center justify-between">
+        <div>
+          <h2 className="text-lg font-medium">Metaallocators List</h2>
+          <p className="text-xs text-muted-foreground">
+            Select Metaallocator to see list of allocators under it.
+          </p>
+        </div>
+      </div>
 
-                const sortable = header.column.getCanSort();
-                const sortDirection = header.column.getIsSorted();
+      <div className="relative pb-6">
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => {
+                  const headerContent = flexRender(
+                    header.column.columnDef.header,
+                    header.getContext()
+                  );
 
-                return (
-                  <TableHead key={header.id}>
-                    {sortable ? (
-                      <SortingButton
-                        sorted={typeof sortDirection === "string"}
-                        descending={sortDirection === "desc"}
-                        onClick={header.column.getToggleSortingHandler()}
-                      >
-                        {headerContent}
-                      </SortingButton>
-                    ) : (
-                      headerContent
-                    )}
-                  </TableHead>
-                );
-              })}
-            </TableRow>
-          ))}
-        </TableHeader>
+                  const sortable = header.column.getCanSort();
+                  const sortDirection = header.column.getIsSorted();
 
-        <TableBody>
-          {table.getRowModel().rows.map((row) => (
-            <TableRow key={row.id}>
-              {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id}>
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </TableCell>
-              ))}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-      {metaallocatorsReponse.count > 10 && (
+                  return (
+                    <TableHead key={header.id}>
+                      {sortable ? (
+                        <SortingButton
+                          sorted={typeof sortDirection === "string"}
+                          descending={sortDirection === "desc"}
+                          onClick={header.column.getToggleSortingHandler()}
+                        >
+                          {headerContent}
+                        </SortingButton>
+                      ) : (
+                        headerContent
+                      )}
+                    </TableHead>
+                  );
+                })}
+              </TableRow>
+            ))}
+          </TableHeader>
+
+          <TableBody>
+            {table.getRowModel().rows.map((row) => (
+              <TableRow key={row.id}>
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+        <OverlayLoader show={!data || isLongLoading} />
+      </div>
+
+      {(data?.count ?? 0) > 10 && (
         <CardFooter className="border-t w-full p-3">
           <Paginator
-            page={filters.page ? parseInt(filters.page, 10) : 1}
-            pageSize={filters.limit ? parseInt(filters.limit, 10) : 10}
-            total={metaallocatorsReponse.count}
-            pageSizeOptions={[10, 15, 25]}
+            page={parameters.page ?? 1}
+            pageSize={parameters.limit ?? pageSizeOptions[0]}
+            pageSizeOptions={pageSizeOptions}
             onPageChange={handlePageChange}
             onPageSizeChange={handlePageSizeChange}
+            total={data?.count ?? 0}
           />
         </CardFooter>
       )}
-    </>
+    </Card>
   );
 }

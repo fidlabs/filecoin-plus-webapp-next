@@ -1,12 +1,7 @@
-import { Container } from "@/components/container";
-import { DCFlowSankey } from "@/components/dc-flow-sankey";
-import { GenericContentHeader } from "@/components/generic-content-view";
-import { JsonLd } from "@/components/json.ld";
-import { Card } from "@/components/ui/card";
+import { AllocatorsPageSectionId } from "@/lib/constants";
 import { generatePageMetadata } from "@/lib/utils";
-import { Metadata } from "next";
-import { Organization, WithContext } from "schema-dts";
-import { allocatorsTabs } from "../../constants";
+import { type Metadata } from "next";
+import { permanentRedirect } from "next/navigation";
 
 export const metadata: Metadata = generatePageMetadata({
   title: "Fil+ DataCap Stats | Datacap Flow",
@@ -15,26 +10,5 @@ export const metadata: Metadata = generatePageMetadata({
 });
 
 export default async function DatacapFlowPage() {
-  const jsonLdData: WithContext<Organization> = {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    name: "Fil+ Datacap Flow",
-    image: "https://cryptologos.cc/logos/filecoin-fil-logo.png?v=040",
-    description: "View allocators datacap flow of Fil+ program",
-  };
-
-  return (
-    <JsonLd data={jsonLdData}>
-      <Container>
-        <Card className="mt-12">
-          <GenericContentHeader
-            selected={allocatorsTabs[1].value}
-            navigation={allocatorsTabs}
-          />
-
-          <DCFlowSankey />
-        </Card>
-      </Container>
-    </JsonLd>
-  );
+  permanentRedirect(`/allocators#${AllocatorsPageSectionId.DC_FLOW}`);
 }

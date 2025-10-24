@@ -2,8 +2,9 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import isFinite from "lodash/isFinite";
 import { filesize } from "filesize";
-import { Metadata } from "next";
+import { type Metadata } from "next";
 import { getWeek, getWeekYear } from "date-fns";
+import { type ZodType } from "zod";
 
 export type KeysMatchingType<T, V> = {
   [K in keyof T]-?: T[K] extends V ? K : never;
@@ -353,4 +354,16 @@ export function bigintToPercentage(
   const fraction = numeratorWithPrecision / denominator;
 
   return Number(fraction) / Math.pow(10, precision);
+}
+
+export function assertSchema<T>(
+  input: unknown,
+  schema: ZodType<T>,
+  message = "Input does not match schema"
+): asserts input is T {
+  const result = schema.safeParse(input);
+
+  if (result.error) {
+    throw new TypeError(message);
+  }
 }

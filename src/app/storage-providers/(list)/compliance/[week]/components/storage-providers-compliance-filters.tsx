@@ -65,15 +65,12 @@ export function StorageProvidersComplianceFilters({
     >
   >(
     (metrics) => {
-      console.log("FOO", metrics);
       const newFilters = {
         ...mapObject<boolean | undefined, string>(metrics, (value) => {
           return String(!!value);
         }),
         page: "1",
       };
-
-      console.log(newFilters);
 
       updateFilters(newFilters);
     },
