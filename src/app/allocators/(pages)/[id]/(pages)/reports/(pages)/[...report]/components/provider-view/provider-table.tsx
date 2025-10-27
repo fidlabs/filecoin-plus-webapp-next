@@ -172,22 +172,14 @@ const useReportViewProvidersColumns = (/*compareMode: boolean*/) => {
       },
       cell: ({ row }) => {
         if (row.original.not_found) {
-          return (
-            <div className="h-full flex items-center justify-end gap-1">
-              N/A
-            </div>
-          );
+          return <span>N/A</span>;
         }
 
         const successRate = row.getValue(
           "retrievability_success_rate_http"
         ) as number;
 
-        return (
-          <div className="h-full flex items-center justify-end gap-1">
-            <span>{(successRate * 100).toFixed(2)}%</span>
-          </div>
-        );
+        return <span>{(successRate * 100).toFixed(2)}%</span>;
       },
     },
     {
@@ -195,20 +187,14 @@ const useReportViewProvidersColumns = (/*compareMode: boolean*/) => {
       header: () => <RandomPieceAvailabilityTooltip />,
       cell: ({ row }) => {
         if (row.original.not_found) {
-          return (
-            <div className="h-full flex items-center justify-end gap-1">
-              N/A
-            </div>
-          );
+          return <span className="text-right">N/A</span>;
         }
         const successRate = row.getValue(
           "retrievability_success_rate_url_finder"
         ) as number;
 
         return (
-          <div className="h-full flex items-center justify-end gap-1">
-            <span>{(successRate * 100).toFixed(2)}%</span>
-          </div>
+          <span className="text-right">{(successRate * 100).toFixed(2)}%</span>
         );
       },
     },
