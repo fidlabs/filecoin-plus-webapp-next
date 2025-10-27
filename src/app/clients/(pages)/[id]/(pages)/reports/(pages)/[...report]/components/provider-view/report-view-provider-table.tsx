@@ -255,11 +255,7 @@ const useReportViewProvidersColumns = (compareMode: boolean) => {
       },
       cell: ({ row }) => {
         if (row.original.not_found) {
-          return (
-            <div className="h-full flex items-center justify-end gap-1">
-              N/A
-            </div>
-          );
+          return <span>N/A</span>;
         }
 
         const successRate = row.getValue(
@@ -267,7 +263,7 @@ const useReportViewProvidersColumns = (compareMode: boolean) => {
         ) as number;
 
         return (
-          <div className="h-full flex items-center justify-center gap-1">
+          <div className="flex items-center gap-1">
             <span>{(successRate * 100).toFixed(2)}%</span>
             {compareMode && (
               <CompareIcon
@@ -283,11 +279,7 @@ const useReportViewProvidersColumns = (compareMode: boolean) => {
       header: () => <RandomPieceAvailabilityTooltip />,
       cell: ({ row }) => {
         if (row.original.not_found) {
-          return (
-            <div className="h-full flex items-center justify-end gap-1">
-              N/A
-            </div>
-          );
+          return <span>N/A</span>;
         }
 
         const successRate = row.getValue(
@@ -295,7 +287,7 @@ const useReportViewProvidersColumns = (compareMode: boolean) => {
         ) as number;
 
         return (
-          <div className="h-full flex items-center justify-center gap-1">
+          <div className="flex items-center gap-1">
             <span>{(successRate * 100).toFixed(2)}%</span>
             {compareMode && (
               <CompareIcon
