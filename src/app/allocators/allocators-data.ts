@@ -500,3 +500,51 @@ export async function fetchAllocatorsOldDatacap(): Promise<FetchAllocatorsOldDat
 
   return data as FetchAllocatorsOldDatacapReturnType; // cast beacause for some reason Zod does not like custom schema here
 }
+
+// Checks breakdown
+const checksBreakdownSchema = z.array(
+  z.object({
+    check: z.string(),
+    checkName: z.string(),
+    checkDescription: z.string(),
+    data: z.array(
+      z.object({
+        date: z.string(),
+        checkFailedAllocatorsCount: z.number(),
+        checkPassedAllocatorsCount: z.number(),
+        checkFailedAllocatorsDatacap: numericalStringSchema,
+        checkPassedAllocatorsDatacap: numericalStringSchema,
+      })
+    ),
+  })
+);
+
+export interface FetchAllocatorsChecksBreakdownParameters {
+  groupBy?: "week" | "month";
+}
+
+export type FetchAllocatorsChecksBreakdownReturnType = z.infer<
+  typeof checksBreakdownSchema
+>;
+
+export async function fetchAllocatorsChecksBreakdown(
+  parameters: FetchAllocatorsChecksBreakdownParameters = {}
+): Promise<FetchAllocatorsChecksBreakdownReturnType> {
+  const endpoint = `${CDP_API_URL}/report-checks/allocator/summary-by-check?${objectToURLSearchParams(parameters).toString()}`;
+  const response = await fetch(endpoint);
+
+  throwHTTPErrorOrSkip(
+    response,
+    `CDP API return status ${response.status} when fetching allocators checks breakdown; URL: ${endpoint}`
+  );
+
+  const data = await response.json();
+
+  assertSchema(
+    data,
+    checksBreakdownSchema,
+    `Invalid response from CDP API when fetching allocators checks breakdown; URL: ${endpoint}`
+  );
+
+  return data as FetchAllocatorsChecksBreakdownReturnType; // cast beacause for some reason Zod does not like custom schema here
+}

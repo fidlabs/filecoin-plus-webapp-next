@@ -79,7 +79,7 @@ export function ChartTooltipGrid<
             <p
               className="text-lg font-medium"
               style={{
-                color: innerPayload.stroke ?? innerPayload.fill,
+                color: innerPayload.color,
               }}
             >
               {formatter

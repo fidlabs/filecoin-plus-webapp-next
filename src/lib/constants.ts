@@ -13,6 +13,7 @@ export enum QueryKey {
   ALLOCATORS_CLIENT_DIVERSITY = "allocators_client_diversity",
   ALLOCATORS_CLIENT_DISTRIBUTION = "allocators_client_distribution",
   ALLOCATORS_OLD_DATACAP = "allocators_old_datacap",
+  ALLOCATORS_CHECKS_BREAKDOWN = "allocators_checks_breakdown",
   STORAGE_PROVIDERS_LIST = "storage_providers_list",
   STORAGE_PROVIDERS_COMPLIANCE_DATA = "storage_providers_compliance_data",
   STORAGE_PROVIDERS_RETRIEVABILITY_DATA = "storage_providers_retrievability_data",
@@ -28,6 +29,7 @@ export enum AllocatorsPageSectionId {
   RETRIEVABILITY = "retrievability",
   CLIENT_DIVERSITY = "client-diversity",
   CLIENT_DISTRIBUTION = "client-distribution",
+  ALERTS_BREAKDOWN = "alerts-breakdown",
   DC_FLOW = "dc-flow",
   AUDITS_FLOW = "audits-flow",
   AUDITS_STATE = "audits-state",
@@ -45,3 +47,5 @@ export enum StorageProvidersPageSectionId {
   CLIENT_DISTRIBUTION = "client-distribution",
   IPNI_MISREPORTING = "ipni-misreporting",
 }
+
+export const CHECKS_BREAKDOWN_INTERVAL_PARAM_KEY = "interval";

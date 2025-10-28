@@ -16,6 +16,8 @@ import {
   FetchAllocatorsAuditStatesParameters,
   fetchAllocatorsAuditTimes,
   FetchAllocatorsAuditTimesParameters,
+  fetchAllocatorsChecksBreakdown,
+  FetchAllocatorsChecksBreakdownParameters,
   fetchAllocatorsClientDistributionData,
   fetchAllocatorsClientDiversityData,
   fetchAllocatorScoreRanking,
@@ -39,6 +41,7 @@ import { AllocatorsAuditOutcomesWidget } from "./components/allocators-audit-out
 import { AllocatorsAuditTimesWidget } from "./components/allocators-audit-times-widget";
 import { AllocatorsOldDatacapWidget } from "./components/allocators-old-datacap-widget";
 import { BackToTop } from "@/components/back-to-top";
+import { AllocatorsChecksBreakdownWidget } from "./components/allocators-checks-breakdown-widget";
 
 export const revalidate = 300;
 
@@ -55,6 +58,7 @@ const sectionTabs = {
   [AllocatorsPageSectionId.RETRIEVABILITY]: "Retrievability",
   [AllocatorsPageSectionId.CLIENT_DIVERSITY]: "Client Diversity",
   [AllocatorsPageSectionId.CLIENT_DISTRIBUTION]: "Client Distribution",
+  [AllocatorsPageSectionId.ALERTS_BREAKDOWN]: "Alerts Breakdown",
   [AllocatorsPageSectionId.DC_FLOW]: "DC Flow",
   [AllocatorsPageSectionId.AUDITS_FLOW]: "Audits Flow",
   [AllocatorsPageSectionId.AUDITS_STATE]: "Audits States",
@@ -107,6 +111,11 @@ const auditTimesDefaultParameters: FetchAllocatorsAuditTimesParameters = {
   editionId: "6",
 };
 
+const checksBreakdownDefaultParameters: FetchAllocatorsChecksBreakdownParameters =
+  {
+    groupBy: "week",
+  };
+
 export default async function AllocatorsPage() {
   const fallbackRequests = Promise.allSettled([
     fetchAllocators(allocatorsListDefaultParameters),
@@ -118,6 +127,7 @@ export default async function AllocatorsPage() {
     fetchAllocatorsClientDistributionData(),
     fetchAllocatorsAuditOutcomes(auditOutcomesDefaultParameters),
     fetchAllocatorsAuditTimes(auditTimesDefaultParameters),
+    fetchAllocatorsChecksBreakdown(checksBreakdownDefaultParameters),
   ]);
 
   const [settledResults, allocatorScoreRanking] = await Promise.all([
@@ -135,6 +145,7 @@ export default async function AllocatorsPage() {
     clientDistributionResult,
     auditOutcomesResult,
     auditTimesResult,
+    checksBreakdownResult,
   ] = settledResults;
 
   const fallback = {
@@ -170,6 +181,10 @@ export default async function AllocatorsPage() {
       QueryKey.ALLOCATORS_AUDIT_TIMES,
       auditsFlowDefaultParameters,
     ])]: unwrapResult(auditTimesResult),
+    [unstable_serialize([
+      QueryKey.ALLOCATORS_CHECKS_BREAKDOWN,
+      checksBreakdownDefaultParameters,
+    ])]: unwrapResult(checksBreakdownResult),
   };
 
   return (
@@ -205,6 +220,9 @@ export default async function AllocatorsPage() {
         />
         <AllocatorsClientDistributionWidget
           id={AllocatorsPageSectionId.CLIENT_DISTRIBUTION}
+        />
+        <AllocatorsChecksBreakdownWidget
+          id={AllocatorsPageSectionId.ALERTS_BREAKDOWN}
         />
         <DCFlowWidget id={AllocatorsPageSectionId.DC_FLOW} />
         <AuditsFlowWidget
