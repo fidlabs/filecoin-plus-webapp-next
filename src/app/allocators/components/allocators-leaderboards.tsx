@@ -24,7 +24,7 @@ export function AllocatorsLeaderboards({
       {...rest}
       className={cn("grid gap-x-4 gap-y-8", className)}
       style={{
-        gridTemplateColumns: "repeat(auto-fill, minmax(400px, 1fr))",
+        gridTemplateColumns: "repeat(auto-fill, minmax(min(400px, 100%), 1fr))",
         ...style,
       }}
     >

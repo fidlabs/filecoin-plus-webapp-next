@@ -1,20 +1,19 @@
 "use client";
 
+import { ChartTooltip } from "@/components/chart-tooltip";
+import { OverlayLoader } from "@/components/overlay-loader";
 import { Card } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { QueryKey } from "@/lib/constants";
+import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
 import { cn, palette } from "@/lib/utils";
-import {
-  type HTMLAttributes,
-  type ComponentProps,
-  useState,
-  useMemo,
-  useCallback,
-} from "react";
-import useSWR from "swr";
-import {
-  fetchAllocatorsAuditTimes,
-  FetchAllocatorsAuditTimesParameters,
-} from "../allocators-data";
+import { type ComponentProps, useCallback, useMemo, useState } from "react";
 import {
   Label,
   Line,
@@ -24,16 +23,11 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { ChartTooltip } from "@/components/chart-tooltip";
+import useSWR from "swr";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
-import { OverlayLoader } from "@/components/overlay-loader";
+  fetchAllocatorsAuditTimes,
+  FetchAllocatorsAuditTimesParameters,
+} from "../allocators-data";
 
 type CardProps = ComponentProps<typeof Card>;
 type Metric = (typeof metrics)[number];
@@ -149,36 +143,30 @@ export function AllocatorsAuditTimesWidget({
         </Select>
       </header>
 
-      <div className="flex flex-wrap gap-4 realtive">
-        <ChartColumn>
+      <div className="relative">
+        <div
+          className="grid gap-4"
+          style={{
+            gridTemplateColumns:
+              "repeat(auto-fill, minmax(min(500px, 100%), 1fr))",
+          }}
+        >
           <Chart
             data={byAuditChartData}
             chartLabel="Audit No."
             animationDuration={animationDuration}
           />
-        </ChartColumn>
 
-        <ChartColumn>
           <Chart
             data={byMonthChartData}
             chartLabel="Month"
             animationDuration={animationDuration}
           />
-        </ChartColumn>
+        </div>
 
         <OverlayLoader show={!data || isLongLoading} />
       </div>
     </Card>
-  );
-}
-
-type ChartColumnProps = HTMLAttributes<HTMLDivElement>;
-
-function ChartColumn({ className, children, ...rest }: ChartColumnProps) {
-  return (
-    <div {...rest} className={cn("flex-1 min-w-[500px]", className)}>
-      {children}
-    </div>
   );
 }
 

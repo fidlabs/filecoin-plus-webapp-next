@@ -110,7 +110,7 @@ export function AllocatorsChecksBreakdownWidget({
           onSelectedChecksChange={setSelectedChecks}
         />
 
-        <div className="flex items-center gap-x-2 mb-2">
+        <div className="flex flex-wrap items-center gap-2 mb-2">
           <div className="flex items-center gap-x-1">
             <Checkbox
               id={syncCheckboxId}
