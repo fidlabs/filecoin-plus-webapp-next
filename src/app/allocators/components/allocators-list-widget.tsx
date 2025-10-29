@@ -5,7 +5,13 @@ import { Card, CardFooter } from "@/components/ui/card";
 import { Paginator, PaginatorProps } from "@/components/ui/pagination";
 import { QueryKey } from "@/lib/constants";
 import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
-import { useCallback, useMemo, useState, type ComponentProps } from "react";
+import {
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+  type ComponentProps,
+} from "react";
 import useSWR from "swr";
 import { fetchAllocators, FetchAllocatorsParameters } from "../allocators-data";
 import { AllocatorsList, AllocatorsListProps } from "./allocators-list";
@@ -29,6 +35,7 @@ export function AllocatorsListWidget({
   defaultParameters = {},
   ...rest
 }: AllocatorsListWidgetProps) {
+  const widgetRef = useRef<HTMLDivElement | null>(null);
   const [parameters, setParameters] = useState(defaultParameters);
   const { data, isLoading } = useSWR(
     [QueryKey.ALLOCATORS_LIST, parameters],
@@ -50,6 +57,14 @@ export function AllocatorsListWidget({
       direction: parameters.order,
     };
   }, [parameters.sort, parameters.order]);
+
+  const scrollToListTop = useCallback(() => {
+    if (widgetRef.current) {
+      widgetRef.current.scrollIntoView({
+        block: "start",
+      });
+    }
+  }, []);
 
   const handleShowInactiveToggle = useCallback<CheckedChangeHandler>(
     (checkedState) => {
@@ -94,8 +109,10 @@ export function AllocatorsListWidget({
         ...currentParameters,
         page,
       }));
+
+      scrollToListTop();
     },
-    []
+    [scrollToListTop]
   );
 
   const handlePageSizeChange = useCallback<
@@ -108,7 +125,7 @@ export function AllocatorsListWidget({
   }, []);
 
   return (
-    <Card {...rest}>
+    <Card {...rest} ref={widgetRef}>
       <div className="px-4 pt-6 mb-2 gap-4 flex flex-wrap items-center justify-between">
         <div>
           <h2 className="text-lg font-medium">Allocators List</h2>
