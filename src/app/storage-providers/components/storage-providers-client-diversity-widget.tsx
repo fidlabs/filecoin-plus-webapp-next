@@ -3,11 +3,12 @@
 import { ChartTooltip } from "@/components/chart-tooltip";
 import { OverlayLoader } from "@/components/overlay-loader";
 import { Card } from "@/components/ui/card";
+import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 import {
-  ResponsiveHoverCard,
-  ResponsiveHoverCardContent,
-  ResponsiveHoverCardTrigger,
-} from "@/components/ui/responsive-hover-card";
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 import {
   Select,
   SelectContent,
@@ -286,41 +287,47 @@ function ThresholdSlider({
     [onThresholdChange]
   );
 
+  const helpTrigger = <InfoIcon className="w-5 h-5 text-muted-foreground" />;
+  const helpContent = (
+    <div className="p-4 md:p-2 font-normal text-sm">
+      Use this slider to adjust the ranges for the client count for storage
+      provider
+      <br />
+      <div className="text-muted-foreground">
+        eg. {threshold[0]}-{threshold[1]} range means that:
+        <ul className="list-disc">
+          <li className="m-4">
+            0-{threshold[0]} clients will be marked as low client diversity
+          </li>
+          <li className="m-4">
+            {threshold[0]}-{threshold[1]} clients will be marked as medium
+            client diversity
+          </li>
+          <li className="m-4">
+            {threshold[1]}+ clients will be marked as high client diversity
+          </li>
+        </ul>
+      </div>
+    </div>
+  );
+
   return (
     <div className="flex flex-col">
       <div className="flex gap-1 items-center justify-between">
         <p className="text-sm">
           Threshold: {threshold[0]} - {threshold[1]}
         </p>
-        <ResponsiveHoverCard>
-          <ResponsiveHoverCardTrigger>
-            <InfoIcon className="w-5 h-5 text-muted-foreground" />
-          </ResponsiveHoverCardTrigger>
-          <ResponsiveHoverCardContent>
-            <div className="p-4 md:p-2 font-normal">
-              Use this slider to adjust the ranges for the client count for
-              storage provider
-              <br />
-              <div className="text-muted-foreground">
-                eg. {threshold[0]}-{threshold[1]} range means that:
-                <ul className="list-disc">
-                  <li className="m-4">
-                    0-{threshold[0]} clients will be marked as low client
-                    diversity
-                  </li>
-                  <li className="m-4">
-                    {threshold[0]}-{threshold[1]} clients will be marked as
-                    medium client diversity
-                  </li>
-                  <li className="m-4">
-                    {threshold[1]}+ clients will be marked as high client
-                    diversity
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </ResponsiveHoverCardContent>
-        </ResponsiveHoverCard>
+
+        <Drawer autoFocus>
+          <DrawerTrigger className="md:hidden">{helpTrigger}</DrawerTrigger>
+          <DrawerContent>{helpContent}</DrawerContent>
+        </Drawer>
+        <HoverCard>
+          <HoverCardTrigger className="hidden md:block">
+            {helpTrigger}
+          </HoverCardTrigger>
+          <HoverCardContent>{helpContent}</HoverCardContent>
+        </HoverCard>
       </div>
 
       <Slider
