@@ -163,47 +163,47 @@ export function AllocatorsRetrievabilityWidget({
   );
   const isLongLoading = useDelayedFlag(isLoading, 500);
 
-  const { allTimeAverage, weeklyAverage, weeklyAveragePercentageChange } =
-    useMemo(() => {
-      if (!data) {
-        return {
-          allTimeAverage: null,
-          weeklyAverage: null,
-          weeklyAveragePercentageChange: undefined,
-        };
-      }
-
-      const allTimeAverage = data.averageSuccessRate
-        ? percentageFormatter.format(data.averageSuccessRate / 100)
-        : "N/A";
-      const [previousWeekData, currentWeekData] =
-        data.histogram.results.slice(-2) ?? [];
-
-      if (!currentWeekData) {
-        return {
-          allTimeAverage,
-          weeklyAverage: "0%",
-          weeklyAveragePercentageChange: undefined,
-        };
-      }
-
-      const weeklyAveragePercentageChange =
-        typeof currentWeekData.averageSuccessRate === "number" &&
-        typeof previousWeekData.averageSuccessRate === "number" &&
-        previousWeekData.averageSuccessRate !== 0
-          ? currentWeekData.averageSuccessRate /
-              previousWeekData.averageSuccessRate -
-            1
-          : undefined;
-
+  const { weeklyAverage, weeklyAveragePercentageChange } = useMemo(() => {
+    if (!data) {
       return {
-        allTimeAverage,
-        weeklyAverage: currentWeekData.averageSuccessRate
-          ? percentageFormatter.format(currentWeekData.averageSuccessRate / 100)
-          : "N/A",
-        weeklyAveragePercentageChange,
+        weeklyAverage: null,
+        weeklyAveragePercentageChange: undefined,
       };
-    }, [data]);
+    }
+
+    const [previousWeekData, currentWeekData] =
+      data.histogram.results.slice(-2) ?? [];
+
+    if (!currentWeekData) {
+      return {
+        weeklyAverage: "N/A",
+        weeklyAveragePercentageChange: undefined,
+      };
+    }
+
+    const currentWeekAverage =
+      retrievabilityType === "http"
+        ? currentWeekData.averageHttpSuccessRate
+        : currentWeekData.averageUrlFinderSuccessRate;
+    const previousWeekAverage =
+      retrievabilityType === "http"
+        ? previousWeekData.averageHttpSuccessRate
+        : previousWeekData.averageUrlFinderSuccessRate;
+
+    const weeklyAveragePercentageChange =
+      typeof currentWeekAverage === "number" &&
+      typeof previousWeekAverage === "number" &&
+      previousWeekAverage !== 0
+        ? currentWeekAverage / previousWeekAverage - 1
+        : undefined;
+
+    return {
+      weeklyAverage: currentWeekAverage
+        ? percentageFormatter.format(currentWeekAverage / 100)
+        : "N/A",
+      weeklyAveragePercentageChange,
+    };
+  }, [data, retrievabilityType]);
 
   const [ranges, chartData] = useMemo<[Range[], ChartDataEntry[]]>(() => {
     if (!data) {
@@ -266,16 +266,21 @@ export function AllocatorsRetrievabilityWidget({
           {}
         );
 
+        const averageSuccessRate =
+          retrievabilityType === "http"
+            ? histogramEntry.averageHttpSuccessRate
+            : histogramEntry.averageUrlFinderSuccessRate;
+
         return {
           date: histogramEntry.week,
-          averageSuccessRate: histogramEntry.averageSuccessRate ?? null,
+          averageSuccessRate: averageSuccessRate,
           ...groupValues,
         };
       }
     );
 
     return [ranges, chartData];
-  }, [data, groupingOption, mode, scale]);
+  }, [data, groupingOption, mode, retrievabilityType, scale]);
 
   const palette = useMemo(() => {
     return gradientPalette("#FF5722", "#4CAF50", ranges.length);
@@ -425,8 +430,6 @@ export function AllocatorsRetrievabilityWidget({
             value={weeklyAverage}
             percentageChange={weeklyAveragePercentageChange}
           />
-
-          <ChartStat label="All Time Average" value={allTimeAverage} />
         </div>
       </div>
 

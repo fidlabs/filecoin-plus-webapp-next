@@ -1,9 +1,6 @@
 import { CDP_API_URL } from "@/lib/constants";
 import { throwHTTPErrorOrSkip } from "@/lib/http-errors";
-import {
-  ICDPHistogram,
-  ICDPHistogramResult,
-} from "@/lib/interfaces/cdp/cdp.interface";
+import { ICDPHistogram } from "@/lib/interfaces/cdp/cdp.interface";
 import { IAllocatorsResponse } from "@/lib/interfaces/dmob/allocator.interface";
 import { assertSchema, objectToURLSearchParams } from "@/lib/utils";
 import { numericalStringSchema } from "@/lib/zod-extensions";
@@ -172,13 +169,39 @@ export async function fetchAllocatorScoreRanking(
 }
 
 // Retrievability
+const retrievabilityResponseSchema = z.object({
+  averageHttpSuccessRate: z.number().nullable(),
+  averageUrlFinderSuccessRate: z.number().nullable(),
+  histogram: z.object({
+    total: z.number(),
+    results: z.array(
+      z.object({
+        week: z.string(),
+        total: z.number(),
+        averageHttpSuccessRate: z.number().nullable(),
+        averageUrlFinderSuccessRate: z.number().nullable(),
+        results: z.array(
+          z.object({
+            valueFromExclusive: z.number(),
+            valueToInclusive: z.number(),
+            count: z.number(),
+            totalDatacap: z.string(),
+          })
+        ),
+      })
+    ),
+  }),
+});
+
 export interface FetchAllocatorsRetrievabilityDataParameters {
   editionId?: string;
   openDataOnly?: boolean;
   retrievabilityType?: "urlFinder" | "http";
 }
 
-export type FetchAllocatorsRetrievabilityDataReturnType = ICDPHistogramResult;
+export type FetchAllocatorsRetrievabilityDataReturnType = z.infer<
+  typeof retrievabilityResponseSchema
+>;
 
 export async function fetchAllocatorsRetrievabilityData(
   parameters?: FetchAllocatorsRetrievabilityDataParameters
@@ -207,7 +230,14 @@ export async function fetchAllocatorsRetrievabilityData(
   );
 
   const json = await response.json();
-  return json as ICDPHistogramResult;
+
+  assertSchema(
+    json,
+    retrievabilityResponseSchema,
+    `CDP API returned invalid response when fetching allocators retrievability data; URL: ${endpoint}`
+  );
+
+  return json;
 }
 
 // Client diversity
