@@ -15,6 +15,7 @@ import { CheckIcon, TriangleAlertIcon } from "lucide-react";
 const checkTypes = [
   AllocatorReportCheckType.CLIENT_MULTIPLE_ALLOCATORS,
   AllocatorReportCheckType.CLIENT_NOT_ENOUGH_COPIES,
+  AllocatorReportCheckType.MANUAL_ALLOCATION_SCHEDULE,
 
   ClientReportCheckType.STORAGE_PROVIDER_DISTRIBUTION_ALL_LOCATED_IN_THE_SAME_REGION,
   ClientReportCheckType.STORAGE_PROVIDER_DISTRIBUTION_PROVIDERS_EXCEED_PROVIDER_DEAL,
