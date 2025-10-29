@@ -49,7 +49,8 @@ export type StorageProvidersComplianceData = z.infer<
 
 export interface FetchStorageProvidersComplianceDataParameters {
   editionId?: string;
-  retrievability?: boolean;
+  httpRetrievability?: boolean;
+  urlFinderRetrievability?: boolean;
   numberOfClients?: boolean;
   totalDealSize?: boolean;
 }
@@ -58,11 +59,13 @@ export type FetchStorageProvidersComplianceDataReturnType =
   StorageProvidersComplianceData;
 
 const providersComplianceDataSchema = z.object({
-  averageSuccessRate: z.number(),
+  averageHttpSuccessRate: z.number().nullable(),
+  averageUrlFinderSuccessRate: z.number().nullable(),
   results: z.array(
     z.object({
       week: z.string(),
-      averageSuccessRate: z.number(),
+      averageHttpSuccessRate: z.number().nullable(),
+      averageUrlFinderSuccessRate: z.number().nullable(),
       compliantSps: z.number(),
       partiallyCompliantSps: z.number(),
       nonCompliantSps: z.number(),
@@ -73,18 +76,6 @@ const providersComplianceDataSchema = z.object({
     })
   ),
 });
-
-function assertIsStorageProvidersComplianceData(
-  input: unknown
-): asserts input is StorageProvidersComplianceData {
-  const result = providersComplianceDataSchema.safeParse(input);
-
-  if (!result.success) {
-    throw new TypeError(
-      "Invalid response from CDP when fetching storage providers compliance data"
-    );
-  }
-}
 
 export async function fetchStorageProvidersComplianceData(
   parameters?: FetchStorageProvidersComplianceDataParameters
@@ -99,7 +90,13 @@ export async function fetchStorageProvidersComplianceData(
   );
 
   const json = await response.json();
-  assertIsStorageProvidersComplianceData(json);
+
+  assertSchema(
+    json,
+    providersComplianceDataSchema,
+    `Invalid response from CDP when fetching storage providers compliance data; URL: ${endpoint}`
+  );
+
   return json;
 }
 

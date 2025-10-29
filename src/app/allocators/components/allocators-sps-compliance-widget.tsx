@@ -62,8 +62,8 @@ type ChartDataEntry = Record<Combination, number> & {
 };
 
 interface Stat {
-  value: string;
-  percentageChange: number;
+  value: string | null;
+  percentageChange: number | undefined;
   label: string;
 }
 
@@ -126,7 +126,8 @@ export function AllocatorsSPsComplianceWidget({
   const [parameters, setParameters] =
     useState<FetchAllocatorsSPsComplianceDataParameters>({
       editionId: undefined,
-      retrievability: true,
+      httpRetrievability: true,
+      urlFinderRetrievability: true,
       numberOfClients: true,
       totalDealSize: true,
     });
@@ -236,9 +237,12 @@ export function AllocatorsSPsComplianceWidget({
 
     return [
       {
-        value: filesize(currentIntervalData.compliantDatacap, {
-          standard: "iec",
-        }),
+        value:
+          chartData.length === 0 || isLongLoading
+            ? null
+            : filesize(currentIntervalData.compliantDatacap, {
+                standard: "iec",
+              }),
         label: "Compliant DC",
         percentageChange:
           bigintToPercentage(
@@ -248,15 +252,20 @@ export function AllocatorsSPsComplianceWidget({
           ) - 100,
       },
       {
-        value: currentIntervalData.compliantCount.toString(),
+        value:
+          chartData.length === 0 || isLongLoading
+            ? null
+            : currentIntervalData.compliantCount.toString(),
         label: "Compliant Allocators",
         percentageChange:
-          currentIntervalData.compliantCount /
-            previousIntervalData.compliantCount -
-          1,
+          previousIntervalData.compliantCount !== 0
+            ? currentIntervalData.compliantCount /
+                previousIntervalData.compliantCount -
+              1
+            : undefined,
       },
     ];
-  }, [chartData]);
+  }, [chartData, isLongLoading]);
 
   const formatDate = useCallback((value: unknown) => {
     if (typeof value !== "string") {
@@ -313,7 +322,8 @@ export function AllocatorsSPsComplianceWidget({
       const searchParams = objectToURLSearchParams(
         {
           complianceScore: "compliant",
-          retrievability: parameters.retrievability,
+          httpRetrievability: parameters.httpRetrievability,
+          urlFinderRetrievability: parameters.httpRetrievability,
           numberOfClients: parameters.numberOfClients,
           totalDealSize: parameters.totalDealSize,
         },
@@ -353,7 +363,11 @@ export function AllocatorsSPsComplianceWidget({
                 key={`stat_${index}`}
                 label={stat.label}
                 value={stat.value}
-                percentageChange={stat.percentageChange / 100}
+                percentageChange={
+                  typeof stat.percentageChange !== "undefined"
+                    ? stat.percentageChange / 100
+                    : undefined
+                }
                 placeholderWidth={160}
               />
             );

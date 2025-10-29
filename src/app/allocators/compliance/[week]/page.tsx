@@ -49,7 +49,8 @@ function searchParamsToFetchParams(
       searchParams.complianceThresholdPercentage,
       50
     ),
-    retrievability: searchParams.retrievability !== "false",
+    httpRetrievability: searchParams.httpRetrievability !== "false",
+    urlFinderRetrievability: searchParams.urlFinderRetrievability !== "false",
     numberOfClients: searchParams.numberOfClients !== "false",
     totalDealSize: searchParams.totalDealSize !== "false",
   };

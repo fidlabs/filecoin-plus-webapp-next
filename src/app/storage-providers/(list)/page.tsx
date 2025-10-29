@@ -39,7 +39,8 @@ export const metadata: Metadata = generatePageMetadata({
 const complianceDataDefaultParams: FetchStorageProvidersComplianceDataParameters =
   {
     editionId: undefined,
-    retrievability: true,
+    httpRetrievability: true,
+    urlFinderRetrievability: true,
     numberOfClients: true,
     totalDealSize: true,
   };

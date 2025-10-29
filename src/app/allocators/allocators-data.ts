@@ -40,7 +40,8 @@ export async function fetchAllocators(
 // Allocators by compliance list
 export interface FetchAllocatorsByComplianceParameters
   extends Omit<FetchAllocatorsParameters, "showInactive" | "isMetaallocator"> {
-  retrievability?: boolean;
+  httpRetrievability?: boolean;
+  urlFinderRetrievability?: boolean;
   numberOfClients?: boolean;
   totalDealSize?: boolean;
   week?: string;
@@ -68,11 +69,13 @@ export async function fetchAllocatorsByCompliance(
 
 // Allocators Storage Providers compliance data
 const allocatorsSPsComplianceDataSchema = z.object({
-  averageSuccessRate: z.number(),
+  averageHttpSuccessRate: z.number().nullable(),
+  averageUrlFinderSuccessRate: z.number().nullable(),
   results: z.array(
     z.object({
       week: z.string(),
-      averageSuccessRate: z.number(),
+      averageHttpSuccessRate: z.number(),
+      averageUrlFinderSuccessRate: z.number(),
       allocators: z.array(
         z.object({
           compliantSpsPercentage: z.number(),
@@ -92,7 +95,8 @@ type AllocatorsSPsComplianceData = z.infer<
 
 export interface FetchAllocatorsSPsComplianceDataParameters {
   editionId?: string;
-  retrievability?: boolean;
+  httpRetrievability?: boolean;
+  urlFinderRetrievability?: boolean;
   numberOfClients?: boolean;
   totalDealSize?: boolean;
 }

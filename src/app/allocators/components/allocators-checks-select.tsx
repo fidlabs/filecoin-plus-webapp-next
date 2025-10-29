@@ -63,7 +63,7 @@ export function AllocatorsChecksSelect({
   return (
     <div className="flex flex-wrap gap-y-2">
       <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger>
+        <PopoverTrigger asChild>
           <Button
             variant="outline"
             role="combobox"

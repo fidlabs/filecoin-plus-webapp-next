@@ -52,8 +52,8 @@ interface ChartDataEntry {
 }
 
 interface Stat {
-  value: string;
-  percentageChange: number;
+  value: string | null;
+  percentageChange: number | undefined;
   label: string;
 }
 
@@ -89,7 +89,8 @@ export function StorageProvidersComplianceWidget({
   const [parameters, setParameters] =
     useState<FetchStorageProvidersComplianceDataParameters>({
       editionId: undefined,
-      retrievability: true,
+      httpRetrievability: true,
+      urlFinderRetrievability: true,
       numberOfClients: true,
       totalDealSize: true,
     });
@@ -123,7 +124,10 @@ export function StorageProvidersComplianceWidget({
 
     return [
       {
-        value: filesize(currentCompliantDatacap, { standard: "iec" }),
+        value:
+          !data || isLongLoading
+            ? null
+            : filesize(currentCompliantDatacap, { standard: "iec" }),
         label: "Compliant DC",
         percentageChange:
           bigintToPercentage(
@@ -133,7 +137,8 @@ export function StorageProvidersComplianceWidget({
           ) - 100,
       },
       {
-        value: currentCompliantSPCount.toString(),
+        value:
+          !data || isLongLoading ? null : currentCompliantSPCount.toString(),
         label: "Compliant SPs",
         percentageChange:
           bigintToPercentage(
@@ -143,7 +148,7 @@ export function StorageProvidersComplianceWidget({
           ) - 100,
       },
     ];
-  }, [data]);
+  }, [data, isLongLoading]);
 
   const chartData = useMemo<ChartDataEntry[]>(() => {
     if (!data) {
@@ -239,7 +244,8 @@ export function StorageProvidersComplianceWidget({
       const searchParams = objectToURLSearchParams(
         {
           complianceScore: "compliant",
-          retrievability: parameters.retrievability,
+          httpRetrievability: parameters.httpRetrievability,
+          urlFinderRetrievability: parameters.urlFinderRetrievability,
           numberOfClients: parameters.numberOfClients,
           totalDealSize: parameters.totalDealSize,
         },
@@ -278,7 +284,11 @@ export function StorageProvidersComplianceWidget({
                 key={`stat_${index}`}
                 label={stat.label}
                 value={stat.value}
-                percentageChange={stat.percentageChange / 100}
+                percentageChange={
+                  typeof stat.percentageChange !== "undefined"
+                    ? stat.percentageChange / 100
+                    : undefined
+                }
                 placeholderWidth={160}
               />
             );

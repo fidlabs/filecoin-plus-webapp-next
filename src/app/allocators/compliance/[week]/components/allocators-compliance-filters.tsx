@@ -34,7 +34,8 @@ export function AllocatorsComplianceFilters({
     AllocatorsSPsComplianceMetricsSelectorProps["metrics"]
   >(() => {
     return {
-      retrievability: filters.retrievability !== "false",
+      httpRetrievability: filters.httpRetrievability !== "false",
+      urlFinderRetrievability: filters.urlFinderRetrievability !== "false",
       numberOfClients: filters.numberOfClients !== "false",
       totalDealSize: filters.totalDealSize !== "false",
     };
@@ -138,6 +139,7 @@ export function AllocatorsComplianceFilters({
       <AllocatorsSPsComplianceMetricsSelector
         metrics={metrics}
         onMetricsChange={handleMetricsChange}
+        includeDisabledMetricsOnChange
       />
     </div>
   );

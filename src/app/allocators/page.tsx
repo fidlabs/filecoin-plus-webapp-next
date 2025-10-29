@@ -91,7 +91,8 @@ const auditsFlowDefaultParameters: FetchAllocatorsAuditStatesParameters = {
 const complianceDefaultParameters: FetchAllocatorsSPsComplianceDataParameters =
   {
     editionId: undefined,
-    retrievability: true,
+    httpRetrievability: true,
+    urlFinderRetrievability: true,
     numberOfClients: true,
     totalDealSize: true,
   };
