@@ -56,7 +56,7 @@ export function AllocatorsLeaderboard({
             <div className="flex items-center justify-between gap-x-4">
               <div className="min-w-0">
                 <LeaderboardText className="whitespace-nowrap overflow-hidden text-ellipsis">
-                  <Button asChild variant="link">
+                  <Button asChild variant="link" className="inline">
                     <Link href={`/allocators/${score.allocatorId}/score`}>
                       {score.allocatorName}
                     </Link>
