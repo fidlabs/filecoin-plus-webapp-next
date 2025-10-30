@@ -148,7 +148,7 @@ export function AllocatorsAuditTimesWidget({
           className="grid gap-4"
           style={{
             gridTemplateColumns:
-              "repeat(auto-fill, minmax(min(500px, 100%), 1fr))",
+              "repeat(auto-fit, minmax(min(500px, 100%), 1fr))",
           }}
         >
           <Chart
