@@ -20,6 +20,13 @@ import {
   AllocatorsListAddonsProps,
 } from "./allocators-list-addons";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type CardProps = ComponentProps<typeof Card>;
 export interface AllocatorsListWidgetProps extends Omit<CardProps, "children"> {
@@ -28,8 +35,14 @@ export interface AllocatorsListWidgetProps extends Omit<CardProps, "children"> {
 
 type CheckboxProps = ComponentProps<typeof Checkbox>;
 type CheckedChangeHandler = NonNullable<CheckboxProps["onCheckedChange"]>;
+type DataType = NonNullable<FetchAllocatorsParameters["dataType"]>;
 
 const pageSizeOptions = [10, 25, 50];
+const allowedDataTypes = ["openData", "enterprise"] satisfies DataType[];
+const dataTypeDict: Record<DataType, string> = {
+  openData: "Open Data",
+  enterprise: "Enterprise Data",
+};
 
 export function AllocatorsListWidget({
   defaultParameters = {},
@@ -124,6 +137,20 @@ export function AllocatorsListWidget({
     }));
   }, []);
 
+  const handleEditionChange = useCallback((value: string) => {
+    setParameters((currentParameters) => ({
+      ...currentParameters,
+      editionId: value === "all" ? undefined : value,
+    }));
+  }, []);
+
+  const handleDataTypeChange = useCallback((value: string) => {
+    setParameters((currentParameters) => ({
+      ...currentParameters,
+      dataType: isAllowedDataType(value) ? value : undefined,
+    }));
+  }, []);
+
   return (
     <Card {...rest} ref={widgetRef}>
       <div className="px-4 pt-6 mb-2 gap-4 flex flex-wrap items-center justify-between">
@@ -133,8 +160,8 @@ export function AllocatorsListWidget({
             Browse Allocators participating in Filecoin. Select to see details.
           </p>
         </div>
-        <div className="flex flex-wrap gap-4 items-center">
-          <div className="flex items-center space-x-2">
+        <div className="flex flex-wrap gap-2 items-center">
+          <div className="flex items-center space-x-2 mr-2">
             <Checkbox
               id="show-inactive"
               checked={!!parameters.showInactive}
@@ -147,6 +174,37 @@ export function AllocatorsListWidget({
               Show Inactive
             </label>
           </div>
+
+          <Select
+            value={parameters.editionId ?? "all"}
+            onValueChange={handleEditionChange}
+          >
+            <SelectTrigger className="bg-background min-w-[122px]">
+              <SelectValue placeholder="All Editions" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Editions</SelectItem>
+              <SelectItem value="5">Edition 5</SelectItem>
+              <SelectItem value="6">Edition 6</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select
+            value={parameters.dataType ?? "all"}
+            onValueChange={handleDataTypeChange}
+          >
+            <SelectTrigger className="bg-background min-w-[152px]">
+              <SelectValue placeholder="All Data Types" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Data Types</SelectItem>
+              {allowedDataTypes.map((dataType) => (
+                <SelectItem key={dataType} value={dataType}>
+                  {dataTypeDict[dataType]}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
 
           <AllocatorsListAddons
             className="flex-grow-1"
@@ -176,4 +234,8 @@ export function AllocatorsListWidget({
       </CardFooter>
     </Card>
   );
+}
+
+function isAllowedDataType(value: string): value is DataType {
+  return (allowedDataTypes as string[]).includes(value);
 }

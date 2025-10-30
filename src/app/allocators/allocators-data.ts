@@ -17,6 +17,7 @@ export interface FetchAllocatorsParameters {
   order?: "asc" | "desc";
   showInactive?: boolean;
   isMetaallocator?: boolean;
+  dataType?: "openData" | "enterprise";
 }
 
 export type FetchAllocatorsReturnType = IAllocatorsResponse;
