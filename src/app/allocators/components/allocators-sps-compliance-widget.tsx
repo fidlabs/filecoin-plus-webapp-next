@@ -259,9 +259,10 @@ export function AllocatorsSPsComplianceWidget({
         label: "Compliant Allocators",
         percentageChange:
           previousIntervalData.compliantCount !== 0
-            ? currentIntervalData.compliantCount /
-                previousIntervalData.compliantCount -
-              1
+            ? (currentIntervalData.compliantCount /
+                previousIntervalData.compliantCount) *
+                100 -
+              100
             : undefined,
       },
     ];
