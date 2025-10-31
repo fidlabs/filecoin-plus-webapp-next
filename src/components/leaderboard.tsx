@@ -12,6 +12,11 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "./ui/pagination";
+import { MoveUpIcon } from "lucide-react";
+
+const positionChangeFormatter = new Intl.NumberFormat("en-US", {
+  signDisplay: "always",
+});
 
 export type LeaderboardProps = HTMLAttributes<HTMLDivElement>;
 export function Leaderboard({
@@ -62,28 +67,60 @@ export function LeaderboardList({ children, ...rest }: LeaderboardListProps) {
 
 export type LeaderboardItemProps = LiHTMLAttributes<HTMLLIElement> & {
   position: number;
+  positionChange?: number;
 };
 export function LeaderboardItem({
   children,
   className,
   position,
+  positionChange,
   ...rest
 }: LeaderboardItemProps) {
+  const hasPositionChange = typeof positionChange !== "undefined";
+
   return (
     <li
       {...rest}
-      className={cn("relative py-3 pl-14 pr-3 min-h-12", className)}
+      className={cn(
+        "relative py-3 pl-14 pr-3 min-h-12",
+        hasPositionChange && "pl-[92px]",
+        className
+      )}
     >
-      <span
-        className={cn(
-          "absolute top-1/2 left-3 -translate-y-1/2 leading-none h-8 w-8 bg-gray-200 rounded-full flex items-center justify-center text-sm font-medium",
-          position === 1 && "bg-yellow-400",
-          position === 2 && "bg-slate-300",
-          position === 3 && "bg-orange-600"
+      <div className="absolute top-1/2 left-3 -translate-y-1/2 flex items-center">
+        <span
+          className={cn(
+            "leading-none h-8 w-8 bg-gray-200 rounded-full flex items-center justify-center text-sm font-medium",
+            position === 1 && "bg-[gold]",
+            position === 2 && "bg-slate-300",
+            position === 3 && "bg-[brown] text-white"
+          )}
+        >
+          {position}
+        </span>
+
+        {hasPositionChange && (
+          <span
+            className={cn(
+              "inline-flex w-9 items-center justify-center text-xs font-medium",
+              positionChange > 0 && "text-green-600",
+              positionChange < 0 && "text-red-600"
+            )}
+          >
+            {positionChange !== 0 && (
+              <>
+                <MoveUpIcon
+                  className={cn("h-4 w-4", positionChange < 0 && "rotate-180")}
+                />
+                <span className="-ml-0.5">
+                  {positionChangeFormatter.format(positionChange)}
+                </span>
+              </>
+            )}
+          </span>
         )}
-      >
-        {position}
-      </span>
+      </div>
+
       {children}
     </li>
   );
