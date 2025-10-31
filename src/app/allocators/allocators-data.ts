@@ -147,7 +147,7 @@ const scoreRankingResponseSchema = z.array(
     maxPossibleScore: z.number(),
     scorePercentage: z.string(),
     weekAgoScorePercentage: z.string(),
-    monthAgoScorePercentage: z.string(),
+    monthAgoScorePercentage: z.string().nullable(),
     dataType: scoreRankingDataTypeEnum,
   })
 );
