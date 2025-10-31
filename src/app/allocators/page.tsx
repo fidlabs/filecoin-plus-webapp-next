@@ -118,24 +118,6 @@ const checksBreakdownDefaultParameters: FetchAllocatorsChecksBreakdownParameters
   };
 
 export default async function AllocatorsPage() {
-  const fallbackRequests = Promise.allSettled([
-    fetchAllocators(allocatorsListDefaultParameters),
-    fetchAllocators(metaallocatorsListDefaultParameters),
-    fetchAllocatorsAuditStates(auditsFlowDefaultParameters),
-    fetchAllocatorsSPsComplianceData(complianceDefaultParameters),
-    fetchAllocatorsRetrievabilityData(retrievabilityDefaultParameters),
-    fetchAllocatorsClientDiversityData(),
-    fetchAllocatorsClientDistributionData(),
-    fetchAllocatorsAuditOutcomes(auditOutcomesDefaultParameters),
-    fetchAllocatorsAuditTimes(auditTimesDefaultParameters),
-    fetchAllocatorsChecksBreakdown(checksBreakdownDefaultParameters),
-  ]);
-
-  const [settledResults, allocatorScoreRanking] = await Promise.all([
-    fallbackRequests,
-    fetchAllocatorScoreRanking(),
-  ]);
-
   const [
     fetchAllocatorsResult,
     fetchMetaalloctorsResult,
@@ -147,7 +129,20 @@ export default async function AllocatorsPage() {
     auditOutcomesResult,
     auditTimesResult,
     checksBreakdownResult,
-  ] = settledResults;
+    allocatorsScoreRankingResult,
+  ] = await Promise.allSettled([
+    fetchAllocators(allocatorsListDefaultParameters),
+    fetchAllocators(metaallocatorsListDefaultParameters),
+    fetchAllocatorsAuditStates(auditsFlowDefaultParameters),
+    fetchAllocatorsSPsComplianceData(complianceDefaultParameters),
+    fetchAllocatorsRetrievabilityData(retrievabilityDefaultParameters),
+    fetchAllocatorsClientDiversityData(),
+    fetchAllocatorsClientDistributionData(),
+    fetchAllocatorsAuditOutcomes(auditOutcomesDefaultParameters),
+    fetchAllocatorsAuditTimes(auditTimesDefaultParameters),
+    fetchAllocatorsChecksBreakdown(checksBreakdownDefaultParameters),
+    fetchAllocatorScoreRanking(),
+  ]);
 
   const fallback = {
     [unstable_serialize([
@@ -237,10 +232,20 @@ export default async function AllocatorsPage() {
           id={AllocatorsPageSectionId.AUDIT_OUTCOMES}
         />
         <AllocatorsAuditTimesWidget id={AllocatorsPageSectionId.AUDIT_TIMES} />
-        <AllocatorsLeaderboards
-          id={AllocatorsPageSectionId.LEADERBOARDS}
-          scores={allocatorScoreRanking}
-        />
+
+        {allocatorsScoreRankingResult.status === "fulfilled" ? (
+          <AllocatorsLeaderboards
+            id={AllocatorsPageSectionId.LEADERBOARDS}
+            scores={allocatorsScoreRankingResult.value}
+          />
+        ) : (
+          <div className="py-8" id={AllocatorsPageSectionId.LEADERBOARDS}>
+            <p className="text-center text-sm text-muted-foreground max-w-[400px] mx-auto">
+              Could not load Allocator score rankings. Please try again later.
+            </p>
+          </div>
+        )}
+
         <AllocatorsOldDatacapWidget id={AllocatorsPageSectionId.OLD_DATACAP} />
 
         <BackToTop />
