@@ -68,10 +68,6 @@ export function AllocatorsLeaderboard({
     });
   }, [scores]);
   const visibleEntries = entries.slice(pageOffset, pageSize * page);
-  console.log(
-    "DEBUG",
-    entries.filter((entry) => entry.positionChange !== 0)
-  );
 
   return (
     <Leaderboard className="flex flex-col">
