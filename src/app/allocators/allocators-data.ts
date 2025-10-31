@@ -506,6 +506,7 @@ const allocatorsOldDatacapResponseSchema = z.object({
       drilldown: z.array(
         z.object({
           allocator: z.string(),
+          allocatorName: z.string().nullable(),
           oldDatacap: numericalStringSchema,
           allocations: numericalStringSchema,
         })

@@ -228,6 +228,31 @@ function DrilldownDialog({ activeResult, onClose }: DrilldownDialogProps) {
     [onClose]
   );
 
+  const drilldown = activeResult?.drilldown;
+  const drilldownSorted = useMemo(() => {
+    if (!drilldown) {
+      return [];
+    }
+
+    return drilldown
+      .filter((item) => {
+        const value = mode === "owned" ? item.oldDatacap : item.allocations;
+        return value !== "0";
+      })
+      .toSorted((a, b) => {
+        const prop: keyof Result["drilldown"][number] =
+          mode === "owned" ? "oldDatacap" : "allocations";
+        const aValue = BigInt(a[prop]);
+        const bValue = BigInt(b[prop]);
+
+        if (aValue === bValue) {
+          return 0;
+        }
+
+        return aValue > bValue ? -1 : 1;
+      });
+  }, [drilldown, mode]);
+
   return (
     <Dialog open={!!activeResult} onOpenChange={handleDialogOpenChange}>
       {!!activeResult && (
@@ -253,13 +278,9 @@ function DrilldownDialog({ activeResult, onClose }: DrilldownDialogProps) {
           </DialogHeader>
 
           <div className="max-h-[500px] grid gap-2 px-6 overflow-y-auto overflow-x-hidden">
-            {activeResult.drilldown.map((item) => {
+            {drilldownSorted.map((item) => {
               const value =
                 mode === "owned" ? item.oldDatacap : item.allocations;
-
-              if (value === "0") {
-                return null;
-              }
 
               return (
                 <div key={item.allocator}>
@@ -272,7 +293,7 @@ function DrilldownDialog({ activeResult, onClose }: DrilldownDialogProps) {
                       href={`/allocators/${item.allocator}`}
                       target="_blank"
                     >
-                      {item.allocator}
+                      {item.allocatorName ?? item.allocator}
                     </Link>
                   </Button>
                   <p className="text-sm">
@@ -287,6 +308,12 @@ function DrilldownDialog({ activeResult, onClose }: DrilldownDialogProps) {
                 </div>
               );
             })}
+
+            {drilldownSorted.length === 0 && (
+              <p className="text-center text-sm text-muted-foreground py-6">
+                Nothing to show
+              </p>
+            )}
           </div>
         </DialogContent>
       )}
