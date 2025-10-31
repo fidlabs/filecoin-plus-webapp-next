@@ -29,7 +29,8 @@ export function StorageProvidersComplianceFilters({
     StorageProvidersComplianceMetricsSelectorProps["metrics"]
   >(() => {
     return {
-      retrievability: filters.retrievability !== "false",
+      httpRetrievability: filters.httpRetrievability !== "false",
+      urlFinderRetrievability: filters.urlFinderRetrievability !== "false",
       numberOfClients: filters.numberOfClients !== "false",
       totalDealSize: filters.totalDealSize !== "false",
     };

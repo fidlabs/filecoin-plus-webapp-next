@@ -46,10 +46,10 @@ export function AllocatorsListAddons({
   }, [searchDebounced]);
 
   return (
-    <div {...rest} className={cn("flex flex-wrap gap-4", className)}>
+    <div {...rest} className={cn("flex flex-wrap gap-2", className)}>
       <div className="relative w-[270px] ">
         <Input
-          className="bg-background w-full text-[18px] lg:text-base"
+          className="bg-background w-full text-sm"
           placeholder="Search by ID / Address / Name"
           value={searchPhrase}
           onChange={handleSearchPhraseChange}

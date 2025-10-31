@@ -10,58 +10,8 @@ import { useMediaQuery } from "usehooks-ts";
 
 const nav = [
   {
-    group: "Allocators",
-    links: [
-      {
-        id: "RetrievabilityScoreAllocator",
-        link: "/compliance-data-portal/allocators/retrievability",
-        label: "Retrievability Score",
-      },
-      {
-        id: "BiggestDealsAllocator",
-        link: "/compliance-data-portal/allocators/biggest-deals",
-        label: "Biggest Allocation",
-      },
-      {
-        id: "ProviderComplianceAllocator",
-        link: "/compliance-data-portal/allocators/providers-compliance",
-        label: "SP Compliance",
-      },
-      {
-        id: "AuditStateAllocator",
-        link: "/compliance-data-portal/allocators/audit-state",
-        label: "Audit State",
-      },
-      {
-        id: "AuditOutcomesAllocator",
-        link: "/compliance-data-portal/allocators/audit-outcomes",
-        label: "Audit Outcomes",
-      },
-      {
-        id: "AuditTimelineAllocator",
-        link: "/compliance-data-portal/allocators/audit-timeline",
-        label: "Audit Times",
-      },
-      {
-        id: "ClientDiversityAllocator",
-        link: "/compliance-data-portal/allocators/client-diversity",
-        label: "Client Diversity",
-      },
-    ],
-  },
-  {
     group: "Old Datacap",
     links: [
-      {
-        id: "OldDatacapOwnedByEntities",
-        link: "/compliance-data-portal/old-datacap/owned-by-entities",
-        label: "Owned by Entities",
-      },
-      {
-        id: "OldDatacapAllocatedToClients",
-        link: "/compliance-data-portal/old-datacap/allocated-to-clients",
-        label: "Allocated to Clients",
-      },
       {
         id: "OldDatacapOwnedByClients",
         link: "/compliance-data-portal/old-datacap/owned-by-clients",

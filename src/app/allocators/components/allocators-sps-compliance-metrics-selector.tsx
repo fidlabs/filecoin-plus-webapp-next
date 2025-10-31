@@ -1,12 +1,13 @@
 import {
   TileSelector,
   TileSelectorItem,
-  TileSelectorProps,
+  type TileSelectorItemProps,
+  type TileSelectorProps,
 } from "@/components/tile-selector";
-import { StorageProvidersPageSectionId } from "@/lib/constants";
-import { OnlyPropsMatchingType } from "@/lib/utils";
+import { AllocatorsPageSectionId } from "@/lib/constants";
+import { type OnlyPropsMatchingType } from "@/lib/utils";
 import { useCallback } from "react";
-import { FetchAllocatorsSPsComplianceDataParameters } from "../allocators-data";
+import { type FetchAllocatorsSPsComplianceDataParameters } from "../allocators-data";
 
 type Metrics = Partial<
   OnlyPropsMatchingType<
@@ -26,9 +27,36 @@ export interface AllocatorsSPsComplianceMetricsSelectorProps
 
 const allMetricTypes = [
   "numberOfClients",
-  "retrievability",
+  "httpRetrievability",
+  "urlFinderRetrievability",
   "totalDealSize",
-] as const satisfies Array<keyof Metrics>;
+] as const satisfies Metric[];
+
+const metricLabelDict: Record<Metric, string> = {
+  httpRetrievability: "HTTP Retrievability above average",
+  urlFinderRetrievability: "RPA above average",
+  numberOfClients: "At least 3 clients",
+  totalDealSize: "At most 30% DC from a single client",
+};
+
+const metricActionMap: Record<Metric, TileSelectorItemProps["action"]> = {
+  httpRetrievability: {
+    label: "HTTP Retrievability",
+    url: `/allocators#${AllocatorsPageSectionId.RETRIEVABILITY}`,
+  },
+  urlFinderRetrievability: {
+    label: "RPA",
+    url: `/allocators#${AllocatorsPageSectionId.RETRIEVABILITY}`,
+  },
+  numberOfClients: {
+    label: "Client Diversity",
+    url: `/allocators#${AllocatorsPageSectionId.CLIENT_DIVERSITY}`,
+  },
+  totalDealSize: {
+    label: "Client Distribution",
+    url: `/allocators#${AllocatorsPageSectionId.CLIENT_DISTRIBUTION}`,
+  },
+};
 
 export function AllocatorsSPsComplianceMetricsSelector({
   includeDisabledMetricsOnChange = false,
@@ -59,32 +87,14 @@ export function AllocatorsSPsComplianceMetricsSelector({
 
   return (
     <TileSelector {...rest} value={value} onValueChange={handleValueChange}>
-      <TileSelectorItem
-        label="Retrievability score above average"
-        action={{
-          label: "Retrievability",
-          url: `/storage-providers#${StorageProvidersPageSectionId.RETRIEVABILITY}`,
-        }}
-        value="retrievability"
-      />
-
-      <TileSelectorItem
-        label="At least 3 clients"
-        action={{
-          label: "Client Diversity",
-          url: `/storage-providers#${StorageProvidersPageSectionId.CLIENT_DIVERSITY}`,
-        }}
-        value="numberOfClients"
-      />
-
-      <TileSelectorItem
-        label="At most 30% DC from a single client"
-        action={{
-          label: "Biggest Allocation",
-          url: `/storage-providers#${StorageProvidersPageSectionId.CLIENT_DISTRIBUTION}`,
-        }}
-        value="totalDealSize"
-      />
+      {allMetricTypes.map((metric) => (
+        <TileSelectorItem
+          key={metric}
+          value={metric}
+          label={metricLabelDict[metric]}
+          action={metricActionMap[metric]}
+        />
+      ))}
     </TileSelector>
   );
 }

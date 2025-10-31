@@ -4,11 +4,7 @@ import { ChartTooltip } from "@/components/chart-tooltip";
 import { OverlayLoader } from "@/components/overlay-loader";
 import { Card } from "@/components/ui/card";
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
+import { HoverCard, HoverCardContent } from "@/components/ui/hover-card";
 import {
   Select,
   SelectContent,
@@ -23,6 +19,7 @@ import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
 import { type ICDPRange } from "@/lib/interfaces/cdp/cdp.interface";
 import { bigintToPercentage, cn, mapObject } from "@/lib/utils";
 import { weekFromDate, weekToReadableString } from "@/lib/weeks";
+import { HoverCardTrigger } from "@radix-ui/react-hover-card";
 import { filesize } from "filesize";
 import { InfoIcon } from "lucide-react";
 import { type ComponentProps, useCallback, useMemo, useState } from "react";
@@ -36,9 +33,9 @@ import {
 } from "recharts";
 import useSWR from "swr";
 import {
-  fetchStorageProvidersClientDiversityData,
-  FetchStorageProvidersClientDiversityDataParameters,
-} from "../storage-providers-data";
+  fetchAllocatorsClientDiversityData,
+  FetchAllocatorsClientDiversityDataParameters,
+} from "../allocators-data";
 
 type Threshold = [number, number];
 type Group = (typeof groups)[number];
@@ -49,7 +46,7 @@ type ChartDataEntry = {
 type ChartData = ChartDataEntry[];
 type CardProps = ComponentProps<typeof Card>;
 
-interface StorageProvidersClientDiversityWidgetProps
+interface AllocatorsClientDiversityWidgetProps
   extends Omit<CardProps, "children"> {
   animationDuration?: number;
 }
@@ -89,24 +86,24 @@ const percentageFormatter = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 2,
 });
 
-export function StorageProvidersClientDiversityWidget({
+export function AllocatorsClientDiversityWidget({
   animationDuration = 500,
   className,
   ...rest
-}: StorageProvidersClientDiversityWidgetProps) {
+}: AllocatorsClientDiversityWidgetProps) {
   const [scale, setScale] = useState<string>(scales[0]);
   const [mode, setMode] = useState<string>(modes[0]);
-  const [threshold, setThreshold] = useState<Threshold>([3, 15]);
+  const [threshold, setThreshold] = useState<Threshold>([3, 10]);
 
   const [editionId, setEditionId] = useState<string>();
-  const parameters: FetchStorageProvidersClientDiversityDataParameters = {
+  const parameters: FetchAllocatorsClientDiversityDataParameters = {
     editionId,
   };
 
   const { data, isLoading } = useSWR(
-    [QueryKey.STORAGE_PROVIDERS_CLIENT_DIVERSITY_DATA, parameters],
+    [QueryKey.ALLOCATORS_CLIENT_DIVERSITY, parameters],
     ([, fetchParameters]) =>
-      fetchStorageProvidersClientDiversityData(fetchParameters),
+      fetchAllocatorsClientDiversityData(fetchParameters),
     {
       keepPreviousData: true,
     }
@@ -177,7 +174,7 @@ export function StorageProvidersClientDiversityWidget({
       <header className="px-4 py-4 max-w-[min(50vw, 200px)]">
         <h3 className="text-lg font-medium">Client Diversity</h3>
         <p className="text-xs text-muted-foreground">
-          Storage Providers grouped by Clients count
+          Allocators and their Datacap grouped by Clients count
         </p>
       </header>
 
@@ -290,8 +287,7 @@ function ThresholdSlider({
   const helpTrigger = <InfoIcon className="w-5 h-5 text-muted-foreground" />;
   const helpContent = (
     <div className="p-4 md:p-2 font-normal text-sm">
-      Use this slider to adjust the ranges for the client count for storage
-      provider
+      Use this slider to adjust the ranges for the client count for allocators
       <br />
       <div className="text-muted-foreground">
         eg. {threshold[0]}-{threshold[1]} range means that:

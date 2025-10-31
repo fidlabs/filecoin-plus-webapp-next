@@ -36,15 +36,15 @@ import {
 } from "recharts";
 import useSWR from "swr";
 import {
-  fetchStorageProvidersRetrievabilityData,
-  FetchStorageProvidersRetrievabilityDataParameters,
-} from "../storage-providers-data";
+  fetchAllocatorsRetrievabilityData,
+  FetchAllocatorsRetrievabilityDataParameters,
+} from "../allocators-data";
 
 type CardProps = ComponentProps<typeof Card>;
 type CheckboxProps = ComponentProps<typeof Checkbox>;
 type CheckedChangeHandler = NonNullable<CheckboxProps["onCheckedChange"]>;
 
-interface StorageProvidersRetrievabilityWidgetProps extends CardProps {
+export interface AllocatorsRetrievabilityWidgetProps extends CardProps {
   animationDuration?: number;
 }
 
@@ -60,7 +60,7 @@ type ChartDataEntry = GroupValues & {
  */
 type Range = [number | null, number | null];
 type RetrievabilityType = NonNullable<
-  FetchStorageProvidersRetrievabilityDataParameters["retrievabilityType"]
+  FetchAllocatorsRetrievabilityDataParameters["retrievabilityType"]
 >;
 
 const scales = ["linear", "percentage", "log"] as const;
@@ -133,11 +133,11 @@ function getLabelForRange(range: Range): string {
   return `${lowerBound}% - ${upperBound}%`;
 }
 
-export function StorageProvidersRetrievabilityWidget({
+export function AllocatorsRetrievabilityWidget({
   animationDuration = 500,
   className,
   ...rest
-}: StorageProvidersRetrievabilityWidgetProps) {
+}: AllocatorsRetrievabilityWidgetProps) {
   const [editionId, setEditionId] = useState<string>();
   const [retrievabilityType, setRetrievabilityType] =
     useState<RetrievabilityType>("urlFinder");
@@ -148,16 +148,15 @@ export function StorageProvidersRetrievabilityWidget({
     groupingOptions[0]
   );
 
-  const parameters: FetchStorageProvidersRetrievabilityDataParameters = {
+  const parameters: FetchAllocatorsRetrievabilityDataParameters = {
     editionId,
     openDataOnly,
     retrievabilityType,
   };
 
   const { data, isLoading } = useSWR(
-    [QueryKey.STORAGE_PROVIDERS_RETRIEVABILITY_DATA, parameters],
-    ([, fetchParameters]) =>
-      fetchStorageProvidersRetrievabilityData(fetchParameters),
+    [QueryKey.ALLOCATORS_RETRIEVABILITY, parameters],
+    ([, fetchParameters]) => fetchAllocatorsRetrievabilityData(fetchParameters),
     {
       keepPreviousData: true,
     }
@@ -274,7 +273,7 @@ export function StorageProvidersRetrievabilityWidget({
 
         return {
           date: histogramEntry.week,
-          averageSuccessRate: averageSuccessRate ?? null,
+          averageSuccessRate: averageSuccessRate,
           ...groupValues,
         };
       }
@@ -347,8 +346,7 @@ export function StorageProvidersRetrievabilityWidget({
       <header className="px-4 py-4 max-w-[min(50vw, 200px)]">
         <h3 className="text-lg font-medium">Retrievability Score</h3>
         <p className="text-xs text-muted-foreground">
-          Storage Providers and their datacap grouped by their retrievability
-          score.
+          Allocators and their datacap grouped by their retrievability score.
         </p>
       </header>
 

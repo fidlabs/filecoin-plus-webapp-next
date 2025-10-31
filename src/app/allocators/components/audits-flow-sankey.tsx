@@ -10,7 +10,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { AllocatorsAuditStatesResponse } from "@/lib/api";
 import {
   getLinksFromSankeyTree,
   getNodesFromSankeyTree,
@@ -26,11 +25,13 @@ import {
   ResponsiveContainer,
   Sankey,
   Tooltip,
-  TooltipProps,
+  type TooltipContentProps,
 } from "recharts";
+import { type LinkProps, type NodeProps } from "recharts/types/chart/Sankey";
+import { type FetchAllocatorsAuditStatesReturnType } from "../allocators-data";
 
 type AuditOutcome =
-  AllocatorsAuditStatesResponse[number]["audits"][number]["outcome"];
+  FetchAllocatorsAuditStatesReturnType[number]["audits"][number]["outcome"];
 
 interface Audit {
   allocatorId: string;
@@ -61,16 +62,8 @@ interface ChartData {
   links: Link[];
 }
 
-interface NodeProps {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  payload: AuditsFlowNode;
-}
-
 export interface AuditsFlowSankeyProps {
-  data: AllocatorsAuditStatesResponse;
+  data: FetchAllocatorsAuditStatesReturnType;
 }
 
 function getTreeNameForOutcome(outcome: AuditOutcome): string {
@@ -119,7 +112,7 @@ function getTreeForAudit(audits: Audit[], auditIndex: number): AuditsFlowTree {
 }
 
 function auditStatesDataToChartData(
-  auditStateData: AllocatorsAuditStatesResponse
+  auditStateData: FetchAllocatorsAuditStatesReturnType
 ): ChartData {
   const [auditedAllocators, notAuditedAllocators] = partition(
     auditStateData,
@@ -237,7 +230,7 @@ export function AuditsFlowSankey({ data }: AuditsFlowSankeyProps) {
   }, [data]);
 
   const renderTooltipContent = useCallback(
-    ({ payload }: TooltipProps<number, string>): ReactNode => {
+    ({ payload }: TooltipContentProps<number, string>): ReactNode => {
       const data = payload?.[0];
 
       if (!data) {
@@ -303,7 +296,7 @@ export function AuditsFlowSankey({ data }: AuditsFlowSankeyProps) {
 }
 
 function CustomSankeyNode({ x, y, width, height, payload }: NodeProps) {
-  const { name, audits, hidden = false } = payload;
+  const { name, audits, hidden = false } = payload as unknown as AuditsFlowNode;
 
   if (hidden || isNaN(x) || isNaN(y)) {
     return <g transform={`translate(${x},${y})`}></g>;
@@ -381,45 +374,7 @@ function CustomSankeyNode({ x, y, width, height, payload }: NodeProps) {
   );
 }
 
-function ColouredLink(props: {
-  sourceX: number;
-  targetX: number;
-  sourceY: number;
-  targetY: number;
-  sourceControlX: number;
-  targetControlX: number;
-  sourceRelativeY: number;
-  targetRelativeY: number;
-  linkWidth: number;
-  index: number;
-  payload: {
-    source: {
-      name: string;
-      datacap: number;
-      allocators: number;
-      nodeId: number;
-      isParent: boolean;
-      hasChildren: boolean;
-      value: number;
-    };
-    target: {
-      name: string;
-      datacap: number;
-      allocators: number;
-      nodeId: number;
-      isParent: boolean;
-      hasChildren: boolean;
-      value: number;
-    };
-    value: number;
-    datacap: number;
-    allocators: number;
-    hasChildren: boolean;
-    dy: number;
-    sy: number;
-    ty: number;
-  };
-}) {
+function ColouredLink(props: LinkProps) {
   const {
     sourceX,
     targetX,

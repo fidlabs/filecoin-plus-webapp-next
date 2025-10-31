@@ -1,4 +1,7 @@
 "use client";
+import { useClientProvidersDetails } from "@/app/clients/(pages)/[id]/(pages)/providers/components/client-providers.provider";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { palette } from "@/lib/utils";
 import {
   Bar,
   BarChart,
@@ -6,23 +9,19 @@ import {
   Cell,
   ResponsiveContainer,
   Tooltip,
-  TooltipProps,
+  type TooltipContentProps,
   XAxis,
   YAxis,
 } from "recharts";
 import {
-  NameType,
-  ValueType,
+  type NameType,
+  type ValueType,
 } from "recharts/types/component/DefaultTooltipContent";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { palette } from "@/lib/utils";
-import { useClientProvidersDetails } from "@/app/clients/(pages)/[id]/(pages)/providers/components/client-providers.provider";
-
 const ProvidersBarChart = () => {
   const { providersChartData, activeProviderIndex, setActiveProviderIndex } =
     useClientProvidersDetails();
 
-  const renderTooltip = (props: TooltipProps<ValueType, NameType>) => {
+  const renderTooltip = (props: TooltipContentProps<ValueType, NameType>) => {
     const allocationData = props?.payload?.[0]?.payload;
     if (!allocationData) return null;
 

@@ -1,22 +1,22 @@
 "use client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ActiveShapeSimple } from "@/components/ui/pie-active-shape";
+import { IFilPlusStats } from "@/lib/interfaces/dmob/dmob.interface";
+import { convertBytesToIEC, palette } from "@/lib/utils";
+import { memo, useMemo, useState } from "react";
 import {
   Cell,
   Pie,
   PieChart,
   ResponsiveContainer,
   Tooltip,
-  TooltipProps,
+  TooltipContentProps,
 } from "recharts";
-import { memo, useMemo, useState } from "react";
-import { convertBytesToIEC, palette } from "@/lib/utils";
-import { ActiveShapeSimple } from "@/components/ui/pie-active-shape";
-import { PieSectorDataItem } from "recharts/types/polar/Pie";
 import {
   NameType,
   ValueType,
 } from "recharts/types/component/DefaultTooltipContent";
-import { IFilPlusStats } from "@/lib/interfaces/dmob/dmob.interface";
+import { PieSectorDataItem } from "recharts/types/polar/Pie";
 
 interface Props {
   data: IFilPlusStats;
@@ -25,7 +25,7 @@ interface Props {
 const Component = ({ data }: Props) => {
   const [chartDataParsing, setChartDataParsing] = useState(true);
 
-  const renderTooltip = (props: TooltipProps<ValueType, NameType>) => {
+  const renderTooltip = (props: TooltipContentProps<ValueType, NameType>) => {
     const payload = props?.payload?.[0]?.payload;
     if (!payload) {
       return <></>;
@@ -107,7 +107,6 @@ const Component = ({ data }: Props) => {
                 innerRadius={"65%"}
                 fill="#8884d8"
                 dataKey="value"
-                activeIndex={[0]}
                 activeShape={(props: PieSectorDataItem) =>
                   ActiveShapeSimple(
                     props,
@@ -123,7 +122,7 @@ const Component = ({ data }: Props) => {
                   )
                 }
               >
-                {chartData?.map((entry, index) => (
+                {chartData?.map((_entry, index) => (
                   <Cell
                     key={`cell-${index}`}
                     fill={index === 0 ? palette(index) : "#E7E7E7"}
@@ -131,6 +130,7 @@ const Component = ({ data }: Props) => {
                 ))}
               </Pie>
               <Tooltip content={renderTooltip} />
+              <Tooltip defaultIndex={0} active={true} content={() => ""} />
             </PieChart>
           </ResponsiveContainer>
         )}

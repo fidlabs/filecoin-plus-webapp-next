@@ -3,22 +3,22 @@
 import { OverlayLoader } from "@/components/overlay-loader";
 import { Card } from "@/components/ui/card";
 import {
-  fetchAllocatorsAuditStates,
-  FetchAllocatorsAuditStatesParameters,
-} from "@/lib/api";
-import { QueryKey } from "@/lib/constants";
-import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
-import { cn } from "@/lib/utils";
-import { useCallback, useState, type ComponentProps } from "react";
-import useSWR from "swr";
-import { AuditsFlowSankey } from "./audits-flow-sankey";
-import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { QueryKey } from "@/lib/constants";
+import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
+import { cn } from "@/lib/utils";
+import { useCallback, useState, type ComponentProps } from "react";
+import useSWR from "swr";
+import {
+  fetchAllocatorsAuditStates,
+  FetchAllocatorsAuditStatesParameters,
+} from "../allocators-data";
+import { AuditsFlowSankey } from "./audits-flow-sankey";
 
 type CardProps = ComponentProps<typeof Card>;
 export interface AuditsFlowWidgetProps extends Omit<CardProps, "children"> {

@@ -16,7 +16,6 @@ import { QueryKey } from "@/lib/constants";
 import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
 import { cn } from "@/lib/utils";
 import { weekFromDate, weekToReadableString } from "@/lib/weeks";
-import { scaleSymlog } from "d3-scale";
 import { ComponentProps, useCallback, useMemo, useState } from "react";
 import {
   Area,
@@ -179,7 +178,7 @@ export function StorageProvidersIPNIMisreportingWidget({
   return (
     <Card {...rest} className={cn("pb-6", className)}>
       <header className="px-4 py-4">
-        <h3 className="text-md font-medium">IPNI Mistreporting</h3>
+        <h3 className="text-lg font-medium">IPNI Mistreporting</h3>
         <p className="text-xs text-muted-foreground">
           Storage Providers IPNI reporting status over time
         </p>
@@ -243,7 +242,7 @@ export function StorageProvidersIPNIMisreportingWidget({
             <YAxis
               fontSize={14}
               tickFormatter={formatValue}
-              scale={scale === "log" ? scaleSymlog().constant(1) : "linear"}
+              scale={scale === "log" ? "symlog" : "linear"}
             />
 
             {reportingStates.map((reportingState) => (

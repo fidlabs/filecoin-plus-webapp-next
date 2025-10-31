@@ -1,5 +1,6 @@
 "use client";
 
+import { AllocatorsComplianceThresholdSelector } from "@/components/allocators-compliance-threshold-selector";
 import { ChartStat } from "@/components/chart-stat";
 import { ChartTooltip } from "@/components/chart-tooltip";
 import { OverlayLoader } from "@/components/overlay-loader";
@@ -14,11 +15,16 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { QueryKey } from "@/lib/constants";
 import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
-import { bigintToPercentage, cn, objectToURLSearchParams } from "@/lib/utils";
+import {
+  bigintToPercentage,
+  cn,
+  objectToURLSearchParams,
+  partition,
+} from "@/lib/utils";
 import { weekFromDate, weekToReadableString, weekToString } from "@/lib/weeks";
 import { filesize } from "filesize";
 import { useRouter } from "next/navigation";
-import { type ComponentProps, useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, type ComponentProps } from "react";
 import {
   Area,
   AreaChart,
@@ -30,26 +36,30 @@ import {
 import { type CategoricalChartFunc } from "recharts/types/chart/types";
 import useSWR from "swr";
 import {
-  fetchStorageProvidersComplianceData,
-  FetchStorageProvidersComplianceDataParameters,
-} from "../storage-providers-data";
+  fetchAllocatorsSPsComplianceData,
+  FetchAllocatorsSPsComplianceDataReturnType,
+  type FetchAllocatorsSPsComplianceDataParameters,
+} from "../allocators-data";
 import {
-  StorageProvidersComplianceMetricsSelector,
-  StorageProvidersComplianceMetricsSelectorProps,
-} from "./storage-providers-compliance-metrics-selector";
+  AllocatorsSPsComplianceMetricsSelector,
+  AllocatorsSPsComplianceMetricsSelectorProps,
+} from "./allocators-sps-compliance-metrics-selector";
 
 type CardProps = ComponentProps<typeof Card>;
-export interface StorageProvidersComplianceWidgetProps
+export interface AllocatorsSPsComplianceWidgetProps
   extends Omit<CardProps, "children"> {
   animationDuration?: number;
 }
 
-interface ChartDataEntry {
+type Option = (typeof options)[number];
+type Variation = (typeof variations)[number];
+type Combination = `${Option}${Capitalize<Variation>}`;
+type AllocatorData =
+  FetchAllocatorsSPsComplianceDataReturnType["results"][number]["allocators"][number];
+
+type ChartDataEntry = Record<Combination, number> & {
   date: string;
-  compliant: number;
-  partiallyCompliant: number;
-  nonCompliant: number;
-}
+};
 
 interface Stat {
   value: string | null;
@@ -57,8 +67,27 @@ interface Stat {
   label: string;
 }
 
+interface AreaMetadata {
+  dataKey: Combination;
+  color: string;
+  name: string;
+}
+
+const options = ["compliant", "partiallyCompliant", "nonCompliant"] as const;
+const variations = [
+  "count",
+  "countPercentage",
+  "datacap",
+  "datacapPercentage",
+] as const;
 const scales = ["linear", "percentage", "log"] as const;
 const modes = ["datacap", "count"] as const;
+
+const optionsLabelDict: Record<Option, string> = {
+  compliant: "Compliant",
+  partiallyCompliant: "Partially Compliant",
+  nonCompliant: "Non Compliant",
+};
 
 const scalesLabelDict: Record<(typeof scales)[number], string> = {
   linear: "Linear",
@@ -71,23 +100,31 @@ const modesLabelDict: Record<(typeof modes)[number], string> = {
   count: "Count",
 };
 
-const colors = {
+const colors: Record<Option, string> = {
   compliant: "#66a61e",
   partiallyCompliant: "orange",
   nonCompliant: "#ff0029",
 } as const;
 
-export function StorageProvidersComplianceWidget({
+function sumAllocatorsDatacap(allocators: AllocatorData[]): bigint {
+  return allocators.reduce(
+    (sum, allocator) => sum + BigInt(allocator.totalDatacap),
+    0n
+  );
+}
+
+export function AllocatorsSPsComplianceWidget({
   animationDuration = 500,
   className,
   ...rest
-}: StorageProvidersComplianceWidgetProps) {
+}: AllocatorsSPsComplianceWidgetProps) {
   const [scale, setScale] = useState<string>(scales[0]);
   const [mode, setMode] = useState<string>(modes[0]);
+  const [threshold, setThreshold] = useState(50);
   const { push: navigate } = useRouter();
 
   const [parameters, setParameters] =
-    useState<FetchStorageProvidersComplianceDataParameters>({
+    useState<FetchAllocatorsSPsComplianceDataParameters>({
       editionId: undefined,
       httpRetrievability: true,
       urlFinderRetrievability: true,
@@ -96,59 +133,37 @@ export function StorageProvidersComplianceWidget({
     });
 
   const { data, isLoading } = useSWR(
-    [QueryKey.STORAGE_PROVIDERS_COMPLIANCE_DATA, parameters],
-    ([, fetchParameters]) =>
-      fetchStorageProvidersComplianceData(fetchParameters),
+    [QueryKey.ALLOCATORS_SPS_COMPLIANCE_DATA, parameters],
+    ([, fetchParameters]) => fetchAllocatorsSPsComplianceData(fetchParameters),
     {
       keepPreviousData: true,
     }
   );
   const isLongLoading = useDelayedFlag(isLoading, 500);
 
-  const stats = useMemo<Stat[]>(() => {
-    const [previousIntervalData, currentIntervalData] =
-      data?.results.slice(-2) ?? [];
-    const [
-      [previousCompliantDatacap, previousCompliantSPCount],
-      [currentCompliantDatacap, currentCompliantSPCount],
-    ] = [previousIntervalData, currentIntervalData].map((entry) => {
-      if (!entry) {
-        return [0n, 0n];
+  const areas = useMemo(() => {
+    return options.map<AreaMetadata>((option) => {
+      const name = optionsLabelDict[option];
+      const color = colors[option];
+
+      if (scale === "percentage") {
+        return {
+          dataKey:
+            mode === "datacap"
+              ? `${option}DatacapPercentage`
+              : `${option}CountPercentage`,
+          name,
+          color,
+        };
       }
 
-      return [
-        BigInt(entry.compliantSpsTotalDatacap),
-        BigInt(entry.compliantSps),
-      ];
+      return {
+        dataKey: mode === "datacap" ? `${option}Datacap` : `${option}Count`,
+        name,
+        color,
+      };
     });
-
-    return [
-      {
-        value:
-          !data || isLongLoading
-            ? null
-            : filesize(currentCompliantDatacap, { standard: "iec" }),
-        label: "Compliant DC",
-        percentageChange:
-          bigintToPercentage(
-            currentCompliantDatacap,
-            previousCompliantDatacap,
-            2
-          ) - 100,
-      },
-      {
-        value:
-          !data || isLongLoading ? null : currentCompliantSPCount.toString(),
-        label: "Compliant SPs",
-        percentageChange:
-          bigintToPercentage(
-            currentCompliantSPCount,
-            previousCompliantSPCount,
-            2
-          ) - 100,
-      },
-    ];
-  }, [data, isLongLoading]);
+  }, [mode, scale]);
 
   const chartData = useMemo<ChartDataEntry[]>(() => {
     if (!data) {
@@ -156,38 +171,102 @@ export function StorageProvidersComplianceWidget({
     }
 
     return data.results.map<ChartDataEntry>((result) => {
-      const [compliant, partiallyCompliant, nonCompliant] =
-        mode === "datacap"
-          ? [
-              result.compliantSpsTotalDatacap,
-              result.partiallyCompliantSpsTotalDatacap,
-              result.nonCompliantSpsTotalDatacap,
-            ].map(BigInt)
-          : [
-              result.compliantSps,
-              result.partiallyCompliantSps,
-              result.nonCompliantSps,
-            ].map(BigInt);
-
-      if (scale === "percentage") {
-        const total = compliant + partiallyCompliant + nonCompliant;
-
-        return {
-          date: result.week,
-          compliant: bigintToPercentage(compliant, total, 6),
-          partiallyCompliant: bigintToPercentage(partiallyCompliant, total, 6),
-          nonCompliant: bigintToPercentage(nonCompliant, total, 6),
-        };
-      }
+      const [compliantAllocators, otherAllocators] = partition(
+        result.allocators,
+        (allocator) => allocator.compliantSpsPercentage >= threshold
+      );
+      const [partiallyCompliantAllocators, nonCompliantAllocators] = partition(
+        otherAllocators,
+        (allocator) =>
+          allocator.compliantSpsPercentage +
+            allocator.partiallyCompliantSpsPercentage >=
+          threshold
+      );
+      const compliantCount = compliantAllocators.length;
+      const partiallyCompliantCount = partiallyCompliantAllocators.length;
+      const nonCompliantCount = partiallyCompliantAllocators.length;
+      const totalCount =
+        compliantCount + partiallyCompliantCount + nonCompliantCount;
+      const compliantDatacap = sumAllocatorsDatacap(compliantAllocators);
+      const partiallyCompliantDatacap = sumAllocatorsDatacap(
+        partiallyCompliantAllocators
+      );
+      const nonCompliantDatacap = sumAllocatorsDatacap(nonCompliantAllocators);
+      const totalDatacap =
+        compliantDatacap + partiallyCompliantDatacap + nonCompliantDatacap;
 
       return {
         date: result.week,
-        compliant: Number(compliant),
-        partiallyCompliant: Number(partiallyCompliant),
-        nonCompliant: Number(nonCompliant),
+        compliantCount,
+        partiallyCompliantCount,
+        nonCompliantCount,
+        compliantDatacap: Number(compliantDatacap),
+        partiallyCompliantDatacap: Number(partiallyCompliantDatacap),
+        nonCompliantDatacap: Number(nonCompliantDatacap),
+        compliantCountPercentage: (compliantCount / totalCount) * 100,
+        partiallyCompliantCountPercentage:
+          (partiallyCompliantCount / totalCount) * 100,
+        nonCompliantCountPercentage: (compliantCount / totalCount) * 100,
+        compliantDatacapPercentage: bigintToPercentage(
+          compliantDatacap,
+          totalDatacap,
+          2
+        ),
+        partiallyCompliantDatacapPercentage: bigintToPercentage(
+          partiallyCompliantDatacap,
+          totalDatacap,
+          2
+        ),
+        nonCompliantDatacapPercentage: bigintToPercentage(
+          nonCompliantDatacap,
+          totalDatacap,
+          2
+        ),
       };
     });
-  }, [data, mode, scale]);
+  }, [data, threshold]);
+
+  const stats = useMemo<Stat[]>(() => {
+    const [currentIntervalData, previousIntervalData] = chartData
+      .slice(-2)
+      .reverse();
+
+    if (!currentIntervalData) {
+      return [];
+    }
+
+    return [
+      {
+        value:
+          chartData.length === 0 || isLongLoading
+            ? null
+            : filesize(currentIntervalData.compliantDatacap, {
+                standard: "iec",
+              }),
+        label: "Compliant DC",
+        percentageChange:
+          bigintToPercentage(
+            BigInt(currentIntervalData.compliantDatacap),
+            BigInt(previousIntervalData.compliantDatacap),
+            2
+          ) - 100,
+      },
+      {
+        value:
+          chartData.length === 0 || isLongLoading
+            ? null
+            : currentIntervalData.compliantCount.toString(),
+        label: "Compliant Allocators",
+        percentageChange:
+          previousIntervalData.compliantCount !== 0
+            ? (currentIntervalData.compliantCount /
+                previousIntervalData.compliantCount) *
+                100 -
+              100
+            : undefined,
+      },
+    ];
+  }, [chartData, isLongLoading]);
 
   const formatDate = useCallback((value: unknown) => {
     if (typeof value !== "string") {
@@ -224,7 +303,7 @@ export function StorageProvidersComplianceWidget({
   }, []);
 
   const handleMetricsChange = useCallback<
-    StorageProvidersComplianceMetricsSelectorProps["onMetricsChange"]
+    AllocatorsSPsComplianceMetricsSelectorProps["onMetricsChange"]
   >((metrics) => {
     setParameters((currentParameters) => ({
       ...currentParameters,
@@ -245,7 +324,7 @@ export function StorageProvidersComplianceWidget({
         {
           complianceScore: "compliant",
           httpRetrievability: parameters.httpRetrievability,
-          urlFinderRetrievability: parameters.urlFinderRetrievability,
+          urlFinderRetrievability: parameters.httpRetrievability,
           numberOfClients: parameters.numberOfClients,
           totalDealSize: parameters.totalDealSize,
         },
@@ -253,7 +332,7 @@ export function StorageProvidersComplianceWidget({
       );
 
       navigate(
-        `/storage-providers/compliance/${weekString}?${searchParams.toString()}`
+        `/allocators/compliance/${weekString}?${searchParams.toString()}`
       );
     },
     [navigate, parameters]
@@ -264,12 +343,13 @@ export function StorageProvidersComplianceWidget({
       <header className="px-4 py-4">
         <h3 className="text-lg font-medium">Compliance</h3>
         <p className="text-xs text-muted-foreground">
-          Select metrics below to see Storage Providers compliance
+          Select metrics below to see Allocators compliance based on their SPs
+          compliance
         </p>
       </header>
 
       <div className="px-4 pb-4 mb-4 border-b">
-        <StorageProvidersComplianceMetricsSelector
+        <AllocatorsSPsComplianceMetricsSelector
           includeDisabledMetricsOnChange
           metrics={parameters}
           onMetricsChange={handleMetricsChange}
@@ -296,6 +376,11 @@ export function StorageProvidersComplianceWidget({
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
+          <AllocatorsComplianceThresholdSelector
+            key="threshold"
+            value={threshold}
+            onThresholdChange={setThreshold}
+          />
           <Select
             value={parameters.editionId ?? "all"}
             onValueChange={handleEditionChange}
@@ -334,8 +419,8 @@ export function StorageProvidersComplianceWidget({
 
       <div className="px-4 mb-2">
         <p className="text-xs text-muted-foreground text-center">
-          Hover and click on the chart to see a list of Storage Providers
-          matching selected criteria for that week.
+          Hover and click on the chart to see a list of Allocators matching
+          selected criteria for that week.
         </p>
       </div>
 
@@ -363,36 +448,21 @@ export function StorageProvidersComplianceWidget({
               tickFormatter={formatValue}
               scale={scale === "log" ? "symlog" : "linear"}
             />
-            <Area
-              className="cursor-pointer"
-              type="monotone"
-              stackId="values"
-              dataKey="compliant"
-              name="Compliant"
-              animationDuration={animationDuration}
-              stroke={colors.compliant}
-              fill={colors.compliant}
-            />
-            <Area
-              className="cursor-pointer"
-              type="monotone"
-              stackId="values"
-              dataKey="partiallyCompliant"
-              name="Partially Compliant"
-              animationDuration={animationDuration}
-              stroke={colors.partiallyCompliant}
-              fill={colors.partiallyCompliant}
-            />
-            <Area
-              className="cursor-pointer"
-              type="monotone"
-              stackId="values"
-              dataKey="nonCompliant"
-              name="Non Compliant"
-              animationDuration={animationDuration}
-              stroke={colors.nonCompliant}
-              fill={colors.nonCompliant}
-            />
+
+            {areas.map((area) => (
+              <Area
+                key={area.dataKey}
+                className="cursor-pointer"
+                type="monotone"
+                stackId="values"
+                dataKey={area.dataKey}
+                name={area.name}
+                animationDuration={animationDuration}
+                stroke={area.color}
+                fill={area.color}
+              />
+            ))}
+
             <Tooltip<string | number, string>
               formatter={formatValue}
               labelFormatter={formatDate}

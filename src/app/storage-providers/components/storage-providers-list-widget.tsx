@@ -2,11 +2,17 @@
 
 import { OverlayLoader } from "@/components/overlay-loader";
 import { Card, CardFooter } from "@/components/ui/card";
-import { Paginator } from "@/components/ui/pagination";
+import { Paginator, PaginatorProps } from "@/components/ui/pagination";
 import { QueryKey } from "@/lib/constants";
 import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
 import { cn } from "@/lib/utils";
-import { type ComponentProps, useCallback, useMemo, useState } from "react";
+import {
+  type ComponentProps,
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import useSWR from "swr";
 import {
   fetchStorageProvidersList,
@@ -21,9 +27,12 @@ import { StorageProvidersListAddons } from "./storage-providers-list-addons";
 type CardProps = ComponentProps<typeof Card>;
 export type StorageProvidersListWidgetProps = Omit<CardProps, "children">;
 
+const pageSizeOptions = [10, 25, 50];
+
 export function StorageProvidersListWidget(
   props: StorageProvidersListWidgetProps
 ) {
+  const widgetRef = useRef<HTMLDivElement | null>(null);
   const [parameters, setParameters] =
     useState<FetchStorageProvidersListParameters>({});
   const { data, isLoading } = useSWR(
@@ -52,6 +61,14 @@ export function StorageProvidersListWidget(
     };
   }, [parameters.sort, parameters.order]);
 
+  const scrollToListTop = useCallback(() => {
+    if (widgetRef.current) {
+      widgetRef.current.scrollIntoView({
+        block: "start",
+      });
+    }
+  }, []);
+
   const updateParameters = useCallback(
     (nextPartialParameters: FetchStorageProvidersListParameters) => {
       setParameters((currentParameters) => ({
@@ -72,6 +89,18 @@ export function StorageProvidersListWidget(
   const handlePageChange = useCallback(
     (page: number) => {
       updateParameters({ page });
+      scrollToListTop();
+    },
+    [scrollToListTop, updateParameters]
+  );
+
+  const handlePageSizeChange = useCallback<
+    NonNullable<PaginatorProps["onPageSizeChange"]>
+  >(
+    (limit) => {
+      updateParameters({
+        limit,
+      });
     },
     [updateParameters]
   );
@@ -84,7 +113,7 @@ export function StorageProvidersListWidget(
   );
 
   return (
-    <Card {...props}>
+    <Card {...props} ref={widgetRef}>
       <div className="px-4 pt-6 mb-2 flex flex-wrap gap-4 items-center justify-between">
         <h2 className="text-lg font-medium">Storage Providers List</h2>
         <StorageProvidersListAddons onSearch={handleSearch} />
@@ -104,8 +133,10 @@ export function StorageProvidersListWidget(
         <Paginator
           page={parameters.page ?? 1}
           pageSize={parameters.limit ?? 10}
+          pageSizeOptions={pageSizeOptions}
           total={data?.totalCount ?? 0}
           onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
         />
       </CardFooter>
     </Card>

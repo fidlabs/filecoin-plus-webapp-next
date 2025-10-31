@@ -35,7 +35,8 @@ export async function generateMetadata({
 const defaultFilters = {
   page: "1",
   limit: "10",
-  retrievability: "true",
+  httpRetrievability: "true",
+  urlFinderRetrievability: "true",
   numberOfClients: "true",
   totalDealSize: "true",
 };

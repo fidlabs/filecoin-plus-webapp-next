@@ -8,20 +8,40 @@ import { AllocatorsPageSectionId, QueryKey } from "@/lib/constants";
 import { generatePageMetadata } from "@/lib/utils";
 import { type Metadata } from "next";
 import { SWRConfig, unstable_serialize } from "swr";
-import { AllocatorsListWidget } from "./components/allocators-list-widget";
 import {
   fetchAllocators,
-  fetchAllocatorScoreRanking,
-  FetchAllocatorsParameters,
-} from "./allocators-data";
-import { MetaallocatorsListWidget } from "./components/metaallocators-list-widget";
-import { DCFlowWidget } from "./components/dc-flow-widget";
-import {
+  fetchAllocatorsAuditOutcomes,
+  FetchAllocatorsAuditOutcomesParameters,
   fetchAllocatorsAuditStates,
   FetchAllocatorsAuditStatesParameters,
-} from "@/lib/api";
-import { AuditsFlowWidget } from "./components/audits-flow-widget";
+  fetchAllocatorsAuditTimes,
+  FetchAllocatorsAuditTimesParameters,
+  fetchAllocatorsChecksBreakdown,
+  FetchAllocatorsChecksBreakdownParameters,
+  fetchAllocatorsClientDistributionData,
+  fetchAllocatorsClientDiversityData,
+  fetchAllocatorScoreRanking,
+  FetchAllocatorsParameters,
+  fetchAllocatorsRetrievabilityData,
+  FetchAllocatorsRetrievabilityDataParameters,
+  fetchAllocatorsSPsComplianceData,
+  FetchAllocatorsSPsComplianceDataParameters,
+} from "./allocators-data";
+import { AllocatorsAuditStatesWidget } from "./components/allocators-audit-states-widget";
+import { AllocatorsClientDistributionWidget } from "./components/allocators-client-distribution-widget";
+import { AllocatorsClientDiversityWidget } from "./components/allocators-client-diversity-widget";
 import { AllocatorsLeaderboards } from "./components/allocators-leaderboards";
+import { AllocatorsListWidget } from "./components/allocators-list-widget";
+import { AllocatorsRetrievabilityWidget } from "./components/allocators-retrievability-widget";
+import { AllocatorsSPsComplianceWidget } from "./components/allocators-sps-compliance-widget";
+import { AuditsFlowWidget } from "./components/audits-flow-widget";
+import { DCFlowWidget } from "./components/dc-flow-widget";
+import { MetaallocatorsListWidget } from "./components/metaallocators-list-widget";
+import { AllocatorsAuditOutcomesWidget } from "./components/allocators-audit-outcomes-widget";
+import { AllocatorsAuditTimesWidget } from "./components/allocators-audit-times-widget";
+import { AllocatorsOldDatacapWidget } from "./components/allocators-old-datacap-widget";
+import { BackToTop } from "@/components/back-to-top";
+import { AllocatorsChecksBreakdownWidget } from "./components/allocators-checks-breakdown-widget";
 
 export const revalidate = 300;
 
@@ -32,11 +52,20 @@ export const metadata: Metadata = generatePageMetadata({
 });
 
 const sectionTabs = {
+  [AllocatorsPageSectionId.COMPLIANCE]: "Compliance",
   [AllocatorsPageSectionId.ALLOCATORS_LIST]: "Allocators List",
   [AllocatorsPageSectionId.METAALLOCATORS_LIST]: "Metaallocators List",
+  [AllocatorsPageSectionId.RETRIEVABILITY]: "Retrievability",
+  [AllocatorsPageSectionId.CLIENT_DIVERSITY]: "Client Diversity",
+  [AllocatorsPageSectionId.CLIENT_DISTRIBUTION]: "Client Distribution",
+  [AllocatorsPageSectionId.ALERTS_BREAKDOWN]: "Alerts Breakdown",
   [AllocatorsPageSectionId.DC_FLOW]: "DC Flow",
   [AllocatorsPageSectionId.AUDITS_FLOW]: "Audits Flow",
+  [AllocatorsPageSectionId.AUDITS_STATE]: "Audits States",
+  [AllocatorsPageSectionId.AUDIT_OUTCOMES]: "Audit Outcomes",
+  [AllocatorsPageSectionId.AUDIT_TIMES]: "Audit Times",
   [AllocatorsPageSectionId.LEADERBOARDS]: "Leaderboards",
+  [AllocatorsPageSectionId.OLD_DATACAP]: "Old Datacap",
 } as const satisfies IdBasedStickyTabNaviationProps["tabs"];
 
 const allocatorsListDefaultParameters: FetchAllocatorsParameters = {
@@ -59,11 +88,47 @@ const auditsFlowDefaultParameters: FetchAllocatorsAuditStatesParameters = {
   editionId: "6",
 };
 
+const complianceDefaultParameters: FetchAllocatorsSPsComplianceDataParameters =
+  {
+    editionId: undefined,
+    httpRetrievability: true,
+    urlFinderRetrievability: true,
+    numberOfClients: true,
+    totalDealSize: true,
+  };
+
+const retrievabilityDefaultParameters: FetchAllocatorsRetrievabilityDataParameters =
+  {
+    editionId: undefined,
+    openDataOnly: false,
+    retrievabilityType: "urlFinder",
+  };
+
+const auditOutcomesDefaultParameters: FetchAllocatorsAuditOutcomesParameters = {
+  editionId: "6",
+};
+
+const auditTimesDefaultParameters: FetchAllocatorsAuditTimesParameters = {
+  editionId: "6",
+};
+
+const checksBreakdownDefaultParameters: FetchAllocatorsChecksBreakdownParameters =
+  {
+    groupBy: "week",
+  };
+
 export default async function AllocatorsPage() {
   const fallbackRequests = Promise.allSettled([
     fetchAllocators(allocatorsListDefaultParameters),
     fetchAllocators(metaallocatorsListDefaultParameters),
     fetchAllocatorsAuditStates(auditsFlowDefaultParameters),
+    fetchAllocatorsSPsComplianceData(complianceDefaultParameters),
+    fetchAllocatorsRetrievabilityData(retrievabilityDefaultParameters),
+    fetchAllocatorsClientDiversityData(),
+    fetchAllocatorsClientDistributionData(),
+    fetchAllocatorsAuditOutcomes(auditOutcomesDefaultParameters),
+    fetchAllocatorsAuditTimes(auditTimesDefaultParameters),
+    fetchAllocatorsChecksBreakdown(checksBreakdownDefaultParameters),
   ]);
 
   const [settledResults, allocatorScoreRanking] = await Promise.all([
@@ -71,8 +136,18 @@ export default async function AllocatorsPage() {
     fetchAllocatorScoreRanking(),
   ]);
 
-  const [fetchAllocatorsResult, fetchMetaalloctorsResult, auditsFlowResult] =
-    settledResults;
+  const [
+    fetchAllocatorsResult,
+    fetchMetaalloctorsResult,
+    auditsFlowResult,
+    complianceResult,
+    retrievabilityResult,
+    clientDiversityResult,
+    clientDistributionResult,
+    auditOutcomesResult,
+    auditTimesResult,
+    checksBreakdownResult,
+  ] = settledResults;
 
   const fallback = {
     [unstable_serialize([
@@ -87,6 +162,30 @@ export default async function AllocatorsPage() {
       QueryKey.ALLOCATORS_AUDIT_STATES,
       auditsFlowDefaultParameters,
     ])]: unwrapResult(auditsFlowResult),
+    [unstable_serialize([
+      QueryKey.ALLOCATORS_SPS_COMPLIANCE_DATA,
+      complianceDefaultParameters,
+    ])]: unwrapResult(complianceResult),
+    [unstable_serialize([
+      QueryKey.ALLOCATORS_RETRIEVABILITY,
+      retrievabilityDefaultParameters,
+    ])]: unwrapResult(retrievabilityResult),
+    [unstable_serialize([QueryKey.ALLOCATORS_CLIENT_DIVERSITY, {}])]:
+      unwrapResult(clientDiversityResult),
+    [unstable_serialize([QueryKey.ALLOCATORS_CLIENT_DISTRIBUTION, {}])]:
+      unwrapResult(clientDistributionResult),
+    [unstable_serialize([
+      QueryKey.ALLOCATORS_AUDIT_OUTCOMES,
+      auditOutcomesDefaultParameters,
+    ])]: unwrapResult(auditOutcomesResult),
+    [unstable_serialize([
+      QueryKey.ALLOCATORS_AUDIT_TIMES,
+      auditsFlowDefaultParameters,
+    ])]: unwrapResult(auditTimesResult),
+    [unstable_serialize([
+      QueryKey.ALLOCATORS_CHECKS_BREAKDOWN,
+      checksBreakdownDefaultParameters,
+    ])]: unwrapResult(checksBreakdownResult),
   };
 
   return (
@@ -103,6 +202,9 @@ export default async function AllocatorsPage() {
       </PageHeader>
       <IdBasedStickyTabNaviation className="mb-8" tabs={sectionTabs} />
       <Container className="flex flex-col gap-y-8">
+        <AllocatorsSPsComplianceWidget
+          id={AllocatorsPageSectionId.COMPLIANCE}
+        />
         <AllocatorsListWidget
           id={AllocatorsPageSectionId.ALLOCATORS_LIST}
           defaultParameters={allocatorsListDefaultParameters}
@@ -111,15 +213,37 @@ export default async function AllocatorsPage() {
           id={AllocatorsPageSectionId.METAALLOCATORS_LIST}
           defaultParameters={metaallocatorsListDefaultParameters}
         />
+        <AllocatorsRetrievabilityWidget
+          id={AllocatorsPageSectionId.RETRIEVABILITY}
+        />
+        <AllocatorsClientDiversityWidget
+          id={AllocatorsPageSectionId.CLIENT_DIVERSITY}
+        />
+        <AllocatorsClientDistributionWidget
+          id={AllocatorsPageSectionId.CLIENT_DISTRIBUTION}
+        />
+        <AllocatorsChecksBreakdownWidget
+          id={AllocatorsPageSectionId.ALERTS_BREAKDOWN}
+        />
         <DCFlowWidget id={AllocatorsPageSectionId.DC_FLOW} />
         <AuditsFlowWidget
           id={AllocatorsPageSectionId.AUDITS_FLOW}
           defaultParameters={auditsFlowDefaultParameters}
         />
+        <AllocatorsAuditStatesWidget
+          id={AllocatorsPageSectionId.AUDITS_STATE}
+        />
+        <AllocatorsAuditOutcomesWidget
+          id={AllocatorsPageSectionId.AUDIT_OUTCOMES}
+        />
+        <AllocatorsAuditTimesWidget id={AllocatorsPageSectionId.AUDIT_TIMES} />
         <AllocatorsLeaderboards
           id={AllocatorsPageSectionId.LEADERBOARDS}
           scores={allocatorScoreRanking}
         />
+        <AllocatorsOldDatacapWidget id={AllocatorsPageSectionId.OLD_DATACAP} />
+
+        <BackToTop />
       </Container>
     </SWRConfig>
   );

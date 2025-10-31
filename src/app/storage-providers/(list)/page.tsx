@@ -25,6 +25,7 @@ import {
   IdBasedStickyTabNaviation,
   IdBasedStickyTabNaviationProps,
 } from "@/components/sticky-tab-navigation";
+import { BackToTop } from "@/components/back-to-top";
 
 export const revalidate = 300;
 
@@ -38,7 +39,8 @@ export const metadata: Metadata = generatePageMetadata({
 const complianceDataDefaultParams: FetchStorageProvidersComplianceDataParameters =
   {
     editionId: undefined,
-    retrievability: true,
+    httpRetrievability: true,
+    urlFinderRetrievability: true,
     numberOfClients: true,
     totalDealSize: true,
   };
@@ -147,6 +149,7 @@ export default async function StorageProvidersPage() {
         <StorageProvidersIPNIMisreportingWidget
           id={StorageProvidersPageSectionId.IPNI_MISREPORTING}
         />
+        <BackToTop />
       </Container>
     </SWRConfig>
   );

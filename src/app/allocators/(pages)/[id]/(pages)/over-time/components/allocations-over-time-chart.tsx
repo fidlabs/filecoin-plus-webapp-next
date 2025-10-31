@@ -1,32 +1,32 @@
 "use client";
+import { GenericContentHeader } from "@/components/generic-content-view";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ScaleSelector } from "@/components/ui/scale-selector";
+import { ITabNavigatorTab } from "@/components/ui/tab-navigator";
+import { useChartScale } from "@/lib/hooks/useChartScale";
+import { IAllocatorResponse } from "@/lib/interfaces/dmob/allocator.interface";
+import { IClient } from "@/lib/interfaces/dmob/client.interface";
+import {
+  calculateDateFromHeight,
+  convertBytesToIEC,
+  palette,
+} from "@/lib/utils";
+import { groupBy } from "lodash";
+import { useMemo } from "react";
 import {
   Area,
   Bar,
   ComposedChart,
   ResponsiveContainer,
   Tooltip,
-  TooltipProps,
+  TooltipContentProps,
   XAxis,
   YAxis,
 } from "recharts";
 import {
-  calculateDateFromHeight,
-  convertBytesToIEC,
-  palette,
-} from "@/lib/utils";
-import {
   NameType,
   ValueType,
 } from "recharts/types/component/DefaultTooltipContent";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { IClient } from "@/lib/interfaces/dmob/client.interface";
-import { useChartScale } from "@/lib/hooks/useChartScale";
-import { IAllocatorResponse } from "@/lib/interfaces/dmob/allocator.interface";
-import { useMemo } from "react";
-import { groupBy } from "lodash";
-import { GenericContentHeader } from "@/components/generic-content-view";
-import { ScaleSelector } from "@/components/ui/scale-selector";
-import { ITabNavigatorTab } from "@/components/ui/tab-navigator";
 import { useMediaQuery } from "usehooks-ts";
 
 interface IAllocationsOverTimeChartProps {
@@ -195,7 +195,7 @@ const AllocationsOverTimeChart = ({
   );
 };
 
-const renderTooltip = (props: TooltipProps<ValueType, NameType>) => {
+const renderTooltip = (props: TooltipContentProps<ValueType, NameType>) => {
   const payload = props?.payload?.[0]?.payload;
   if (!payload) {
     return <></>;

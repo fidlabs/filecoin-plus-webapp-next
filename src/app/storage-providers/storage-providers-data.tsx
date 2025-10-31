@@ -1,11 +1,8 @@
 import { getStorageProviders } from "@/lib/api";
 import { CDP_API_URL } from "@/lib/constants";
 import { throwHTTPErrorOrSkip } from "@/lib/http-errors";
-import {
-  ICDPHistogram,
-  ICDPHistogramResult,
-} from "@/lib/interfaces/cdp/cdp.interface";
-import { objectToURLSearchParams } from "@/lib/utils";
+import { ICDPHistogram } from "@/lib/interfaces/cdp/cdp.interface";
+import { assertSchema, objectToURLSearchParams } from "@/lib/utils";
 import { weekFromDate } from "@/lib/weeks";
 import { z } from "zod";
 
@@ -52,7 +49,8 @@ export type StorageProvidersComplianceData = z.infer<
 
 export interface FetchStorageProvidersComplianceDataParameters {
   editionId?: string;
-  retrievability?: boolean;
+  httpRetrievability?: boolean;
+  urlFinderRetrievability?: boolean;
   numberOfClients?: boolean;
   totalDealSize?: boolean;
 }
@@ -61,11 +59,13 @@ export type FetchStorageProvidersComplianceDataReturnType =
   StorageProvidersComplianceData;
 
 const providersComplianceDataSchema = z.object({
-  averageSuccessRate: z.number(),
+  averageHttpSuccessRate: z.number().nullable(),
+  averageUrlFinderSuccessRate: z.number().nullable(),
   results: z.array(
     z.object({
       week: z.string(),
-      averageSuccessRate: z.number(),
+      averageHttpSuccessRate: z.number().nullable(),
+      averageUrlFinderSuccessRate: z.number().nullable(),
       compliantSps: z.number(),
       partiallyCompliantSps: z.number(),
       nonCompliantSps: z.number(),
@@ -76,18 +76,6 @@ const providersComplianceDataSchema = z.object({
     })
   ),
 });
-
-function assertIsStorageProvidersComplianceData(
-  input: unknown
-): asserts input is StorageProvidersComplianceData {
-  const result = providersComplianceDataSchema.safeParse(input);
-
-  if (!result.success) {
-    throw new TypeError(
-      "Invalid response from CDP when fetching storage providers compliance data"
-    );
-  }
-}
 
 export async function fetchStorageProvidersComplianceData(
   parameters?: FetchStorageProvidersComplianceDataParameters
@@ -102,7 +90,13 @@ export async function fetchStorageProvidersComplianceData(
   );
 
   const json = await response.json();
-  assertIsStorageProvidersComplianceData(json);
+
+  assertSchema(
+    json,
+    providersComplianceDataSchema,
+    `Invalid response from CDP when fetching storage providers compliance data; URL: ${endpoint}`
+  );
+
   return json;
 }
 
@@ -142,14 +136,39 @@ export async function fetchStorageProvidersComplianceDataWeeks() {
 }
 
 // Retrievability
+const retrievabilityResponseSchema = z.object({
+  averageHttpSuccessRate: z.number().nullable(),
+  averageUrlFinderSuccessRate: z.number().nullable(),
+  histogram: z.object({
+    total: z.number(),
+    results: z.array(
+      z.object({
+        week: z.string(),
+        total: z.number(),
+        averageHttpSuccessRate: z.number().nullable(),
+        averageUrlFinderSuccessRate: z.number().nullable(),
+        results: z.array(
+          z.object({
+            valueFromExclusive: z.number(),
+            valueToInclusive: z.number(),
+            count: z.number(),
+            totalDatacap: z.string(),
+          })
+        ),
+      })
+    ),
+  }),
+});
+
 export interface FetchStorageProvidersRetrievabilityDataParameters {
   editionId?: string;
   openDataOnly?: boolean;
   retrievabilityType?: "urlFinder" | "http";
 }
 
-export type FetchStorageProvidersRetrievabilityDataReturnType =
-  ICDPHistogramResult;
+export type FetchStorageProvidersRetrievabilityDataReturnType = z.infer<
+  typeof retrievabilityResponseSchema
+>;
 
 export async function fetchStorageProvidersRetrievabilityData(
   parameters?: FetchStorageProvidersRetrievabilityDataParameters
@@ -178,7 +197,14 @@ export async function fetchStorageProvidersRetrievabilityData(
   );
 
   const json = await response.json();
-  return json as ICDPHistogramResult;
+
+  assertSchema(
+    json,
+    retrievabilityResponseSchema,
+    `CDP API returned invalid response when fetching storage providers retrievability data; URL: ${endpoint}`
+  );
+
+  return json;
 }
 
 // Client diversity
