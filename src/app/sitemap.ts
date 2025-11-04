@@ -16,19 +16,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/allocators/audit-flow",
     "/allocators/datacap-flow",
     "/clients",
-    "/compliance-data-portal",
     "/storage-providers",
-    "/compliance-data-portal/allocators/retrievability",
-    "/compliance-data-portal/allocators/biggest-deals",
-    "/compliance-data-portal/allocators/providers-compliance",
-    "/compliance-data-portal/allocators/audit-state",
-    "/compliance-data-portal/allocators/audit-outcomes",
-    "/compliance-data-portal/allocators/audit-timeline",
-    "/compliance-data-portal/allocators/client-diversity",
-    "/compliance-data-portal/old-datacap/owned-by-entities",
-    "/compliance-data-portal/old-datacap/allocated-to-clients",
-    "/compliance-data-portal/old-datacap/owned-by-clients",
-    "/compliance-data-portal/old-datacap/spent-by-clients",
   ];
 
   const staticSitemapEntries = staticRoutes.map((route) => ({

@@ -1,14 +1,25 @@
-import { Metadata } from "next";
-import { ClientsList } from "@/app/clients/components/clients-list";
-import { Suspense } from "react";
-import { IClientsQuery } from "@/lib/interfaces/api.interface";
-import { getClients } from "@/lib/api";
-import { ItemList, WithContext } from "schema-dts";
-import { JsonLd } from "@/components/json.ld";
-import { generatePageMetadata } from "@/lib/utils";
 import { Container } from "@/components/container";
+import { JsonLd } from "@/components/json.ld";
 import { PageHeader, PageSubtitle, PageTitle } from "@/components/page-header";
+import { ClientsPageSectionId, QueryKey } from "@/lib/constants";
+import { generatePageMetadata } from "@/lib/utils";
+import { type Metadata } from "next";
+import { type ItemList, type WithContext } from "schema-dts";
+import { SWRConfig, unstable_serialize } from "swr";
+import {
+  fetchClients,
+  fetchClientsOldDatacap,
+  type FetchClientsParameters,
+} from "./clients-data";
+import ClientsStats from "./components/clients-stats";
+import { ClientsListWidget } from "./components/clients-list-widget";
+import {
+  IdBasedStickyTabNaviation,
+  IdBasedStickyTabNaviationProps,
+} from "@/components/sticky-tab-navigation";
+import { ClientsOldDatacapWidget } from "./components/clients-old-datacap-widget";
 
+export const revalidate = 300;
 export const metadata: Metadata = generatePageMetadata({
   title: "Fil+ DataCap Stats | Clients",
   description:
@@ -16,44 +27,88 @@ export const metadata: Metadata = generatePageMetadata({
   url: "https://datacapstats.io/clients",
 });
 
-interface PageProps {
-  searchParams: IClientsQuery;
-}
+const sectionTabs = {
+  [ClientsPageSectionId.STATS]: "Stats",
+  [ClientsPageSectionId.LIST]: "List",
+  [ClientsPageSectionId.OLD_DATACAP]: "Old Datacap",
+} as const satisfies IdBasedStickyTabNaviationProps["tabs"];
 
-export default async function ClientsPage({ searchParams }: PageProps) {
-  const currentParams = {
-    page: searchParams?.page ?? "1",
-    limit: searchParams?.limit ?? "10",
-    filter: searchParams?.filter ?? "",
-    sort: searchParams?.sort ?? "",
+const fetchClientsDefaultParameters: FetchClientsParameters = {
+  page: 1,
+  limit: 10,
+  filter: undefined,
+  sort: undefined,
+};
+
+export default async function ClientsPage() {
+  const [fetchClientsResult, oldDatacapResult] = await Promise.allSettled([
+    fetchClients(fetchClientsDefaultParameters),
+    fetchClientsOldDatacap(),
+  ]);
+
+  const fallback = {
+    [unstable_serialize([
+      QueryKey.CLIENTS_LIST,
+      fetchClientsDefaultParameters,
+    ])]: unwrapResult(fetchClientsResult),
+    [QueryKey.CLIENTS_OLD_DATACAP]: unwrapResult(oldDatacapResult),
   };
-  const clients = await getClients(currentParams);
 
   const listJsonLD: WithContext<ItemList> = {
     "@context": "https://schema.org",
-    name: "Allocators",
+    name: "Clients",
     "@type": "ItemList",
-    itemListElement: clients?.data.map((client, index) => ({
-      "@type": "ListItem",
-      position: index + 1,
-      item: {
-        "@id": `https://datacapstats.io/clients/${client.id}`,
-        name: client.name,
-      },
-    })),
+    itemListElement:
+      fetchClientsResult.status === "fulfilled"
+        ? fetchClientsResult.value.data.map((client, index) => ({
+            "@type": "ListItem",
+            position: index + 1,
+            item: {
+              "@id": `https://datacapstats.io/clients/${client.id}`,
+              name: client.name,
+            },
+          }))
+        : undefined,
   };
 
   return (
-    <JsonLd data={listJsonLD}>
-      <PageHeader>
-        <PageTitle>Clients</PageTitle>
-        <PageSubtitle>View all clients participating in Filecoin</PageSubtitle>
-      </PageHeader>
-      <Container>
-        <Suspense>
-          <ClientsList clients={clients} params={currentParams} />
-        </Suspense>
-      </Container>
-    </JsonLd>
+    <SWRConfig
+      value={{
+        fallback,
+      }}
+    >
+      <JsonLd data={listJsonLD}>
+        <PageHeader>
+          <PageTitle>Clients</PageTitle>
+          <PageSubtitle>
+            View all clients participating in Filecoin
+          </PageSubtitle>
+        </PageHeader>
+        <IdBasedStickyTabNaviation className="mb-8" tabs={sectionTabs} />
+        <Container className="flex flex-col gap-8">
+          {fetchClientsResult.status === "fulfilled" ? (
+            <ClientsStats
+              id={ClientsPageSectionId.STATS}
+              data={fetchClientsResult.value}
+            />
+          ) : (
+            <p className="text-center py-8 text-sm text-muted-foreground">
+              Could not load clients stats. Please try again later.
+            </p>
+          )}
+
+          <ClientsListWidget
+            id={ClientsPageSectionId.LIST}
+            defaultParameters={fetchClientsDefaultParameters}
+          />
+
+          <ClientsOldDatacapWidget id={ClientsPageSectionId.OLD_DATACAP} />
+        </Container>
+      </JsonLd>
+    </SWRConfig>
   );
+}
+
+function unwrapResult<T>(result: PromiseSettledResult<T>): T | undefined {
+  return result.status === "fulfilled" ? result.value : undefined;
 }

@@ -1,5 +1,6 @@
 export const CDP_API_URL =
   process.env.NEXT_PUBLIC_CDP_API_URL ?? "https://cdp.allocator.tech";
+export const DCS_API_URL = "https://api.datacapstats.io/api";
 export const DEFAULT_EDITION_ROUND_ID =
   process.env.NEXT_PUBLIC_DEFAULT_EDITION_ROUND_ID ?? "6";
 
@@ -14,6 +15,8 @@ export enum QueryKey {
   ALLOCATORS_CLIENT_DISTRIBUTION = "allocators_client_distribution",
   ALLOCATORS_OLD_DATACAP = "allocators_old_datacap",
   ALLOCATORS_CHECKS_BREAKDOWN = "allocators_checks_breakdown",
+  CLIENTS_LIST = "clients_list",
+  CLIENTS_OLD_DATACAP = "clients_old_datacap",
   STORAGE_PROVIDERS_LIST = "storage_providers_list",
   STORAGE_PROVIDERS_COMPLIANCE_DATA = "storage_providers_compliance_data",
   STORAGE_PROVIDERS_RETRIEVABILITY_DATA = "storage_providers_retrievability_data",
@@ -36,6 +39,12 @@ export enum AllocatorsPageSectionId {
   AUDIT_OUTCOMES = "audit-outcomes",
   AUDIT_TIMES = "audit-times",
   LEADERBOARDS = "leaderboards",
+  OLD_DATACAP = "old-datacap",
+}
+
+export enum ClientsPageSectionId {
+  STATS = "stats",
+  LIST = "list",
   OLD_DATACAP = "old-datacap",
 }
 
