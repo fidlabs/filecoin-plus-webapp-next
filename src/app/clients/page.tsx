@@ -1,23 +1,19 @@
 import { Container } from "@/components/container";
 import { JsonLd } from "@/components/json.ld";
 import { PageHeader, PageSubtitle, PageTitle } from "@/components/page-header";
+import {
+  IdBasedStickyTabNaviation,
+  IdBasedStickyTabNaviationProps,
+} from "@/components/sticky-tab-navigation";
 import { ClientsPageSectionId, QueryKey } from "@/lib/constants";
 import { generatePageMetadata } from "@/lib/utils";
 import { type Metadata } from "next";
 import { type ItemList, type WithContext } from "schema-dts";
 import { SWRConfig, unstable_serialize } from "swr";
-import {
-  fetchClients,
-  fetchClientsOldDatacap,
-  type FetchClientsParameters,
-} from "./clients-data";
-import ClientsStats from "./components/clients-stats";
+import { fetchClients, type FetchClientsParameters } from "./clients-data";
 import { ClientsListWidget } from "./components/clients-list-widget";
-import {
-  IdBasedStickyTabNaviation,
-  IdBasedStickyTabNaviationProps,
-} from "@/components/sticky-tab-navigation";
 import { ClientsOldDatacapWidget } from "./components/clients-old-datacap-widget";
+import ClientsStats from "./components/clients-stats";
 
 export const revalidate = 300;
 export const metadata: Metadata = generatePageMetadata({
@@ -41,9 +37,8 @@ const fetchClientsDefaultParameters: FetchClientsParameters = {
 };
 
 export default async function ClientsPage() {
-  const [fetchClientsResult, oldDatacapResult] = await Promise.allSettled([
+  const [fetchClientsResult] = await Promise.allSettled([
     fetchClients(fetchClientsDefaultParameters),
-    fetchClientsOldDatacap(),
   ]);
 
   const fallback = {
@@ -51,7 +46,6 @@ export default async function ClientsPage() {
       QueryKey.CLIENTS_LIST,
       fetchClientsDefaultParameters,
     ])]: unwrapResult(fetchClientsResult),
-    [QueryKey.CLIENTS_OLD_DATACAP]: unwrapResult(oldDatacapResult),
   };
 
   const listJsonLD: WithContext<ItemList> = {
