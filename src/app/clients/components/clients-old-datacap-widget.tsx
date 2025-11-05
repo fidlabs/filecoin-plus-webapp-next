@@ -90,8 +90,21 @@ export function ClientsOldDatacapWidget({
   const [totalSpentValue, totalSpentLabel] = useMemo<
     [string | null, string]
   >(() => {
+    const defaultLabel = "Total spent";
+
     if (!data) {
-      return [null, "Total spent"];
+      return [null, defaultLabel];
+    }
+
+    if (data.results.length === 0) {
+      return ["0B", defaultLabel];
+    }
+
+    if (data.results.length === 1) {
+      return [
+        filesize(data.results[0].claims, { standard: "iec" }),
+        defaultLabel,
+      ];
     }
 
     const startWeek = weekFromDate(data.results[0].week);
