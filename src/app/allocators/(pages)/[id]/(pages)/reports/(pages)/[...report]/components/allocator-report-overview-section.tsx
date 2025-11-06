@@ -96,12 +96,12 @@ export function AllocatorReportOverviewSection() {
         return (
           <div
             key={index}
-            className="p-4 border-b [&:not(:last-child)]:border-r-2 flex items-center space-x-2"
+            className="p-4 border-b [&:not(:last-child)]:border-r-2 flex flex-wrap items-center gap-2"
           >
             {overviewItems.map((item, index) => (
-              <div key={index} className=" p-4 border rounded-lg">
+              <div key={index} className="p-4 border rounded-lg">
                 <h5 className="text-sm mb-1">{item.label}</h5>
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 h-10">
                   <p className="text-lg font-semibold">{item.value}</p>
 
                   {!!item.copyOptions && (

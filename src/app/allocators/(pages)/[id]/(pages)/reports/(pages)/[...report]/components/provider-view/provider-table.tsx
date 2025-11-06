@@ -1,6 +1,7 @@
 "use client";
-import { useReportsDetails } from "@/app/clients/(pages)/[id]/(pages)/reports/(pages)/[...report]/providers/reports-details.provider";
+import { useReportsDetails } from "@/app/allocators/(pages)/[id]/(pages)/reports/(pages)/[...report]/providers/reports-details.provider";
 import { GenericContentFooter } from "@/components/generic-content-view";
+import { CompareIcon } from "@/components/icons/compare.icon";
 import { DataTable } from "@/components/ui/data-table";
 import {
   HoverCard,
@@ -18,7 +19,7 @@ import { useCallback, useMemo } from "react";
 
 // const comparableValues = ['up', 'down']
 
-const useReportViewProvidersColumns = (/*compareMode: boolean*/) => {
+const useReportViewProvidersColumns = (compareMode: boolean) => {
   const columns = [
     {
       accessorKey: "provider",
@@ -88,13 +89,15 @@ const useReportViewProvidersColumns = (/*compareMode: boolean*/) => {
         return (
           <div className="h-full flex items-center justify-start gap-1">
             {convertBytesToIEC(totalDealSize)}
-            {/*{compareMode && <CompareIcon compare={row.original.total_deal_size_compare}/>}*/}
+            {compareMode && (
+              <CompareIcon compare={row.original.total_deal_size_compare} />
+            )}
           </div>
         );
       },
     },
     {
-      accessorKey: "total_deal_percentage",
+      accessorKey: "perc_of_total_datacap",
       header: () => {
         return <div className="whitespace-nowrap">Percentage</div>;
       },
@@ -107,12 +110,16 @@ const useReportViewProvidersColumns = (/*compareMode: boolean*/) => {
           );
         }
 
-        const percentage = row.getValue("total_deal_percentage") as number;
+        const percentage = row.getValue("perc_of_total_datacap") as number;
 
         return (
           <div className="h-full flex items-center justify-start gap-1">
             {percentage.toFixed(2)}%
-            {/*{compareMode && <CompareIcon compare={row.original.total_deal_percentage_compare}/>}*/}
+            {compareMode && (
+              <CompareIcon
+                compare={row.original.perc_of_total_datacap_compare}
+              />
+            )}
           </div>
         );
       },
@@ -136,7 +143,6 @@ const useReportViewProvidersColumns = (/*compareMode: boolean*/) => {
         return (
           <div className="h-full flex items-center justify-start gap-1">
             {duplication.toFixed(2)}%
-            {/*{compareMode && <CompareIcon compare={row.original.duplicated_data_size_compare}/>}*/}
           </div>
         );
       },
@@ -209,27 +215,34 @@ interface IReportViewProviderMapProps {
   totalPages?: number;
 }
 
-const ProviderTable = ({
+export function ProviderTable({
   providerDistribution,
   queryParams,
   totalPages,
-}: IReportViewProviderMapProps) => {
+}: IReportViewProviderMapProps) {
   const { compareMode } = useReportsDetails();
   const { filters, updateFilters } = useSearchParamsFilters();
-  const { columns } = useReportViewProvidersColumns();
+  const { columns } = useReportViewProvidersColumns(compareMode);
 
-  const rowSelection = useMemo(() => {
-    const selection = {} as RowSelectionState;
+  const rowSelection = useMemo<RowSelectionState>(() => {
     if (!compareMode) {
-      return selection;
+      return {};
     }
 
-    for (let i = 0; i < providerDistribution.length; i++) {
-      // const item = providerDistribution[i];
-      // selection[i] = comparableValues.includes(item.total_deal_size_compare ?? 'equal') || comparableValues.includes(item.total_deal_percentage_compare ?? 'equal') || comparableValues.includes(item.duplicated_data_size_compare ?? 'equal')
-    }
+    return providerDistribution.reduce<RowSelectionState>(
+      (result, item, index) => {
+        const selected = [
+          item.total_deal_size_compare,
+          item.perc_of_total_datacap_compare,
+        ].some((i) => i !== "equal");
 
-    return selection;
+        return {
+          ...result,
+          [String(index)]: selected,
+        };
+      },
+      {}
+    );
   }, [providerDistribution, compareMode]);
 
   const updateCustomProviderPagination = useCallback(
@@ -258,6 +271,4 @@ const ProviderTable = ({
       />
     </div>
   );
-};
-
-export { ProviderTable };
+}

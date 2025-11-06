@@ -10,15 +10,10 @@ import { uniq } from "lodash";
 export const parseProviderDistribution = (
   providerDistribution: ICDPAllocatorFullReportStorageProviderDistribution[]
 ) => {
-  const allDealSize = providerDistribution.reduce(
-    (acc, provider) => acc + +provider.total_deal_size,
-    0
-  );
   return providerDistribution
     .sort((a, b) => a.provider.localeCompare(b.provider))
     .map((provider) => ({
       ...provider,
-      total_deal_percentage: (+provider.total_deal_size / allDealSize) * 100,
       duplication_percentage:
         ((+provider.total_deal_size - +provider.unique_data_size) /
           +provider.total_deal_size) *

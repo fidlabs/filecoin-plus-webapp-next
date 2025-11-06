@@ -1,4 +1,5 @@
 "use client";
+
 import {
   ICDPAllocatorFullReport,
   ICDPAllocatorFullReportClient,
@@ -9,6 +10,7 @@ import {
   createContext,
   CSSProperties,
   PropsWithChildren,
+  useCallback,
   useContext,
   useMemo,
   useState,
@@ -42,15 +44,15 @@ const ReportsDetailsContext = createContext<IReportsDetailsContext>({
   },
 });
 
-const ReportsDetailsProvider = ({
+export function ReportsDetailsProvider({
   children,
   reports,
-}: PropsWithChildren<{ reports: ICDPAllocatorFullReport[] }>) => {
+}: PropsWithChildren<{ reports: ICDPAllocatorFullReport[] }>) {
   const [compareMode, setCompareMode] = useState(false);
 
-  const toggleCompareMode = () => {
-    setCompareMode(!compareMode);
-  };
+  const toggleCompareMode = useCallback(() => {
+    setCompareMode((currentCompareMode) => !currentCompareMode);
+  }, []);
 
   const colsStyle = useMemo(
     () => ({
@@ -111,10 +113,8 @@ const ReportsDetailsProvider = ({
       {children}
     </ReportsDetailsContext.Provider>
   );
-};
+}
 
-const useReportsDetails = () => {
+export function useReportsDetails() {
   return useContext(ReportsDetailsContext);
-};
-
-export { ReportsDetailsProvider, useReportsDetails };
+}
