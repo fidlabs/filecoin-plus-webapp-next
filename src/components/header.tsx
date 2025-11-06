@@ -49,10 +49,6 @@ const navigation: Array<NavigationItem | NavigationGroup> = [
     path: "/storage-providers",
   },
   {
-    label: "Compliance",
-    path: "/compliance-data-portal",
-  },
-  {
     label: "Alerts",
     path: "/alerts",
   },

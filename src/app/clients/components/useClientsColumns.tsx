@@ -1,4 +1,7 @@
-import { DMOBDataTableSort } from "@/components/dmob-data-table-sort";
+import {
+  DataTableSort,
+  DataTableSortProps,
+} from "@/components/data-table-sort";
 import { GithubIcon } from "@/components/icons/github.icon";
 import {
   HoverCard,
@@ -11,17 +14,44 @@ import { ColumnDef } from "@tanstack/react-table";
 import { InfoIcon } from "lucide-react";
 import Link from "next/link";
 
-type FilterCallback = (key: string, direction: string) => void;
+type SortDirection = NonNullable<DataTableSortProps["direction"]>;
 
-export const useClientsColumns = (filterCallback: FilterCallback) => {
-  const columns = [
+interface Sorting {
+  key: string;
+  direction: SortDirection;
+}
+
+export interface UseAllocatorsColumnsOptions {
+  sorting?: Sorting | null;
+  onSort(key: string, direction: SortDirection): void;
+}
+
+function getSortDirectionForProperty(
+  sorting: Sorting | null | undefined,
+  property: string
+): SortDirection | undefined {
+  if (!sorting) {
+    return undefined;
+  }
+
+  return sorting.key === property ? sorting.direction : undefined;
+}
+
+export function useClientsColumns({
+  sorting,
+  onSort,
+}: UseAllocatorsColumnsOptions) {
+  return [
     {
       accessorKey: "addressId",
       header: () => {
         return (
-          <DMOBDataTableSort property="addressId" onSort={filterCallback}>
+          <DataTableSort
+            direction={getSortDirectionForProperty(sorting, "addressId")}
+            onSort={(direction) => onSort("addressId", direction)}
+          >
             Verified Client ID
-          </DMOBDataTableSort>
+          </DataTableSort>
         );
       },
       cell: ({ row }) => {
@@ -55,9 +85,12 @@ export const useClientsColumns = (filterCallback: FilterCallback) => {
       accessorKey: "name",
       header: () => {
         return (
-          <DMOBDataTableSort property="name" onSort={filterCallback}>
+          <DataTableSort
+            direction={getSortDirectionForProperty(sorting, "name")}
+            onSort={(direction) => onSort("name", direction)}
+          >
             Client name
-          </DMOBDataTableSort>
+          </DataTableSort>
         );
       },
       cell: ({ row }) => {
@@ -87,12 +120,12 @@ export const useClientsColumns = (filterCallback: FilterCallback) => {
       accessorKey: "initialAllowance",
       header: () => {
         return (
-          <DMOBDataTableSort
-            property="initialAllowance"
-            onSort={filterCallback}
+          <DataTableSort
+            direction={getSortDirectionForProperty(sorting, "initialAllowance")}
+            onSort={(direction) => onSort("initialAllowance", direction)}
           >
             DataCap received
-          </DMOBDataTableSort>
+          </DataTableSort>
         );
       },
       cell: ({ row }) => {
@@ -133,12 +166,12 @@ export const useClientsColumns = (filterCallback: FilterCallback) => {
       accessorKey: "remainingDatacap",
       header: () => {
         return (
-          <DMOBDataTableSort
-            property="remainingDatacap"
-            onSort={filterCallback}
+          <DataTableSort
+            direction={getSortDirectionForProperty(sorting, "remainingDatacap")}
+            onSort={(direction) => onSort("remainingDatacap", direction)}
           >
             DataCap Remaining
-          </DMOBDataTableSort>
+          </DataTableSort>
         );
       },
       cell: ({ row }) => {
@@ -150,12 +183,15 @@ export const useClientsColumns = (filterCallback: FilterCallback) => {
       accessorKey: "usedDatacapChange",
       header: () => {
         return (
-          <DMOBDataTableSort
-            property="usedDatacapChange"
-            onSort={filterCallback}
+          <DataTableSort
+            direction={getSortDirectionForProperty(
+              sorting,
+              "usedDatacapChange"
+            )}
+            onSort={(direction) => onSort("usedDatacapChange", direction)}
           >
             DC Used (2 Weeks)
-          </DMOBDataTableSort>
+          </DataTableSort>
         );
       },
       cell: ({ row }) => {
@@ -167,12 +203,15 @@ export const useClientsColumns = (filterCallback: FilterCallback) => {
       accessorKey: "usedDatacapChange90Days",
       header: () => {
         return (
-          <DMOBDataTableSort
-            property="usedDatacapChange90Days"
-            onSort={filterCallback}
+          <DataTableSort
+            direction={getSortDirectionForProperty(
+              sorting,
+              "usedDatacapChange90Days"
+            )}
+            onSort={(direction) => onSort("usedDatacapChange90Days", direction)}
           >
             DC Used (90 days)
-          </DMOBDataTableSort>
+          </DataTableSort>
         );
       },
       cell: ({ row }) => {
@@ -183,29 +222,4 @@ export const useClientsColumns = (filterCallback: FilterCallback) => {
       },
     },
   ] as ColumnDef<IClient>[];
-
-  const csvHeaders = [
-    {
-      key: "addressId",
-      label: "Allocator ID",
-    },
-    {
-      key: "name",
-      label: "Name",
-    },
-    {
-      key: "initialAllowance",
-      label: "DataCap Received",
-    },
-    {
-      key: "remainingDatacap",
-      label: "DataCap Remaining",
-    },
-    {
-      key: "usedDatacapChange",
-      label: "DataCap Used Last 2 Weeks",
-    },
-  ];
-
-  return { columns, csvHeaders };
-};
+}

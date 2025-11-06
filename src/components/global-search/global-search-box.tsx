@@ -1,4 +1,5 @@
 "use client";
+
 import {
   CommandDialog,
   CommandEmpty,
@@ -8,7 +9,11 @@ import {
 } from "@/components/ui/command";
 import { Separator } from "@/components/ui/separator";
 import { getAllocators, getClients, getStorageProviders } from "@/lib/api";
-import { StorageProvidersPageSectionId } from "@/lib/constants";
+import {
+  AllocatorsPageSectionId,
+  ClientsPageSectionId,
+  StorageProvidersPageSectionId,
+} from "@/lib/constants";
 import { IAllocatorsResponse } from "@/lib/interfaces/dmob/allocator.interface";
 import { IClientsResponse } from "@/lib/interfaces/dmob/client.interface";
 import { IStorageProvidersResponse } from "@/lib/interfaces/dmob/sp.interface";
@@ -68,7 +73,7 @@ const defaultActions = [
     name: "Allocators List",
     group: "Allocators",
     tags: ["allocators", "allocator", "list"],
-    link: "/allocators",
+    link: `/allocators#${AllocatorsPageSectionId.ALLOCATORS_LIST}`,
   },
   {
     name: "Metallocators List",
@@ -80,7 +85,7 @@ const defaultActions = [
       "allocator",
       "list",
     ],
-    link: "/metaallocators",
+    link: `/allocators#${AllocatorsPageSectionId.METAALLOCATORS_LIST}`,
   },
   {
     name: "Allocators Datacap Flow",
@@ -93,32 +98,32 @@ const defaultActions = [
       "structure",
       "structure flow",
     ],
-    link: "/allocators/datacap-flow",
+    link: `/allocators#${AllocatorsPageSectionId.DC_FLOW}`,
   },
   {
     name: "Allocators Audit Flow",
     group: "Allocators",
     tags: ["allocators", "allocator", "audit", "flow"],
-    link: "/allocators/audit-flow",
+    link: `/allocators#${AllocatorsPageSectionId.AUDITS_FLOW}`,
   },
 
   {
-    name: "Clients list",
+    name: "Clients List",
     group: "Clients",
     tags: ["clients", "client", "list"],
-    link: "/clients",
+    link: `/clients#${ClientsPageSectionId.LIST}`,
   },
 
   {
     name: "Storage Providers List",
     group: "Storage Providers",
     tags: ["storage", "provider", "providers", "sp", "sps", "list"],
-    link: "/storage-providers",
+    link: `/storage-providers#${StorageProvidersPageSectionId.LIST}`,
   },
 
   {
-    name: "Compliance Data Portal - Allocators Retrievability",
-    group: "Compliance Data Portal - Allocators",
+    name: "Allocators Retrievability",
+    group: "Allocators",
     tags: [
       "compliance",
       "data",
@@ -128,11 +133,11 @@ const defaultActions = [
       "allocators",
       "retrievability",
     ],
-    link: "/compliance-data-portal/allocators/retrievability",
+    link: `/allocators#${AllocatorsPageSectionId.RETRIEVABILITY}`,
   },
   {
-    name: "Compliance Data Portal - Allocators Biggest Deals",
-    group: "Compliance Data Portal - Allocators",
+    name: "Allocators Clients Distribution",
+    group: "Allocators",
     tags: [
       "compliance",
       "data",
@@ -143,11 +148,11 @@ const defaultActions = [
       "biggest",
       "deals",
     ],
-    link: "/compliance-data-portal/allocators/biggest-deals",
+    link: `/allocators#${AllocatorsPageSectionId.CLIENT_DISTRIBUTION}`,
   },
   {
-    name: "Compliance Data Portal - Allocators Providers Compliance",
-    group: "Compliance Data Portal - Allocators",
+    name: "Allocators Providers Compliance",
+    group: "Allocators",
     tags: [
       "compliance",
       "data",
@@ -158,11 +163,11 @@ const defaultActions = [
       "providers",
       "compliance",
     ],
-    link: "/compliance-data-portal/allocators/providers-compliance",
+    link: `/allocators#${AllocatorsPageSectionId.COMPLIANCE}`,
   },
   {
-    name: "Compliance Data Portal - Allocators Audit State",
-    group: "Compliance Data Portal - Allocators",
+    name: "Allocators Audit State",
+    group: "Allocators",
     tags: [
       "compliance",
       "data",
@@ -173,11 +178,11 @@ const defaultActions = [
       "audit",
       "state",
     ],
-    link: "/compliance-data-portal/allocators/audit-state",
+    link: `/allocators#${AllocatorsPageSectionId.AUDITS_STATE}`,
   },
   {
-    name: "Compliance Data Portal - Allocators Audit Outcomes",
-    group: "Compliance Data Portal - Allocators",
+    name: "Allocators Audit Outcomes",
+    group: "Allocators",
     tags: [
       "compliance",
       "data",
@@ -188,11 +193,11 @@ const defaultActions = [
       "audit",
       "outcomes",
     ],
-    link: "/compliance-data-portal/allocators/audit-outcomes",
+    link: `/allocators#${AllocatorsPageSectionId.AUDIT_OUTCOMES}`,
   },
   {
-    name: "Compliance Data Portal - Allocators Audit Timeline",
-    group: "Compliance Data Portal - Allocators",
+    name: "Allocators Audit Timeline",
+    group: "Allocators",
     tags: [
       "compliance",
       "data",
@@ -203,11 +208,11 @@ const defaultActions = [
       "audit",
       "timeline",
     ],
-    link: "/compliance-data-portal/allocators/audit-timeline",
+    link: `/allocators#${AllocatorsPageSectionId.AUDIT_TIMES}`,
   },
   {
-    name: "Compliance Data Portal - Allocators Client Diversity",
-    group: "Compliance Data Portal - Allocators",
+    name: "Allocators Client Diversity",
+    group: "Allocators",
     tags: [
       "compliance",
       "data",
@@ -218,12 +223,12 @@ const defaultActions = [
       "client",
       "diversity",
     ],
-    link: "/compliance-data-portal/allocators/client-diversity",
+    link: `/allocators#${AllocatorsPageSectionId.CLIENT_DIVERSITY}`,
   },
 
   {
-    name: "Compliance Data Portal - Old DataCap Owned by Entities",
-    group: "Compliance Data Portal - Old DataCap",
+    name: "Allocators Old DataCap",
+    group: "Allocators",
     tags: [
       "compliance",
       "data",
@@ -235,27 +240,11 @@ const defaultActions = [
       "owned",
       "entities",
     ],
-    link: "/compliance-data-portal/old-datacap/owned-by-entities",
+    link: `/allocators#${AllocatorsPageSectionId.OLD_DATACAP}`,
   },
   {
-    name: "Compliance Data Portal - Old DataCap Allocated to Clients",
-    group: "Compliance Data Portal - Old DataCap",
-    tags: [
-      "compliance",
-      "data",
-      "portal",
-      "chart",
-      "cdp",
-      "old",
-      "datacap",
-      "allocated",
-      "clients",
-    ],
-    link: "/compliance-data-portal/old-datacap/allocated-to-clients",
-  },
-  {
-    name: "Compliance Data Portal - Old DataCap Owned by Clients",
-    group: "Compliance Data Portal - Old DataCap",
+    name: "Clients Old DataCap",
+    group: "Clients",
     tags: [
       "compliance",
       "data",
@@ -267,25 +256,8 @@ const defaultActions = [
       "owned",
       "clients",
     ],
-    link: "/compliance-data-portal/old-datacap/owned-by-clients",
+    link: `/clients#${AllocatorsPageSectionId.OLD_DATACAP}`,
   },
-  {
-    name: "Compliance Data Portal - Old DataCap Spent by Clients",
-    group: "Compliance Data Portal - Old DataCap",
-    tags: [
-      "compliance",
-      "data",
-      "portal",
-      "chart",
-      "cdp",
-      "old",
-      "datacap",
-      "spent",
-      "clients",
-    ],
-    link: "/compliance-data-portal/old-datacap/spent-by-clients",
-  },
-
   {
     name: "Storage Providers Compliance",
     group: "Storage Providers",
@@ -505,7 +477,7 @@ const GlobalSearchBox = () => {
   return (
     <>
       <div
-        className="flex gap-2 w-32 transition-all cursor-pointer justify-between rounded-md border border-input bg-white px-3 p-2 text-sm ring-offset-background text-muted-foreground hover:bg-muted"
+        className="flex gap-2 w-32 transition-all cursor-pointer justify-between rounded-md border border-input bg-white px-3 p-2 text-sm ring-offset-background text-muted-foreground hover:bg-muted ml-auto"
         onClick={toggleOpen}
       >
         Search
