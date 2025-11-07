@@ -66,12 +66,21 @@ export function AllocatorsLeaderboard({
   const pageOffset = pageSize * (page - 1);
 
   const entries = useMemo<Entry[]>(() => {
-    const currentWeekGroups = Object.values(
+    const currentWeekGroups = Object.entries(
       groupBy(scores, (score) => score.scorePercentage)
-    );
-    const lastWeekGroups = Object.values(
+    )
+      .sort(([aScorePercentage], [bScorePercentage]) => {
+        return parseFloat(bScorePercentage) - parseFloat(aScorePercentage);
+      })
+      .map(([, gropScores]) => gropScores);
+
+    const lastWeekGroups = Object.entries(
       groupBy(scores, (score) => score.weekAgoScorePercentage)
-    );
+    )
+      .sort(([aScorePercentage], [bScorePercentage]) => {
+        return parseFloat(bScorePercentage) - parseFloat(aScorePercentage);
+      })
+      .map(([, gropScores]) => gropScores);
 
     return scores
       .map<Entry>((score) => {
