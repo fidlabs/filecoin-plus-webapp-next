@@ -60,18 +60,74 @@ export function LeaderboardTitle({
   );
 }
 
+export type LeaderboardPositionBadgeProps = Omit<
+  HTMLAttributes<HTMLDivElement>,
+  "children"
+> & {
+  exAequo?: boolean;
+  position: number;
+  positionChange?: number;
+};
+export function LeaderboardPositionBadge({
+  className,
+  exAequo = false,
+  position,
+  positionChange,
+  ...rest
+}: LeaderboardPositionBadgeProps) {
+  const hasPositionChange = typeof positionChange !== "undefined";
+
+  return (
+    <div {...rest} className={cn("flex items-center", className)}>
+      {hasPositionChange && (
+        <span
+          className={cn(
+            "inline-flex w-10 text-xs font-medium",
+            positionChange > 0 && "text-green-600",
+            positionChange < 0 && "text-red-600"
+          )}
+        >
+          {positionChange !== 0 && (
+            <>
+              <MoveUpIcon
+                className={cn("h-4 w-4", positionChange < 0 && "rotate-180")}
+              />
+              <span className="-ml-0.5">
+                {positionChangeFormatter.format(positionChange)}
+              </span>
+            </>
+          )}
+        </span>
+      )}
+
+      <span
+        className={cn(
+          "leading-none h-8 w-8 bg-gray-200 rounded-full flex items-center justify-center text-sm font-medium",
+          position === 1 && "bg-[gold]",
+          position === 2 && "bg-slate-300",
+          position === 3 && "bg-[brown] text-white"
+        )}
+      >
+        {exAequo ? "-" : position}
+      </span>
+    </div>
+  );
+}
+
 export type LeaderboardListProps = OlHTMLAttributes<HTMLOListElement>;
 export function LeaderboardList({ children, ...rest }: LeaderboardListProps) {
   return <ol {...rest}>{children}</ol>;
 }
 
 export type LeaderboardItemProps = LiHTMLAttributes<HTMLLIElement> & {
+  exAequo?: boolean;
   position: number;
   positionChange?: number;
 };
 export function LeaderboardItem({
   children,
   className,
+  exAequo = false,
   position,
   positionChange,
   ...rest
@@ -83,43 +139,16 @@ export function LeaderboardItem({
       {...rest}
       className={cn(
         "relative py-3 pl-14 pr-3 min-h-12",
-        hasPositionChange && "pl-[92px]",
+        hasPositionChange && "pl-[96px]",
         className
       )}
     >
-      <div className="absolute top-1/2 left-3 -translate-y-1/2 flex items-center">
-        <span
-          className={cn(
-            "leading-none h-8 w-8 bg-gray-200 rounded-full flex items-center justify-center text-sm font-medium",
-            position === 1 && "bg-[gold]",
-            position === 2 && "bg-slate-300",
-            position === 3 && "bg-[brown] text-white"
-          )}
-        >
-          {position}
-        </span>
-
-        {hasPositionChange && (
-          <span
-            className={cn(
-              "inline-flex w-9 items-center justify-center text-xs font-medium",
-              positionChange > 0 && "text-green-600",
-              positionChange < 0 && "text-red-600"
-            )}
-          >
-            {positionChange !== 0 && (
-              <>
-                <MoveUpIcon
-                  className={cn("h-4 w-4", positionChange < 0 && "rotate-180")}
-                />
-                <span className="-ml-0.5">
-                  {positionChangeFormatter.format(positionChange)}
-                </span>
-              </>
-            )}
-          </span>
-        )}
-      </div>
+      <LeaderboardPositionBadge
+        className="absolute top-1/2 left-3 -translate-y-1/2"
+        exAequo={exAequo}
+        position={position}
+        positionChange={positionChange}
+      />
 
       {children}
     </li>
