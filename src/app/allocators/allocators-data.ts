@@ -149,6 +149,7 @@ const scoreRankingResponseSchema = z.array(
     weekAgoScorePercentage: z.string(),
     monthAgoScorePercentage: z.string().nullable(),
     dataType: scoreRankingDataTypeEnum,
+    totalDatacap: numericalStringSchema.nullable(),
   })
 );
 
@@ -172,7 +173,7 @@ export async function fetchAllocatorScoreRanking(
     `CDP API returned invalid response when fetching allocators score ranking; URL: ${endpoint}`
   );
 
-  return data;
+  return data as FetchAllocatorScoreRankingReturnType;
 }
 
 // Retrievability

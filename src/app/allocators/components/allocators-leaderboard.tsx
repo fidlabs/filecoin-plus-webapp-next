@@ -3,21 +3,40 @@
 import {
   Leaderboard,
   LeaderboardHeader,
-  LeaderboardItem,
-  LeaderboardList,
   LeaderboardPagination,
+  LeaderboardPositionBadge,
   LeaderboardSubtext,
   LeaderboardText,
   LeaderboardTitle,
 } from "@/components/leaderboard";
-import { type FetchAllocatorScoreRankingReturnType } from "../allocators-data";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { groupBy } from "@/lib/utils";
+import { filesize } from "filesize";
+import Link from "next/link";
 import { type ReactNode, useMemo, useState } from "react";
+import { type FetchAllocatorScoreRankingReturnType } from "../allocators-data";
 
 type AllocatorScore = FetchAllocatorScoreRankingReturnType[number];
-type Entry = AllocatorScore & {
-  positionChange: number;
+type Entry = Pick<
+  AllocatorScore,
+  | "allocatorId"
+  | "allocatorName"
+  | "dataType"
+  | "scorePercentage"
+  | "totalScore"
+  | "maxPossibleScore"
+  | "totalDatacap"
+> & {
+  position: number;
+  positionChange: number | undefined;
 };
 
 export interface AllocatorsLeaderboardProps {
@@ -47,25 +66,68 @@ export function AllocatorsLeaderboard({
   const pageOffset = pageSize * (page - 1);
 
   const entries = useMemo<Entry[]>(() => {
-    const lastWeekSorted = scores.toSorted((a, b) => {
-      return (
-        parseFloat(b.weekAgoScorePercentage) -
-        parseFloat(a.weekAgoScorePercentage)
-      );
-    });
+    const currentWeekGroups = Object.entries(
+      groupBy(scores, (score) => score.scorePercentage)
+    )
+      .sort(([aScorePercentage], [bScorePercentage]) => {
+        return parseFloat(bScorePercentage) - parseFloat(aScorePercentage);
+      })
+      .map(([, gropScores]) => gropScores);
 
-    return scores.map((score, index) => {
-      const currentPosition = index + 1;
-      const previousPosition =
-        lastWeekSorted.findIndex((candidate) => {
-          return candidate.allocatorId === score.allocatorId;
-        }) + 1;
+    const lastWeekGroups = Object.entries(
+      groupBy(scores, (score) => score.weekAgoScorePercentage)
+    )
+      .sort(([aScorePercentage], [bScorePercentage]) => {
+        return parseFloat(bScorePercentage) - parseFloat(aScorePercentage);
+      })
+      .map(([, gropScores]) => gropScores);
 
-      return {
-        ...score,
-        positionChange: previousPosition - currentPosition,
-      };
-    });
+    return scores
+      .map<Entry>((score) => {
+        const groupIndex = currentWeekGroups.findIndex((group) => {
+          return (
+            !!group &&
+            group.some(
+              (candidate) => candidate.allocatorId === score.allocatorId
+            )
+          );
+        });
+        const lastWeekGroupIndex = lastWeekGroups.findIndex((group) => {
+          return (
+            !!group &&
+            group.some(
+              (candidate) => candidate.allocatorId === score.allocatorId
+            )
+          );
+        });
+
+        const position = groupIndex + 1;
+        const positionChange =
+          lastWeekGroupIndex !== -1
+            ? lastWeekGroupIndex + 1 - position
+            : undefined;
+
+        return {
+          ...score,
+          position,
+          positionChange,
+        };
+      })
+      .sort((a, b) => {
+        if (a.position === b.position) {
+          if (a.totalDatacap === null) {
+            return 1;
+          }
+
+          if (b.totalDatacap === null) {
+            return -1;
+          }
+
+          return BigInt(a.totalDatacap) > BigInt(b.totalDatacap) ? -1 : 1;
+        }
+
+        return a.position - b.position;
+      });
   }, [scores]);
   const visibleEntries = entries.slice(pageOffset, pageSize * page);
 
@@ -74,16 +136,32 @@ export function AllocatorsLeaderboard({
       <LeaderboardHeader>
         <LeaderboardTitle>{heading}</LeaderboardTitle>
       </LeaderboardHeader>
-      <LeaderboardList>
-        {visibleEntries.map((entry, index) => (
-          <LeaderboardItem
-            key={entry.allocatorId}
-            position={pageOffset + index + 1}
-            positionChange={entry.positionChange}
-          >
-            <div className="flex items-center justify-between gap-x-4">
-              <div className="min-w-0">
-                <LeaderboardText className="whitespace-nowrap overflow-hidden text-ellipsis">
+      <Table className="max-w-full">
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-[1%] text-center">#</TableHead>
+            <TableHead className="w-[97%]">Allocator</TableHead>
+            <TableHead className="w-[1%] text-right">Datacap</TableHead>
+            <TableHead className="w-[1%] text-right">Score</TableHead>
+          </TableRow>
+        </TableHeader>
+
+        <TableBody>
+          {visibleEntries.map((entry, index) => (
+            <TableRow key={entry.allocatorId}>
+              <TableCell className="w-[1%]">
+                <LeaderboardPositionBadge
+                  exAequo={
+                    index !== 0 &&
+                    visibleEntries[index - 1].position === entry.position
+                  }
+                  position={entry.position}
+                  positionChange={entry.positionChange}
+                />
+              </TableCell>
+
+              <TableCell className="w-[97%] max-w-0 overflow-hidden">
+                <LeaderboardText className="max-w-full whitespace-nowrap overflow-hidden text-ellipsis">
                   <Button asChild variant="link" className="inline">
                     <Link href={`/allocators/${entry.allocatorId}/score`}>
                       {entry.allocatorName}
@@ -93,22 +171,33 @@ export function AllocatorsLeaderboard({
                 <LeaderboardSubtext>
                   {dataTypeDict[entry.dataType]}
                 </LeaderboardSubtext>
-              </div>
+              </TableCell>
 
-              <div>
-                <LeaderboardText className="text-right">
+              <TableCell className="w-[1%] text-right">
+                <LeaderboardText className="whitespace-nowrap">
+                  {entry.totalDatacap !== null
+                    ? filesize(entry.totalDatacap, {
+                        standard: "iec",
+                      }).toString()
+                    : "N/A"}
+                </LeaderboardText>
+              </TableCell>
+
+              <TableCell className="w-[1%] text-right">
+                <LeaderboardText className="whitespace-nowrap">
                   {percentageFormatter.format(
                     parseFloat(entry.scorePercentage) / 100
                   )}
                 </LeaderboardText>
-                <LeaderboardSubtext className="text-right whitespace-nowrap">
-                  {entry.totalScore} / {entry.maxPossibleScore} points
+                <LeaderboardSubtext className="whitespace-nowrap">
+                  {entry.totalScore} / {entry.maxPossibleScore} pts
                 </LeaderboardSubtext>
-              </div>
-            </div>
-          </LeaderboardItem>
-        ))}
-      </LeaderboardList>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+
       <LeaderboardPagination
         className="mt-auto"
         page={page}
