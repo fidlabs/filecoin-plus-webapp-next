@@ -587,3 +587,77 @@ export async function fetchAllocatorsChecksBreakdown(
 
   return data as FetchAllocatorsChecksBreakdownReturnType; // cast beacause for some reason Zod does not like custom schema here
 }
+
+// Scoring breakdown
+export interface FetchAllocatorsScoringBreakdownParameters {
+  groupBy?: "week" | "month";
+  dataType?: "openData" | "enterprise";
+  mediumScoreThreshold?: number;
+  highScoreThreshold?: number;
+  includeDetails?: boolean;
+}
+
+export type FetchAllocatorsScoringBreakdownReturnType = z.infer<
+  typeof scoringBreakdownSchema
+>;
+
+const scoringBreakdownAllocatorSchema = z.object({
+  dataType: z.enum(["enterprise", "openData"]),
+  reportId: z.string(),
+  createDate: z.string().datetime(),
+  totalScore: z.number(),
+  allocatorId: z.string(),
+  totalDatacap: z.string(),
+  scorePercentage: z.string(),
+  maxPossibleScore: z.number(),
+});
+
+const scoringBreakdownSchema = z.array(
+  z.object({
+    metric: z.string(),
+    metricName: z.string(),
+    metricDescription: z.string(),
+    metricUnit: z.string().nullable(),
+    data: z.array(
+      z.object({
+        date: z.string().datetime(),
+        scoreLowAllocators: z.array(scoringBreakdownAllocatorSchema).nullable(),
+        scoreMediumAllocators: z
+          .array(scoringBreakdownAllocatorSchema)
+          .nullable(),
+        scoreHighAllocators: z
+          .array(scoringBreakdownAllocatorSchema)
+          .nullable(),
+        scoreLowAllocatorsCount: z.number(),
+        scoreMediumAllocatorsCount: z.number(),
+        scoreHighAllocatorsCount: z.number(),
+        scoreLowAllocatorsDatacap: numericalStringSchema,
+        scoreMediumAllocatorsDatacap: numericalStringSchema,
+        scoreHighAllocatorsDatacap: numericalStringSchema,
+      })
+    ),
+  })
+);
+
+export async function fetchAllocatorsScoringBreakdown(
+  parameters: FetchAllocatorsScoringBreakdownParameters = {}
+): Promise<FetchAllocatorsScoringBreakdownReturnType> {
+  const searchParams = objectToURLSearchParams(parameters, true);
+  const endpoint = `${CDP_API_URL}/allocators/scores-summary-by-metric?${searchParams.toString()}`;
+  const response = await fetch(endpoint);
+
+  throwHTTPErrorOrSkip(
+    response,
+    `CDP API returned status code ${response.status} when fetching allocators scoring breakdown; URL: ${endpoint}`
+  );
+
+  const json = await response.json();
+
+  assertSchema(
+    json,
+    scoringBreakdownSchema,
+    `CDP API return invalid data when fetching allocators scoring breakdown; URL: ${endpoint}`
+  );
+
+  return json as FetchAllocatorsScoringBreakdownReturnType;
+}
