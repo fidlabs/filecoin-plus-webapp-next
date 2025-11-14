@@ -24,6 +24,8 @@ import {
   FetchAllocatorsParameters,
   fetchAllocatorsRetrievabilityData,
   FetchAllocatorsRetrievabilityDataParameters,
+  fetchAllocatorsScoringBreakdown,
+  FetchAllocatorsScoringBreakdownParameters,
   fetchAllocatorsSPsComplianceData,
   FetchAllocatorsSPsComplianceDataParameters,
 } from "./allocators-data";
@@ -42,6 +44,7 @@ import { AllocatorsAuditTimesWidget } from "./components/allocators-audit-times-
 import { AllocatorsOldDatacapWidget } from "./components/allocators-old-datacap-widget";
 import { BackToTop } from "@/components/back-to-top";
 import { AllocatorsChecksBreakdownWidget } from "./components/allocators-checks-breakdown-widget";
+import { AllocatorsScoringBreakdownWidget } from "./components/allocators-scoring-breakdown-widget";
 
 export const revalidate = 300;
 
@@ -58,6 +61,7 @@ const sectionTabs = {
   [AllocatorsPageSectionId.RETRIEVABILITY]: "Retrievability",
   [AllocatorsPageSectionId.CLIENT_DIVERSITY]: "Client Diversity",
   [AllocatorsPageSectionId.CLIENT_DISTRIBUTION]: "Client Distribution",
+  [AllocatorsPageSectionId.SCORING_BREAKDOWN]: "Scoring Breakdown",
   [AllocatorsPageSectionId.ALERTS_BREAKDOWN]: "Alerts Breakdown",
   [AllocatorsPageSectionId.DC_FLOW]: "DC Flow",
   [AllocatorsPageSectionId.AUDITS_FLOW]: "Audits Flow",
@@ -117,6 +121,15 @@ const checksBreakdownDefaultParameters: FetchAllocatorsChecksBreakdownParameters
     groupBy: "week",
   };
 
+const scoringBreakdownDefaultParameters: FetchAllocatorsScoringBreakdownParameters =
+  {
+    groupBy: "week",
+    dataType: undefined,
+    mediumScoreThreshold: 30,
+    highScoreThreshold: 75,
+    includeDetails: false,
+  };
+
 export default async function AllocatorsPage() {
   const [
     fetchAllocatorsResult,
@@ -130,6 +143,7 @@ export default async function AllocatorsPage() {
     auditTimesResult,
     checksBreakdownResult,
     allocatorsScoreRankingResult,
+    scoringBreakdownResult,
   ] = await Promise.allSettled([
     fetchAllocators(allocatorsListDefaultParameters),
     fetchAllocators(metaallocatorsListDefaultParameters),
@@ -142,6 +156,7 @@ export default async function AllocatorsPage() {
     fetchAllocatorsAuditTimes(auditTimesDefaultParameters),
     fetchAllocatorsChecksBreakdown(checksBreakdownDefaultParameters),
     fetchAllocatorScoreRanking(),
+    fetchAllocatorsScoringBreakdown(scoringBreakdownDefaultParameters),
   ]);
 
   const fallback = {
@@ -181,6 +196,10 @@ export default async function AllocatorsPage() {
       QueryKey.ALLOCATORS_CHECKS_BREAKDOWN,
       checksBreakdownDefaultParameters,
     ])]: unwrapResult(checksBreakdownResult),
+    [unstable_serialize([
+      QueryKey.ALLOCATORS_SCORING_BREAKDOWN,
+      scoringBreakdownDefaultParameters,
+    ])]: unwrapResult(scoringBreakdownResult),
   };
 
   return (
@@ -216,6 +235,10 @@ export default async function AllocatorsPage() {
         />
         <AllocatorsClientDistributionWidget
           id={AllocatorsPageSectionId.CLIENT_DISTRIBUTION}
+        />
+        <AllocatorsScoringBreakdownWidget
+          defaultParameters={scoringBreakdownDefaultParameters}
+          id={AllocatorsPageSectionId.SCORING_BREAKDOWN}
         />
         <AllocatorsChecksBreakdownWidget
           id={AllocatorsPageSectionId.ALERTS_BREAKDOWN}
