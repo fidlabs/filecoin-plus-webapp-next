@@ -25,7 +25,9 @@ export async function fetchClients(
   const searchParams = objectToURLSearchParams(
     {
       ...restOfParameters,
-      sort: sort ? `[["${sort.key}",${sort.direction}]]` : undefined,
+      sort: sort
+        ? `[["${sort.key}",${sort.direction === "asc" ? "1" : "0"}]]`
+        : undefined,
     },
     true
   );
