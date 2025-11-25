@@ -1,14 +1,15 @@
 "use client";
 
 import {
-  ColumnDef,
   flexRender,
   getCoreRowModel,
+  getPaginationRowModel,
   getSortedRowModel,
   OnChangeFn,
+  PaginationState,
   RowSelectionState,
   SortingState,
-  Table as TenstackTable,
+  TableOptions,
   useReactTable,
 } from "@tanstack/react-table";
 
@@ -20,26 +21,27 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { PropsWithChildren, useEffect, useState } from "react";
+import { PropsWithChildren, useState } from "react";
 
-type DataTableProps<TData, TValue> = PropsWithChildren<{
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
-  setTable?: (table: TenstackTable<TData>) => void;
+type DataTableProps<TData> = PropsWithChildren<{
   rowSelection?: RowSelectionState;
   setRowSelection?: OnChangeFn<RowSelectionState>;
   columnVisibility?: Record<string, boolean>;
-}>;
+  pagination?: PaginationState;
+  onPaginationChange?: OnChangeFn<PaginationState>;
+}> &
+  Pick<TableOptions<TData>, "columns" | "data">;
 
-export function DataTable<TData, TValue>(props: DataTableProps<TData, TValue>) {
+export function DataTable<TData>(props: DataTableProps<TData>) {
   const {
     children,
     columns,
     data,
-    setTable,
     rowSelection,
     setRowSelection,
     columnVisibility,
+    pagination,
+    onPaginationChange,
   } = props;
   const [sorting, setSorting] = useState<SortingState>([]);
 
@@ -50,6 +52,8 @@ export function DataTable<TData, TValue>(props: DataTableProps<TData, TValue>) {
     onSortingChange: setSorting,
     onRowSelectionChange: setRowSelection,
     getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: pagination ? getPaginationRowModel() : undefined,
+    onPaginationChange,
     defaultColumn: {
       size: Number.NaN,
     },
@@ -57,12 +61,9 @@ export function DataTable<TData, TValue>(props: DataTableProps<TData, TValue>) {
       sorting,
       columnVisibility,
       rowSelection: rowSelection ?? {},
+      pagination,
     },
   });
-
-  useEffect(() => {
-    setTable && setTable(table);
-  }, [setTable, table]);
 
   return (
     <Table>

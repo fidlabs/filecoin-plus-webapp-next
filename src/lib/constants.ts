@@ -18,6 +18,10 @@ export enum QueryKey {
   ALLOCATORS_SCORING_BREAKDOWN = "allocators_scoring_breakdown",
   CLIENTS_LIST = "clients_list",
   CLIENTS_OLD_DATACAP = "clients_old_datacap",
+  CLIENT_ALLOCATIONS = "client_allocations",
+  CLIENT_LATEST_CLAIMS = "client_latest_claim",
+  CLIENT_PROVIDERS = "client_providers",
+  CLIENT_REPORTS = "client_reports",
   STORAGE_PROVIDERS_LIST = "storage_providers_list",
   STORAGE_PROVIDERS_COMPLIANCE_DATA = "storage_providers_compliance_data",
   STORAGE_PROVIDERS_RETRIEVABILITY_DATA = "storage_providers_retrievability_data",
@@ -48,6 +52,13 @@ export enum ClientsPageSectionId {
   STATS = "stats",
   LIST = "list",
   OLD_DATACAP = "old-datacap",
+}
+
+export enum ClientDetailsPageSectionId {
+  LATEST_CLAIMS = "latest-claims",
+  PROVIDERS = "providers",
+  ALLOCATIONS = "allocations",
+  REPORTS = "reports",
 }
 
 export enum StorageProvidersPageSectionId {

@@ -10,12 +10,7 @@ import {
   IAllocatorResponse,
   IAllocatorsResponse,
 } from "@/lib/interfaces/dmob/allocator.interface";
-import {
-  IClientAllocationsResponse,
-  IClientLatestClaimsResponse,
-  IClientResponse,
-  IClientsResponse,
-} from "@/lib/interfaces/dmob/client.interface";
+import { IClientsResponse } from "@/lib/interfaces/dmob/client.interface";
 import {
   IFilDCAllocationsWeekly,
   IFilDCAllocationsWeeklyByClient,
@@ -30,7 +25,6 @@ import * as z from "zod";
 import { CDP_API_URL } from "./constants";
 import { throwHTTPErrorOrSkip } from "./http-errors";
 import { objectToURLSearchParams } from "./utils";
-import { numericalStringSchema } from "./zod-extensions";
 
 const revalidate = 30;
 const apiUrl = "https://api.datacapstats.io/api";
@@ -125,25 +119,6 @@ export const getClients = async (query?: IApiQuery) => {
   return (await fetchData(url)) as IClientsResponse;
 };
 
-export const getClientById = async (id: string, query?: IApiQuery) => {
-  const url = `${apiUrl}/v2/getUnifiedVerifiedDeals/${id}${parseQuery(query)}`;
-  return (await fetchData(url)) as IClientResponse;
-};
-
-export const getClientLatestClaimsByClientId = async (
-  id: string,
-  query?: IApiQuery
-) => {
-  const url = `${CDP_API_URL}/clients/${id}/latest-claims${parseQuery(query)}`;
-  const response = (await fetchData(url)) as IClientLatestClaimsResponse;
-  return response;
-};
-
-export const getClientAllocationsById = async (id: string) => {
-  const url = `${apiUrl}/getVerifiedClients?filter=${id}`;
-  return (await fetchData(url)) as IClientAllocationsResponse;
-};
-
 export const getStorageProviders = async (query?: IApiQuery) => {
   const url = `${CDP_API_URL}/storage-providers${parseQuery(query)}`;
   return (await fetchData(url)) as IStorageProvidersResponse;
@@ -157,11 +132,6 @@ export const getStorageProvidersByCompliance = async (query?: IApiQuery) => {
 export const getStorageProviderById = async (id: string, query?: IApiQuery) => {
   const url = `${apiUrl}/v2/getMinerInfo/${id}${parseQuery(query)}`;
   return (await fetchData(url)) as IStorageProviderResponse;
-};
-
-export const getClientReports = async (clientId: string) => {
-  const url = `${CDP_API_URL}/client-report/${clientId}`;
-  return (await fetchData(url)) as IClientReportsResponse;
 };
 
 export const getAllocatorReports = async (allocatorId: string) => {
@@ -236,150 +206,6 @@ export const getGoogleSheetAuditTimeline = async () => {
   const url = `${CDP_API_URL}/proxy/googleapis/allocators-overview?tab=Charts`;
   return (await fetchData(url)) as IGoogleSheetResponse;
 };
-
-// Clients old datacap
-const clientsOldDatacapResponseSchema = z.object({
-  results: z.array(
-    z.object({
-      week: z.string().datetime(),
-      clients: z.number(),
-      oldDatacap: numericalStringSchema,
-      claims: numericalStringSchema,
-      drilldown: z.array(
-        z.object({
-          client: z.string(),
-          oldDatacap: numericalStringSchema,
-          claims: numericalStringSchema,
-        })
-      ),
-    })
-  ),
-});
-
-export type ClientsOldDatacapResponse = z.infer<
-  typeof clientsOldDatacapResponseSchema
->;
-
-function assertIsClientsOldDatacapResponse(
-  input: unknown
-): asserts input is ClientsOldDatacapResponse {
-  const result = clientsOldDatacapResponseSchema.safeParse(input);
-
-  if (!result.success) {
-    throw new TypeError(
-      "Invalid response from CDP API when fetching clients old datacap"
-    );
-  }
-}
-
-export async function fetchClientsOldDatacap(): Promise<ClientsOldDatacapResponse> {
-  const endpoint = `${CDP_API_URL}/stats/old-datacap/client-balance`;
-  const response = await fetch(endpoint);
-
-  if (!response.ok) {
-    throw new Error(
-      `CDP API returned status ${response.status} when fetching clients' old datacap`
-    );
-  }
-
-  const data = await response.json();
-  assertIsClientsOldDatacapResponse(data);
-  return data;
-}
-
-// IPNI Mistreporting Historical
-const ipniMisreportingHistoricalSchema = z.object({
-  results: z.array(
-    z.object({
-      week: z.string().datetime(),
-      misreporting: z.number(),
-      notReporting: z.number(),
-      ok: z.number(),
-      total: z.number(),
-    })
-  ),
-});
-
-export type IPNIMisreportingHistoricalReponse = z.infer<
-  typeof ipniMisreportingHistoricalSchema
->;
-
-function assertIsIPNIMisreportingHistoricalReponse(
-  input: unknown
-): asserts input is IPNIMisreportingHistoricalReponse {
-  const result = ipniMisreportingHistoricalSchema.safeParse(input);
-
-  if (!result.success) {
-    throw new TypeError(
-      "Invalid response from CDP API when fetching SPs historical IPNI status"
-    );
-  }
-}
-
-export async function fetchIPNIMisreportingHistoricalData(
-  roundId: string | null
-): Promise<IPNIMisreportingHistoricalReponse> {
-  const searchParams = new URLSearchParams();
-  if (roundId) searchParams.append("editionId", roundId);
-
-  const endpoint = `${CDP_API_URL}/stats/acc/providers/aggregated-ipni-status-weekly?${searchParams.toString()}`;
-  const response = await fetch(endpoint);
-
-  if (!response.ok) {
-    throw new Error(
-      `CDP API returned status ${response.status} when fetching SPs historical IPNI status`
-    );
-  }
-
-  const data = await response.json();
-  assertIsIPNIMisreportingHistoricalReponse(data);
-  return data;
-}
-
-// Client Provider breakdown
-const clientProvidersResponseSchema = z.object({
-  name: z.string().nullable(),
-  stats: z.array(
-    z.object({
-      provider: z.string(),
-      total_deal_size: numericalStringSchema,
-      percent: z.string(),
-    })
-  ),
-});
-
-export type ClientProvidersResponse = z.infer<
-  typeof clientProvidersResponseSchema
->;
-
-function assertIsClientProvidersResponse(
-  input: unknown
-): asserts input is ClientProvidersResponse {
-  const result = clientProvidersResponseSchema.safeParse(input);
-
-  if (!result.success) {
-    throw new TypeError(
-      "Invalid response from CDP API when fetching Client's Providers breakdown"
-    );
-  }
-}
-
-export async function getClientProviderBreakdownById(
-  clientId: string
-): Promise<ClientProvidersResponse> {
-  const endpoint = `${CDP_API_URL}/clients/${clientId}/providers`;
-  const response = await fetch(endpoint);
-
-  if (!response.ok) {
-    throw new Error(
-      `CDP API returned status ${response.status} when fetching Client's Providers breakdown`
-    );
-  }
-
-  const data = await response.json();
-  assertIsClientProvidersResponse(data);
-  return data;
-}
 
 // Report Checks
 const allocatorsReportChecksWeeksSchema = z.array(

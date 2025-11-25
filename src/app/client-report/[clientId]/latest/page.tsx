@@ -1,4 +1,4 @@
-import { getClientReports } from "@/lib/api";
+import { fetchClientReports } from "@/app/clients/clients-data";
 import { redirect } from "next/navigation";
 
 interface Props {
@@ -9,11 +9,12 @@ export const revalidate = 3600;
 
 // This is just a proxy route to redirect to most recent report of a client
 export default async function LatestClientReportPage({ params }: Props) {
-  const reports = await getClientReports(params.clientId);
+  const { clientId } = params;
+  const reports = await fetchClientReports({ clientId });
 
   if (reports.length === 0) {
-    return redirect(`/clients/${params.clientId}/reports`);
+    return redirect(`/clients/${clientId}/reports`);
   }
 
-  return redirect(`/clients/${params.clientId}/reports/${reports[0].id}`);
+  return redirect(`/clients/${clientId}/reports/${reports[0].id}`);
 }
