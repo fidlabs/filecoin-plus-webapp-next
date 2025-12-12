@@ -1,6 +1,10 @@
 "use client";
 
 import { ChartTooltip } from "@/components/chart-tooltip";
+import {
+  ChartType,
+  ChartTypeTabsSelect,
+} from "@/components/chart-type-tabs-select";
 import { OverlayLoader } from "@/components/overlay-loader";
 import { Card } from "@/components/ui/card";
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
@@ -16,8 +20,9 @@ import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { QueryKey } from "@/lib/constants";
 import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
+import { useDynamicBarsCount } from "@/lib/hooks/use-dynamic-bars-count";
 import { type ICDPRange } from "@/lib/interfaces/cdp/cdp.interface";
-import { bigintToPercentage, cn, mapObject } from "@/lib/utils";
+import { ArrayElement, bigintToPercentage, cn, mapObject } from "@/lib/utils";
 import { weekFromDate, weekToReadableString } from "@/lib/weeks";
 import { HoverCardTrigger } from "@radix-ui/react-hover-card";
 import { filesize } from "filesize";
@@ -25,7 +30,8 @@ import { InfoIcon } from "lucide-react";
 import { type ComponentProps, useCallback, useMemo, useState } from "react";
 import {
   Area,
-  AreaChart,
+  Bar,
+  ComposedChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -38,8 +44,9 @@ import {
 } from "../allocators-data";
 
 type Threshold = [number, number];
-type Group = (typeof groups)[number];
+type Group = ArrayElement<typeof groups>;
 type GroupValues = Record<Group, bigint>;
+type EnabledChartType = ArrayElement<typeof enabledChartTypes>;
 type ChartDataEntry = {
   date: string;
 } & Record<keyof GroupValues, number>;
@@ -69,14 +76,15 @@ const initialGroupValues: GroupValues = {
 };
 const scales = ["linear", "percentage", "log"] as const;
 const modes = ["datacap", "count"] as const;
+const enabledChartTypes = ["area", "bar"] as const satisfies ChartType[];
 
-const scalesLabelDict: Record<(typeof scales)[number], string> = {
+const scalesLabelDict: Record<ArrayElement<typeof scales>, string> = {
   linear: "Linear",
   percentage: "Percentage",
   log: "Log",
 };
 
-const modesLabelDict: Record<(typeof modes)[number], string> = {
+const modesLabelDict: Record<ArrayElement<typeof modes>, string> = {
   datacap: "PiB",
   count: "Count",
 };
@@ -94,6 +102,11 @@ export function AllocatorsClientDiversityWidget({
   const [scale, setScale] = useState<string>(scales[0]);
   const [mode, setMode] = useState<string>(modes[0]);
   const [threshold, setThreshold] = useState<Threshold>([3, 10]);
+  const [chartType, setChartType] = useState<EnabledChartType>("area");
+  const { chartWrapperRef, barsCount } = useDynamicBarsCount({
+    minBarSize: 12,
+    margins: 116,
+  });
 
   const [editionId, setEditionId] = useState<string>();
   const parameters: FetchAllocatorsClientDiversityDataParameters = {
@@ -210,6 +223,12 @@ export function AllocatorsClientDiversityWidget({
           </SelectContent>
         </Select>
 
+        <ChartTypeTabsSelect
+          chartType={chartType}
+          enable={enabledChartTypes}
+          onChartTypeChange={setChartType}
+        />
+
         <ThresholdSlider
           threshold={threshold}
           onThresholdChange={setThreshold}
@@ -217,9 +236,14 @@ export function AllocatorsClientDiversityWidget({
       </div>
 
       <div className="relative">
-        <ResponsiveContainer width="100%" height={500} debounce={200}>
-          <AreaChart
-            data={chartData}
+        <ResponsiveContainer
+          ref={chartWrapperRef}
+          width="100%"
+          height={500}
+          debounce={200}
+        >
+          <ComposedChart
+            data={chartType === "bar" ? chartData.slice(-barsCount) : chartData}
             margin={{
               left: 16,
               right: 16,
@@ -240,25 +264,43 @@ export function AllocatorsClientDiversityWidget({
               scale={scale === "log" ? "symlog" : "linear"}
             />
 
-            {groups.map((group) => (
-              <Area
-                key={group}
-                dataKey={group}
-                type="monotone"
-                name={groupLabelDict[group]}
-                fill={groupColorsMap[group]}
-                stroke={groupColorsMap[group]}
-                stackId="groups"
-                animationDuration={animationDuration}
-              />
-            ))}
+            {groups.map((group) => {
+              switch (chartType) {
+                case "area":
+                  return (
+                    <Area
+                      key={`${group}_area`}
+                      dataKey={group}
+                      type="monotone"
+                      name={groupLabelDict[group]}
+                      fill={groupColorsMap[group]}
+                      stroke={groupColorsMap[group]}
+                      stackId="areas"
+                      animationDuration={animationDuration}
+                    />
+                  );
+                case "bar":
+                  return (
+                    <Bar
+                      key={`${group}_bar`}
+                      dataKey={group}
+                      name={groupLabelDict[group]}
+                      fill={groupColorsMap[group]}
+                      stroke="#000"
+                      strokeWidth={1}
+                      stackId="bars"
+                      animationDuration={animationDuration}
+                    />
+                  );
+              }
+            })}
 
             <Tooltip<string | number, string>
               labelFormatter={formatDate}
               formatter={formatValue}
               content={ChartTooltip}
             />
-          </AreaChart>
+          </ComposedChart>
         </ResponsiveContainer>
         <OverlayLoader show={!data || isLongLoading} />
       </div>

@@ -20,12 +20,18 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { QueryKey } from "@/lib/constants";
 import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
-import { bigintToPercentage, cn, gradientPalette } from "@/lib/utils";
+import {
+  ArrayElement,
+  bigintToPercentage,
+  cn,
+  gradientPalette,
+} from "@/lib/utils";
 import { weekFromDate, weekToReadableString } from "@/lib/weeks";
 import { filesize } from "filesize";
 import { type ComponentProps, useCallback, useMemo, useState } from "react";
 import {
   Area,
+  Bar,
   ComposedChart,
   Line,
   ResponsiveContainer,
@@ -39,6 +45,11 @@ import {
   fetchStorageProvidersRetrievabilityData,
   FetchStorageProvidersRetrievabilityDataParameters,
 } from "../storage-providers-data";
+import {
+  ChartType,
+  ChartTypeTabsSelect,
+} from "@/components/chart-type-tabs-select";
+import { useDynamicBarsCount } from "@/lib/hooks/use-dynamic-bars-count";
 
 type CardProps = ComponentProps<typeof Card>;
 type CheckboxProps = ComponentProps<typeof Checkbox>;
@@ -62,24 +73,26 @@ type Range = [number | null, number | null];
 type RetrievabilityType = NonNullable<
   FetchStorageProvidersRetrievabilityDataParameters["retrievabilityType"]
 >;
+type EnabledChartType = ArrayElement<typeof enabledChartTypes>;
 
 const scales = ["linear", "percentage", "log"] as const;
 const modes = ["datacap", "count"] as const;
 const groupingOptions = ["three", "six", "all"] as const;
+const enabledChartTypes = ["area", "bar"] as const satisfies ChartType[];
 
-const scalesLabelDict: Record<(typeof scales)[number], string> = {
+const scalesLabelDict: Record<ArrayElement<typeof scales>, string> = {
   linear: "Linear",
   percentage: "Percentage",
   log: "Log",
 };
 
-const modesLabelDict: Record<(typeof modes)[number], string> = {
+const modesLabelDict: Record<ArrayElement<typeof modes>, string> = {
   datacap: "PiB",
   count: "Count",
 };
 
 const groupingOptionsLabelDict: Record<
-  (typeof groupingOptions)[number],
+  ArrayElement<typeof groupingOptions>,
   string
 > = {
   three: "3 Groups",
@@ -147,6 +160,11 @@ export function StorageProvidersRetrievabilityWidget({
   const [groupingOption, setGroupingOption] = useState<string>(
     groupingOptions[0]
   );
+  const [chartType, setChartType] = useState<EnabledChartType>("area");
+  const { chartWrapperRef, barsCount } = useDynamicBarsCount({
+    minBarSize: 12,
+    margins: 160,
+  });
 
   const parameters: FetchStorageProvidersRetrievabilityDataParameters = {
     editionId,
@@ -411,6 +429,12 @@ export function StorageProvidersRetrievabilityWidget({
             </SelectContent>
           </Select>
 
+          <ChartTypeTabsSelect
+            chartType={chartType}
+            enable={enabledChartTypes}
+            onChartTypeChange={setChartType}
+          />
+
           <div className="flex items-center space-x-2">
             <Checkbox
               id="open-data"
@@ -436,9 +460,14 @@ export function StorageProvidersRetrievabilityWidget({
       </div>
 
       <div className="relative">
-        <ResponsiveContainer width="100%" height={400} debounce={200}>
+        <ResponsiveContainer
+          ref={chartWrapperRef}
+          width="100%"
+          height={400}
+          debounce={200}
+        >
           <ComposedChart
-            data={chartData}
+            data={chartType === "bar" ? chartData.slice(-barsCount) : chartData}
             margin={{
               left: 24,
               right: 16,
@@ -484,19 +513,47 @@ export function StorageProvidersRetrievabilityWidget({
               }}
             />
 
-            {ranges.map((range, rangeIndex) => (
-              <Area
-                key={`area_${rangeIndex}`}
-                dataKey={indexToGroupKey(rangeIndex)}
-                yAxisId="sp"
-                stackId="ranges"
-                type="monotone"
-                name={getLabelForRange(range)}
-                stroke={palette[rangeIndex]}
-                fill={palette[rangeIndex]}
-                animationDuration={animationDuration}
-              />
-            ))}
+            <Tooltip
+              labelFormatter={formatDate}
+              formatter={formatTooltipValue}
+              content={CustomTooltipContent}
+            />
+
+            {ranges.map((range, rangeIndex) => {
+              const dataKey = indexToGroupKey(rangeIndex);
+              const name = getLabelForRange(range);
+
+              switch (chartType) {
+                case "area":
+                  return (
+                    <Area
+                      key={`area_${rangeIndex}`}
+                      dataKey={dataKey}
+                      yAxisId="sp"
+                      stackId="areas"
+                      type="monotone"
+                      name={name}
+                      fill={palette[rangeIndex]}
+                      stroke={palette[rangeIndex]}
+                      animationDuration={animationDuration}
+                    />
+                  );
+                case "bar":
+                  return (
+                    <Bar
+                      key={`bar_${rangeIndex}`}
+                      dataKey={dataKey}
+                      yAxisId="sp"
+                      stackId="bars"
+                      name={name}
+                      fill={palette[rangeIndex]}
+                      stroke="#000"
+                      strokeWidth={1}
+                      animationDuration={animationDuration}
+                    />
+                  );
+              }
+            })}
 
             <Line
               yAxisId="average"
@@ -504,12 +561,6 @@ export function StorageProvidersRetrievabilityWidget({
               name="Average Success Rate"
               stroke="rgba(0, 0, 0, 0.5)"
               animationDuration={animationDuration}
-            />
-
-            <Tooltip
-              labelFormatter={formatDate}
-              formatter={formatTooltipValue}
-              content={CustomTooltipContent}
             />
           </ComposedChart>
         </ResponsiveContainer>

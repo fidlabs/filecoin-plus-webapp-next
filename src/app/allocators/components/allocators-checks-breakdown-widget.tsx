@@ -23,13 +23,18 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { cn } from "@/lib/utils";
+import { ArrayElement, cn } from "@/lib/utils";
+import {
+  ChartType,
+  ChartTypeTabsSelect,
+} from "@/components/chart-type-tabs-select";
 
 type CheckboxCheckedChangeHandler = NonNullable<
   ComponentProps<typeof Checkbox>["onCheckedChange"]
 >;
 
 type ChartMode = NonNullable<AllocatorsChecksHistoricalChartProps["mode"]>;
+type EnabledChartType = ArrayElement<typeof enabledChartTypes>;
 type CardProps = ComponentProps<typeof Card>;
 
 export interface AllocatorsChecksBreakdownWidgetProps
@@ -42,6 +47,7 @@ const chartModesDict: Record<ChartMode, string> = {
   checkCount: "Count",
   datacap: "Datacap",
 };
+const enabledChartTypes = ["area", "bar"] as const satisfies ChartType[];
 const syncCheckboxId = "allocators_check_charts_sync_checkbox";
 
 export function AllocatorsChecksBreakdownWidget({
@@ -61,6 +67,7 @@ export function AllocatorsChecksBreakdownWidget({
   const [syncEnabled, setSyncEnabled] = useState(true);
   const [selectedChecks, setSelectedChecks] = useState<string[]>([]);
   const [chartMode, setChartMode] = useState<string>(chartModes[0]);
+  const [chartType, setChartType] = useState<EnabledChartType>("bar");
 
   const visibleBreakdowns = useMemo(() => {
     if (!data) {
@@ -141,6 +148,12 @@ export function AllocatorsChecksBreakdownWidget({
               ))}
             </TabsList>
           </Tabs>
+
+          <ChartTypeTabsSelect
+            chartType={chartType}
+            enable={enabledChartTypes}
+            onChartTypeChange={setChartType}
+          />
         </div>
       </div>
 
@@ -156,6 +169,7 @@ export function AllocatorsChecksBreakdownWidget({
             mode={chartMode as ChartMode}
             minIntervalsCount={minIntervalsCount}
             animationDuration={animationDuration}
+            chartType={chartType}
           />
         ))}
 

@@ -2,6 +2,10 @@
 
 import { ChartStat } from "@/components/chart-stat";
 import { ChartTooltip } from "@/components/chart-tooltip";
+import {
+  ChartType,
+  ChartTypeTabsSelect,
+} from "@/components/chart-type-tabs-select";
 import { OverlayLoader } from "@/components/overlay-loader";
 import { Card } from "@/components/ui/card";
 import {
@@ -14,14 +18,21 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { QueryKey } from "@/lib/constants";
 import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
-import { bigintToPercentage, cn, objectToURLSearchParams } from "@/lib/utils";
+import { useDynamicBarsCount } from "@/lib/hooks/use-dynamic-bars-count";
+import {
+  ArrayElement,
+  bigintToPercentage,
+  cn,
+  objectToURLSearchParams,
+} from "@/lib/utils";
 import { weekFromDate, weekToReadableString, weekToString } from "@/lib/weeks";
 import { filesize } from "filesize";
 import { useRouter } from "next/navigation";
 import { type ComponentProps, useCallback, useMemo, useState } from "react";
 import {
   Area,
-  AreaChart,
+  Bar,
+  ComposedChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -57,21 +68,32 @@ interface Stat {
   label: string;
 }
 
+type Option = ArrayElement<typeof options>;
+type EnabledChartType = ArrayElement<typeof enabledChartTypes>;
+
+const options = ["compliant", "partiallyCompliant", "nonCompliant"] as const;
 const scales = ["linear", "percentage", "log"] as const;
 const modes = ["datacap", "count"] as const;
+const enabledChartTypes = ["area", "bar"] as const satisfies ChartType[];
 
-const scalesLabelDict: Record<(typeof scales)[number], string> = {
+const optionsLabelDict: Record<Option, string> = {
+  compliant: "Compliant",
+  partiallyCompliant: "Partially Compliant",
+  nonCompliant: "Non Compliant",
+};
+
+const scalesLabelDict: Record<ArrayElement<typeof scales>, string> = {
   linear: "Linear",
   percentage: "Percentage",
   log: "Log",
 };
 
-const modesLabelDict: Record<(typeof modes)[number], string> = {
+const modesLabelDict: Record<ArrayElement<typeof modes>, string> = {
   datacap: "PiB",
   count: "Count",
 };
 
-const colors = {
+const colors: Record<Option, string> = {
   compliant: "#66a61e",
   partiallyCompliant: "orange",
   nonCompliant: "#ff0029",
@@ -84,6 +106,11 @@ export function StorageProvidersComplianceWidget({
 }: StorageProvidersComplianceWidgetProps) {
   const [scale, setScale] = useState<string>(scales[0]);
   const [mode, setMode] = useState<string>(modes[0]);
+  const [chartType, setChartType] = useState<EnabledChartType>("area");
+  const { chartWrapperRef, barsCount } = useDynamicBarsCount({
+    minBarSize: 12,
+    margins: 116,
+  });
   const { push: navigate } = useRouter();
 
   const [parameters, setParameters] =
@@ -329,6 +356,12 @@ export function StorageProvidersComplianceWidget({
               ))}
             </TabsList>
           </Tabs>
+
+          <ChartTypeTabsSelect
+            chartType={chartType}
+            enable={enabledChartTypes}
+            onChartTypeChange={setChartType}
+          />
         </div>
       </div>
 
@@ -340,9 +373,14 @@ export function StorageProvidersComplianceWidget({
       </div>
 
       <div className="relative">
-        <ResponsiveContainer width="100%" height={400} debounce={200}>
-          <AreaChart
-            data={chartData}
+        <ResponsiveContainer
+          ref={chartWrapperRef}
+          width="100%"
+          height={400}
+          debounce={200}
+        >
+          <ComposedChart
+            data={chartType === "bar" ? chartData.slice(-barsCount) : chartData}
             margin={{
               left: 24,
               right: 16,
@@ -363,42 +401,46 @@ export function StorageProvidersComplianceWidget({
               tickFormatter={formatValue}
               scale={scale === "log" ? "symlog" : "linear"}
             />
-            <Area
-              className="cursor-pointer"
-              type="monotone"
-              stackId="values"
-              dataKey="compliant"
-              name="Compliant"
-              animationDuration={animationDuration}
-              stroke={colors.compliant}
-              fill={colors.compliant}
-            />
-            <Area
-              className="cursor-pointer"
-              type="monotone"
-              stackId="values"
-              dataKey="partiallyCompliant"
-              name="Partially Compliant"
-              animationDuration={animationDuration}
-              stroke={colors.partiallyCompliant}
-              fill={colors.partiallyCompliant}
-            />
-            <Area
-              className="cursor-pointer"
-              type="monotone"
-              stackId="values"
-              dataKey="nonCompliant"
-              name="Non Compliant"
-              animationDuration={animationDuration}
-              stroke={colors.nonCompliant}
-              fill={colors.nonCompliant}
-            />
+
             <Tooltip<string | number, string>
               formatter={formatValue}
               labelFormatter={formatDate}
               content={ChartTooltip}
             />
-          </AreaChart>
+
+            {options.map((option) => {
+              switch (chartType) {
+                case "area":
+                  return (
+                    <Area
+                      key={`${option}_area`}
+                      className="cursor-pointer"
+                      type="monotone"
+                      stackId="areas"
+                      dataKey={option}
+                      name={optionsLabelDict[option]}
+                      fill={colors[option]}
+                      stroke={colors[option]}
+                      animationDuration={animationDuration}
+                    />
+                  );
+                case "bar":
+                  return (
+                    <Bar
+                      key={`${option}_bar`}
+                      className="cursor-pointer"
+                      stackId="bars"
+                      dataKey={option}
+                      name={optionsLabelDict[option]}
+                      fill={colors[option]}
+                      stroke="#000"
+                      strokeWidth={1}
+                      animationDuration={animationDuration}
+                    />
+                  );
+              }
+            })}
+          </ComposedChart>
         </ResponsiveContainer>
         {<OverlayLoader show={!data || isLongLoading} />}
       </div>

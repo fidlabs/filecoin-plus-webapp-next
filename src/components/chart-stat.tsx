@@ -11,8 +11,9 @@ export interface ChartStatProps extends BaseProps {
 }
 
 const changeFormatter = new Intl.NumberFormat("en-US", {
-  signDisplay: "exceptZero",
+  signDisplay: "always",
   style: "percent",
+  maximumFractionDigits: 2,
 });
 
 export function ChartStat({
@@ -36,8 +37,12 @@ export function ChartStat({
             <span
               className={cn(
                 "font-light text-muted-foreground",
-                changeText.startsWith("+") && "text-green-500",
-                changeText.startsWith("-") && "text-red-500"
+                typeof percentageChange !== "undefined" &&
+                  percentageChange > 0 &&
+                  "text-green-500",
+                typeof percentageChange !== "undefined" &&
+                  percentageChange < 0 &&
+                  "text-red-500"
               )}
             >
               {" "}

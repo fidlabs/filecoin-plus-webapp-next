@@ -1,6 +1,10 @@
 "use client";
 
 import { ChartTooltip } from "@/components/chart-tooltip";
+import {
+  ChartType,
+  ChartTypeTabsSelect,
+} from "@/components/chart-type-tabs-select";
 import { OverlayLoader } from "@/components/overlay-loader";
 import { Card } from "@/components/ui/card";
 import {
@@ -13,13 +17,20 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { QueryKey } from "@/lib/constants";
 import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
-import { bigintToPercentage, cn, gradientPalette } from "@/lib/utils";
+import { useDynamicBarsCount } from "@/lib/hooks/use-dynamic-bars-count";
+import {
+  ArrayElement,
+  bigintToPercentage,
+  cn,
+  gradientPalette,
+} from "@/lib/utils";
 import { weekFromDate, weekToReadableString } from "@/lib/weeks";
 import { filesize } from "filesize";
 import { type ComponentProps, useCallback, useMemo, useState } from "react";
 import {
   Area,
-  AreaChart,
+  Bar,
+  ComposedChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -47,24 +58,26 @@ type ChartDataEntry = GroupValues & {
  * Lower value exclusive. Upper inclusive.
  */
 type Range = [number | null, number | null];
+type EnabledChartType = ArrayElement<typeof enabledChartTypes>;
 
 const scales = ["linear", "percentage", "log"] as const;
 const modes = ["datacap", "count"] as const;
 const groupingOptions = ["three", "six", "all"] as const;
+const enabledChartTypes = ["area", "bar"] as const satisfies ChartType[];
 
-const scalesLabelDict: Record<(typeof scales)[number], string> = {
+const scalesLabelDict: Record<ArrayElement<typeof scales>, string> = {
   linear: "Linear",
   percentage: "Percentage",
   log: "Log",
 };
 
-const modesLabelDict: Record<(typeof modes)[number], string> = {
+const modesLabelDict: Record<ArrayElement<typeof modes>, string> = {
   datacap: "PiB",
   count: "Count",
 };
 
 const groupingOptionsLabelDict: Record<
-  (typeof groupingOptions)[number],
+  ArrayElement<typeof groupingOptions>,
   string
 > = {
   three: "3 Groups",
@@ -129,6 +142,11 @@ export function AllocatorsClientDistributionWidget({
   const [groupingOption, setGroupingOption] = useState<string>(
     groupingOptions[0]
   );
+  const [chartType, setChartType] = useState<EnabledChartType>("area");
+  const { chartWrapperRef, barsCount } = useDynamicBarsCount({
+    minBarSize: 12,
+    margins: 116,
+  });
 
   const parameters: FetchAllocatorsClientDistributionDataParameters = {
     editionId,
@@ -317,13 +335,24 @@ export function AllocatorsClientDistributionWidget({
               <SelectItem value="6">Edition 6</SelectItem>
             </SelectContent>
           </Select>
+
+          <ChartTypeTabsSelect
+            chartType={chartType}
+            enable={enabledChartTypes}
+            onChartTypeChange={setChartType}
+          />
         </div>
       </div>
 
       <div className="relative">
-        <ResponsiveContainer width="100%" height={400} debounce={200}>
-          <AreaChart
-            data={chartData}
+        <ResponsiveContainer
+          ref={chartWrapperRef}
+          width="100%"
+          height={400}
+          debounce={200}
+        >
+          <ComposedChart
+            data={chartType === "bar" ? chartData.slice(-barsCount) : chartData}
             margin={{
               left: 16,
               right: 16,
@@ -344,25 +373,46 @@ export function AllocatorsClientDistributionWidget({
               scale={scale === "log" ? "symlog" : "linear"}
             />
 
-            {ranges.map((range, rangeIndex) => (
-              <Area
-                key={`area_${rangeIndex}`}
-                dataKey={indexToGroupKey(rangeIndex)}
-                stackId="ranges"
-                type="monotone"
-                name={getLabelForRange(range)}
-                stroke={palette[rangeIndex]}
-                fill={palette[rangeIndex]}
-                animationDuration={animationDuration}
-              />
-            ))}
+            {ranges.map((range, rangeIndex) => {
+              const dataKey = indexToGroupKey(rangeIndex);
+              const name = getLabelForRange(range);
+
+              switch (chartType) {
+                case "area":
+                  return (
+                    <Area
+                      key={`area_${rangeIndex}`}
+                      dataKey={dataKey}
+                      stackId="areas"
+                      type="monotone"
+                      name={name}
+                      stroke={palette[rangeIndex]}
+                      fill={palette[rangeIndex]}
+                      animationDuration={animationDuration}
+                    />
+                  );
+                case "bar":
+                  return (
+                    <Bar
+                      key={`bar_${rangeIndex}`}
+                      dataKey={dataKey}
+                      stackId="bars"
+                      name={name}
+                      fill={palette[rangeIndex]}
+                      stroke="#000"
+                      strokeWidth={1}
+                      animationDuration={animationDuration}
+                    />
+                  );
+              }
+            })}
 
             <Tooltip<string | number, string>
               labelFormatter={formatDate}
               formatter={formatTooltipValue}
               content={ChartTooltip}
             />
-          </AreaChart>
+          </ComposedChart>
         </ResponsiveContainer>
         {<OverlayLoader show={!data || isLongLoading} />}
       </div>

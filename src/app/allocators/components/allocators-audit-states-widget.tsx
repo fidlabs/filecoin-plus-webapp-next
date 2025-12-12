@@ -54,6 +54,8 @@ function getColorForOutcome(outcome: AuditOutcome): string {
       return "#f2b94f";
     case "failed":
       return "#ff0029";
+    case "pending":
+      return "#888";
     default:
       return "#525252";
   }
@@ -73,6 +75,8 @@ function outcomeToHumanReadableText(outcome: AuditOutcome): string {
       return "Not Audited";
     case "unknown":
       return "Unknown";
+    case "pending":
+      return "Pending";
   }
 }
 
@@ -118,7 +122,7 @@ export function AllocatorsAuditStatesWidget({
   const domain = useMemo<[number, number]>(() => {
     const datacapAmounts = auditStates.map((allocator) => {
       return allocator.audits.reduce(
-        (sum, audit) => sum + audit.datacap_amount,
+        (sum, audit) => sum + (audit.datacap_amount ?? 0),
         0
       );
     });
@@ -166,7 +170,20 @@ export function AllocatorsAuditStatesWidget({
         return 0;
       }
 
-      return audit.outcome === "failed" ? 5 : audit.datacap_amount;
+      if (audit.outcome === "failed" || audit.outcome === "pending") {
+        const previousAudit = allocator.audits
+          .slice(0, auditIndex)
+          .findLast((candidateAudit) => {
+            return (
+              candidateAudit.outcome === "passed" ||
+              candidateAudit.outcome === "passedConditionally"
+            );
+          });
+
+        return previousAudit ? (previousAudit.datacap_amount ?? 0) : 5;
+      }
+
+      return audit.datacap_amount ?? 0;
     };
   }, []);
 
@@ -396,7 +413,7 @@ function TooltipContent(props: TooltipContentProps<number, string>) {
                   }}
                 >
                   {outcomeToHumanReadableText(audit.outcome)}{" "}
-                  {audit.outcome !== "failed" && (
+                  {!!audit.datacap_amount && (
                     <span>({audit.datacap_amount} PiB)</span>
                   )}
                 </span>

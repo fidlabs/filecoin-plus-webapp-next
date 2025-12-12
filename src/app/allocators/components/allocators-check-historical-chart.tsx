@@ -32,6 +32,7 @@ export interface AllocatorsChecksHistoricalChartProps
   interval: Interval;
   minIntervalsCount?: number;
   mode?: "checkCount" | "datacap";
+  chartType?: "area" | "bar";
 }
 
 const onePiB = 1024n ** 5n;
@@ -41,6 +42,7 @@ const errorColor = "#ff0029";
 
 export function AllocatorsChecksHistoricalChart({
   animationDuration,
+  chartType = "bar",
   checkDescription,
   checkName,
   className,
@@ -52,6 +54,9 @@ export function AllocatorsChecksHistoricalChart({
   style,
   ...rest
 }: AllocatorsChecksHistoricalChartProps) {
+  const showBars =
+    (mode === "datacap" && chartType === "bar") ||
+    (mode === "checkCount" && data.length === 1);
   const chartData = useMemo(() => {
     if (data.length >= minIntervalsCount) {
       return data.toReversed().slice(-minIntervalsCount);
@@ -179,28 +184,32 @@ export function AllocatorsChecksHistoricalChart({
 
           {data.length !== 1 && (
             <>
-              <Area
-                dataKey="checkFailedAllocatorsDatacap"
-                name="Non-Compliant Datacap"
-                yAxisId="datacapYAxis"
-                stackId="datacapStack"
-                hide={mode === "checkCount"}
-                fill={errorColor}
-                fillOpacity={0.5}
-                stroke={errorColor}
-                animationDuration={animationDuration}
-              />
-              <Area
-                dataKey="checkPassedAllocatorsDatacap"
-                name="Compliant Datacap"
-                yAxisId="datacapYAxis"
-                stackId="datacapStack"
-                hide={mode === "checkCount"}
-                fill={successColor}
-                fillOpacity={0.5}
-                stroke={successColor}
-                animationDuration={animationDuration}
-              />
+              {chartType === "area" && (
+                <>
+                  <Area
+                    dataKey="checkFailedAllocatorsDatacapArea"
+                    name="Non-Compliant Datacap"
+                    yAxisId="datacapYAxis"
+                    stackId="area"
+                    hide={mode === "checkCount"}
+                    fill={errorColor}
+                    fillOpacity={0.5}
+                    stroke={errorColor}
+                    animationDuration={animationDuration}
+                  />
+                  <Area
+                    dataKey="checkPassedAllocatorsDatacapArea"
+                    name="Compliant Datacap"
+                    yAxisId="datacapYAxis"
+                    stackId="area"
+                    hide={mode === "checkCount"}
+                    fill={successColor}
+                    fillOpacity={0.5}
+                    stroke={successColor}
+                    animationDuration={animationDuration}
+                  />
+                </>
+              )}
               <Line
                 dataKey="checkFailedAllocatorsCount"
                 yAxisId="allocatorsCountYAxis"
@@ -222,7 +231,7 @@ export function AllocatorsChecksHistoricalChart({
             </>
           )}
 
-          {data.length === 1 && (
+          {showBars && (
             <>
               <Bar
                 dataKey={
