@@ -1,13 +1,34 @@
 "use client";
 
+import {
+  ChartType,
+  ChartTypeTabsSelect,
+} from "@/components/chart-type-tabs-select";
 import { OverlayLoader } from "@/components/overlay-loader";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { QueryKey } from "@/lib/constants";
 import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
+import { ArrayElement } from "@/lib/utils";
+import { InfoIcon } from "lucide-react";
 import { useCallback, useMemo, useState, type ComponentProps } from "react";
 import useSWR from "swr";
+import { useDebounceCallback } from "usehooks-ts";
 import {
   fetchAllocatorsScoringBreakdown,
   FetchAllocatorsScoringBreakdownParameters,
@@ -20,22 +41,6 @@ import {
   AllocatorsScoringMetricsSelect,
   type AllocatorsScoringMetricsSelectProps,
 } from "./allocators-scoring-metrics-select";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { InfoIcon } from "lucide-react";
-import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
-import { Slider } from "@/components/ui/slider";
-import { useDebounceCallback } from "usehooks-ts";
 
 type CheckboxCheckedChangeHandler = NonNullable<
   ComponentProps<typeof Checkbox>["onCheckedChange"]
@@ -43,7 +48,8 @@ type CheckboxCheckedChangeHandler = NonNullable<
 type ChartMode = NonNullable<
   AllocatorsScoringMetricHistoricalChartProps["mode"]
 >;
-type DataType = (typeof dataTypes)[number];
+type DataType = ArrayElement<typeof dataTypes>;
+type EnabledChartType = ArrayElement<typeof enabledChartTypes>;
 type Threshold = [number, number];
 type CardProps = ComponentProps<typeof Card>;
 
@@ -65,6 +71,7 @@ const dataTypeDict: Record<DataType, string> = {
   enterprise: "Enterprise",
   openData: "Open Data",
 };
+const enabledChartTypes = ["area", "bar"] as const satisfies ChartType[];
 const syncCheckboxId = "allocators_scoring_breakdown_charts_sync_checkbox";
 
 export function AllocatorsScoringBreakdownWidget({
@@ -83,6 +90,7 @@ export function AllocatorsScoringBreakdownWidget({
   const [syncEnabled, setSyncEnabled] = useState(true);
   const [selectedMetrics, setSelectedMetrics] = useState<string[]>([]);
   const [chartMode, setChartMode] = useState<string>(chartModes[0]);
+  const [chartType, setChartType] = useState<EnabledChartType>("bar");
   const threshold: Threshold = [
     parameters.mediumScoreThreshold ?? 30,
     parameters.highScoreThreshold ?? 75,
@@ -222,6 +230,12 @@ export function AllocatorsScoringBreakdownWidget({
               ))}
             </TabsList>
           </Tabs>
+
+          <ChartTypeTabsSelect
+            chartType={chartType}
+            enable={enabledChartTypes}
+            onChartTypeChange={setChartType}
+          />
         </div>
       </div>
 
@@ -237,6 +251,7 @@ export function AllocatorsScoringBreakdownWidget({
             mode={chartMode as ChartMode}
             minIntervalsCount={minIntervalsCount}
             animationDuration={animationDuration}
+            chartType={chartType}
           />
         ))}
 

@@ -14,6 +14,8 @@ export type OnlyPropsMatchingType<T, V> = {
   [K in KeysMatchingType<T, V>]: T[K];
 };
 
+export type ArrayElement<T> = T extends readonly unknown[] ? T[number] : never;
+
 const mpn65 = [
   "#0091ff",
   "#ff0029",

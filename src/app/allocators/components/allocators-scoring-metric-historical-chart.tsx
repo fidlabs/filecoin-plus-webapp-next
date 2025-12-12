@@ -38,6 +38,7 @@ export interface AllocatorsScoringMetricHistoricalChartProps
   interval: Interval;
   minIntervalsCount?: number;
   mode?: "count" | "datacap";
+  chartType?: "area" | "bar";
 }
 
 const onePiB = 1024n ** 5n;
@@ -56,6 +57,7 @@ export function AllocatorsScoringMetricHistoricalChart({
   animationDuration,
   metricDescription,
   metricName,
+  chartType = "bar",
   className,
   data,
   disableSync = false,
@@ -187,7 +189,7 @@ export function AllocatorsScoringMetricHistoricalChart({
           />
 
           {params.map((param, index) => {
-            if (data.length === 1) {
+            if (chartType === "bar" || data.length === 1) {
               return (
                 <Bar
                   key={`${param}_bar`}

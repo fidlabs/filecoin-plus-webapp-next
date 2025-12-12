@@ -2,6 +2,10 @@
 
 import { ChartStat } from "@/components/chart-stat";
 import { ChartTooltip } from "@/components/chart-tooltip";
+import {
+  ChartType,
+  ChartTypeTabsSelect,
+} from "@/components/chart-type-tabs-select";
 import { OverlayLoader } from "@/components/overlay-loader";
 import { Card } from "@/components/ui/card";
 import {
@@ -14,12 +18,14 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { QueryKey } from "@/lib/constants";
 import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
-import { cn } from "@/lib/utils";
+import { useDynamicBarsCount } from "@/lib/hooks/use-dynamic-bars-count";
+import { ArrayElement, cn } from "@/lib/utils";
 import { weekFromDate, weekToReadableString } from "@/lib/weeks";
 import { ComponentProps, useCallback, useMemo, useState } from "react";
 import {
   Area,
-  AreaChart,
+  Bar,
+  ComposedChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -37,7 +43,8 @@ export interface StorageProvidersComplianceWidgetProps
   animationDuration?: number;
 }
 
-type ReportingState = (typeof reportingStates)[number];
+type ReportingState = ArrayElement<typeof reportingStates>;
+type EnabledChartType = ArrayElement<typeof enabledChartTypes>;
 type ChartDataEntry = {
   date: string;
 } & Record<ReportingState, number>;
@@ -50,6 +57,7 @@ interface Stat {
 
 const reportingStates = ["notReporting", "misreporting", "ok"] as const;
 const scales = ["linear", "percentage", "log"] as const;
+const enabledChartTypes = ["area", "bar"] as const satisfies ChartType[];
 
 const reportingStateLabelDict: Record<ReportingState, string> = {
   ok: "IPNI OK",
@@ -66,7 +74,7 @@ const scalesLabelDict: Record<(typeof scales)[number], string> = {
 const colors = {
   ok: "#66a61e",
   misreporting: "#ff0029",
-  notReporting: "#999",
+  notReporting: "#AAA",
 } as const satisfies Record<ReportingState, string>;
 
 const percentageFormatter = new Intl.NumberFormat("en-US", {
@@ -81,6 +89,11 @@ export function StorageProvidersIPNIMisreportingWidget({
 }: StorageProvidersComplianceWidgetProps) {
   const [editionId, setEditionId] = useState<string>();
   const [scale, setScale] = useState<string>(scales[0]);
+  const [chartType, setChartType] = useState<EnabledChartType>("bar");
+  const { chartWrapperRef, barsCount } = useDynamicBarsCount({
+    minBarSize: 12,
+    margins: 116,
+  });
 
   const parameters: FetchStorageProvidersIPNIMistreportingDataParameters = {
     editionId,
@@ -205,6 +218,12 @@ export function StorageProvidersIPNIMisreportingWidget({
             <SelectItem value="6">Edition 6</SelectItem>
           </SelectContent>
         </Select>
+
+        <ChartTypeTabsSelect
+          chartType={chartType}
+          enable={enabledChartTypes}
+          onChartTypeChange={setChartType}
+        />
       </div>
 
       <div className="px-4 flex flex-wrap gap-x-8">
@@ -222,9 +241,14 @@ export function StorageProvidersIPNIMisreportingWidget({
       </div>
 
       <div className="relative">
-        <ResponsiveContainer width="100%" height={400} debounce={200}>
-          <AreaChart
-            data={chartData}
+        <ResponsiveContainer
+          ref={chartWrapperRef}
+          width="100%"
+          height={400}
+          debounce={200}
+        >
+          <ComposedChart
+            data={chartType === "bar" ? chartData.slice(-barsCount) : chartData}
             margin={{
               left: 16,
               right: 16,
@@ -245,25 +269,43 @@ export function StorageProvidersIPNIMisreportingWidget({
               scale={scale === "log" ? "symlog" : "linear"}
             />
 
-            {reportingStates.map((reportingState) => (
-              <Area
-                key={reportingState}
-                type="monotone"
-                stackId="values"
-                dataKey={reportingState}
-                name={reportingStateLabelDict[reportingState]}
-                animationDuration={animationDuration}
-                stroke={colors[reportingState]}
-                fill={colors[reportingState]}
-              />
-            ))}
+            {reportingStates.map((reportingState) => {
+              switch (chartType) {
+                case "area":
+                  return (
+                    <Area
+                      key={`${reportingState}_area`}
+                      type="monotone"
+                      stackId="areas"
+                      dataKey={reportingState}
+                      name={reportingStateLabelDict[reportingState]}
+                      animationDuration={animationDuration}
+                      stroke={colors[reportingState]}
+                      fill={colors[reportingState]}
+                    />
+                  );
+                case "bar":
+                  return (
+                    <Bar
+                      key={`${reportingState}_bar`}
+                      stackId="bars"
+                      dataKey={reportingState}
+                      name={reportingStateLabelDict[reportingState]}
+                      animationDuration={animationDuration}
+                      fill={colors[reportingState]}
+                      stroke="#000"
+                      strokeWidth={1}
+                    />
+                  );
+              }
+            })}
 
             <Tooltip<string | number, string>
               formatter={formatValue}
               labelFormatter={formatDate}
               content={ChartTooltip}
             />
-          </AreaChart>
+          </ComposedChart>
         </ResponsiveContainer>
         {<OverlayLoader show={!data || isLongLoading} />}
       </div>

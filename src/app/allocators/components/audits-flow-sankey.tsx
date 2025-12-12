@@ -37,7 +37,7 @@ interface Audit {
   allocatorId: string;
   allocatorName: string | null;
   auditIndex: number;
-  datacap: number;
+  datacap: number | null;
   outcome: AuditOutcome;
 }
 
@@ -55,6 +55,7 @@ const displayedOutcomes: AuditOutcome[] = [
   "passed",
   "passedConditionally",
   "failed",
+  "pending",
 ];
 
 interface ChartData {
@@ -74,6 +75,8 @@ function getTreeNameForOutcome(outcome: AuditOutcome): string {
       return "Passed Conditionally";
     case "failed":
       return "Failed";
+    case "pending":
+      return "Pending";
     default:
       return outcome;
   }
@@ -93,7 +96,7 @@ function getTreeForAudit(audits: Audit[], auditIndex: number): AuditsFlowTree {
       return {
         name: getTreeNameForOutcome(outcome),
         value: auditsForOutcome.reduce((sum, outcome) => {
-          return sum + outcome.datacap;
+          return sum + (outcome.datacap ?? 0);
         }, 0),
         audits: auditsForOutcome,
         leafs: [],
@@ -124,7 +127,7 @@ function auditStatesDataToChartData(
       return allocator.audits.map<Audit>(
         (audit, auditIndex, allocatorAudits) => {
           const datacap = (() => {
-            if (audit.outcome === "failed") {
+            if (audit.outcome === "failed" || audit.outcome === "pending") {
               const previousAudit = allocatorAudits
                 .slice(0, auditIndex)
                 .findLast((candidateAudit) => {
@@ -214,6 +217,8 @@ function getColorForNodeName(nodeName: string): string | null {
       return "var(--warning)";
     case getTreeNameForOutcome("failed"):
       return "var(--destructive)";
+    case getTreeNameForOutcome("pending"):
+      return "#888";
     default:
       return null;
   }
@@ -304,7 +309,7 @@ function CustomSankeyNode({ x, y, width, height, payload }: NodeProps) {
 
   const clickable = audits.length > 0;
   const totalDatacap = audits.reduce((sum, audit) => {
-    return sum + audit.datacap;
+    return sum + (audit.datacap ?? 0);
   }, 0);
   const color = getColorForNodeName(name);
   const fallbackColor = !clickable

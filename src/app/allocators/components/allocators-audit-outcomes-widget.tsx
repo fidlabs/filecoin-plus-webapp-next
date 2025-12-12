@@ -14,7 +14,8 @@ import { QueryKey } from "@/lib/constants";
 import { ComponentProps, useCallback, useMemo, useState } from "react";
 import {
   Area,
-  AreaChart,
+  Bar,
+  ComposedChart,
   Legend,
   ResponsiveContainer,
   Tooltip,
@@ -30,6 +31,12 @@ import {
 } from "../allocators-data";
 import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
 import { OverlayLoader } from "@/components/overlay-loader";
+import { ArrayElement } from "@/lib/utils";
+import {
+  ChartType,
+  ChartTypeTabsSelect,
+} from "@/components/chart-type-tabs-select";
+import { useDynamicBarsCount } from "@/lib/hooks/use-dynamic-bars-count";
 
 type ChartEntry = {
   [K in keyof FetchAllocatorsAuditOutcomesReturnType[number]["datacap"]]: number;
@@ -41,11 +48,13 @@ export interface AllocatorsAuditOutcomesWidgetProps
   animationDuration?: number;
 }
 
-type Area = (typeof areas)[number];
+type EnabledChartType = ArrayElement<typeof enabledChartTypes>;
+type Outcome = ArrayElement<typeof outcomes>;
 
 const scales = ["linear", "percentage"] as const;
 const modes = ["datacap", "count"] as const;
-const areas = [
+const enabledChartTypes = ["area", "bar"] as const satisfies ChartType[];
+const outcomes = [
   "passed",
   "passedConditionally",
   "failed",
@@ -53,17 +62,17 @@ const areas = [
   "unknown",
 ] as const satisfies Array<Omit<keyof ChartEntry, "month">>;
 
-const scalesLabelDict: Record<(typeof scales)[number], string> = {
+const scalesLabelDict: Record<ArrayElement<typeof scales>, string> = {
   linear: "Linear",
   percentage: "Percentage",
 };
 
-const modesLabelDict: Record<(typeof modes)[number], string> = {
+const modesLabelDict: Record<ArrayElement<typeof modes>, string> = {
   datacap: "PiB",
   count: "Count",
 };
 
-const areasLabelDict: Record<Area, string> = {
+const outcomesLabelDict: Record<Outcome, string> = {
   passed: "Passed",
   passedConditionally: "Passed Conditionally",
   failed: "Failed",
@@ -76,7 +85,7 @@ const percentageFormatter = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 2,
 });
 
-const colors: Record<Area, string> = {
+const colors: Record<Outcome, string> = {
   passed: "#66a61e",
   passedConditionally: "#cf8c00",
   failed: "#ff0029",
@@ -90,6 +99,11 @@ export function AllocatorsAuditOutcomesWidget({
 }: AllocatorsAuditOutcomesWidgetProps) {
   const [mode, setMode] = useState<string>(modes[0]);
   const [scale, setScale] = useState<string>(scales[0]);
+  const [chartType, setChartType] = useState<EnabledChartType>("bar");
+  const { chartWrapperRef, barsCount } = useDynamicBarsCount({
+    minBarSize: 12,
+    margins: 116,
+  });
   const [parameters, setParameters] =
     useState<FetchAllocatorsAuditOutcomesParameters>({
       editionId: "6",
@@ -202,13 +216,24 @@ export function AllocatorsAuditOutcomesWidget({
               ))}
             </TabsList>
           </Tabs>
+
+          <ChartTypeTabsSelect
+            chartType={chartType}
+            enable={enabledChartTypes}
+            onChartTypeChange={setChartType}
+          />
         </div>
       </header>
 
       <div className="relative">
-        <ResponsiveContainer width="100%" height={400} debounce={200}>
-          <AreaChart
-            data={chartData}
+        <ResponsiveContainer
+          ref={chartWrapperRef}
+          width="100%"
+          height={400}
+          debounce={200}
+        >
+          <ComposedChart
+            data={chartType === "bar" ? chartData.slice(-barsCount) : chartData}
             margin={{
               top: 16,
               right: 16,
@@ -227,18 +252,37 @@ export function AllocatorsAuditOutcomesWidget({
             />
             <YAxis type="number" tickFormatter={formatValue} fontSize={12} />
 
-            {areas.map((area) => (
-              <Area
-                key={area}
-                dataKey={area}
-                type="monotone"
-                stackId="month"
-                fill={colors[area]}
-                stroke={colors[area]}
-                name={areasLabelDict[area]}
-                animationDuration={animationDuration}
-              />
-            ))}
+            {outcomes.map((outcome) => {
+              switch (chartType) {
+                case "area":
+                  return (
+                    <Area
+                      key={`${outcome}_area`}
+                      dataKey={outcome}
+                      type="monotone"
+                      stackId="areas"
+                      fill={colors[outcome]}
+                      stroke={colors[outcome]}
+                      name={outcomesLabelDict[outcome]}
+                      animationDuration={animationDuration}
+                    />
+                  );
+                case "bar":
+                  return (
+                    <Bar
+                      key={`${outcome}_bar`}
+                      dataKey={outcome}
+                      stackId="bars"
+                      fill={colors[outcome]}
+                      stroke="#000"
+                      strokeWidth={1}
+                      name={outcomesLabelDict[outcome]}
+                      animationDuration={animationDuration}
+                      maxBarSize={48}
+                    />
+                  );
+              }
+            })}
 
             <Legend
               align="center"
@@ -249,7 +293,7 @@ export function AllocatorsAuditOutcomesWidget({
               }}
             />
             <Tooltip formatter={formatTooltipValue} content={ChartTooltip} />
-          </AreaChart>
+          </ComposedChart>
         </ResponsiveContainer>
         <OverlayLoader show={!data || isLongLoading} />
       </div>
