@@ -12,6 +12,7 @@ import { XIcon } from "lucide-react";
 import {
   ChangeEventHandler,
   useCallback,
+  useEffect,
   useRef,
   useState,
   type ComponentProps,
@@ -33,6 +34,7 @@ export function ClientsListWidget({
   ...rest
 }: ClientsListWidgetProps) {
   const widgetRef = useRef<HTMLDivElement | null>(null);
+  const [searchPhrase, setSearchPhrase] = useState("");
   const [parameters, setParameters] = useState(defaultParameters);
   const { data, isLoading } = useSWR(
     [QueryKey.CLIENTS_LIST, parameters],
@@ -51,27 +53,24 @@ export function ClientsListWidget({
     }
   }, []);
 
-  const handleSearch = useCallback<ChangeEventHandler<HTMLInputElement>>(
-    (event) => {
-      const filter = event.target.value;
-
-      setParameters((currentParameters) => ({
-        ...currentParameters,
-        filter,
-        page: 1,
-      }));
-    },
-    []
-  );
-  const handleSearchDebounced = useDebounceCallback(handleSearch, 150);
+  const handleSearchPhraseChange = useCallback<
+    ChangeEventHandler<HTMLInputElement>
+  >((event) => {
+    setSearchPhrase(event.target.value);
+  }, []);
 
   const handleClearSearch = useCallback(() => {
+    setSearchPhrase("");
+  }, []);
+
+  const handleSearch = useCallback((filter: string) => {
     setParameters((currentParameters) => ({
       ...currentParameters,
-      filter: undefined,
+      filter,
       page: 1,
     }));
   }, []);
+  const handleSearchDebounced = useDebounceCallback(handleSearch, 150);
 
   const handleSort = useCallback((key: string, direction: "asc" | "desc") => {
     setParameters((currentParameters) => ({
@@ -109,6 +108,10 @@ export function ClientsListWidget({
     onSort: handleSort,
   });
 
+  useEffect(() => {
+    handleSearchDebounced(searchPhrase);
+  }, [searchPhrase]);
+
   return (
     <Card {...rest} ref={widgetRef}>
       <div className="px-4 pt-6 mb-2 gap-4 flex flex-wrap items-center justify-between">
@@ -123,8 +126,8 @@ export function ClientsListWidget({
             <Input
               className="bg-background w-full text-sm"
               placeholder="Search by ID / Address / Name"
-              value={parameters.filter}
-              onChange={handleSearchDebounced}
+              value={searchPhrase}
+              onChange={handleSearchPhraseChange}
             />
             {parameters.filter && parameters.filter.length > 0 && (
               <Button
