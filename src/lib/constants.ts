@@ -16,18 +16,22 @@ export enum QueryKey {
   ALLOCATORS_OLD_DATACAP = "allocators_old_datacap",
   ALLOCATORS_CHECKS_BREAKDOWN = "allocators_checks_breakdown",
   ALLOCATORS_SCORING_BREAKDOWN = "allocators_scoring_breakdown",
+  ALLOCATORS_STATISTICS = "allocators_statistics",
   CLIENTS_LIST = "clients_list",
   CLIENTS_OLD_DATACAP = "clients_old_datacap",
   CLIENT_ALLOCATIONS = "client_allocations",
   CLIENT_LATEST_CLAIMS = "client_latest_claim",
   CLIENT_PROVIDERS = "client_providers",
   CLIENT_REPORTS = "client_reports",
+  CLIENTS_STATISTICS = "clients_statistics",
+  DASHBOARD_STATISTICS = "dashboard_statistics",
   STORAGE_PROVIDERS_LIST = "storage_providers_list",
   STORAGE_PROVIDERS_COMPLIANCE_DATA = "storage_providers_compliance_data",
   STORAGE_PROVIDERS_RETRIEVABILITY_DATA = "storage_providers_retrievability_data",
   STORAGE_PROVIDERS_CLIENT_DIVERSITY_DATA = "storage_providers_client_diversity_data",
   STORAGE_PROVIDERS_CLIENT_DISTRIBUTION_DATA = "storage_providers_client_distribution_data",
   STORAGE_PROVIDERS_IPNI_MISREPORTING_DATA = "storage_providers_ipni_misreporting_data",
+  STORAGE_PROVIDERS_STATISTICS = "storage_providers_statistics",
 }
 
 export enum AllocatorsPageSectionId {
