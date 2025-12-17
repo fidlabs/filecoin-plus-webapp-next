@@ -331,7 +331,7 @@ const allocatorsAuditStatesResponseSchema = z.array(
           "failed",
           "pending",
         ]),
-        datacap_amount: z.number().nullable(),
+        datacap_amount: z.union([z.number(), z.literal("")]).nullable(),
       })
     ),
   })
