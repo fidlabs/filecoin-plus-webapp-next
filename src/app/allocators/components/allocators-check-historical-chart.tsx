@@ -187,7 +187,7 @@ export function AllocatorsChecksHistoricalChart({
               {chartType === "area" && (
                 <>
                   <Area
-                    dataKey="checkFailedAllocatorsDatacapArea"
+                    dataKey="checkFailedAllocatorsDatacap"
                     name="Non-Compliant Datacap"
                     yAxisId="datacapYAxis"
                     stackId="area"
@@ -198,7 +198,7 @@ export function AllocatorsChecksHistoricalChart({
                     animationDuration={animationDuration}
                   />
                   <Area
-                    dataKey="checkPassedAllocatorsDatacapArea"
+                    dataKey="checkPassedAllocatorsDatacap"
                     name="Compliant Datacap"
                     yAxisId="datacapYAxis"
                     stackId="area"
