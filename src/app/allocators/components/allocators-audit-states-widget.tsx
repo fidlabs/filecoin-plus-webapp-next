@@ -121,10 +121,11 @@ export function AllocatorsAuditStatesWidget({
 
   const domain = useMemo<[number, number]>(() => {
     const datacapAmounts = auditStates.map((allocator) => {
-      return allocator.audits.reduce(
-        (sum, audit) => sum + (audit.datacap_amount ?? 0),
-        0
-      );
+      return allocator.audits.reduce((sum, audit) => {
+        return typeof audit.datacap_amount === "number"
+          ? sum + audit.datacap_amount
+          : sum;
+      }, 0);
     });
 
     return [0, Math.max(...datacapAmounts)];
@@ -180,10 +181,15 @@ export function AllocatorsAuditStatesWidget({
             );
           });
 
-        return previousAudit ? (previousAudit.datacap_amount ?? 0) : 5;
+        return !!previousAudit &&
+          typeof previousAudit.datacap_amount === "number"
+          ? previousAudit.datacap_amount
+          : 5;
       }
 
-      return audit.datacap_amount ?? 0;
+      return typeof audit.datacap_amount === "number"
+        ? audit.datacap_amount
+        : 0;
     };
   }, []);
 
@@ -413,7 +419,7 @@ function TooltipContent(props: TooltipContentProps<number, string>) {
                   }}
                 >
                   {outcomeToHumanReadableText(audit.outcome)}{" "}
-                  {!!audit.datacap_amount && (
+                  {typeof audit.datacap_amount === "number" && (
                     <span>({audit.datacap_amount} PiB)</span>
                   )}
                 </span>

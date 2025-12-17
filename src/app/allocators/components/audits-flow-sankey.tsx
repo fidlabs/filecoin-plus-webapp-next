@@ -137,10 +137,15 @@ function auditStatesDataToChartData(
                   );
                 });
 
-              return previousAudit ? previousAudit.datacap_amount : 5;
+              return previousAudit &&
+                typeof previousAudit.datacap_amount === "number"
+                ? previousAudit.datacap_amount
+                : 5;
             }
 
-            return audit.datacap_amount;
+            return typeof audit.datacap_amount === "number"
+              ? audit.datacap_amount
+              : null;
           })();
 
           return {
