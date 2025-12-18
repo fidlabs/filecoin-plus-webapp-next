@@ -10,7 +10,7 @@ import {
 } from "@/lib/schemas";
 import { assertSchema, objectToURLSearchParams } from "@/lib/utils";
 import { identity } from "lodash";
-import { z, ZodType } from "zod";
+import { type ZodType } from "zod";
 
 type DashboardStatistic =
   | AllocatorsDashboardStatistic

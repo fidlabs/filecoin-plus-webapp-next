@@ -3,15 +3,15 @@ import {
   type ClientsDashboardStatistic,
   type StorageProvidersDashboardStatistic,
 } from "@/lib/schemas";
-import { filesize } from "filesize";
-import { useMemo, type ReactNode } from "react";
-import { ChartStat } from "./chart-stat";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { cn } from "@/lib/utils";
+import { filesize } from "filesize";
+import { InfoIcon } from "lucide-react";
+import { useMemo, type ReactNode } from "react";
+import { Button } from "./ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Drawer, DrawerContent, DrawerTrigger } from "./ui/drawer";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
-import { InfoIcon } from "lucide-react";
-import { Button } from "./ui/button";
+import { Skeleton } from "./ui/skeleton";
 
 type AnyDashboardStatistic =
   | AllocatorsDashboardStatistic
@@ -97,8 +97,8 @@ export function DashboardStatisticDisplay({
       </CardHeader>
       <CardContent>
         <p className="text-lg font-semibold truncate">
-          {value}
-          {dashboardStatistic.percentageChange !== null && (
+          {!showLoading && value}
+          {dashboardStatistic.percentageChange !== null && !showLoading && (
             <span
               className={cn(
                 "font-light text-muted-foreground",
@@ -115,6 +115,7 @@ export function DashboardStatisticDisplay({
               )
             </span>
           )}
+          {showLoading && <Skeleton className="h-7 w-[100px]" />}
         </p>
       </CardContent>
     </Card>

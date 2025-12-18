@@ -1,6 +1,5 @@
 import { Charts } from "@/app/(dashboard)/components/charts";
 import { DatacapFlow } from "@/app/(dashboard)/components/datacap-flow";
-import { Stats } from "@/app/(dashboard)/components/stats";
 import { Container } from "@/components/container";
 import { JsonLd } from "@/components/json.ld";
 import { PageHeader, PageSubtitle, PageTitle } from "@/components/page-header";
@@ -10,14 +9,14 @@ import {
   getDataCapAllocationsWeeklyByClient,
   getStats,
 } from "@/lib/api";
+import { QueryKey } from "@/lib/constants";
 import { WebPage, WithContext } from "schema-dts";
+import { SWRConfig, unstable_serialize } from "swr";
 import { DashboardStatistics } from "./components/dashboard-statistics";
 import {
   fetchDashboardStatistics,
   FetchDashboardStatisticsParameters,
 } from "./dashboard-data";
-import { SWRConfig, unstable_serialize } from "swr";
-import { QueryKey } from "@/lib/constants";
 
 export const revalidate = 300;
 
