@@ -78,6 +78,9 @@ const allocatorsListDefaultParameters: FetchAllocatorsParameters = {
   filter: "",
   showInactive: false,
   isMetaallocator: false,
+  editionId: "6",
+  sort: "createdAtHeight",
+  order: "desc",
 };
 
 const metaallocatorsListDefaultParameters: FetchAllocatorsParameters = {
