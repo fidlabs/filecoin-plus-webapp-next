@@ -110,7 +110,7 @@ export function ClientsListWidget({
 
   useEffect(() => {
     handleSearchDebounced(searchPhrase);
-  }, [searchPhrase]);
+  }, [handleSearchDebounced, searchPhrase]);
 
   return (
     <Card {...rest} ref={widgetRef}>

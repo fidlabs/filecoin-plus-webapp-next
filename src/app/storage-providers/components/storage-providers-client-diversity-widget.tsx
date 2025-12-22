@@ -242,7 +242,7 @@ export function StorageProvidersClientDiversityWidget({
         <ResponsiveContainer
           ref={chartWrapperRef}
           width="100%"
-          height={500}
+          height={454}
           debounce={200}
         >
           <ComposedChart
@@ -250,15 +250,17 @@ export function StorageProvidersClientDiversityWidget({
             margin={{
               left: 16,
               right: 16,
-              bottom: 32,
+              bottom: 84,
             }}
           >
             <XAxis
               dataKey="date"
               tickFormatter={formatDate}
+              tick={{
+                textAnchor: "start",
+              }}
               fontSize={12}
               angle={90}
-              tickMargin={24}
             />
 
             <YAxis

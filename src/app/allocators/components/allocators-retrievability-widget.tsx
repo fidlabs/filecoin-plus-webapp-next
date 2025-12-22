@@ -461,7 +461,7 @@ export function AllocatorsRetrievabilityWidget({
         <ResponsiveContainer
           ref={chartWrapperRef}
           width="100%"
-          height={400}
+          height={454}
           debounce={200}
         >
           <ComposedChart
@@ -469,7 +469,7 @@ export function AllocatorsRetrievabilityWidget({
             margin={{
               left: 24,
               right: 16,
-              bottom: 32,
+              bottom: 84,
               top: 32,
             }}
           >
@@ -477,8 +477,10 @@ export function AllocatorsRetrievabilityWidget({
               dataKey="date"
               fontSize={12}
               tickFormatter={formatDate}
+              tick={{
+                textAnchor: "start",
+              }}
               angle={90}
-              tickMargin={24}
             />
             <YAxis
               yAxisId="sp"

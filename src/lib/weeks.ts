@@ -1,4 +1,4 @@
-import { getWeek, getWeekYear, parse } from "date-fns";
+import { endOfWeek, getWeek, getWeekYear, parse, startOfWeek } from "date-fns";
 import { utc } from "@date-fns/utc";
 
 export interface Week {
@@ -56,7 +56,30 @@ export function safeWeekFromString(input: unknown): Week | undefined {
   }
 }
 
-export function weekToReadableString(week: Week): string {
+export interface WeekToReadableStingOptions {
+  format?: "range" | "short";
+}
+
+const weekRangeFormatter = new Intl.DateTimeFormat("en-us", {
+  day: "2-digit",
+  month: "short",
+  year: "2-digit",
+});
+
+export function weekToReadableString(
+  week: Week,
+  options: WeekToReadableStingOptions = {}
+): string {
+  const { format = "range" } = options;
+
+  if (format === "range") {
+    const date = weekToUTCDate(week);
+    const startDate = startOfWeek(date);
+    const endDate = endOfWeek(date);
+
+    return weekRangeFormatter.formatRange(startDate, endDate);
+  }
+
   return `W${week.weekNumber}'${week.year.toString().slice(-2)}`;
 }
 
