@@ -17,7 +17,6 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { ChartXAxisTick } from "./chart-x-axis-tick";
 
 export interface DatacapOverTimeByWeekChartProps {
   data: Array<{
@@ -138,20 +137,23 @@ export function DatacapOverTimeByWeekChart({
 
   return (
     <div className="w-full flex gap-4">
-      <ResponsiveContainer width="100%" height={600} debounce={500}>
+      <ResponsiveContainer width="100%" height={654} debounce={500}>
         <BarChart
           data={data}
           margin={{
-            bottom: 30,
+            bottom: 84,
           }}
         >
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis
             dataKey={getXAxisDataKey}
-            tick={<ChartXAxisTick />}
             angle={90}
             interval={0}
             minTickGap={0}
+            fontSize={12}
+            tick={{
+              textAnchor: "start",
+            }}
           />
           <YAxis
             tickFormatter={formatYAxisTick}
@@ -308,7 +310,7 @@ function AllocatorsList({
   }, []);
 
   return (
-    <div className="max-w-[200px] max-h-[600px] flex flex-col justify-between">
+    <div className="max-w-[200px] max-h-[654px] flex flex-col justify-between">
       <h5 className="text-sm font-semibold mb-2">Filter by Allocators</h5>
       <div className="flex items-center border p-1 rounded">
         <SearchIcon className="mr-2 h-4 w-4 shrink-0 opacity-50" />
