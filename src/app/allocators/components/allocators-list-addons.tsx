@@ -13,16 +13,34 @@ import {
 } from "react";
 import { useDebounceCallback } from "usehooks-ts";
 import { AllocatorsCSVExportButton } from "./allocators-csv-export-button";
+import {
+  FetchAllocatorsByComplianceParameters,
+  FetchAllocatorsParameters,
+} from "../allocators-data";
 
 type BaseProps = Omit<HTMLAttributes<HTMLDivElement>, "children">;
-export interface AllocatorsListAddonsProps extends BaseProps {
-  complianceWeek?: Week;
-  onSearch(searchPhrase: string): void;
+
+interface ComplianceProps {
+  complianceWeek: Week;
+  parameters: FetchAllocatorsByComplianceParameters;
 }
+
+interface NoComplianceProps {
+  complianceWeek?: never;
+  parameters: FetchAllocatorsParameters;
+}
+
+type ComplianceBasedProps = ComplianceProps | NoComplianceProps;
+
+export type AllocatorsListAddonsProps = BaseProps &
+  ComplianceBasedProps & {
+    onSearch(searchPhrase: string): void;
+  };
 
 export function AllocatorsListAddons({
   className,
   complianceWeek,
+  parameters,
   onSearch,
   ...rest
 }: AllocatorsListAddonsProps) {
@@ -66,7 +84,10 @@ export function AllocatorsListAddons({
         )}
       </div>
 
-      <AllocatorsCSVExportButton complianceWeek={complianceWeek} />
+      <AllocatorsCSVExportButton
+        complianceWeek={complianceWeek}
+        parameters={parameters}
+      />
     </div>
   );
 }

@@ -208,6 +208,7 @@ export function AllocatorsListWidget({
 
           <AllocatorsListAddons
             className="flex-grow-1"
+            parameters={parameters}
             onSearch={handleSearch}
           />
         </div>

@@ -1,19 +1,34 @@
 "use client";
 
 import { Button, ButtonProps } from "@/components/ui/button";
-import { getAllocators, getAllocatorsByCompliance } from "@/lib/api";
-import { useSearchParamsFilters } from "@/lib/hooks/use-search-params-filters";
-import { IAllocator } from "@/lib/interfaces/dmob/allocator.interface";
+import { type IAllocator } from "@/lib/interfaces/dmob/allocator.interface";
 import { cn, downloadCSV } from "@/lib/utils";
-import { Week, weekToUTCDate } from "@/lib/weeks";
+import { type Week, weekToUTCDate } from "@/lib/weeks";
 import { DownloadIcon, LoaderCircleIcon } from "lucide-react";
-import { MouseEventHandler, useCallback, useState } from "react";
+import { type MouseEventHandler, useCallback, useState } from "react";
 import { toast } from "sonner";
+import {
+  fetchAllocators,
+  fetchAllocatorsByCompliance,
+  type FetchAllocatorsByComplianceParameters,
+  type FetchAllocatorsParameters,
+} from "../allocators-data";
+import { omit } from "lodash";
 
 type BaseProps = Omit<ButtonProps, "children">;
-export interface AllocatorsCSVExportButtonProps extends BaseProps {
-  complianceWeek?: Week;
+
+interface PropsWithComplianceWeek {
+  complianceWeek: Week;
+  parameters: FetchAllocatorsByComplianceParameters;
 }
+
+interface PropsWithoutComplianceWeek {
+  complianceWeek?: never;
+  parameters: FetchAllocatorsParameters;
+}
+
+export type AllocatorsCSVExportButtonProps = BaseProps &
+  (PropsWithComplianceWeek | PropsWithoutComplianceWeek);
 
 const csvColumnsKeys: Array<keyof IAllocator> = [
   "addressId",
@@ -41,35 +56,14 @@ const csvColumnsHeaders = [
   "Allocator deprecated",
 ].join(",");
 
-const defaultFilters = {
-  page: "1",
-  limit: "999999",
-};
-
-function fetchData(filters: Record<string, string>, complianceWeek?: Week) {
-  const mergedFilters = {
-    ...filters,
-    ...defaultFilters,
-    week: complianceWeek
-      ? weekToUTCDate(complianceWeek).toISOString()
-      : undefined,
-  };
-
-  if (!complianceWeek) {
-    return getAllocators(mergedFilters);
-  }
-
-  return getAllocatorsByCompliance(mergedFilters);
-}
-
 export function AllocatorsCSVExportButton({
   className,
   complianceWeek,
   disabled,
+  parameters,
   onClick,
   ...rest
 }: AllocatorsCSVExportButtonProps) {
-  const { filters } = useSearchParamsFilters();
   const [loading, setLoading] = useState(false);
   const handleClick = useCallback<MouseEventHandler<HTMLButtonElement>>(
     async (event) => {
@@ -77,7 +71,14 @@ export function AllocatorsCSVExportButton({
 
       try {
         setLoading(true);
-        const response = await fetchData(filters, complianceWeek);
+        const restOfParameters = omit(parameters, ["page", "limit"]);
+        const request = complianceWeek
+          ? fetchAllocatorsByCompliance({
+              ...restOfParameters,
+              week: weekToUTCDate(complianceWeek).toISOString(),
+            })
+          : fetchAllocators(restOfParameters);
+        const response = await request;
 
         const dataString = response.data
           .map((entry) => {
@@ -103,7 +104,7 @@ export function AllocatorsCSVExportButton({
         setLoading(false);
       }
     },
-    [complianceWeek, filters, onClick]
+    [complianceWeek, parameters, onClick]
   );
 
   return (
