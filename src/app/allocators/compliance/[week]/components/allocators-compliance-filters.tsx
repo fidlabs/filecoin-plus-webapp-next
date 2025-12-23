@@ -1,5 +1,6 @@
 "use client";
 
+import { FetchAllocatorsByComplianceParameters } from "@/app/allocators/allocators-data";
 import {
   AllocatorsListAddons,
   AllocatorsListAddonsProps,
@@ -13,7 +14,12 @@ import { ComplianceScoreSelector } from "@/components/compliance-score-selector"
 import { WeekSelector } from "@/components/week-selector";
 import { useSearchParamsFilters } from "@/lib/hooks/use-search-params-filters";
 import { mapObject, objectToURLSearchParams } from "@/lib/utils";
-import { type Week, weekToString } from "@/lib/weeks";
+import {
+  type Week,
+  weekFromDate,
+  weekFromString,
+  weekToString,
+} from "@/lib/weeks";
 import { useRouter } from "next/navigation";
 import { useCallback, useMemo } from "react";
 import { useDebounceCallback } from "usehooks-ts";
@@ -21,6 +27,41 @@ import { useDebounceCallback } from "usehooks-ts";
 export interface AllocatorsComplianceFiltersProps {
   selectedWeek: Week;
   weeks: Week[];
+}
+
+function safeStringToInt(
+  input: string | undefined,
+  defaultValue: number
+): number {
+  if (typeof input !== "string") {
+    return defaultValue;
+  }
+
+  const numericValue = parseInt(input, 10);
+  return isNaN(numericValue) ? defaultValue : numericValue;
+}
+
+function searchParamsToFetchParams(
+  searchParams: Record<string, string | undefined>
+): FetchAllocatorsByComplianceParameters {
+  return {
+    page: safeStringToInt(searchParams.page, 1),
+    limit: safeStringToInt(searchParams.limit, 1),
+    sort: searchParams.sort,
+    order:
+      searchParams.order === "asc" || searchParams.order === "desc"
+        ? searchParams.order
+        : undefined,
+    filter: searchParams.filter,
+    complianceThresholdPercentage: safeStringToInt(
+      searchParams.complianceThresholdPercentage,
+      50
+    ),
+    httpRetrievability: searchParams.httpRetrievability !== "false",
+    urlFinderRetrievability: searchParams.urlFinderRetrievability !== "false",
+    numberOfClients: searchParams.numberOfClients !== "false",
+    totalDealSize: searchParams.totalDealSize !== "false",
+  };
 }
 
 export function AllocatorsComplianceFilters({
@@ -133,7 +174,15 @@ export function AllocatorsComplianceFilters({
           />
         </div>
 
-        <AllocatorsListAddons onSearch={handleSearchDebounced} />
+        <AllocatorsListAddons
+          complianceWeek={
+            filters.week
+              ? weekFromString(filters.week)
+              : weekFromDate(new Date())
+          }
+          parameters={searchParamsToFetchParams(filters)}
+          onSearch={handleSearchDebounced}
+        />
       </div>
 
       <AllocatorsSPsComplianceMetricsSelector

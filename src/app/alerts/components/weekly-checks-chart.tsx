@@ -95,5 +95,5 @@ function getWeeksChunksRangeText(
     return weekToReadableString(weekFromDate(weeksChunk[0].date));
   }
 
-  return `${weekToReadableString(weekFromDate(weeksChunk[0].date))}-${weekToReadableString(weekFromDate(weeksChunk[weeksChunk.length - 1].date))}`;
+  return `${weekToReadableString(weekFromDate(weeksChunk[0].date))} — ${weekToReadableString(weekFromDate(weeksChunk[weeksChunk.length - 1].date))}`;
 }

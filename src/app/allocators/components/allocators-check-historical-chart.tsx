@@ -145,7 +145,7 @@ export function AllocatorsChecksHistoricalChart({
           }}
           syncId={disableSync ? undefined : "allocator-check-historical-chart"}
         >
-          <XAxis dataKey="date" tickFormatter={formatDate} fontSize={14} />
+          <XAxis dataKey="date" tickFormatter={formatDate} fontSize={12} />
 
           {mode === "datacap" && (
             <YAxis

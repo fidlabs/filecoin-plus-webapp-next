@@ -1,5 +1,6 @@
 "use client";
 
+import { ChartTooltip } from "@/components/chart-tooltip";
 import { useCallback } from "react";
 import {
   Bar,
@@ -63,9 +64,9 @@ export function ChecksChart({
     <ResponsiveContainer width="100%" height={300} debounce={500}>
       <BarChart data={data}>
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey={getXAxisDataKey} />
-        <YAxis />
-        <Tooltip />
+        <XAxis dataKey={getXAxisDataKey} fontSize={14} />
+        <YAxis fontSize={14} />
+        <Tooltip content={ChartTooltip} />
 
         <Bar
           stackId="passed"

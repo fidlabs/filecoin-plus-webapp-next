@@ -149,7 +149,7 @@ export function DatacapOverTimeByAllocatorChart({
 
   return (
     <div className="w-full flex gap-4">
-      <ResponsiveContainer width="100%" height={630} debounce={500}>
+      <ResponsiveContainer width="100%" height={654} debounce={500}>
         <BarChart
           data={data}
           margin={{
@@ -297,7 +297,7 @@ function WeeksList({
   onSelectWeek,
 }: WeeksListProps) {
   return (
-    <div className="w-[200px] max-h-[600px] flex flex-col justify-between">
+    <div className="w-[200px] max-h-[654px] flex flex-col justify-between">
       <h5 className="text-sm font-semibold mb-2">Filter by Weeks</h5>
       <ul className="flex-1 my-3 overflow-y-auto">
         {items.map((week) => {

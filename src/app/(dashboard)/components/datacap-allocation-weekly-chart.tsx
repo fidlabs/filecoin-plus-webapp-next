@@ -9,6 +9,7 @@ import {
 import { ChartTooltip } from "@/components/ui/chart";
 import { IFilDCAllocationsWeekly } from "@/lib/interfaces/dmob/dmob.interface";
 import { convertBytesToIEC, palette } from "@/lib/utils";
+import { weekToReadableString } from "@/lib/weeks";
 import { memo, useMemo } from "react";
 import {
   Legend,
@@ -40,11 +41,18 @@ const Component = ({ data }: Props) => {
 
     if (data) {
       Object.keys(data).forEach((yearKey) => {
+        const year = parseInt(yearKey);
         const yearObj = data[yearKey];
+
         Object.keys(yearObj).forEach((weekKey) => {
-          if (+yearKey === 2024 && +weekKey < 17) return;
+          const weekNumber = parseInt(weekKey);
+
+          if (year === 2024 && weekNumber < 17) {
+            return;
+          }
+
           normalData.push({
-            name: `w${weekKey} '${yearKey.substring(2, 4)}`,
+            name: weekToReadableString({ year, weekNumber }),
             value: +yearObj[weekKey],
           });
         });
@@ -72,12 +80,12 @@ const Component = ({ data }: Props) => {
             <LineChart
               data={chartData}
               layout={isDesktop ? "horizontal" : "vertical"}
-              margin={{ right: 50, left: 20, bottom: 50 }}
+              margin={{ right: 50, left: 20, bottom: 84 }}
             >
               {isDesktop && (
                 <XAxis
                   dataKey="name"
-                  interval={0}
+                  interval={1}
                   minTickGap={0}
                   tick={<CustomizedAxisTick />}
                 />
