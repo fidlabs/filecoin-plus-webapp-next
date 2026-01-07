@@ -24,10 +24,29 @@ export type DashboardStatisticPercentageValue = z.infer<
   typeof dashboardStatisticPercentageValueSchema
 >;
 
+export const dashboardStatisticDurationValueSchema = z.object({
+  value: z.number(),
+  unit: z.enum([
+    "millisecond",
+    "second",
+    "minute",
+    "hour",
+    "day",
+    "week",
+    "month",
+    "year",
+  ]),
+  type: z.literal("duration"),
+});
+export type DashboardStatisticDurationValue = z.infer<
+  typeof dashboardStatisticDurationValueSchema
+>;
+
 export const dashboardStatisticValueSchema = z.union([
   dashboardStatisticBigintValueSchema,
   dashboardStatisticNumericValueSchema,
   dashboardStatisticPercentageValueSchema,
+  dashboardStatisticDurationValueSchema,
 ]);
 export type DashboardStatisticValue = z.infer<
   typeof dashboardStatisticValueSchema
@@ -46,6 +65,17 @@ export const dashboardStatisticSchema = z.object({
 });
 export type DashboardStatistic = z.infer<typeof dashboardStatisticSchema>;
 
+export enum AllocatorsDashboardStatisticType {
+  TOTAL_APPROVED_ALLOCATORS = "TOTAL_APPROVED_ALLOCATORS",
+  TOTAL_ACTIVE_ALLOCATORS = "TOTAL_ACTIVE_ALLOCATORS",
+  COMPLIANT_ALLOCATORS = "COMPLIANT_ALLOCATORS",
+  NON_COMPLIANT_ALLOCATORS = "NON_COMPLIANT_ALLOCATORS",
+  NUMBER_OF_ALERTS = "NUMBER_OF_ALERTS",
+  AVERAGE_NUMBER_OF_CLIENTS = "AVERAGE_NUMBER_OF_CLIENTS",
+  AVERAGE_PERCENTAGE_OF_RETURNING_CLIENTS = "AVERAGE_PERCENTAGE_OF_RETURNING_CLIENTS",
+  AVERAGE_TIME_TO_FIRST_DEAL = "AVERAGE_TIME_TO_FIRST_DEAL",
+}
+
 export const allocatorsDashboardStatisticSchema = z.intersection(
   dashboardStatisticSchema,
   z.object({
@@ -56,6 +86,13 @@ export type AllocatorsDashboardStatistic = z.infer<
   typeof allocatorsDashboardStatisticSchema
 >;
 
+export enum ClientsDashboardStatisticType {
+  TOTAL_CLIENTS = "TOTAL_CLIENTS",
+  TOTAL_ACTIVE_CLIENTS = "TOTAL_ACTIVE_CLIENTS",
+  FAILING_CLIENTS = "FAILING_CLIENTS",
+  DATACAP_SPENT_BY_CLIENTS = "DATACAP_SPENT_BY_CLIENTS",
+}
+
 export const clientsDashboardStatisticSchema = z.intersection(
   dashboardStatisticSchema,
   z.object({
@@ -65,6 +102,16 @@ export const clientsDashboardStatisticSchema = z.intersection(
 export type ClientsDashboardStatistic = z.infer<
   typeof clientsDashboardStatisticSchema
 >;
+
+export enum StorageProvidersDashboardStatisticType {
+  TOTAL_STORAGE_PROVIDERS = "TOTAL_STORAGE_PROVIDERS",
+  TOTAL_ACTIVE_STORAGE_PROVIDERS = "TOTAL_ACTIVE_STORAGE_PROVIDERS",
+  STORAGE_PROVIDERS_WITH_HIGH_RPA_PERCENTAGE = "STORAGE_PROVIDERS_WITH_HIGH_RPA_PERCENTAGE",
+  STORAGE_PROVIDERS_REPORTING_TO_IPNI_PERCENTAGE = "STORAGE_PROVIDERS_REPORTING_TO_IPNI_PERCENTAGE",
+  DDO_DEALS_PERCENTAGE = "DDO_DEALS_PERCENTAGE",
+  DDO_DEALS_PERCENTAGE_TO_DATE = "DDO_DEALS_PERCENTAGE_TO_DATE",
+  AVERAGE_URL_FINDER_RETRIEVABILITY_PERCENTAGE = "AVERAGE_URL_FINDER_RETRIEVABILITY_PERCENTAGE",
+}
 
 export const storageProvidersDashboardStatisticSchema = z.intersection(
   dashboardStatisticSchema,

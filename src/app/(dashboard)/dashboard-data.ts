@@ -2,11 +2,14 @@ import { CDP_API_URL } from "@/lib/constants";
 import { throwHTTPErrorOrSkip } from "@/lib/http-errors";
 import {
   AllocatorsDashboardStatistic,
+  AllocatorsDashboardStatisticType,
   cdpAllocatorsStatisticsResponseSchema,
   cdpClientsStatisticsResponseSchema,
   cdpStorageProvidersStatisticsResponseSchema,
   ClientsDashboardStatistic,
+  ClientsDashboardStatisticType,
   StorageProvidersDashboardStatistic,
+  StorageProvidersDashboardStatisticType,
 } from "@/lib/schemas";
 import { assertSchema, objectToURLSearchParams } from "@/lib/utils";
 import { identity } from "lodash";
@@ -22,6 +25,24 @@ export interface FetchDashboardStatisticsParameters {
 }
 
 export type FetchDashboardStatisticsReturnType = DashboardStatistic[];
+
+const shownStatisticsTypes: string[] = [
+  AllocatorsDashboardStatisticType.TOTAL_APPROVED_ALLOCATORS,
+  AllocatorsDashboardStatisticType.TOTAL_ACTIVE_ALLOCATORS,
+  AllocatorsDashboardStatisticType.COMPLIANT_ALLOCATORS,
+  AllocatorsDashboardStatisticType.NON_COMPLIANT_ALLOCATORS,
+  AllocatorsDashboardStatisticType.NUMBER_OF_ALERTS,
+  ClientsDashboardStatisticType.DATACAP_SPENT_BY_CLIENTS,
+  ClientsDashboardStatisticType.FAILING_CLIENTS,
+  ClientsDashboardStatisticType.TOTAL_ACTIVE_CLIENTS,
+  ClientsDashboardStatisticType.TOTAL_CLIENTS,
+  StorageProvidersDashboardStatisticType.DDO_DEALS_PERCENTAGE,
+  StorageProvidersDashboardStatisticType.DDO_DEALS_PERCENTAGE_TO_DATE,
+  StorageProvidersDashboardStatisticType.STORAGE_PROVIDERS_REPORTING_TO_IPNI_PERCENTAGE,
+  StorageProvidersDashboardStatisticType.STORAGE_PROVIDERS_WITH_HIGH_RPA_PERCENTAGE,
+  StorageProvidersDashboardStatisticType.TOTAL_ACTIVE_STORAGE_PROVIDERS,
+  StorageProvidersDashboardStatisticType.TOTAL_STORAGE_PROVIDERS,
+];
 
 function resolveResponse<T>(schema: ZodType<T>) {
   return async function resolveResponseInner(response: Response): Promise<T> {
@@ -48,5 +69,7 @@ export async function fetchDashboardStatistics(
     ).then(resolveResponse(cdpStorageProvidersStatisticsResponseSchema)),
   ]);
 
-  return responses.flatMap<DashboardStatistic>(identity);
+  return responses
+    .flatMap<DashboardStatistic>(identity)
+    .filter((statistic) => shownStatisticsTypes.includes(statistic.type));
 }

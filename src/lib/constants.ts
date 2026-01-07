@@ -5,6 +5,7 @@ export const DEFAULT_EDITION_ROUND_ID =
   process.env.NEXT_PUBLIC_DEFAULT_EDITION_ROUND_ID ?? "6";
 
 export enum QueryKey {
+  ALLOCATORS_DASHBOARD_STATISTICS = "allocators_dashboard_statistics",
   ALLOCATORS_LIST = "allocators_list",
   ALLOCATORS_AUDIT_STATES = "allocators_audit_states",
   ALLOCATORS_AUDIT_OUTCOMES = "allocators_audit_outcomes",
@@ -16,7 +17,6 @@ export enum QueryKey {
   ALLOCATORS_OLD_DATACAP = "allocators_old_datacap",
   ALLOCATORS_CHECKS_BREAKDOWN = "allocators_checks_breakdown",
   ALLOCATORS_SCORING_BREAKDOWN = "allocators_scoring_breakdown",
-  ALLOCATORS_STATISTICS = "allocators_statistics",
   CLIENTS_LIST = "clients_list",
   CLIENTS_OLD_DATACAP = "clients_old_datacap",
   CLIENT_ALLOCATIONS = "client_allocations",
@@ -25,6 +25,7 @@ export enum QueryKey {
   CLIENT_REPORTS = "client_reports",
   CLIENTS_STATISTICS = "clients_statistics",
   DASHBOARD_STATISTICS = "dashboard_statistics",
+  STORAGE_PROVIDERS_DASHBOARD_STATISTICS = "storage_providers_dashboard_statistics",
   STORAGE_PROVIDERS_LIST = "storage_providers_list",
   STORAGE_PROVIDERS_COMPLIANCE_DATA = "storage_providers_compliance_data",
   STORAGE_PROVIDERS_RETRIEVABILITY_DATA = "storage_providers_retrievability_data",
@@ -34,7 +35,12 @@ export enum QueryKey {
   STORAGE_PROVIDERS_STATISTICS = "storage_providers_statistics",
 }
 
+export enum DashboardPageSectionId {
+  DATACAP_ALLOCATIONS_OVER_TIME = "dc-allocations",
+}
+
 export enum AllocatorsPageSectionId {
+  STATISTICS = "statistics",
   COMPLIANCE = "compliance",
   ALLOCATORS_LIST = "allocators-list",
   METAALLOCATORS_LIST = "metaallocator-list",
@@ -66,6 +72,7 @@ export enum ClientDetailsPageSectionId {
 }
 
 export enum StorageProvidersPageSectionId {
+  STATISTICS = "statistics",
   COMPLIANCE = "compliance",
   LIST = "list",
   RETRIEVABILITY = "retrievability",
