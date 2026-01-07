@@ -10,6 +10,7 @@ import { IAllocatorsResponse } from "@/lib/interfaces/dmob/allocator.interface";
 import { Suspense } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { ChartLoader } from "@/components/ui/chart-loader";
+import { DashboardPageSectionId } from "@/lib/constants";
 
 interface IChartsProps {
   stats: IFilPlusStats;
@@ -30,7 +31,9 @@ const Charts = async ({
         <DatacapAllocationChart data={stats} />
       </Suspense>
       <Suspense fallback={<Fallback />}>
-        <DatacapAllocationWeeklyChart data={allocationWeekly} />
+        <div id={DashboardPageSectionId.DATACAP_ALLOCATIONS_OVER_TIME}>
+          <DatacapAllocationWeeklyChart data={allocationWeekly} />
+        </div>
       </Suspense>
       <Suspense fallback={<Fallback />}>
         <DatacapOverTimeChart

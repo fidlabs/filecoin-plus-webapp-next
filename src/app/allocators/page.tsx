@@ -21,6 +21,8 @@ import {
   fetchAllocatorsClientDistributionData,
   fetchAllocatorsClientDiversityData,
   fetchAllocatorScoreRanking,
+  fetchAllocatorsDashboardStatistics,
+  FetchAllocatorsDashboardStatisticsParameters,
   FetchAllocatorsParameters,
   fetchAllocatorsRetrievabilityData,
   FetchAllocatorsRetrievabilityDataParameters,
@@ -45,6 +47,7 @@ import { AllocatorsOldDatacapWidget } from "./components/allocators-old-datacap-
 import { BackToTop } from "@/components/back-to-top";
 import { AllocatorsChecksBreakdownWidget } from "./components/allocators-checks-breakdown-widget";
 import { AllocatorsScoringBreakdownWidget } from "./components/allocators-scoring-breakdown-widget";
+import { AllocatorsStatisticsWidget } from "./components/allocators-statistics-widget";
 
 export const revalidate = 300;
 
@@ -55,6 +58,7 @@ export const metadata: Metadata = generatePageMetadata({
 });
 
 const sectionTabs = {
+  [AllocatorsPageSectionId.STATISTICS]: "Statistics",
   [AllocatorsPageSectionId.COMPLIANCE]: "Compliance",
   [AllocatorsPageSectionId.ALLOCATORS_LIST]: "Allocators List",
   [AllocatorsPageSectionId.METAALLOCATORS_LIST]: "Metaallocators List",
@@ -71,6 +75,11 @@ const sectionTabs = {
   [AllocatorsPageSectionId.LEADERBOARDS]: "Leaderboards",
   [AllocatorsPageSectionId.OLD_DATACAP]: "Old Datacap",
 } as const satisfies IdBasedStickyTabNaviationProps["tabs"];
+
+const statisticsDefaultParamters: FetchAllocatorsDashboardStatisticsParameters =
+  {
+    interval: "day",
+  };
 
 const allocatorsListDefaultParameters: FetchAllocatorsParameters = {
   page: 1,
@@ -135,6 +144,7 @@ const scoringBreakdownDefaultParameters: FetchAllocatorsScoringBreakdownParamete
 
 export default async function AllocatorsPage() {
   const [
+    statisticsResult,
     fetchAllocatorsResult,
     fetchMetaalloctorsResult,
     auditsFlowResult,
@@ -148,6 +158,7 @@ export default async function AllocatorsPage() {
     allocatorsScoreRankingResult,
     scoringBreakdownResult,
   ] = await Promise.allSettled([
+    fetchAllocatorsDashboardStatistics(statisticsDefaultParamters),
     fetchAllocators(allocatorsListDefaultParameters),
     fetchAllocators(metaallocatorsListDefaultParameters),
     fetchAllocatorsAuditStates(auditsFlowDefaultParameters),
@@ -163,6 +174,10 @@ export default async function AllocatorsPage() {
   ]);
 
   const fallback = {
+    [unstable_serialize([
+      QueryKey.ALLOCATORS_DASHBOARD_STATISTICS,
+      statisticsDefaultParamters,
+    ])]: unwrapResult(statisticsResult),
     [unstable_serialize([
       QueryKey.ALLOCATORS_LIST,
       allocatorsListDefaultParameters,
@@ -219,6 +234,7 @@ export default async function AllocatorsPage() {
       </PageHeader>
       <IdBasedStickyTabNaviation className="mb-8" tabs={sectionTabs} />
       <Container className="flex flex-col gap-y-8">
+        <AllocatorsStatisticsWidget id={AllocatorsPageSectionId.STATISTICS} />
         <AllocatorsSPsComplianceWidget
           id={AllocatorsPageSectionId.COMPLIANCE}
         />

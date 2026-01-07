@@ -1,10 +1,45 @@
 import { getStorageProviders } from "@/lib/api";
 import { CDP_API_URL } from "@/lib/constants";
 import { throwHTTPErrorOrSkip } from "@/lib/http-errors";
-import { ICDPHistogram } from "@/lib/interfaces/cdp/cdp.interface";
+import { type ICDPHistogram } from "@/lib/interfaces/cdp/cdp.interface";
+import {
+  type CdpStorageProvidersStatisticsResponse,
+  cdpStorageProvidersStatisticsResponseSchema,
+} from "@/lib/schemas";
 import { assertSchema, objectToURLSearchParams } from "@/lib/utils";
 import { weekFromDate } from "@/lib/weeks";
 import { z } from "zod";
+
+// Statistics
+export interface FetchStorageProvidersDashboardStatisticsParameters {
+  interval?: "day" | "week" | "month";
+}
+
+export type FetchStorageProvidersDashboardStatisticsReturnType =
+  CdpStorageProvidersStatisticsResponse;
+
+export async function fetchStorageProvidersDashboardStatistics(
+  parameters?: FetchStorageProvidersDashboardStatisticsParameters
+): Promise<FetchStorageProvidersDashboardStatisticsReturnType> {
+  const searchParams = objectToURLSearchParams(parameters ?? {});
+  const endpoint = `${CDP_API_URL}/storage-providers/statistics?${searchParams.toString()}`;
+  const response = await fetch(endpoint);
+
+  throwHTTPErrorOrSkip(
+    response,
+    `CDP API returned status ${response.status} when fetching storage providers statistics; URL: ${endpoint}`
+  );
+
+  const json = await response.json();
+
+  assertSchema(
+    json,
+    cdpStorageProvidersStatisticsResponseSchema,
+    `CDP API returned invalid response when fetching storage providers statistics; URL: ${endpoint}`
+  );
+
+  return json;
+}
 
 // Storage Providers list
 export interface FetchStorageProvidersListParameters {

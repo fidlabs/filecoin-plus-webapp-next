@@ -2,9 +2,61 @@ import { CDP_API_URL } from "@/lib/constants";
 import { throwHTTPErrorOrSkip } from "@/lib/http-errors";
 import { ICDPHistogram } from "@/lib/interfaces/cdp/cdp.interface";
 import { IAllocatorsResponse } from "@/lib/interfaces/dmob/allocator.interface";
+import {
+  cdpAllocatorsStatisticsResponseSchema,
+  cdpStorageProvidersStatisticsResponseSchema,
+  StorageProvidersDashboardStatisticType,
+  type AllocatorsDashboardStatistic,
+  type StorageProvidersDashboardStatistic,
+} from "@/lib/schemas";
 import { assertSchema, objectToURLSearchParams } from "@/lib/utils";
 import { numericalStringSchema } from "@/lib/zod-extensions";
-import { z } from "zod";
+import { identity } from "lodash";
+import { z, type ZodType } from "zod";
+
+// Statstics
+type DashboardStatistic =
+  | AllocatorsDashboardStatistic
+  | StorageProvidersDashboardStatistic;
+
+export interface FetchAllocatorsDashboardStatisticsParameters {
+  interval?: "day" | "week" | "month";
+}
+
+export type FetchAllocatorsDashboardStatisticsReturnType = DashboardStatistic[];
+
+function resolveResponse<T>(schema: ZodType<T>) {
+  return async function resolveResponseInner(response: Response): Promise<T> {
+    throwHTTPErrorOrSkip(response);
+    const json = await response.json();
+    assertSchema(json, schema);
+    return json;
+  };
+}
+
+export async function fetchAllocatorsDashboardStatistics(
+  parameters?: FetchAllocatorsDashboardStatisticsParameters
+): Promise<FetchAllocatorsDashboardStatisticsReturnType> {
+  const searchParams = objectToURLSearchParams(parameters ?? {});
+  const responses = await Promise.all([
+    fetch(
+      `${CDP_API_URL}/allocators/statistics?${searchParams.toString()}`
+    ).then(resolveResponse(cdpAllocatorsStatisticsResponseSchema)),
+    fetch(
+      `${CDP_API_URL}/storage-providers/statistics?${searchParams.toString()}`
+    )
+      .then(resolveResponse(cdpStorageProvidersStatisticsResponseSchema))
+      .then((statistics) => {
+        return statistics.filter(
+          (statistic) =>
+            statistic.type ===
+            StorageProvidersDashboardStatisticType.AVERAGE_URL_FINDER_RETRIEVABILITY_PERCENTAGE
+        );
+      }),
+  ]);
+
+  return responses.flatMap<DashboardStatistic>(identity);
+}
 
 // Allocators list
 export interface FetchAllocatorsParameters {

@@ -13,6 +13,8 @@ import {
   FetchStorageProvidersClientDiversityDataParameters,
   fetchStorageProvidersComplianceData,
   FetchStorageProvidersComplianceDataParameters,
+  fetchStorageProvidersDashboardStatistics,
+  FetchStorageProvidersDashboardStatisticsParameters,
   fetchStorageProvidersList,
   fetchStorageProvidersRetrievabilityData,
   FetchStorageProvidersRetrievabilityDataParameters,
@@ -26,6 +28,7 @@ import {
   IdBasedStickyTabNaviationProps,
 } from "@/components/sticky-tab-navigation";
 import { BackToTop } from "@/components/back-to-top";
+import { StorageProvidersStatisticsWidget } from "../components/storage-providers-statistics-widget";
 
 export const revalidate = 300;
 
@@ -35,6 +38,11 @@ export const metadata: Metadata = generatePageMetadata({
     "A convenient way to browse and search for Filecoin Plus Providers.",
   url: "https://datacapstats.io/storage-providers",
 });
+
+const statisticsDefaultParamters: FetchStorageProvidersDashboardStatisticsParameters =
+  {
+    interval: "day",
+  };
 
 const complianceDataDefaultParams: FetchStorageProvidersComplianceDataParameters =
   {
@@ -63,6 +71,7 @@ const clientDistributionDataDefaultParams: FetchStorageProvidersClientDistributi
   };
 
 const sectionTabs = {
+  [StorageProvidersPageSectionId.STATISTICS]: "Statistics",
   [StorageProvidersPageSectionId.COMPLIANCE]: "Compliance",
   [StorageProvidersPageSectionId.LIST]: "List",
   [StorageProvidersPageSectionId.RETRIEVABILITY]: "Retrievability",
@@ -71,14 +80,20 @@ const sectionTabs = {
   [StorageProvidersPageSectionId.IPNI_MISREPORTING]: "IPNI Misreporting",
 } as const satisfies IdBasedStickyTabNaviationProps["tabs"];
 
+function unwrapResult<T>(result: PromiseSettledResult<T>): T | undefined {
+  return result.status === "fulfilled" ? result.value : undefined;
+}
+
 export default async function StorageProvidersPage() {
   const [
+    statisticsResult,
     listResult,
     complianceDataResult,
     retrievabilityDataResult,
     clientDiversityDataResult,
     clientDistributionDataResult,
   ] = await Promise.allSettled([
+    fetchStorageProvidersDashboardStatistics(statisticsDefaultParamters),
     fetchStorageProvidersList(),
     fetchStorageProvidersComplianceData(complianceDataDefaultParams),
     fetchStorageProvidersRetrievabilityData(retrievabilityDataDefaultParams),
@@ -92,36 +107,28 @@ export default async function StorageProvidersPage() {
     <SWRConfig
       value={{
         fallback: {
+          [unstable_serialize([
+            QueryKey.STORAGE_PROVIDERS_DASHBOARD_STATISTICS,
+            statisticsDefaultParamters,
+          ])]: unwrapResult(statisticsResult),
           [unstable_serialize([QueryKey.STORAGE_PROVIDERS_LIST, {}])]:
-            listResult.status === "fulfilled" ? listResult.value : undefined,
+            unwrapResult(listResult),
           [unstable_serialize([
             QueryKey.STORAGE_PROVIDERS_COMPLIANCE_DATA,
             complianceDataDefaultParams,
-          ])]:
-            complianceDataResult.status === "fulfilled"
-              ? complianceDataResult.value
-              : undefined,
+          ])]: unwrapResult(complianceDataResult),
           [unstable_serialize([
             QueryKey.STORAGE_PROVIDERS_RETRIEVABILITY_DATA,
             retrievabilityDataDefaultParams,
-          ])]:
-            retrievabilityDataResult.status === "fulfilled"
-              ? retrievabilityDataResult.value
-              : undefined,
+          ])]: unwrapResult(retrievabilityDataResult),
           [unstable_serialize([
             QueryKey.STORAGE_PROVIDERS_CLIENT_DIVERSITY_DATA,
             clientDiversityDataDefaultParams,
-          ])]:
-            clientDiversityDataResult.status === "fulfilled"
-              ? clientDiversityDataResult.value
-              : undefined,
+          ])]: unwrapResult(clientDiversityDataResult),
           [unstable_serialize([
             QueryKey.STORAGE_PROVIDERS_CLIENT_DISTRIBUTION_DATA,
             clientDistributionDataDefaultParams,
-          ])]:
-            clientDistributionDataResult.status === "fulfilled"
-              ? clientDistributionDataResult.value
-              : undefined,
+          ])]: unwrapResult(clientDistributionDataResult),
         },
       }}
     >
@@ -133,6 +140,9 @@ export default async function StorageProvidersPage() {
       </PageHeader>
       <IdBasedStickyTabNaviation className="mb-8" tabs={sectionTabs} />
       <Container className="flex flex-col gap-y-8">
+        <StorageProvidersStatisticsWidget
+          id={StorageProvidersPageSectionId.STATISTICS}
+        />
         <StorageProvidersComplianceWidget
           id={StorageProvidersPageSectionId.COMPLIANCE}
         />
