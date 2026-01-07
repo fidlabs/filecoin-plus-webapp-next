@@ -28,7 +28,7 @@ export function useSingleClickHandler({
 
       return () => clearTimeout(timeoutId);
     }
-  }, [maxIntervalMs, pendingEvent]);
+  }, [maxIntervalMs, onSingleClick, pendingEvent]);
 
   const handleClick = useCallback<MouseEventHandler>((event) => {
     setPendingEvent((currentPendingEvent) => {
