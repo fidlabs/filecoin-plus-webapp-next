@@ -60,6 +60,7 @@ export const dashboardStatisticSchema = z.object({
     .object({
       value: z.number(),
       interval: z.enum(["day", "week", "month"]),
+      increaseNegative: z.boolean(),
     })
     .nullable(),
 });

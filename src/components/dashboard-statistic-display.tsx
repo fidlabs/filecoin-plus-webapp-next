@@ -1,30 +1,31 @@
 import {
+  AllocatorsPageSectionId,
+  ClientsPageSectionId,
+  DashboardPageSectionId,
+  StorageProvidersPageSectionId,
+} from "@/lib/constants";
+import { useSingleClickHandler } from "@/lib/hooks/use-single-click-handler";
+import {
   AllocatorsDashboardStatisticType,
   ClientsDashboardStatisticType,
-  DashboardStatisticDurationValue,
   StorageProvidersDashboardStatisticType,
   type AllocatorsDashboardStatistic,
   type ClientsDashboardStatistic,
+  type DashboardStatistic,
+  type DashboardStatisticDurationValue,
   type StorageProvidersDashboardStatistic,
 } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
+import { formatDuration, intervalToDuration } from "date-fns";
 import { filesize } from "filesize";
 import { ChevronRightIcon, InfoIcon } from "lucide-react";
+import Link from "next/link";
 import { useCallback, useMemo, useState, type ReactNode } from "react";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Drawer, DrawerContent, DrawerTrigger } from "./ui/drawer";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "./ui/hover-card";
 import { Skeleton } from "./ui/skeleton";
-import { formatDuration, intervalToDuration } from "date-fns";
-import { useSingleClickHandler } from "@/lib/hooks/use-single-click-handler";
-import Link from "next/link";
-import {
-  AllocatorsPageSectionId,
-  ClientsPageSectionId,
-  DashboardPageSectionId,
-  StorageProvidersPageSectionId,
-} from "@/lib/constants";
 
 type AnyDashboardStatistic =
   | AllocatorsDashboardStatistic
@@ -250,21 +251,9 @@ export function DashboardStatisticDisplay({
           )}
 
           {dashboardStatistic.percentageChange !== null && !showLoading && (
-            <span
-              className={cn(
-                "font-light text-muted-foreground",
-                dashboardStatistic.percentageChange.value > 0 &&
-                  "text-green-500",
-                dashboardStatistic.percentageChange.value < 0 && "text-red-500"
-              )}
-            >
-              {" "}
-              (
-              {percentageChangeFormatter.format(
-                dashboardStatistic.percentageChange.value
-              )}
-              )
-            </span>
+            <ChangeText
+              percentageChange={dashboardStatistic.percentageChange}
+            />
           )}
           {showLoading && <Skeleton className="h-7 w-[100px]" />}
         </p>
@@ -278,5 +267,33 @@ export function DashboardStatisticDisplay({
         )}
       </CardContent>
     </Card>
+  );
+}
+
+function ChangeText({
+  percentageChange,
+}: {
+  percentageChange: NonNullable<DashboardStatistic["percentageChange"]>;
+}) {
+  const positiveIncrease =
+    !percentageChange.increaseNegative && percentageChange.value > 0;
+  const positiveDecrease =
+    percentageChange.increaseNegative && percentageChange.value < 0;
+  const negativeIncrease =
+    !percentageChange.increaseNegative && percentageChange.value < 0;
+  const negativeDecrease =
+    percentageChange.increaseNegative && percentageChange.value > 0;
+
+  return (
+    <span
+      className={cn(
+        "font-light text-muted-foreground",
+        (positiveIncrease || positiveDecrease) && "text-green-500",
+        (negativeIncrease || negativeDecrease) && "text-red-500"
+      )}
+    >
+      {" "}
+      ({percentageChangeFormatter.format(percentageChange.value)})
+    </span>
   );
 }
