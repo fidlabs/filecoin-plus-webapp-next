@@ -385,6 +385,7 @@ const allocatorsAuditOutcomesEnum = z.enum([
   "passed",
   "passedConditionally",
   "notAudited",
+  "pending",
 ]);
 
 const allocatorsAuditOutcomesResponseSchema = z.array(

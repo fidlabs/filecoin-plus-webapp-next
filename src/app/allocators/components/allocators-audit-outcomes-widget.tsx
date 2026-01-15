@@ -1,6 +1,11 @@
 "use client";
 
 import { ChartTooltip } from "@/components/chart-tooltip";
+import {
+  ChartType,
+  ChartTypeTabsSelect,
+} from "@/components/chart-type-tabs-select";
+import { OverlayLoader } from "@/components/overlay-loader";
 import { Card } from "@/components/ui/card";
 import {
   Select,
@@ -11,6 +16,9 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { QueryKey } from "@/lib/constants";
+import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
+import { useDynamicBarsCount } from "@/lib/hooks/use-dynamic-bars-count";
+import { ArrayElement } from "@/lib/utils";
 import { ComponentProps, useCallback, useMemo, useState } from "react";
 import {
   Area,
@@ -29,14 +37,6 @@ import {
   FetchAllocatorsAuditOutcomesParameters,
   FetchAllocatorsAuditOutcomesReturnType,
 } from "../allocators-data";
-import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
-import { OverlayLoader } from "@/components/overlay-loader";
-import { ArrayElement } from "@/lib/utils";
-import {
-  ChartType,
-  ChartTypeTabsSelect,
-} from "@/components/chart-type-tabs-select";
-import { useDynamicBarsCount } from "@/lib/hooks/use-dynamic-bars-count";
 
 type ChartEntry = {
   [K in keyof FetchAllocatorsAuditOutcomesReturnType[number]["datacap"]]: number;
@@ -60,6 +60,7 @@ const outcomes = [
   "failed",
   "notAudited",
   "unknown",
+  "pending",
 ] as const satisfies Array<Omit<keyof ChartEntry, "month">>;
 
 const scalesLabelDict: Record<ArrayElement<typeof scales>, string> = {
@@ -78,6 +79,7 @@ const outcomesLabelDict: Record<Outcome, string> = {
   failed: "Failed",
   notAudited: "Not Audited",
   unknown: "Unknown",
+  pending: "Pending",
 };
 
 const percentageFormatter = new Intl.NumberFormat("en-US", {
@@ -91,6 +93,7 @@ const colors: Record<Outcome, string> = {
   failed: "#ff0029",
   notAudited: "#888",
   unknown: "#525252",
+  pending: "rgb(234, 179, 8)",
 };
 
 export function AllocatorsAuditOutcomesWidget({
