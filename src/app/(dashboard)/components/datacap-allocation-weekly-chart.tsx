@@ -62,7 +62,7 @@ const Component = ({ data }: Props) => {
   }, [data]);
 
   return (
-    <Card className="lg:col-span-2">
+    <Card>
       <CardHeader className="flex-col items-start">
         <CardTitle>Accumulated DataCap Allocation to clients</CardTitle>
         <CardDescription>
