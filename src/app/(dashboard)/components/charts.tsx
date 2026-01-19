@@ -31,10 +31,7 @@ const Charts = async ({
         <DatacapAllocationChart data={stats} />
       </Suspense>
       <Suspense fallback={<Fallback />}>
-        <div
-          className="lg:col-span-2"
-          id={DashboardPageSectionId.DATACAP_ALLOCATIONS_OVER_TIME}
-        >
+        <div id={DashboardPageSectionId.DATACAP_ALLOCATIONS_OVER_TIME}>
           <DatacapAllocationWeeklyChart data={allocationWeekly} />
         </div>
       </Suspense>

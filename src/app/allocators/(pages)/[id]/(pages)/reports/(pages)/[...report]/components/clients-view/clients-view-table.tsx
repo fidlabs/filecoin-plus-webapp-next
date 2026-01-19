@@ -1,32 +1,40 @@
 "use client";
 
-import { GenericContentFooter } from "@/components/generic-content-view";
 import { GithubIcon } from "@/components/icons/github.icon";
 import { StringShortener } from "@/components/string-shortener";
+import { CardFooter } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
+import { Paginator } from "@/components/ui/pagination";
 import {
   ResponsiveDialog,
   ResponsiveDialogContent,
   ResponsiveDialogTrigger,
 } from "@/components/ui/responsive-dialog";
 import { Table, TableCell, TableHead, TableRow } from "@/components/ui/table";
-import { useSearchParamsFilters } from "@/lib/hooks/use-search-params-filters";
-import { IAllocatorReportClientPaginationQuery } from "@/lib/interfaces/api.interface";
 import {
   AllocatorFullReportFoundClient,
   ICDPAllocatorFullReportClientAllocation,
 } from "@/lib/interfaces/cdp/cdp.interface";
 import { cn, convertBytesToIEC } from "@/lib/utils";
-import { ColumnDef } from "@tanstack/react-table";
+import { type ColumnDef } from "@tanstack/react-table";
 import { differenceInDays, format } from "date-fns";
 import { CheckIcon, TriangleAlertIcon } from "lucide-react";
 import Link from "next/link";
-import { useCallback } from "react";
 
 interface UseClientsViewColumnsParameters {
   idsUsingContract: string[];
   idsReceivingDatacapFromMultipleAllocators: string[];
   idsWithNotEnoughReplicas: string[];
+}
+
+export interface ClientsViewTableProps
+  extends Partial<UseClientsViewColumnsParameters> {
+  clients: AllocatorFullReportFoundClient[];
+  page: number;
+  pageSize: number;
+  totalPages?: number;
+  onPageChange(nextPage: number): void;
+  onPageSizeChange(nextPage: number): void;
 }
 
 function getNumberOfDaysSinceAllocation(
@@ -257,48 +265,36 @@ function useClientsViewColumns({
   return { columns };
 }
 
-export interface ClientsViewTableProps
-  extends Partial<UseClientsViewColumnsParameters> {
-  clients: AllocatorFullReportFoundClient[];
-  queryParams?: Partial<IAllocatorReportClientPaginationQuery>;
-  totalPages?: number;
-}
-
 export function ClientsViewTable({
   clients,
   idsReceivingDatacapFromMultipleAllocators = [],
   idsUsingContract = [],
   idsWithNotEnoughReplicas = [],
-  queryParams,
+  page,
+  pageSize,
   totalPages,
+  onPageChange,
+  onPageSizeChange,
 }: ClientsViewTableProps) {
-  const { filters, updateFilters } = useSearchParamsFilters();
-
   const { columns } = useClientsViewColumns({
     idsReceivingDatacapFromMultipleAllocators,
     idsUsingContract,
     idsWithNotEnoughReplicas,
   });
 
-  const updateCustomClientPagination = useCallback(
-    (params: Partial<IAllocatorReportClientPaginationQuery>) => {
-      updateFilters({
-        clientPaginationPage: params.page ?? filters?.clientPaginationPage,
-        clientPaginationLimit: params.limit ?? filters?.clientPaginationLimit,
-      });
-    },
-    [updateFilters, filters]
-  );
-
   return (
     <div className="border-b border-t table-select-warning">
       <DataTable columns={columns} data={clients} />
-      <GenericContentFooter
-        page={queryParams?.clientPaginationPage}
-        limit={queryParams?.clientPaginationLimit}
-        total={totalPages?.toString() ?? "0"}
-        patchParams={updateCustomClientPagination}
-      />
+      <CardFooter className="border-t w-full p-3">
+        <Paginator
+          page={page}
+          pageSize={pageSize}
+          pageSizeOptions={[10, 15, 25]}
+          onPageChange={onPageChange}
+          onPageSizeChange={onPageSizeChange}
+          total={totalPages ?? 0}
+        />
+      </CardFooter>
     </div>
   );
 }

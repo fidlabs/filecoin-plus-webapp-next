@@ -7,12 +7,19 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import { useScrollObserver } from "@/lib/hooks/useScrollObserver";
-import { ClientReportCheckType } from "@/lib/interfaces/cdp/cdp.interface";
+import {
+  ClientReportCheckType,
+  IClientFullReport,
+} from "@/lib/interfaces/cdp/cdp.interface";
 import { cn } from "@/lib/utils";
 import { InfoIcon } from "lucide-react";
-import { useReportsDetails } from "../../providers/reports-details.provider";
-import { ReportViewReplicaChart } from "./report-view-replika-chart";
-import { ReportViewReplicaTable } from "./report-view-replika-table";
+import { ReportViewReplicaTable } from "./report-view-replica-table";
+import { ReportViewReplicaChart } from "./report-view-replica-chart";
+
+export interface ReportViewReplicasProps {
+  comparsionEnabled: boolean;
+  reports: IClientFullReport[];
+}
 
 const checkTypes = [
   ClientReportCheckType.DEAL_DATA_REPLICATION_CID_SHARING,
@@ -23,19 +30,13 @@ const checkTypes = [
 ];
 
 export function ReportViewReplicas({
-  lowReplicaThreshold,
-  highReplicaThreshold,
-}: {
-  lowReplicaThreshold?: number;
-  highReplicaThreshold?: number;
-}) {
-  const { colsStyle, colsSpanStyle, replikasList, securityChecks } =
-    useReportsDetails();
-
+  comparsionEnabled,
+  reports,
+}: ReportViewReplicasProps) {
   const { top, ref } = useScrollObserver();
 
   return (
-    <div className="grid" style={colsStyle}>
+    <div>
       <div
         ref={ref}
         className={cn(
@@ -43,7 +44,6 @@ export function ReportViewReplicas({
           top > 90 && "z-[5]",
           top === 147 && "shadow-md"
         )}
-        style={colsSpanStyle}
       >
         <div className="flex gap-2 items-center">
           <h2 className="font-semibold text-lg">Deal Data Replication</h2>
@@ -73,25 +73,39 @@ export function ReportViewReplicas({
           storage providers.
         </p>
       </div>
-      {replikasList.map((replika, index) => {
-        return (
-          <div key={index} className="border-b [&:not(:last-child)]:border-r-2">
-            {!!securityChecks[index] && (
+
+      <div
+        className="grid"
+        style={{
+          gridTemplateColumns: `repeat(${reports.length}, minmax(0, 1fr))`,
+        }}
+      >
+        {reports.map((report, index) => {
+          return (
+            <div
+              key={index}
+              className="border-b [&:not(:last-child)]:border-r-2"
+            >
               <HealthCheck
-                security={securityChecks[index].filter((item) => {
+                security={report.check_results.filter((item) => {
                   return checkTypes.includes(item.check);
                 })}
               />
-            )}
-            <ReportViewReplicaTable replikaData={replika} />
-            <ReportViewReplicaChart
-              replikaData={replika}
-              lowReplicaThreshold={lowReplicaThreshold}
-              highReplicaThreshold={highReplicaThreshold}
-            />
-          </div>
-        );
-      })}
+              <ReportViewReplicaTable
+                report={report}
+                reportToCompare={
+                  comparsionEnabled ? reports[index - 1] : undefined
+                }
+              />
+              <ReportViewReplicaChart
+                replikaData={report.replica_distribution}
+                lowReplicaThreshold={report.low_replica_threshold}
+                highReplicaThreshold={report.high_replica_threshold}
+              />
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

@@ -27,7 +27,7 @@ export interface AllocatorsSPsComplianceMetricsSelectorProps
 
 const allMetricTypes = [
   "numberOfClients",
-  "httpRetrievability",
+  // "httpRetrievability",
   "urlFinderRetrievability",
   "totalDealSize",
 ] as const satisfies Metric[];

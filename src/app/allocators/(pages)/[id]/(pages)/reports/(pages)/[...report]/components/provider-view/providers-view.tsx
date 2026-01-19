@@ -1,23 +1,32 @@
 "use client";
-import { ProviderMap } from "@/app/allocators/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/provider-view/provider-map";
-import { ProviderTable } from "@/app/allocators/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/provider-view/provider-table";
-import { useReportsDetails } from "@/app/allocators/(pages)/[id]/(pages)/reports/(pages)/[...report]/providers/reports-details.provider";
+
 import { useScrollObserver } from "@/lib/hooks/useScrollObserver";
-import { IAllocatorReportProviderPaginationQuery } from "@/lib/interfaces/api.interface";
+import { type ICDPAllocatorFullReport } from "@/lib/interfaces/cdp/cdp.interface";
 import { cn } from "@/lib/utils";
+import { ProviderMap } from "./provider-map";
+import { ProviderTable } from "./provider-table";
 
-const ProvidersView = ({
-  queryParams,
-}: {
-  queryParams?: IAllocatorReportProviderPaginationQuery;
-}) => {
-  const { colsStyle, colsSpanStyle, providersDistribution, reports } =
-    useReportsDetails();
+export interface ProvidersViewProps {
+  comparsionEnabled: boolean;
+  page: number;
+  pageSize: number;
+  reports: ICDPAllocatorFullReport[];
+  onPageChange(nextPage: number): void;
+  onPageSizeChange(nextPage: number): void;
+}
 
+export function ProvidersView({
+  comparsionEnabled,
+  page,
+  pageSize,
+  reports,
+  onPageChange,
+  onPageSizeChange,
+}: ProvidersViewProps) {
   const { top, ref } = useScrollObserver();
 
   return (
-    <div className="grid" style={colsStyle}>
+    <div>
       <div
         ref={ref}
         className={cn(
@@ -25,7 +34,6 @@ const ProvidersView = ({
           top > 90 && "z-[5]",
           top === 147 && "shadow-md"
         )}
-        style={colsSpanStyle}
       >
         <h2 className="font-semibold text-lg">Storage Provider Distribution</h2>
         <p className="pt-2">
@@ -33,26 +41,43 @@ const ProvidersView = ({
           stored data for this allocator.
         </p>
       </div>
-      {providersDistribution.map((providerDistribution, index) => {
-        return (
-          <div key={index} className="border-b [&:not(:last-child)]:border-r-2">
-            <div className="p-4 flex items-center gap-1">
-              Number of providers:{" "}
-              {reports[0].storage_provider_distribution.pagination?.total}
+
+      <div
+        className="grid"
+        style={{
+          gridTemplateColumns: `repeat(${reports.length}, minmax(0, 1fr))`,
+        }}
+      >
+        {reports.map((report, index) => {
+          return (
+            <div
+              key={index}
+              className="border-b [&:not(:last-child)]:border-r-2"
+            >
+              <div className="p-4 flex items-center gap-1">
+                Number of providers:{" "}
+                {report.storage_provider_distribution.data.length}
+              </div>
+              <ProviderTable
+                report={report}
+                reportToCompare={
+                  comparsionEnabled ? reports[index - 1] : undefined
+                }
+                page={page}
+                pageSize={pageSize}
+                totalPages={
+                  report.storage_provider_distribution.pagination?.total
+                }
+                onPageChange={onPageChange}
+                onPageSizeChange={onPageSizeChange}
+              />
+              <ProviderMap
+                providerDistribution={report.storage_provider_distribution.data}
+              />
             </div>
-            <ProviderTable
-              providerDistribution={providerDistribution}
-              queryParams={queryParams}
-              totalPages={
-                reports[0].storage_provider_distribution.pagination?.total
-              }
-            />
-            <ProviderMap providerDistribution={providerDistribution} />
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
-};
-
-export { ProvidersView };
+}

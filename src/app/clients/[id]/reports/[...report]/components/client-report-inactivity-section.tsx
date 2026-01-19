@@ -1,18 +1,24 @@
 "use client";
 
 import { useScrollObserver } from "@/lib/hooks/useScrollObserver";
-import { ClientReportCheckType } from "@/lib/interfaces/cdp/cdp.interface";
+import {
+  ClientReportCheckType,
+  type IClientFullReport,
+} from "@/lib/interfaces/cdp/cdp.interface";
 import { cn } from "@/lib/utils";
 import { CircleAlertIcon, CircleCheckIcon } from "lucide-react";
-import { useReportsDetails } from "../providers/reports-details.provider";
 
-export function ClientReportActivitySection() {
-  const { colsStyle, colsSpanStyle, reports } = useReportsDetails();
+export interface ClientReportActivitySectionProps {
+  reports: IClientFullReport[];
+}
 
+export function ClientReportActivitySection({
+  reports,
+}: ClientReportActivitySectionProps) {
   const { top, ref } = useScrollObserver();
 
   return (
-    <div className="grid" style={colsStyle}>
+    <div>
       <div
         ref={ref}
         className={cn(
@@ -20,31 +26,39 @@ export function ClientReportActivitySection() {
           top > 90 && "z-[5]",
           top === 147 && "shadow-md"
         )}
-        style={colsSpanStyle}
       >
         <h2 className="font-semibold text-lg">Activity</h2>
       </div>
-      {reports.map((report, index) => {
-        const inactivityCheck = report.check_results.find(
-          (check) => check.check === ClientReportCheckType.INACTIVITY
-        );
 
-        return (
-          <div
-            key={index}
-            className="p-4 border-b [&:not(:last-child)]:border-r-2 flex items-center space-x-2"
-          >
-            {!!inactivityCheck?.result ? (
-              <CircleCheckIcon className="text-green-500" />
-            ) : (
-              <CircleAlertIcon className="text-yellow-500" />
-            )}
-            <p>
-              {inactivityCheck?.metadata.msg ?? "Activity status not available"}
-            </p>
-          </div>
-        );
-      })}
+      <div
+        className="grid"
+        style={{
+          gridTemplateColumns: `repeat(${reports.length}, minmax(0, 1fr))`,
+        }}
+      >
+        {reports.map((report, index) => {
+          const inactivityCheck = report.check_results.find(
+            (check) => check.check === ClientReportCheckType.INACTIVITY
+          );
+
+          return (
+            <div
+              key={index}
+              className="p-4 border-b [&:not(:last-child)]:border-r-2 flex items-center space-x-2"
+            >
+              {!!inactivityCheck?.result ? (
+                <CircleCheckIcon className="text-green-500" />
+              ) : (
+                <CircleAlertIcon className="text-yellow-500" />
+              )}
+              <p>
+                {inactivityCheck?.metadata.msg ??
+                  "Activity status not available"}
+              </p>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

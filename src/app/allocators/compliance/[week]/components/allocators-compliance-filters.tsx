@@ -57,7 +57,7 @@ function searchParamsToFetchParams(
       searchParams.complianceThresholdPercentage,
       50
     ),
-    httpRetrievability: searchParams.httpRetrievability !== "false",
+    httpRetrievability: false,
     urlFinderRetrievability: searchParams.urlFinderRetrievability !== "false",
     numberOfClients: searchParams.numberOfClients !== "false",
     totalDealSize: searchParams.totalDealSize !== "false",

@@ -5,7 +5,6 @@ import { type ICDPHistogram } from "@/lib/interfaces/cdp/cdp.interface";
 import {
   type CdpStorageProvidersStatisticsResponse,
   cdpStorageProvidersStatisticsResponseSchema,
-  StorageProvidersDashboardStatisticType,
 } from "@/lib/schemas";
 import { assertSchema, objectToURLSearchParams } from "@/lib/utils";
 import { weekFromDate } from "@/lib/weeks";
@@ -39,15 +38,7 @@ export async function fetchStorageProvidersDashboardStatistics(
     `CDP API returned invalid response when fetching storage providers statistics; URL: ${endpoint}`
   );
 
-  return json.filter((statistic) => {
-    // Hide those stats unitl DDOs are fixed in DMOB database or we migrate to other data source
-    return !(
-      [
-        StorageProvidersDashboardStatisticType.DDO_DEALS_PERCENTAGE,
-        StorageProvidersDashboardStatisticType.DDO_DEALS_PERCENTAGE_TO_DATE,
-      ] as string[]
-    ).includes(statistic.type);
-  });
+  return json;
 }
 
 // Storage Providers list

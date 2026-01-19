@@ -61,6 +61,10 @@ export interface IClientReportHeader {
 }
 
 export type CompareType = "up" | "down" | "equal" | undefined;
+export type ComparedValue<T> = {
+  value: T;
+  result: CompareType;
+};
 
 export type IPNIReportingStatus = "MISREPORTING" | "NOT_REPORTING" | "OK";
 
@@ -69,21 +73,12 @@ export interface IClientReportStorageProviderDistribution {
   client_report_id: string;
   provider: string;
   total_deal_size: string;
-  total_deal_size_compare: CompareType;
-  total_deal_percentage: number;
-  total_deal_percentage_compare: CompareType;
   unique_data_size: string;
-  unique_data_size_compare: CompareType;
   duplicated_data_size: number;
-  duplicated_data_size_compare: CompareType;
   duplication_percentage: number;
-  duplication_percentage_compare: CompareType;
-  retrievability_success_rate: string;
-  retrievability_success_rate_compare: CompareType;
-  retrievability_success_rate_http: string;
-  retrievability_success_rate_http_compare: CompareType;
-  retrievability_success_rate_url_finder: string;
-  retrievability_success_rate_url_finder_compare: CompareType;
+  retrievability_success_rate?: number | null;
+  retrievability_success_rate_http?: number | null;
+  retrievability_success_rate_url_finder?: number | null;
   ipni_reporting_status: IPNIReportingStatus;
   ipni_reported_claims_count: string | undefined;
   claims_count: string | undefined;
@@ -108,11 +103,8 @@ export interface IClientReportReplicaDistribution {
   client_report_id: string;
   num_of_replicas: string;
   total_deal_size: string;
-  total_deal_size_compare: CompareType;
   unique_data_size: string;
-  unique_data_size_compare: CompareType;
   percentage: number;
-  percentage_compare: CompareType;
   not_found: boolean | undefined;
 }
 
@@ -121,9 +113,7 @@ export interface IClientReportCIDSharing {
   client: string;
   other_client: string;
   total_deal_size: string;
-  total_deal_size_compare: CompareType;
   unique_cid_count: number;
-  unique_cid_count_compare: CompareType;
 }
 
 export enum ClientReportCheckType {
@@ -369,6 +359,7 @@ export interface ICDPAllocatorFullReport {
   clients_number: number;
   multisig: boolean;
   avg_retrievability_success_rate: number;
+  avg_retrievability_success_rate_url_finder?: number | null;
   data_types: string[];
   audit: unknown;
   required_copies: string;
@@ -439,17 +430,12 @@ export interface ICDPAllocatorFullReportStorageProviderDistribution {
   not_found: boolean | undefined;
   provider: string;
   total_deal_size: string;
-  total_deal_size_compare: CompareType;
   unique_data_size: string;
-  unique_data_size_compare: CompareType;
   perc_of_total_datacap: number;
-  perc_of_total_datacap_compare: CompareType;
-  retrievability_success_rate?: number;
-  retrievability_success_rate_compare: CompareType;
-  retrievability_success_rate_http: number;
-  retrievability_success_rate_http_compare: number;
-  retrievability_success_rate_url_finder: number;
-  retrievability_success_rate_url_finder_compare: CompareType;
+  retrievability_success_rate?: number | null;
+  retrievability_success_rate_http?: number | null;
+  retrievability_success_rate_url_finder?: number | null;
+  claims_count?: string | null;
   location: IGenericReportLocation;
 }
 

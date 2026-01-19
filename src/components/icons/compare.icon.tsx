@@ -1,7 +1,11 @@
 import { EqualIcon, TrendingDownIcon, TrendingUpIcon } from "lucide-react";
 import { CompareType } from "@/lib/interfaces/cdp/cdp.interface";
 
-const CompareIcon = ({ compare }: { compare: CompareType }) => {
+export function CompareIcon({ compare }: { compare: CompareType }) {
+  if (!compare) {
+    return null;
+  }
+
   return (
     <div>
       {compare === "equal" && (
@@ -15,6 +19,4 @@ const CompareIcon = ({ compare }: { compare: CompareType }) => {
       )}
     </div>
   );
-};
-
-export { CompareIcon };
+}

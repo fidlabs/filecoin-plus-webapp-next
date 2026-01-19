@@ -16,367 +16,377 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {
-  IClientReportStorageProviderDistribution,
-  IPNIReportingStatus,
+  type ComparedValue,
+  type IClientFullReport,
 } from "@/lib/interfaces/cdp/cdp.interface";
-import { convertBytesToIEC } from "@/lib/utils";
-import { ColumnDef, RowSelectionState } from "@tanstack/react-table";
+import { ArrayElement, bigintToPercentage } from "@/lib/utils";
+import { createColumnHelper, RowSelectionState } from "@tanstack/react-table";
+import { filesize } from "filesize";
 import { FileWarning, InfoIcon } from "lucide-react";
 import Link from "next/link";
 import { useMemo } from "react";
-import { useReportsDetails } from "../../providers/reports-details.provider";
 
-const comparableValues = ["up", "down"];
-
-const useReportViewProvidersColumns = (compareMode: boolean) => {
-  const columns = [
-    {
-      accessorKey: "provider",
-      header: () => {
-        return <div className="whitespace-nowrap">Provider</div>;
-      },
-      cell: ({ row }) => {
-        const provider = row.getValue("provider") as string;
-        return (
-          <Link className="table-link" href={`/storage-providers/${provider}`}>
-            {provider}
-          </Link>
-        );
-      },
-    },
-    {
-      accessorKey: "location",
-      header: () => {
-        return <div className="whitespace-nowrap">Location</div>;
-      },
-      cell: ({ row }) => {
-        if (row.original.not_found) {
-          return (
-            <div className="h-[40px] flex items-center justify-start gap-1">
-              N/A
-            </div>
-          );
-        }
-
-        const rawLocation = row.original.location;
-        if (!rawLocation) {
-          return (
-            <div className="h-full flex items-center justify-start gap-1">
-              N/A
-            </div>
-          );
-        }
-        return (
-          <div className="h-[40px] flex items-center justify-start gap-1">
-            <HoverCard>
-              <HoverCardTrigger>
-                <div>
-                  {rawLocation.city}, {rawLocation.region},{" "}
-                  {rawLocation.country}
-                </div>
-              </HoverCardTrigger>
-              <HoverCardContent>{rawLocation.org}</HoverCardContent>
-            </HoverCard>
-          </div>
-        );
-      },
-    },
-    {
-      accessorKey: "total_deal_size",
-      header: () => {
-        return <div className="whitespace-nowrap">Total Deal Size</div>;
-      },
-      cell: ({ row }) => {
-        if (row.original.not_found) {
-          return (
-            <div className="h-full flex items-center justify-start gap-1">
-              N/A
-            </div>
-          );
-        }
-        const totalDealSize = row.getValue("total_deal_size") as number;
-        return (
-          <div className="h-full flex items-center justify-start gap-1">
-            {convertBytesToIEC(totalDealSize)}
-            {compareMode && (
-              <CompareIcon compare={row.original.total_deal_size_compare} />
-            )}
-          </div>
-        );
-      },
-    },
-    {
-      accessorKey: "total_deal_percentage",
-      header: () => {
-        return <div className="whitespace-nowrap">Percentage</div>;
-      },
-      cell: ({ row }) => {
-        if (row.original.not_found) {
-          return (
-            <div className="h-full flex items-center justify-start gap-1">
-              N/A
-            </div>
-          );
-        }
-
-        const percentage = row.getValue("total_deal_percentage") as number;
-
-        return (
-          <div className="h-full flex items-center justify-start gap-1">
-            {percentage.toFixed(2)}%
-            {compareMode && (
-              <CompareIcon
-                compare={row.original.total_deal_percentage_compare}
-              />
-            )}
-          </div>
-        );
-      },
-    },
-    {
-      accessorKey: "duplication_percentage",
-      header: () => {
-        return <div className="whitespace-nowrap">Duplication</div>;
-      },
-      cell: ({ row }) => {
-        if (row.original.not_found) {
-          return (
-            <div className="h-full flex items-center justify-start gap-1">
-              N/A
-            </div>
-          );
-        }
-
-        const duplication = row.getValue("duplication_percentage") as number;
-        const duplicatedDataSize = row.original.duplicated_data_size;
-
-        return (
-          <div className="h-full flex items-center justify-start gap-1">
-            {duplication.toFixed(2)}%
-            {!!duplicatedDataSize && (
-              <HoverCard>
-                <HoverCardTrigger asChild>
-                  <InfoIcon
-                    size={15}
-                    className="text-muted-foreground cursor-help"
-                  />
-                </HoverCardTrigger>
-                <HoverCardContent>
-                  <div>
-                    <div className="text-sm">
-                      Duplicated Data Size:{" "}
-                      {convertBytesToIEC(duplicatedDataSize)}
-                    </div>
-                  </div>
-                </HoverCardContent>
-              </HoverCard>
-            )}
-            {compareMode && (
-              <CompareIcon
-                compare={row.original.duplicated_data_size_compare}
-              />
-            )}
-          </div>
-        );
-      },
-    },
-    {
-      accessorKey: "ipni_reporting_status",
-      header: () => {
-        return <div className="whitespace-nowrap">IPNI Misreporting</div>;
-      },
-      cell: ({ row }) => {
-        if (row.original.not_found) {
-          return (
-            <div className="h-full flex items-center justify-start gap-1">
-              N/A
-            </div>
-          );
-        }
-
-        const ipni_reporting_status = row.getValue(
-          "ipni_reporting_status"
-        ) as IPNIReportingStatus;
-        const ipni_reported_claims_count = row.original
-          .ipni_reported_claims_count as string | undefined;
-
-        switch (ipni_reporting_status) {
-          case "MISREPORTING":
-            return (
-              <div className="h-full flex items-center justify-start gap-1">
-                <span>Yes</span>
-                {ipni_reported_claims_count && (
-                  <span>({ipni_reported_claims_count} claims)</span>
-                )}
-              </div>
-            );
-          case "NOT_REPORTING":
-            return (
-              <div className="h-full flex items-center justify-start gap-1">
-                Not reporting
-              </div>
-            );
-          case "OK":
-            return (
-              <div className="h-full flex items-center justify-start gap-1">
-                OK
-              </div>
-            );
-        }
-      },
-    },
-    {
-      accessorKey: "claims_count",
-      header: () => {
-        return <div className="whitespace-nowrap">Total claims</div>;
-      },
-      cell: ({ row }) => {
-        if (row.original.not_found) {
-          return (
-            <div className="h-full flex items-center justify-start gap-1">
-              N/A
-            </div>
-          );
-        }
-
-        const claims_count = row.getValue("claims_count") as
-          | boolean
-          | undefined;
-        return (
-          <div className="h-full flex items-center justify-start gap-1">
-            {claims_count ?? "N/A"}
-          </div>
-        );
-      },
-    },
-    {
-      accessorKey: "retrievability_success_rate_http",
-      header: () => {
-        return <div className="whitespace-nowrap">HTTP Retrievability</div>;
-      },
-      cell: ({ row }) => {
-        if (row.original.not_found) {
-          return <span>N/A</span>;
-        }
-
-        const successRate = row.getValue(
-          "retrievability_success_rate_http"
-        ) as number;
-
-        return (
-          <div className="flex items-center gap-1">
-            <span>{(successRate * 100).toFixed(2)}%</span>
-            {compareMode && (
-              <CompareIcon
-                compare={row.original.retrievability_success_rate_http_compare}
-              />
-            )}
-          </div>
-        );
-      },
-    },
-    {
-      accessorKey: "retrievability_success_rate_url_finder",
-      header: () => <RandomPieceAvailabilityTooltip />,
-      cell: ({ row }) => {
-        if (row.original.not_found) {
-          return <span>N/A</span>;
-        }
-
-        const successRate = row.getValue(
-          "retrievability_success_rate_url_finder"
-        ) as number;
-
-        return (
-          <div className="flex items-center gap-1">
-            <span>{(successRate * 100).toFixed(2)}%</span>
-            {compareMode && (
-              <CompareIcon
-                compare={
-                  row.original.retrievability_success_rate_url_finder_compare
-                }
-              />
-            )}
-          </div>
-        );
-      },
-    },
-    {
-      accessorKey: "piece_working_url",
-      header: () => {
-        return <div className="whitespace-nowrap">Piece URL</div>;
-      },
-      cell: ({ row }) => {
-        const pieceWorkingUrl = row.getValue("piece_working_url") as string;
-
-        return (
-          <div className="h-full flex items-center justify-center">
-            {!pieceWorkingUrl ? (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <FileWarning size={15} />
-                  </TooltipTrigger>
-                  <TooltipContent>Sample piece URL not found</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            ) : (
-              <CopyButton
-                tooltipText="Copy sample piece URL"
-                copyText={pieceWorkingUrl}
-                successText="Copied piece URL to clipboard"
-              />
-            )}
-          </div>
-        );
-      },
-    },
-  ] as ColumnDef<IClientReportStorageProviderDistribution>[];
-
-  return { columns };
-};
-
-interface IReportViewProviderMapProps {
-  providerDistribution: IClientReportStorageProviderDistribution[];
+export interface ReportViewProviderTable {
+  report: IClientFullReport;
+  reportToCompare?: IClientFullReport;
 }
 
-const ReportViewProviderTable = ({
-  providerDistribution,
-}: IReportViewProviderMapProps) => {
-  const { compareMode } = useReportsDetails();
+type RawItem = ArrayElement<IClientFullReport["storage_provider_distribution"]>;
+type EnrichedItem = RawItem & {
+  duplicatedDataSize: bigint;
+  duplicationPercentage: number;
+  totalDealPercentage: number;
+};
 
-  //{ 0: true, 1: true, 2: true }
+type ComparableField = ArrayElement<typeof comparableFields>;
+type ComparedItem = Omit<EnrichedItem, ComparableField> & {
+  [K in ComparableField]: ComparedValue<EnrichedItem[K]>;
+};
 
-  const { columns } = useReportViewProvidersColumns(compareMode);
+const httpRetrievabilityColumnId = "http_retrievability";
+const comparableFields = [
+  "total_deal_size",
+  "totalDealPercentage",
+  "duplicationPercentage",
+  "claims_count",
+  "retrievability_success_rate_http",
+  "retrievability_success_rate_url_finder",
+] as const satisfies Array<keyof EnrichedItem>;
 
-  const rowSelection = useMemo(() => {
-    const selection = {} as RowSelectionState;
-    if (!compareMode) {
-      return selection;
+const columnHelper = createColumnHelper<ComparedItem>();
+const percentageFormatter = new Intl.NumberFormat("en-US", {
+  style: "percent",
+  maximumFractionDigits: 2,
+});
+
+const columns = [
+  columnHelper.accessor("provider", {
+    header: "Provider",
+    cell({ getValue }) {
+      const provider = getValue();
+      return (
+        <Link className="table-link" href={`/storage-providers/${provider}`}>
+          {provider}
+        </Link>
+      );
+    },
+  }),
+  columnHelper.accessor("location", {
+    header: "Location",
+    cell({ row, getValue }) {
+      const location = getValue();
+
+      if (row.original.not_found || !location) {
+        return "N/A";
+      }
+
+      return (
+        <HoverCard>
+          <HoverCardTrigger>
+            <span className="whitespace-nowrap">
+              {location.city}, {location.region}, {location.country}
+            </span>
+          </HoverCardTrigger>
+          <HoverCardContent>{location.org}</HoverCardContent>
+        </HoverCard>
+      );
+    },
+  }),
+  columnHelper.accessor("total_deal_size", {
+    id: "total_deal_size",
+    header() {
+      return <span className="whitespace-nowrap">Total Deal Size</span>;
+    },
+    cell({ getValue, row }) {
+      if (row.original.not_found) {
+        return "N/A";
+      }
+
+      const totalDealSize = getValue();
+
+      return (
+        <div className="h-full flex items-center justify-start gap-1">
+          {filesize(totalDealSize.value, { standard: "iec" })}
+          <CompareIcon compare={totalDealSize.result} />
+        </div>
+      );
+    },
+  }),
+  columnHelper.accessor("totalDealPercentage", {
+    header: "Percentage",
+    cell({ getValue, row }) {
+      if (row.original.not_found) {
+        return "N/A";
+      }
+
+      const percentage = getValue();
+
+      return (
+        <div className="h-full flex items-center justify-start gap-1">
+          {percentageFormatter.format(percentage.value / 100)}
+          <CompareIcon compare={percentage.result} />
+        </div>
+      );
+    },
+  }),
+  columnHelper.accessor("duplicationPercentage", {
+    header: "Duplication",
+    cell({ getValue, row }) {
+      if (row.original.not_found) {
+        return "N/A";
+      }
+
+      const duplication = getValue();
+
+      return (
+        <div className="h-full flex items-center justify-start gap-1">
+          {percentageFormatter.format(duplication.value)}
+          <HoverCard>
+            <HoverCardTrigger asChild>
+              <InfoIcon
+                size={15}
+                className="text-muted-foreground cursor-help"
+              />
+            </HoverCardTrigger>
+            <HoverCardContent>
+              <div className="text-sm">
+                Duplicated Data Size:{" "}
+                {filesize(row.original.duplicatedDataSize, {
+                  standard: "iec",
+                })}
+              </div>
+            </HoverCardContent>
+          </HoverCard>
+          <CompareIcon compare={duplication.result} />
+        </div>
+      );
+    },
+  }),
+  columnHelper.accessor("claims_count", {
+    id: "claims_count",
+    header: () => {
+      return <div className="whitespace-nowrap">Total claims</div>;
+    },
+    cell: ({ getValue, row }) => {
+      const claimsCount = getValue();
+
+      if (row.original.not_found || !claimsCount.value) {
+        return "N/A";
+      }
+
+      return (
+        <div className="h-full flex items-center justify-start gap-1">
+          {claimsCount.value}
+          <CompareIcon compare={claimsCount.result} />
+        </div>
+      );
+    },
+  }),
+  columnHelper.accessor("retrievability_success_rate_http", {
+    id: httpRetrievabilityColumnId,
+    header() {
+      return <span className="whitespace-nowrap">HTTP Retrievability</span>;
+    },
+    cell({ getValue, row }) {
+      const successRate = getValue();
+
+      if (row.original.not_found || typeof successRate.value !== "number") {
+        return "N/A";
+      }
+
+      return (
+        <div className="h-full flex items-center justify-start gap-1">
+          {percentageFormatter.format(successRate.value)}
+          <CompareIcon compare={successRate.result} />
+        </div>
+      );
+    },
+  }),
+  columnHelper.accessor("retrievability_success_rate_url_finder", {
+    header() {
+      return <RandomPieceAvailabilityTooltip />;
+    },
+    cell: ({ getValue, row }) => {
+      const successRate = getValue();
+
+      if (row.original.not_found || typeof successRate.value !== "number") {
+        return <span className="text-right">N/A</span>;
+      }
+
+      return (
+        <div className="h-full flex items-center justify-start gap-1">
+          {percentageFormatter.format(successRate.value)}
+          <CompareIcon compare={successRate.result} />
+        </div>
+      );
+    },
+  }),
+  columnHelper.accessor("piece_working_url", {
+    header() {
+      return <span className="whitespace-nowrap">Piece URL</span>;
+    },
+    cell: ({ getValue }) => {
+      const pieceWorkingUrl = getValue();
+
+      return (
+        <div className="h-full flex items-center justify-center">
+          {!pieceWorkingUrl ? (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <FileWarning size={15} />
+                </TooltipTrigger>
+                <TooltipContent>Sample piece URL not found</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          ) : (
+            <CopyButton
+              tooltipText="Copy sample piece URL"
+              copyText={pieceWorkingUrl}
+              successText="Copied piece URL to clipboard"
+            />
+          )}
+        </div>
+      );
+    },
+  }),
+];
+
+function enrichRawItem(rawItem: RawItem, allDealsSize: bigint): EnrichedItem {
+  const uniqueDataSize = BigInt(rawItem.unique_data_size);
+  const totalDealSize = BigInt(rawItem.total_deal_size);
+  const duplicatedDataSize = totalDealSize - uniqueDataSize;
+
+  return {
+    ...rawItem,
+    duplicatedDataSize,
+    duplicationPercentage:
+      bigintToPercentage(duplicatedDataSize, totalDealSize, 6) / 100,
+    totalDealPercentage:
+      bigintToPercentage(totalDealSize, allDealsSize, 6) / 100,
+  };
+}
+
+function compareValues<T>(
+  givenValue: T,
+  comparedValue: unknown
+): ComparedValue<T> {
+  if (typeof givenValue === "string" && typeof comparedValue === "string") {
+    try {
+      const givenValueBigInt = BigInt(givenValue);
+      const comparedValueBigInt = BigInt(comparedValue);
+
+      return {
+        value: givenValue,
+        result:
+          givenValueBigInt === comparedValueBigInt
+            ? "equal"
+            : givenValueBigInt > comparedValueBigInt
+              ? "up"
+              : "down",
+      };
+    } catch (error) {
+      return {
+        value: givenValue,
+        result: undefined,
+      };
     }
+  }
 
-    for (let i = 0; i < providerDistribution.length; i++) {
-      const item = providerDistribution[i];
-      selection[i] =
-        comparableValues.includes(item.total_deal_size_compare ?? "equal") ||
-        comparableValues.includes(
-          item.total_deal_percentage_compare ?? "equal"
-        ) ||
-        comparableValues.includes(item.duplicated_data_size_compare ?? "equal");
-    }
+  if (typeof givenValue === "number" && typeof comparedValue === "number") {
+    return {
+      value: givenValue,
+      result:
+        givenValue === comparedValue
+          ? "equal"
+          : givenValue > comparedValue
+            ? "up"
+            : "down",
+    };
+  }
 
-    return selection;
-  }, [providerDistribution, compareMode]);
+  return {
+    value: givenValue,
+    result: undefined,
+  };
+}
+
+function compareEnrichedItems(
+  givenItem: EnrichedItem,
+  comparedItem?: EnrichedItem
+): ComparedItem {
+  const comparedEntries = comparableFields.map((field) => {
+    return [field, compareValues(givenItem[field], comparedItem?.[field])];
+  });
+
+  return {
+    ...givenItem,
+    ...Object.fromEntries(comparedEntries),
+  };
+}
+
+export function ReportViewProviderTable({
+  report,
+  reportToCompare,
+}: ReportViewProviderTable) {
+  const items = useMemo(() => {
+    const allDealsSize = report.storage_provider_distribution.reduce(
+      (sum, item) => {
+        return sum + BigInt(item.total_deal_size);
+      },
+      0n
+    );
+    const comparedAllDealsSize =
+      reportToCompare?.storage_provider_distribution.reduce((sum, item) => {
+        return sum + BigInt(item.total_deal_size);
+      }, 0n) ?? 0n;
+    const enrichedItems = report.storage_provider_distribution.map((item) =>
+      enrichRawItem(item, allDealsSize)
+    );
+    const comparedEnrichedItems = reportToCompare
+      ? reportToCompare.storage_provider_distribution.map((item) =>
+          enrichRawItem(item, comparedAllDealsSize)
+        )
+      : [];
+
+    return enrichedItems.map((item) => {
+      const comparedItem = comparedEnrichedItems.find(
+        (candidate) => item.provider === candidate.provider
+      );
+      return compareEnrichedItems(item, comparedItem);
+    });
+  }, [report, reportToCompare]);
+
+  const hideSparkRetrievability = useMemo(() => {
+    return items.every((item) => {
+      return typeof item.retrievability_success_rate_http !== "number";
+    });
+  }, [items]);
+
+  const rowSelection = useMemo<RowSelectionState>(() => {
+    return items.reduce<RowSelectionState>((result, item, index) => {
+      const selected = comparableFields.some((field) => {
+        const result = item[field].result;
+        return result === "up" || result === "down";
+      });
+
+      return {
+        ...result,
+        [String(index)]: selected,
+      };
+    }, {});
+  }, [items]);
 
   return (
     <div className="border-b border-t table-select-warning">
       <DataTable
         columns={columns}
-        data={providerDistribution}
+        data={items}
         rowSelection={rowSelection}
+        columnVisibility={{
+          [httpRetrievabilityColumnId]: !hideSparkRetrievability,
+        }}
       />
     </div>
   );
-};
-
-export { ReportViewProviderTable };
+}

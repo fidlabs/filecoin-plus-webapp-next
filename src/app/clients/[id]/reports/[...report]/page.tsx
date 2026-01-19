@@ -5,8 +5,6 @@ import { isHTTPError } from "@/lib/http-errors";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ReportsLayout } from "./components/reports-layout";
-import { parseReports } from "./helpers";
-import { ReportsDetailsProvider } from "./providers/reports-details.provider";
 
 export const revalidate = 3600;
 
@@ -38,9 +36,7 @@ export default async function ClientReportDetailPage({ params }: PageProps) {
           </PageSubtitle>
         </PageHeader>
         <div className="-mt-10">
-          <ReportsDetailsProvider reports={parseReports(reports)}>
-            <ReportsLayout />
-          </ReportsDetailsProvider>
+          <ReportsLayout reports={reports} />
         </div>
       </>
     );

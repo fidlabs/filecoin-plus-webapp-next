@@ -1,17 +1,27 @@
-import { Button } from "@/components/ui/button";
-import { useReportsDetails } from "../providers/reports-details.provider";
+"use client";
 
-const EnableCompareButton = () => {
-  const { compareMode, toggleCompareMode } = useReportsDetails();
+import { Button } from "@/components/ui/button";
+import { useCallback } from "react";
+
+export interface EnableCompareButtonProps {
+  comparsionEnabled: boolean;
+  onComparsionEnabledChange(nextState: boolean): void;
+}
+
+export function EnableCompareButton({
+  comparsionEnabled,
+  onComparsionEnabledChange,
+}: EnableCompareButtonProps) {
+  const handleClick = useCallback(() => {
+    onComparsionEnabledChange(!comparsionEnabled);
+  }, [comparsionEnabled, onComparsionEnabledChange]);
 
   return (
     <Button
-      variant={compareMode ? "default" : "outline"}
-      onClick={toggleCompareMode}
+      variant={comparsionEnabled ? "outline" : "default"}
+      onClick={handleClick}
     >
-      {compareMode ? "Disable compare" : "Enable compare"}
+      {comparsionEnabled ? "Disable compare" : "Enable compare"}
     </Button>
   );
-};
-
-export { EnableCompareButton };
+}
