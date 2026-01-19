@@ -36,8 +36,9 @@ const shownStatisticsTypes: string[] = [
   ClientsDashboardStatisticType.FAILING_CLIENTS,
   ClientsDashboardStatisticType.TOTAL_ACTIVE_CLIENTS,
   ClientsDashboardStatisticType.TOTAL_CLIENTS,
-  StorageProvidersDashboardStatisticType.DDO_DEALS_PERCENTAGE,
-  StorageProvidersDashboardStatisticType.DDO_DEALS_PERCENTAGE_TO_DATE,
+  // Uncomment when DDOs are fixed in DMOB database or we migrate to other data source
+  // StorageProvidersDashboardStatisticType.DDO_DEALS_PERCENTAGE
+  // StorageProvidersDashboardStatisticType.DDO_DEALS_PERCENTAGE_TO_DATE,
   StorageProvidersDashboardStatisticType.STORAGE_PROVIDERS_REPORTING_TO_IPNI_PERCENTAGE,
   StorageProvidersDashboardStatisticType.STORAGE_PROVIDERS_WITH_HIGH_RPA_PERCENTAGE,
   StorageProvidersDashboardStatisticType.TOTAL_ACTIVE_STORAGE_PROVIDERS,
