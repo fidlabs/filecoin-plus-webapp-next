@@ -1,3 +1,4 @@
+import { BackToTop } from "@/components/back-to-top";
 import { Container } from "@/components/container";
 import { PageHeader, PageSubtitle, PageTitle } from "@/components/page-header";
 import {
@@ -16,7 +17,6 @@ import {
   FetchAllocatorsAuditStatesParameters,
   fetchAllocatorsAuditTimes,
   FetchAllocatorsAuditTimesParameters,
-  fetchAllocatorsChecksBreakdown,
   FetchAllocatorsChecksBreakdownParameters,
   fetchAllocatorsClientDistributionData,
   fetchAllocatorsClientDiversityData,
@@ -31,23 +31,22 @@ import {
   fetchAllocatorsSPsComplianceData,
   FetchAllocatorsSPsComplianceDataParameters,
 } from "./allocators-data";
+import { AllocatorsAuditOutcomesWidget } from "./components/allocators-audit-outcomes-widget";
 import { AllocatorsAuditStatesWidget } from "./components/allocators-audit-states-widget";
+import { AllocatorsAuditTimesWidget } from "./components/allocators-audit-times-widget";
+import { AllocatorsChecksBreakdownWidget } from "./components/allocators-checks-breakdown-widget";
 import { AllocatorsClientDistributionWidget } from "./components/allocators-client-distribution-widget";
 import { AllocatorsClientDiversityWidget } from "./components/allocators-client-diversity-widget";
 import { AllocatorsLeaderboards } from "./components/allocators-leaderboards";
 import { AllocatorsListWidget } from "./components/allocators-list-widget";
+import { AllocatorsOldDatacapWidget } from "./components/allocators-old-datacap-widget";
 import { AllocatorsRetrievabilityWidget } from "./components/allocators-retrievability-widget";
+import { AllocatorsScoringBreakdownWidget } from "./components/allocators-scoring-breakdown-widget";
 import { AllocatorsSPsComplianceWidget } from "./components/allocators-sps-compliance-widget";
+import { AllocatorsStatisticsWidget } from "./components/allocators-statistics-widget";
 import { AuditsFlowWidget } from "./components/audits-flow-widget";
 import { DCFlowWidget } from "./components/dc-flow-widget";
 import { MetaallocatorsListWidget } from "./components/metaallocators-list-widget";
-import { AllocatorsAuditOutcomesWidget } from "./components/allocators-audit-outcomes-widget";
-import { AllocatorsAuditTimesWidget } from "./components/allocators-audit-times-widget";
-import { AllocatorsOldDatacapWidget } from "./components/allocators-old-datacap-widget";
-import { BackToTop } from "@/components/back-to-top";
-import { AllocatorsChecksBreakdownWidget } from "./components/allocators-checks-breakdown-widget";
-import { AllocatorsScoringBreakdownWidget } from "./components/allocators-scoring-breakdown-widget";
-import { AllocatorsStatisticsWidget } from "./components/allocators-statistics-widget";
 
 export const revalidate = 300;
 
