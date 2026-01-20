@@ -17,7 +17,6 @@ import {
   FetchAllocatorsAuditStatesParameters,
   fetchAllocatorsAuditTimes,
   FetchAllocatorsAuditTimesParameters,
-  FetchAllocatorsChecksBreakdownParameters,
   fetchAllocatorsClientDistributionData,
   fetchAllocatorsClientDiversityData,
   fetchAllocatorScoreRanking,
@@ -126,11 +125,6 @@ const auditOutcomesDefaultParameters: FetchAllocatorsAuditOutcomesParameters = {
 const auditTimesDefaultParameters: FetchAllocatorsAuditTimesParameters = {
   editionId: "6",
 };
-
-const checksBreakdownDefaultParameters: FetchAllocatorsChecksBreakdownParameters =
-  {
-    groupBy: "week",
-  };
 
 const scoringBreakdownDefaultParameters: FetchAllocatorsScoringBreakdownParameters =
   {
