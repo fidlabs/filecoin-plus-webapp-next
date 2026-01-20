@@ -154,7 +154,6 @@ export default async function AllocatorsPage() {
     clientDistributionResult,
     auditOutcomesResult,
     auditTimesResult,
-    checksBreakdownResult,
     allocatorsScoreRankingResult,
     scoringBreakdownResult,
   ] = await Promise.allSettled([
@@ -168,7 +167,6 @@ export default async function AllocatorsPage() {
     fetchAllocatorsClientDistributionData(),
     fetchAllocatorsAuditOutcomes(auditOutcomesDefaultParameters),
     fetchAllocatorsAuditTimes(auditTimesDefaultParameters),
-    fetchAllocatorsChecksBreakdown(checksBreakdownDefaultParameters),
     fetchAllocatorScoreRanking(),
     fetchAllocatorsScoringBreakdown(scoringBreakdownDefaultParameters),
   ]);
@@ -210,10 +208,6 @@ export default async function AllocatorsPage() {
       QueryKey.ALLOCATORS_AUDIT_TIMES,
       auditsFlowDefaultParameters,
     ])]: unwrapResult(auditTimesResult),
-    [unstable_serialize([
-      QueryKey.ALLOCATORS_CHECKS_BREAKDOWN,
-      checksBreakdownDefaultParameters,
-    ])]: unwrapResult(checksBreakdownResult),
     [unstable_serialize([
       QueryKey.ALLOCATORS_SCORING_BREAKDOWN,
       scoringBreakdownDefaultParameters,
