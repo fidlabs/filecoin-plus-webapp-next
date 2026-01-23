@@ -1,16 +1,23 @@
 "use client";
+
 import { useScrollObserver } from "@/lib/hooks/useScrollObserver";
+import { IClientFullReport } from "@/lib/interfaces/cdp/cdp.interface";
 import { cn } from "@/lib/utils";
-import { useReportsDetails } from "../../providers/reports-details.provider";
 import { ReportViewCidSharingTable } from "./report-view-cid-sharing-table";
 
-const ReportViewCidSharing = () => {
-  const { cidSharingList, colsStyle, colsSpanStyle } = useReportsDetails();
+export interface ReportViewCidSharingProps {
+  comparsionEnabled: boolean;
+  reports: IClientFullReport[];
+}
 
+export function ReportViewCidSharing({
+  comparsionEnabled,
+  reports,
+}: ReportViewCidSharingProps) {
   const { top, ref } = useScrollObserver();
 
   return (
-    <div className="grid" style={colsStyle}>
+    <div>
       <div
         ref={ref}
         className={cn(
@@ -18,7 +25,6 @@ const ReportViewCidSharing = () => {
           top > 90 && "z-[5]",
           top === 147 && "shadow-md"
         )}
-        style={colsSpanStyle}
       >
         <h2 className="font-semibold text-lg">
           Deal Data Shared with other Clients
@@ -34,15 +40,29 @@ const ReportViewCidSharing = () => {
           LDN applications for the same dataset.
         </p>
       </div>
-      {cidSharingList.map((cidSharingData, index) => {
-        return (
-          <div key={index} className="border-b [&:not(:last-child)]:border-r-2">
-            <ReportViewCidSharingTable cidSharingData={cidSharingData} />
-          </div>
-        );
-      })}
+
+      <div
+        className="grid"
+        style={{
+          gridTemplateColumns: `repeat(${reports.length}, minmax(0, 1fr))`,
+        }}
+      >
+        {reports.map((report, index) => {
+          return (
+            <div
+              key={index}
+              className="border-b [&:not(:last-child)]:border-r-2"
+            >
+              <ReportViewCidSharingTable
+                report={report}
+                reportToCompare={
+                  comparsionEnabled ? reports[index - 1] : undefined
+                }
+              />
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
-};
-
-export { ReportViewCidSharing };
+}

@@ -151,9 +151,7 @@ export function AllocatorsRetrievabilityWidget({
   className,
   ...rest
 }: AllocatorsRetrievabilityWidgetProps) {
-  const [editionId, setEditionId] = useState<string>();
-  const [retrievabilityType, setRetrievabilityType] =
-    useState<RetrievabilityType>("urlFinder");
+  const [editionId, setEditionId] = useState<string>("6");
   const [openDataOnly, setOpenDataOnly] = useState(false);
   const [scale, setScale] = useState<string>(scales[0]);
   const [mode, setMode] = useState<string>(modes[0]);
@@ -166,6 +164,8 @@ export function AllocatorsRetrievabilityWidget({
     margins: 160,
   });
 
+  const retrievabilityType: RetrievabilityType =
+    editionId === "5" ? "http" : "urlFinder";
   const parameters: FetchAllocatorsRetrievabilityDataParameters = {
     editionId,
     openDataOnly,
@@ -343,11 +343,7 @@ export function AllocatorsRetrievabilityWidget({
   );
 
   const handleEditionChange = useCallback((value: string) => {
-    setEditionId(value === "all" ? undefined : value);
-  }, []);
-
-  const handleRetrievabilityTypeChange = useCallback((value: string) => {
-    setRetrievabilityType(value === "urlFinder" ? "urlFinder" : "http");
+    setEditionId(value);
   }, []);
 
   const handleOpenDataToggleChange = useCallback<CheckedChangeHandler>(
@@ -377,16 +373,6 @@ export function AllocatorsRetrievabilityWidget({
                   {modesLabelDict[possibleMode]}
                 </TabsTrigger>
               ))}
-            </TabsList>
-          </Tabs>
-
-          <Tabs
-            value={retrievabilityType}
-            onValueChange={handleRetrievabilityTypeChange}
-          >
-            <TabsList>
-              <TabsTrigger value="urlFinder">RPA</TabsTrigger>
-              <TabsTrigger value="http">HTTP</TabsTrigger>
             </TabsList>
           </Tabs>
 
@@ -421,7 +407,6 @@ export function AllocatorsRetrievabilityWidget({
               <SelectValue placeholder="All Editions" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Editions</SelectItem>
               <SelectItem value="5">Edition 5</SelectItem>
               <SelectItem value="6">Edition 6</SelectItem>
             </SelectContent>

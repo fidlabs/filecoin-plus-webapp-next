@@ -5,33 +5,46 @@ import { Container } from "@/components/container";
 import { GenericContentHeader } from "@/components/generic-content-view";
 import { GithubIcon } from "@/components/icons/github.icon";
 import { Card, CardContent } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
+import { type IClientFullReport } from "@/lib/interfaces/cdp/cdp.interface";
 import { format } from "date-fns";
 import Link from "next/link";
+import { useState } from "react";
+import { ReportViewCidSharing } from "./cid-sharing-view/report-view-cid-sharing";
 import { ClientReportActivitySection } from "./client-report-inactivity-section";
 import { ClientReportMultipleAllocatorsSection } from "./client-report-multiple-allocators-section";
 import { ClientReportOverviewSection } from "./client-report-overview-section";
-import { useReportsDetails } from "../providers/reports-details.provider";
 import { EnableCompareButton } from "./enable-compare.button";
 import { ReportViewProviders } from "./provider-view/report-view-providers";
-import { ReportViewReplicas } from "./replikas-view/report-view-replikas";
-import { ReportViewCidSharing } from "./cid-sharing-view/report-view-cid-sharing";
+import { ReportViewReplicas } from "./replicas-view/report-view-replicas";
 
-export function ReportsLayout() {
-  const { colsStyle, reports } = useReportsDetails();
+export interface ReportsLayoutProps {
+  reports: IClientFullReport[];
+}
+
+export function ReportsLayout({ reports }: ReportsLayoutProps) {
+  const [comparsionEnabled, setComparsionEnabled] = useState(true);
 
   const content = (
     <Card>
       <GenericContentHeader
         header="Report Detail"
         sticky
-        addons={reports.length >= 2 && <EnableCompareButton />}
+        addons={
+          reports.length >= 2 && (
+            <EnableCompareButton
+              comparsionEnabled={comparsionEnabled}
+              onComparsionEnabledChange={setComparsionEnabled}
+            />
+          )
+        }
         fixedHeight={true}
       />
       <CardContent className="p-0">
         <div
-          className={cn("grid border-b sticky top-[90px] bg-white z-10")}
-          style={colsStyle}
+          className="grid border-b sticky top-[90px] bg-white z-10"
+          style={{
+            gridTemplateColumns: `repeat(${reports.length}, minmax(0, 1fr))`,
+          }}
         >
           {reports.map((report, index) => {
             return (
@@ -58,15 +71,21 @@ export function ReportsLayout() {
             );
           })}
         </div>
-        <ClientReportOverviewSection />
-        <ClientReportMultipleAllocatorsSection />
-        <ClientReportActivitySection />
-        <ReportViewProviders />
-        <ReportViewReplicas
-          highReplicaThreshold={reports[0]?.high_replica_threshold}
-          lowReplicaThreshold={reports[0]?.low_replica_threshold}
+        <ClientReportOverviewSection reports={reports} />
+        <ClientReportMultipleAllocatorsSection reports={reports} />
+        <ClientReportActivitySection reports={reports} />
+        <ReportViewProviders
+          reports={reports}
+          comparsionEnabled={comparsionEnabled}
         />
-        <ReportViewCidSharing />
+        <ReportViewReplicas
+          comparsionEnabled={comparsionEnabled}
+          reports={reports}
+        />
+        <ReportViewCidSharing
+          comparsionEnabled={comparsionEnabled}
+          reports={reports}
+        />
       </CardContent>
     </Card>
   );

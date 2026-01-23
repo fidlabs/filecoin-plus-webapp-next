@@ -7,6 +7,9 @@ interface UpdateFilterOptions {
   navigationMethod?: NavigationMethod;
 }
 
+/**
+ * @deprecated Use [nuqs](https://nuqs.dev/) instead
+ */
 export function useSearchParamsFilters() {
   const router = useRouter();
   const pathname = usePathname();

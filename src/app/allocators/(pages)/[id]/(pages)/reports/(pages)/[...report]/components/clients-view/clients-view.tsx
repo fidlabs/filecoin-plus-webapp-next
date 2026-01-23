@@ -1,16 +1,23 @@
 "use client";
 
-import { ClientsViewTable } from "@/app/allocators/(pages)/[id]/(pages)/reports/(pages)/[...report]/components/clients-view/clients-view-table";
-import { useReportsDetails } from "@/app/allocators/(pages)/[id]/(pages)/reports/(pages)/[...report]/providers/reports-details.provider";
 import { HealthCheck } from "@/components/health-check";
 import { useScrollObserver } from "@/lib/hooks/useScrollObserver";
-import { IAllocatorReportClientPaginationQuery } from "@/lib/interfaces/api.interface";
 import {
   AllocatorReportCheckType,
   ClientReportCheckType,
+  ICDPAllocatorFullReport,
 } from "@/lib/interfaces/cdp/cdp.interface";
 import { cn } from "@/lib/utils";
 import { CheckIcon, TriangleAlertIcon } from "lucide-react";
+import { ClientsViewTable } from "./clients-view-table";
+
+export interface ClientsViewProps {
+  page: number;
+  pageSize: number;
+  reports: ICDPAllocatorFullReport[];
+  onPageChange(nextPage: number): void;
+  onPageSizeChange(nextPageSize: number): void;
+}
 
 const checkTypes = [
   AllocatorReportCheckType.CLIENT_MULTIPLE_ALLOCATORS,
@@ -37,11 +44,12 @@ const checkTypes = [
 ];
 
 export function ClientsView({
-  queryParams,
-}: {
-  queryParams?: IAllocatorReportClientPaginationQuery;
-}) {
-  const { colsStyle, colsSpanStyle, reports } = useReportsDetails();
+  page,
+  pageSize,
+  reports,
+  onPageChange,
+  onPageSizeChange,
+}: ClientsViewProps) {
   const { top, ref } = useScrollObserver();
 
   const showMutipleAllocatorsExplanation = reports.some((report) => {
@@ -54,7 +62,7 @@ export function ClientsView({
   });
 
   return (
-    <div className="grid" style={colsStyle}>
+    <div>
       <div
         ref={ref}
         className={cn(
@@ -62,7 +70,6 @@ export function ClientsView({
           top > 90 && "z-[5]",
           top === 147 && "shadow-md"
         )}
-        style={colsSpanStyle}
       >
         <h2 className="font-semibold text-lg">Clients overview</h2>
 
@@ -81,50 +88,66 @@ export function ClientsView({
         )}
       </div>
 
-      {reports.map((report, index) => {
-        const idsUsingContract = report.clients.data
-          .filter((client) => !client.not_found && client.using_client_contract)
-          .map((client) => client.client_id);
+      <div
+        className="grid"
+        style={{
+          gridTemplateColumns: `repeat(${reports.length}, minmax(0, 1fr))`,
+        }}
+      >
+        {reports.map((report, index) => {
+          const idsUsingContract = report.clients.data
+            .filter(
+              (client) => !client.not_found && client.using_client_contract
+            )
+            .map((client) => client.client_id);
 
-        const idsReceivingDatacapFromMultipleAllocators =
-          report.check_results.find((result) => {
-            return (
-              result.check ===
-              AllocatorReportCheckType.CLIENT_MULTIPLE_ALLOCATORS
-            );
-          })?.metadata.violating_ids;
+          const idsReceivingDatacapFromMultipleAllocators =
+            report.check_results.find((result) => {
+              return (
+                result.check ===
+                AllocatorReportCheckType.CLIENT_MULTIPLE_ALLOCATORS
+              );
+            })?.metadata.violating_ids;
 
-        const idsWithNotEnoughReplicas =
-          report.check_results.find((result) => {
-            return (
-              result.check === AllocatorReportCheckType.CLIENT_NOT_ENOUGH_COPIES
-            );
-          })?.metadata.violating_ids ?? [];
+          const idsWithNotEnoughReplicas =
+            report.check_results.find((result) => {
+              return (
+                result.check ===
+                AllocatorReportCheckType.CLIENT_NOT_ENOUGH_COPIES
+              );
+            })?.metadata.violating_ids ?? [];
 
-        const foundClients = report.clients.data.filter(
-          (client) => !client.not_found
-        );
+          const foundClients = report.clients.data.filter(
+            (client) => !client.not_found
+          );
 
-        return (
-          <div key={index} className="border-b [&:not(:last-child)]:border-r-2">
-            <HealthCheck
-              security={report.check_results.filter((checkResult) =>
-                checkTypes.includes(checkResult.check)
-              )}
-            />
-            <ClientsViewTable
-              clients={foundClients}
-              idsUsingContract={idsUsingContract}
-              idsReceivingDatacapFromMultipleAllocators={
-                idsReceivingDatacapFromMultipleAllocators
-              }
-              idsWithNotEnoughReplicas={idsWithNotEnoughReplicas}
-              queryParams={queryParams}
-              totalPages={report.clients.pagination?.total}
-            />
-          </div>
-        );
-      })}
+          return (
+            <div
+              key={index}
+              className="border-b [&:not(:last-child)]:border-r-2"
+            >
+              <HealthCheck
+                security={report.check_results.filter((checkResult) =>
+                  checkTypes.includes(checkResult.check)
+                )}
+              />
+              <ClientsViewTable
+                clients={foundClients}
+                idsUsingContract={idsUsingContract}
+                idsReceivingDatacapFromMultipleAllocators={
+                  idsReceivingDatacapFromMultipleAllocators
+                }
+                idsWithNotEnoughReplicas={idsWithNotEnoughReplicas}
+                page={page}
+                pageSize={pageSize}
+                totalPages={report.clients.pagination?.total}
+                onPageChange={onPageChange}
+                onPageSizeChange={onPageSizeChange}
+              />
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

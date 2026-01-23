@@ -140,7 +140,7 @@ export function AllocatorsSPsComplianceWidget({
   const [parameters, setParameters] =
     useState<FetchAllocatorsSPsComplianceDataParameters>({
       editionId: undefined,
-      httpRetrievability: true,
+      httpRetrievability: false,
       urlFinderRetrievability: true,
       numberOfClients: true,
       totalDealSize: true,
