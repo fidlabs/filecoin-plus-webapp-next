@@ -366,7 +366,6 @@ export function assertSchema<T>(
   const result = schema.safeParse(input);
 
   if (result.error) {
-    console.warn(result.error.errors);
     throw new TypeError(message);
   }
 }
