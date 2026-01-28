@@ -3,17 +3,22 @@ import { JsonLd } from "@/components/json.ld";
 import { PageHeader, PageSubtitle, PageTitle } from "@/components/page-header";
 import {
   IdBasedStickyTabNaviation,
-  IdBasedStickyTabNaviationProps,
+  type IdBasedStickyTabNaviationProps,
 } from "@/components/sticky-tab-navigation";
 import { ClientsPageSectionId, QueryKey } from "@/lib/constants";
 import { generatePageMetadata } from "@/lib/utils";
 import { type Metadata } from "next";
 import { type ItemList, type WithContext } from "schema-dts";
 import { SWRConfig, unstable_serialize } from "swr";
-import { fetchClients, type FetchClientsParameters } from "./clients-data";
+import {
+  fetchClients,
+  fetchClientsDashboardStatistics,
+  type FetchClientsDashboardStatisticsParameters,
+  type FetchClientsParameters,
+} from "./clients-data";
 import { ClientsListWidget } from "./components/clients-list-widget";
 import { ClientsOldDatacapWidget } from "./components/clients-old-datacap-widget";
-import ClientsStats from "./components/clients-stats";
+import { ClientsStatisticsWidget } from "./components/clients-statistics-widget";
 
 export const revalidate = 300;
 export const metadata: Metadata = generatePageMetadata({
@@ -29,6 +34,10 @@ const sectionTabs = {
   [ClientsPageSectionId.OLD_DATACAP]: "Old Datacap",
 } as const satisfies IdBasedStickyTabNaviationProps["tabs"];
 
+const statisticsDefaultParams: FetchClientsDashboardStatisticsParameters = {
+  interval: "day",
+};
+
 const fetchClientsDefaultParameters: FetchClientsParameters = {
   page: 1,
   limit: 10,
@@ -37,11 +46,16 @@ const fetchClientsDefaultParameters: FetchClientsParameters = {
 };
 
 export default async function ClientsPage() {
-  const [fetchClientsResult] = await Promise.allSettled([
+  const [statisticsResult, fetchClientsResult] = await Promise.allSettled([
+    fetchClientsDashboardStatistics(statisticsDefaultParams),
     fetchClients(fetchClientsDefaultParameters),
   ]);
 
   const fallback = {
+    [unstable_serialize([
+      QueryKey.CLIENTS_DASHBOARD_STATISTICS,
+      statisticsDefaultParams,
+    ])]: unwrapResult(statisticsResult),
     [unstable_serialize([
       QueryKey.CLIENTS_LIST,
       fetchClientsDefaultParameters,
@@ -80,16 +94,7 @@ export default async function ClientsPage() {
         </PageHeader>
         <IdBasedStickyTabNaviation className="mb-8" tabs={sectionTabs} />
         <Container className="flex flex-col gap-8">
-          {fetchClientsResult.status === "fulfilled" ? (
-            <ClientsStats
-              id={ClientsPageSectionId.STATS}
-              data={fetchClientsResult.value}
-            />
-          ) : (
-            <p className="text-center py-8 text-sm text-muted-foreground">
-              Could not load clients stats. Please try again later.
-            </p>
-          )}
+          <ClientsStatisticsWidget id={ClientsPageSectionId.STATS} />
 
           <ClientsListWidget
             id={ClientsPageSectionId.LIST}

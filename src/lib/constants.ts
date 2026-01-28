@@ -17,6 +17,7 @@ export enum QueryKey {
   ALLOCATORS_OLD_DATACAP = "allocators_old_datacap",
   ALLOCATORS_CHECKS_BREAKDOWN = "allocators_checks_breakdown",
   ALLOCATORS_SCORING_BREAKDOWN = "allocators_scoring_breakdown",
+  CLIENTS_DASHBOARD_STATISTICS = "clients_dashboard_statistics",
   CLIENTS_LIST = "clients_list",
   CLIENTS_OLD_DATACAP = "clients_old_datacap",
   CLIENT_ALLOCATIONS = "client_allocations",

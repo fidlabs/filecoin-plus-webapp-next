@@ -42,7 +42,10 @@ export interface DashboardStatisticDisplayProps {
   showLoading?: boolean;
 }
 
-const bytesStatisticTypes: string[] = ["DATACAP_SPENT_BY_CLIENTS"];
+const bytesStatisticTypes: string[] = [
+  ClientsDashboardStatisticType.DATACAP_SPENT_BY_CLIENTS,
+  ClientsDashboardStatisticType.TOTAL_REMAINING_CLIENTS_DATACAP,
+];
 const numericFormatter = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 2,
 });

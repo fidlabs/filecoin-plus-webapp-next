@@ -1,9 +1,13 @@
 import { CDP_API_URL, DCS_API_URL } from "@/lib/constants";
 import { throwHTTPErrorOrSkip } from "@/lib/http-errors";
 import {
-  IClientAllocationsResponse,
-  IClientsResponse,
+  type IClientAllocationsResponse,
+  type IClientsResponse,
 } from "@/lib/interfaces/dmob/client.interface";
+import {
+  cdpClientsStatisticsResponseSchema,
+  type ClientsDashboardStatistic,
+} from "@/lib/schemas";
 import { assertSchema, objectToURLSearchParams } from "@/lib/utils";
 import { numericalStringSchema } from "@/lib/zod-extensions";
 import { z } from "zod";
@@ -18,6 +22,37 @@ type PaginationParameters =
       page?: undefined;
     }
   | never;
+
+// Statstics
+export interface FetchClientsDashboardStatisticsParameters {
+  interval?: "day" | "week" | "month";
+}
+
+export type FetchClientsDashboardStatisticsReturnType =
+  ClientsDashboardStatistic[];
+
+export async function fetchClientsDashboardStatistics(
+  parameters?: FetchClientsDashboardStatisticsParameters
+): Promise<FetchClientsDashboardStatisticsReturnType> {
+  const searchParams = objectToURLSearchParams(parameters ?? {});
+  const endpoint = `${CDP_API_URL}/clients/statistics?${searchParams.toString()}`;
+  const response = await fetch(endpoint);
+
+  throwHTTPErrorOrSkip(
+    response,
+    `CDP API returned status ${response.status} when fetching clients statistics; URL: ${endpoint}`
+  );
+
+  const json = await response.json();
+
+  assertSchema(
+    json,
+    cdpClientsStatisticsResponseSchema,
+    `CDP API returned invalid response when fetching clients statistics; URL: ${endpoint}`
+  );
+
+  return json;
+}
 
 // Clients list
 export interface FetchClientsParameters {
