@@ -103,12 +103,12 @@ export type FetchStorageProvidersComplianceDataReturnType =
   StorageProvidersComplianceData;
 
 const providersComplianceDataSchema = z.object({
-  averageHttpSuccessRate: z.number().nullable(),
+  averageHttpSuccessRate: z.number().nullish(),
   averageUrlFinderSuccessRate: z.number().nullable(),
   results: z.array(
     z.object({
       week: z.string(),
-      averageHttpSuccessRate: z.number().nullable(),
+      averageHttpSuccessRate: z.number().nullish(),
       averageUrlFinderSuccessRate: z.number().nullable(),
       compliantSps: z.number(),
       partiallyCompliantSps: z.number(),

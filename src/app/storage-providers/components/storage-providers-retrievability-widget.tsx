@@ -63,7 +63,7 @@ type GroupKey = `group_${number}`;
 type GroupValues = Record<GroupKey, number>;
 type ChartDataEntry = GroupValues & {
   date: string;
-  averageSuccessRate: number | null;
+  averageSuccessRate: number | null | undefined;
 };
 
 /**
