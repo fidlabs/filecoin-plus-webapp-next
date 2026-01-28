@@ -116,7 +116,7 @@ export function StorageProvidersComplianceWidget({
   const [parameters, setParameters] =
     useState<FetchStorageProvidersComplianceDataParameters>({
       editionId: undefined,
-      httpRetrievability: true,
+      httpRetrievability: false,
       urlFinderRetrievability: true,
       numberOfClients: true,
       totalDealSize: true,
@@ -271,7 +271,7 @@ export function StorageProvidersComplianceWidget({
       const searchParams = objectToURLSearchParams(
         {
           complianceScore: "compliant",
-          httpRetrievability: parameters.httpRetrievability,
+          httpRetrievability: false,
           urlFinderRetrievability: parameters.urlFinderRetrievability,
           numberOfClients: parameters.numberOfClients,
           totalDealSize: parameters.totalDealSize,

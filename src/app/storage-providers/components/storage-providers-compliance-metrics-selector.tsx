@@ -27,7 +27,7 @@ export interface StorageProvidersComplianceMetricsSelectorProps
 
 const allMetricTypes = [
   "numberOfClients",
-  "httpRetrievability",
+  // "httpRetrievability",
   "urlFinderRetrievability",
   "totalDealSize",
 ] as const satisfies Metric[];
