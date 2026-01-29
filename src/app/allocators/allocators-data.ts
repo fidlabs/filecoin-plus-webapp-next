@@ -47,11 +47,14 @@ export async function fetchAllocatorsDashboardStatistics(
     )
       .then(resolveResponse(cdpStorageProvidersStatisticsResponseSchema))
       .then((statistics) => {
-        return statistics.filter(
-          (statistic) =>
-            statistic.type ===
-            StorageProvidersDashboardStatisticType.AVERAGE_URL_FINDER_RETRIEVABILITY_PERCENTAGE
-        );
+        return statistics.filter((statistic) => {
+          return (
+            [
+              StorageProvidersDashboardStatisticType.AVERAGE_URL_FINDER_RETRIEVABILITY_PERCENTAGE,
+              StorageProvidersDashboardStatisticType.AVERAGE_AVAILABLE_URL_FINDER_RETRIEVABILITY_PERCENTAGE,
+            ] as string[]
+          ).includes(statistic.type);
+        });
       }),
   ]);
 
