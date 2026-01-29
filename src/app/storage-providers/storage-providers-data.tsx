@@ -207,7 +207,6 @@ const retrievabilityResponseSchema = z.object({
 export interface FetchStorageProvidersRetrievabilityDataParameters {
   editionId?: string;
   openDataOnly?: boolean;
-  retrievabilityType?: "urlFinder" | "http";
 }
 
 export type FetchStorageProvidersRetrievabilityDataReturnType = z.infer<
@@ -217,17 +216,12 @@ export type FetchStorageProvidersRetrievabilityDataReturnType = z.infer<
 export async function fetchStorageProvidersRetrievabilityData(
   parameters?: FetchStorageProvidersRetrievabilityDataParameters
 ): Promise<FetchStorageProvidersRetrievabilityDataReturnType> {
-  const {
-    editionId,
-    openDataOnly = false,
-    retrievabilityType,
-  } = parameters ?? {};
+  const { editionId, openDataOnly = false } = parameters ?? {};
 
   const searchParams = objectToURLSearchParams(
     {
       editionId,
       openDataOnly,
-      retrievabilityType,
     },
     true
   );

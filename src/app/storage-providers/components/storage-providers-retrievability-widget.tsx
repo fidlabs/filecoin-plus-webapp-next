@@ -7,6 +7,10 @@ import {
   ChartTooltipHeader,
   ChartTooltipTitle,
 } from "@/components/chart-tooltip";
+import {
+  ChartType,
+  ChartTypeTabsSelect,
+} from "@/components/chart-type-tabs-select";
 import { OverlayLoader } from "@/components/overlay-loader";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -20,6 +24,7 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { QueryKey } from "@/lib/constants";
 import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
+import { useDynamicBarsCount } from "@/lib/hooks/use-dynamic-bars-count";
 import {
   ArrayElement,
   bigintToPercentage,
@@ -45,11 +50,6 @@ import {
   fetchStorageProvidersRetrievabilityData,
   FetchStorageProvidersRetrievabilityDataParameters,
 } from "../storage-providers-data";
-import {
-  ChartType,
-  ChartTypeTabsSelect,
-} from "@/components/chart-type-tabs-select";
-import { useDynamicBarsCount } from "@/lib/hooks/use-dynamic-bars-count";
 
 type CardProps = ComponentProps<typeof Card>;
 type CheckboxProps = ComponentProps<typeof Checkbox>;
@@ -70,9 +70,6 @@ type ChartDataEntry = GroupValues & {
  * Lower value exclusive. Upper inclusive.
  */
 type Range = [number | null, number | null];
-type RetrievabilityType = NonNullable<
-  FetchStorageProvidersRetrievabilityDataParameters["retrievabilityType"]
->;
 type EnabledChartType = ArrayElement<typeof enabledChartTypes>;
 
 const scales = ["linear", "percentage", "log"] as const;
@@ -152,8 +149,6 @@ export function StorageProvidersRetrievabilityWidget({
   ...rest
 }: StorageProvidersRetrievabilityWidgetProps) {
   const [editionId, setEditionId] = useState<string>();
-  const [retrievabilityType, setRetrievabilityType] =
-    useState<RetrievabilityType>("urlFinder");
   const [openDataOnly, setOpenDataOnly] = useState(false);
   const [scale, setScale] = useState<string>(scales[0]);
   const [mode, setMode] = useState<string>(modes[0]);
@@ -169,7 +164,6 @@ export function StorageProvidersRetrievabilityWidget({
   const parameters: FetchStorageProvidersRetrievabilityDataParameters = {
     editionId,
     openDataOnly,
-    retrievabilityType,
   };
 
   const { data, isLoading } = useSWR(
@@ -200,14 +194,8 @@ export function StorageProvidersRetrievabilityWidget({
       };
     }
 
-    const currentWeekAverage =
-      retrievabilityType === "http"
-        ? currentWeekData.averageHttpSuccessRate
-        : currentWeekData.averageUrlFinderSuccessRate;
-    const previousWeekAverage =
-      retrievabilityType === "http"
-        ? previousWeekData.averageHttpSuccessRate
-        : previousWeekData.averageUrlFinderSuccessRate;
+    const currentWeekAverage = currentWeekData.averageUrlFinderSuccessRate;
+    const previousWeekAverage = previousWeekData.averageUrlFinderSuccessRate;
 
     const weeklyAveragePercentageChange =
       typeof currentWeekAverage === "number" &&
@@ -222,7 +210,7 @@ export function StorageProvidersRetrievabilityWidget({
         : "N/A",
       weeklyAveragePercentageChange,
     };
-  }, [data, retrievabilityType]);
+  }, [data]);
 
   const [ranges, chartData] = useMemo<[Range[], ChartDataEntry[]]>(() => {
     if (!data) {
@@ -285,10 +273,7 @@ export function StorageProvidersRetrievabilityWidget({
           {}
         );
 
-        const averageSuccessRate =
-          retrievabilityType === "http"
-            ? histogramEntry.averageHttpSuccessRate
-            : histogramEntry.averageUrlFinderSuccessRate;
+        const averageSuccessRate = histogramEntry.averageUrlFinderSuccessRate;
 
         return {
           date: histogramEntry.week,
@@ -299,7 +284,7 @@ export function StorageProvidersRetrievabilityWidget({
     );
 
     return [ranges, chartData];
-  }, [data, groupingOption, mode, retrievabilityType, scale]);
+  }, [data, groupingOption, mode, scale]);
 
   const palette = useMemo(() => {
     return gradientPalette("#FF5722", "#4CAF50", ranges.length);
@@ -347,10 +332,6 @@ export function StorageProvidersRetrievabilityWidget({
     setEditionId(value === "all" ? undefined : value);
   }, []);
 
-  const handleRetrievabilityTypeChange = useCallback((value: string) => {
-    setRetrievabilityType(value === "urlFinder" ? "urlFinder" : "http");
-  }, []);
-
   const handleOpenDataToggleChange = useCallback<CheckedChangeHandler>(
     (state) => {
       if (state !== "indeterminate") {
@@ -379,16 +360,6 @@ export function StorageProvidersRetrievabilityWidget({
                   {modesLabelDict[possibleMode]}
                 </TabsTrigger>
               ))}
-            </TabsList>
-          </Tabs>
-
-          <Tabs
-            value={retrievabilityType}
-            onValueChange={handleRetrievabilityTypeChange}
-          >
-            <TabsList>
-              <TabsTrigger value="urlFinder">RPA</TabsTrigger>
-              <TabsTrigger value="http">HTTP</TabsTrigger>
             </TabsList>
           </Tabs>
 
