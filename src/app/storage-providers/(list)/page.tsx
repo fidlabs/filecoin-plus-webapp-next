@@ -57,7 +57,6 @@ const retrievabilityDataDefaultParams: FetchStorageProvidersRetrievabilityDataPa
   {
     editionId: undefined,
     openDataOnly: false,
-    retrievabilityType: "urlFinder",
   };
 
 const clientDiversityDataDefaultParams: FetchStorageProvidersClientDiversityDataParameters =
