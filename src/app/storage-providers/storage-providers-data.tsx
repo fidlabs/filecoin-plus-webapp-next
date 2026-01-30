@@ -9,6 +9,10 @@ import {
 } from "@/lib/schemas";
 import { assertSchema, objectToURLSearchParams } from "@/lib/utils";
 import { weekFromDate } from "@/lib/weeks";
+import {
+  decimalStringSchema,
+  numericalStringSchema,
+} from "@/lib/zod-extensions";
 import { z } from "zod";
 
 // Statistics
@@ -360,4 +364,59 @@ export async function fetchStorageProvidersIPNIMisreportingData(
   const data = await response.json();
   assertIsIPNIMisreportingReponse(data);
   return data;
+}
+
+// Filscan Info
+export type FetchStorageProviderFilscanInfoReturnType = z.infer<
+  typeof storageProviderFilscanInfoSchema
+>;
+
+export interface FetchStorageProviderFilscanInfoParameters {
+  storageProviderId: string;
+}
+
+const storageProviderFilscanInfoSchema = z.object({
+  account_id: z.string(),
+  balance: numericalStringSchema,
+  available_balance: numericalStringSchema,
+  init_pledge: numericalStringSchema,
+  pre_deposits: numericalStringSchema,
+  locked_balance: numericalStringSchema,
+  quality_adjust_power: numericalStringSchema,
+  quality_power_rank: z.number(),
+  quality_power_percentage: decimalStringSchema,
+  raw_power: numericalStringSchema,
+  total_block_count: z.number(),
+  total_win_count: z.number(),
+  total_reward: numericalStringSchema,
+  sector_size: z.number(),
+  sector_count: z.number(),
+  live_sector_count: z.number(),
+  fault_sector_count: z.number(),
+  recover_sector_count: z.number(),
+  active_sector_count: z.number(),
+  terminate_sector_count: z.number(),
+});
+
+export async function fetchStorageProviderFilscanInfo({
+  storageProviderId,
+}: FetchStorageProviderFilscanInfoParameters): Promise<FetchStorageProviderFilscanInfoReturnType> {
+  const queryParams = objectToURLSearchParams({ provider: storageProviderId });
+  const endpoint = `${CDP_API_URL}/storage-providers/filscan-info?${queryParams.toString()}`;
+  const response = await fetch(endpoint);
+
+  throwHTTPErrorOrSkip(
+    response,
+    `CDP API returned status ${response.status} when fetching storage provider Filscan info; URL: ${endpoint}`
+  );
+
+  const json = await response.json();
+
+  assertSchema(
+    json,
+    storageProviderFilscanInfoSchema,
+    `CDP API returned invalid response when fetching storage provider Filscan info; URL: ${endpoint}`
+  );
+
+  return json as FetchStorageProviderFilscanInfoReturnType;
 }
