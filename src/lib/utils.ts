@@ -5,6 +5,7 @@ import { filesize } from "filesize";
 import { type Metadata } from "next";
 import { getWeek, getWeekYear } from "date-fns";
 import { type ZodType } from "zod";
+import { NumericalString } from "./zod-extensions";
 
 export type KeysMatchingType<T, V> = {
   [K in keyof T]-?: T[K] extends V ? K : never;
@@ -16,6 +17,10 @@ export type OnlyPropsMatchingType<T, V> = {
 
 export type ArrayElement<T> = T extends readonly unknown[] ? T[number] : never;
 
+const filExponent = 10n ** 18n; // 10 to power of 18 decimal places
+const filBalanceNumberFormatter = new Intl.NumberFormat("en-US", {
+  maximumFractionDigits: 4,
+});
 const mpn65 = [
   "#0091ff",
   "#ff0029",
@@ -342,7 +347,7 @@ export function formatEnglishOrdinals(input: number): string {
   return `${input}${suffix}`;
 }
 
-export function bigintToPercentage(
+export function divideBigint(
   numerator: bigint,
   denominator: bigint,
   precision = 2
@@ -351,11 +356,20 @@ export function bigintToPercentage(
     return 0;
   }
 
-  const precisionExponent = 10n ** BigInt(2 + precision);
+  const precisionExponent = 10n ** BigInt(precision);
   const numeratorWithPrecision = numerator * precisionExponent;
   const fraction = numeratorWithPrecision / denominator;
 
   return Number(fraction) / Math.pow(10, precision);
+}
+
+export function bigintToPercentage(
+  numerator: bigint,
+  denominator: bigint,
+  precision = 2
+): number {
+  const fraction = divideBigint(numerator, denominator, precision + 2);
+  return Number(fraction) * 100;
 }
 
 export function assertSchema<T>(
@@ -368,4 +382,12 @@ export function assertSchema<T>(
   if (result.error) {
     throw new TypeError(message);
   }
+}
+
+export function filBalanceToDecimal(balance: NumericalString): number {
+  return divideBigint(BigInt(balance), filExponent, 4);
+}
+
+export function formatFilBalance(balance: number): string {
+  return filBalanceNumberFormatter.format(balance) + " FIL";
 }
