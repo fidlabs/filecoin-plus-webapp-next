@@ -11,6 +11,8 @@ export interface IStorageProvider {
   verifiedDealsTotalSize: string;
   noOfClients: number;
   lastDealHeight: number;
+  urlFinderRetrievability: number | null;
+  urlFinderRetrievability30DayAverage: number;
 }
 
 export interface IStorageProviderResponse

@@ -2,6 +2,7 @@ import { getStorageProviders } from "@/lib/api";
 import { CDP_API_URL } from "@/lib/constants";
 import { throwHTTPErrorOrSkip } from "@/lib/http-errors";
 import { type ICDPHistogram } from "@/lib/interfaces/cdp/cdp.interface";
+import { type IStorageProvider } from "@/lib/interfaces/dmob/sp.interface";
 import {
   type CdpStorageProvidersStatisticsResponse,
   cdpStorageProvidersStatisticsResponseSchema,
@@ -64,13 +65,7 @@ export interface FetchStorageProvidersListParameters {
 }
 
 export interface FetchStorageProvidersListReturnType {
-  storageProviders: Array<{
-    provider: string;
-    noOfVerifiedDeals: number;
-    noOfClients: number;
-    verifiedDealsTotalSize: string;
-    lastDealHeight: number;
-  }>;
+  storageProviders: IStorageProvider[];
   totalCount: number;
 }
 

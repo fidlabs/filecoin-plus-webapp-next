@@ -1,15 +1,16 @@
 import {
   DataTableSort,
-  DataTableSortProps,
+  type DataTableSortProps,
 } from "@/components/data-table-sort";
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import { IStorageProvider } from "@/lib/interfaces/dmob/sp.interface";
-import { calculateDateFromHeight, convertBytesToIEC } from "@/lib/utils";
-import { ColumnDef } from "@tanstack/react-table";
+import { type IStorageProvider } from "@/lib/interfaces/dmob/sp.interface";
+import { calculateDateFromHeight } from "@/lib/utils";
+import { createColumnHelper } from "@tanstack/react-table";
+import { filesize } from "filesize";
 import { InfoIcon } from "lucide-react";
 import Link from "next/link";
 
@@ -23,6 +24,12 @@ export interface UseStorageProvidersColumnsOptions {
   sorting?: Sorting | null;
   onSort(key: string, direction: SortDirection): void;
 }
+
+const columnHelper = createColumnHelper<IStorageProvider>();
+const percentageFormatter = new Intl.NumberFormat("en-US", {
+  style: "percent",
+  maximumFractionDigits: 2,
+});
 
 function getSortDirectionForProperty(
   sorting: Sorting | null | undefined,
@@ -40,9 +47,8 @@ export function useStorageProvidersColumns({
   onSort,
 }: UseStorageProvidersColumnsOptions) {
   return [
-    {
-      accessorKey: "provider",
-      header: () => {
+    columnHelper.accessor("provider", {
+      header() {
         return (
           <DataTableSort
             direction={getSortDirectionForProperty(sorting, "provider")}
@@ -52,18 +58,18 @@ export function useStorageProvidersColumns({
           </DataTableSort>
         );
       },
-      cell: ({ row }) => {
-        const provider = row.getValue("provider") as string;
+      cell({ getValue }) {
+        const provider = getValue();
+
         return (
           <Link className="table-link" href={`/storage-providers/${provider}`}>
             {provider}
           </Link>
         );
       },
-    },
-    {
-      accessorKey: "noOfVerifiedDeals",
-      header: () => {
+    }),
+    columnHelper.accessor("noOfVerifiedDeals", {
+      header() {
         return (
           <DataTableSort
             direction={getSortDirectionForProperty(
@@ -76,10 +82,9 @@ export function useStorageProvidersColumns({
           </DataTableSort>
         );
       },
-    },
-    {
-      accessorKey: "noOfClients",
-      header: () => {
+    }),
+    columnHelper.accessor("noOfClients", {
+      header() {
         return (
           <DataTableSort
             direction={getSortDirectionForProperty(sorting, "noOfClients")}
@@ -89,22 +94,66 @@ export function useStorageProvidersColumns({
           </DataTableSort>
         );
       },
-    },
-    {
-      accessorKey: "verifiedDealsTotalSize",
-      header: () => {
-        return <p>Total Deals Size</p>;
+    }),
+    columnHelper.accessor("verifiedDealsTotalSize", {
+      header() {
+        return (
+          <DataTableSort
+            direction={getSortDirectionForProperty(
+              sorting,
+              "verifiedDealsTotalSize"
+            )}
+            onSort={(direction) => onSort("verifiedDealsTotalSize", direction)}
+          >
+            Total Deals Size
+          </DataTableSort>
+        );
       },
-      cell: ({ row }) => {
-        const verifiedDealsTotalSize = row.getValue(
-          "verifiedDealsTotalSize"
-        ) as string;
-        return convertBytesToIEC(+verifiedDealsTotalSize);
+      cell({ getValue }) {
+        return filesize(getValue(), { standard: "iec" });
       },
-    },
-    {
-      accessorKey: "lastDealHeight",
-      header: () => {
+    }),
+    columnHelper.accessor("urlFinderRetrievability", {
+      header() {
+        return (
+          <DataTableSort
+            direction={getSortDirectionForProperty(
+              sorting,
+              "urlFinderRetrievability"
+            )}
+            onSort={(direction) => onSort("urlFinderRetrievability", direction)}
+          >
+            Current RPA
+          </DataTableSort>
+        );
+      },
+      cell({ getValue }) {
+        const value = getValue();
+        return value === null ? "N/A" : percentageFormatter.format(value);
+      },
+    }),
+    columnHelper.accessor("urlFinderRetrievability30DayAverage", {
+      header() {
+        return (
+          <DataTableSort
+            direction={getSortDirectionForProperty(
+              sorting,
+              "urlFinderRetrievability30DayAverage"
+            )}
+            onSort={(direction) =>
+              onSort("urlFinderRetrievability30DayAverage", direction)
+            }
+          >
+            30D Average RPA
+          </DataTableSort>
+        );
+      },
+      cell({ getValue }) {
+        return percentageFormatter.format(getValue());
+      },
+    }),
+    columnHelper.accessor("lastDealHeight", {
+      header() {
         return (
           <DataTableSort
             direction={getSortDirectionForProperty(sorting, "lastDealHeight")}
@@ -114,11 +163,11 @@ export function useStorageProvidersColumns({
           </DataTableSort>
         );
       },
-      cell: ({ row }) => {
-        const lastDealHeight = row.getValue("lastDealHeight") as number;
+      cell({ getValue }) {
+        const lastDealHeight = getValue();
         return (
           <div className="whitespace-nowrap flex gap-1 items-center justify-end">
-            {calculateDateFromHeight(+lastDealHeight)}
+            {calculateDateFromHeight(lastDealHeight)}
             <HoverCard openDelay={100} closeDelay={50}>
               <HoverCardTrigger asChild>
                 <InfoIcon
@@ -134,6 +183,6 @@ export function useStorageProvidersColumns({
           </div>
         );
       },
-    },
-  ] as ColumnDef<IStorageProvider>[];
+    }),
+  ];
 }
