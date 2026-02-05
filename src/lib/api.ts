@@ -129,8 +129,12 @@ export const getStorageProvidersByCompliance = async (query?: IApiQuery) => {
   return (await fetchData(url)) as IStorageProvidersResponse;
 };
 
-export const getStorageProviderById = async (id: string, query?: IApiQuery) => {
-  const url = `${apiUrl}/v2/getMinerInfo/${id}${parseQuery(query)}`;
+export const getStorageProviderById = async (
+  id: string,
+  query: Record<string, unknown> = {}
+) => {
+  const searchParams = objectToURLSearchParams(query, true);
+  const url = `${apiUrl}/v2/getMinerInfo/${id}?${searchParams.toString()}`;
   return (await fetchData(url)) as IStorageProviderResponse;
 };
 

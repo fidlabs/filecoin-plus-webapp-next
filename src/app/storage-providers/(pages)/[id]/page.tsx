@@ -1,18 +1,18 @@
 import { ClientsList } from "@/app/storage-providers/(pages)/[id]/components/clients-list";
 import { getStorageProviderById } from "@/lib/api";
-import { type IApiQuery } from "@/lib/interfaces/api.interface";
+import { QueryKey } from "@/lib/constants";
+import { SWRConfig, unstable_serialize } from "swr";
+import { fetchStorageProviderFilscanInfo } from "../../storage-providers-data";
 import { StorageProviderBalanceWidget } from "./components/storage-provider-balance-widget";
 import { StorageProviderPowerWidget } from "./components/storage-provider-power-widget";
-import { fetchStorageProviderFilscanInfo } from "../../storage-providers-data";
-import { SWRConfig, unstable_serialize } from "swr";
-import { QueryKey } from "@/lib/constants";
 
 export const revalidate = 1800;
 
 interface PageProps {
   params: { id: string };
-  searchParams: IApiQuery;
 }
+
+const clientsListDefaultParams = { page: 1, limit: 10, filter: "" };
 
 function unwrapResult<T>(result: PromiseSettledResult<T>): T | undefined {
   return result.status === "fulfilled" ? result.value : undefined;
@@ -20,20 +20,12 @@ function unwrapResult<T>(result: PromiseSettledResult<T>): T | undefined {
 
 export default async function StorageProviderDetailsPage({
   params,
-  searchParams,
 }: PageProps) {
   const storageProviderId = params.id;
 
-  const currentParams = {
-    page: searchParams?.page ?? "1",
-    limit: searchParams?.limit ?? "10",
-    sort: searchParams?.sort ?? "",
-    filter: searchParams?.filter ?? "",
-  };
-
   const [filscanInfoResult, clientsListResult] = await Promise.allSettled([
     fetchStorageProviderFilscanInfo({ storageProviderId }),
-    getStorageProviderById(storageProviderId, currentParams),
+    getStorageProviderById(storageProviderId, clientsListDefaultParams),
   ]);
 
   const fallback = {
@@ -41,6 +33,11 @@ export default async function StorageProviderDetailsPage({
       QueryKey.STORAGE_PROVIDER_FILSCAN_INFO,
       storageProviderId,
     ])]: unwrapResult(filscanInfoResult),
+    [unstable_serialize([
+      QueryKey.STORAGE_PROVIDER_BY_ID,
+      storageProviderId,
+      clientsListDefaultParams,
+    ])]: unwrapResult(clientsListResult),
   };
 
   return (
@@ -52,11 +49,7 @@ export default async function StorageProviderDetailsPage({
         </div>
 
         {clientsListResult.status === "fulfilled" && (
-          <ClientsList
-            data={clientsListResult.value}
-            params={currentParams}
-            id={storageProviderId}
-          />
+          <ClientsList id={storageProviderId} />
         )}
       </div>
     </SWRConfig>

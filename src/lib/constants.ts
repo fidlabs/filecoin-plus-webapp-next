@@ -35,6 +35,7 @@ export enum QueryKey {
   STORAGE_PROVIDERS_IPNI_MISREPORTING_DATA = "storage_providers_ipni_misreporting_data",
   STORAGE_PROVIDERS_STATISTICS = "storage_providers_statistics",
   STORAGE_PROVIDER_FILSCAN_INFO = "storage_provider_filscan_info",
+  STORAGE_PROVIDER_BY_ID = "storage_provider_by_id",
 }
 
 export enum DashboardPageSectionId {
