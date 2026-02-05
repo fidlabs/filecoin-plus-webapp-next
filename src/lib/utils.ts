@@ -391,3 +391,7 @@ export function filBalanceToDecimal(balance: NumericalString): number {
 export function formatFilBalance(balance: number): string {
   return filBalanceNumberFormatter.format(balance) + " FIL";
 }
+
+export function isValidDate(input: unknown): input is Date {
+  return input instanceof Date && !isNaN(Number(input));
+}

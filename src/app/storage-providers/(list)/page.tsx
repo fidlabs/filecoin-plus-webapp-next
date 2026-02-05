@@ -7,6 +7,7 @@ import { SWRConfig, unstable_serialize } from "swr";
 import { StorageProvidersComplianceWidget } from "../components/storage-providers-compliance-widget";
 import { StorageProvidersListWidget } from "../components/storage-providers-list-widget";
 import {
+  fetchRpaResultCodesHistogram,
   fetchStorageProvidersClientDistributionData,
   FetchStorageProvidersClientDistributionDataParameters,
   fetchStorageProvidersClientDiversityData,
@@ -29,6 +30,7 @@ import {
 } from "@/components/sticky-tab-navigation";
 import { BackToTop } from "@/components/back-to-top";
 import { StorageProvidersStatisticsWidget } from "../components/storage-providers-statistics-widget";
+import { RpaResultCodesHistogramWidget } from "../components/rpa-result-codes-histogram-widget";
 
 export const revalidate = 300;
 
@@ -74,6 +76,7 @@ const sectionTabs = {
   [StorageProvidersPageSectionId.COMPLIANCE]: "Compliance",
   [StorageProvidersPageSectionId.LIST]: "List",
   [StorageProvidersPageSectionId.RETRIEVABILITY]: "Retrievability",
+  [StorageProvidersPageSectionId.RPA_RESULT_CODES_HISTOGRAM]: "RPA Results",
   [StorageProvidersPageSectionId.CLIENT_DIVERSITY]: "Client Diversity",
   [StorageProvidersPageSectionId.CLIENT_DISTRIBUTION]: "Client Distribution",
   [StorageProvidersPageSectionId.IPNI_MISREPORTING]: "IPNI Misreporting",
@@ -89,6 +92,7 @@ export default async function StorageProvidersPage() {
     listResult,
     complianceDataResult,
     retrievabilityDataResult,
+    rpaResultCodesHistogramResult,
     clientDiversityDataResult,
     clientDistributionDataResult,
   ] = await Promise.allSettled([
@@ -96,6 +100,7 @@ export default async function StorageProvidersPage() {
     fetchStorageProvidersList(),
     fetchStorageProvidersComplianceData(complianceDataDefaultParams),
     fetchStorageProvidersRetrievabilityData(retrievabilityDataDefaultParams),
+    fetchRpaResultCodesHistogram(),
     fetchStorageProvidersClientDiversityData(clientDiversityDataDefaultParams),
     fetchStorageProvidersClientDistributionData(
       clientDistributionDataDefaultParams
@@ -120,6 +125,9 @@ export default async function StorageProvidersPage() {
             QueryKey.STORAGE_PROVIDERS_RETRIEVABILITY_DATA,
             retrievabilityDataDefaultParams,
           ])]: unwrapResult(retrievabilityDataResult),
+          [QueryKey.RPA_RESULT_CODES_HISTOGRAM]: unwrapResult(
+            rpaResultCodesHistogramResult
+          ),
           [unstable_serialize([
             QueryKey.STORAGE_PROVIDERS_CLIENT_DIVERSITY_DATA,
             clientDiversityDataDefaultParams,
@@ -148,6 +156,9 @@ export default async function StorageProvidersPage() {
         <StorageProvidersListWidget id={StorageProvidersPageSectionId.LIST} />
         <StorageProvidersRetrievabilityWidget
           id={StorageProvidersPageSectionId.RETRIEVABILITY}
+        />
+        <RpaResultCodesHistogramWidget
+          id={StorageProvidersPageSectionId.RPA_RESULT_CODES_HISTOGRAM}
         />
         <StorageProvidersClientDiversityWidget
           id={StorageProvidersPageSectionId.CLIENT_DIVERSITY}
