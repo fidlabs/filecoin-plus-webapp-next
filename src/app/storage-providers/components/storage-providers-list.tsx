@@ -5,18 +5,13 @@ import {
   UseStorageProvidersColumnsOptions,
 } from "@/app/storage-providers/components/useStorageProvidersColumns";
 import { DataTable } from "@/components/ui/data-table";
+import { type IStorageProvider } from "@/lib/interfaces/dmob/sp.interface";
 
 type Sorting = UseStorageProvidersColumnsOptions["sorting"];
 
 export interface StorageProvidersListProps {
   sorting: Sorting;
-  storageProviders: Array<{
-    provider: string;
-    noOfVerifiedDeals: number;
-    noOfClients: number;
-    verifiedDealsTotalSize: string;
-    lastDealHeight: number;
-  }>;
+  storageProviders: IStorageProvider[];
   onSort(key: string, direction: "asc" | "desc"): void;
 }
 
