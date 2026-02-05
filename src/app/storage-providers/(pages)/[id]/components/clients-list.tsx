@@ -57,7 +57,7 @@ export function ClientsList({ id }: ClientsListProps) {
   return (
     <Card>
       <GenericContentHeader
-        placeholder="Client ID / Address / Name"
+        placeholder="Search by Client ID..."
         fixedHeight={false}
         setQuery={handleFilter}
         header={
