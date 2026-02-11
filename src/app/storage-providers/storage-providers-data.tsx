@@ -415,3 +415,59 @@ export async function fetchStorageProviderFilscanInfo({
 
   return json as FetchStorageProviderFilscanInfoReturnType;
 }
+
+// RPA Result Codes
+export enum RpaResultCode {
+  SUCCESS = "SUCCESS",
+  NO_CID_CONTACT_DATA = "NO_CID_CONTACT_DATA",
+  FAILED_TO_GET_WORKING_URL = "FAILED_TO_GET_WORKING_URL",
+  NO_PEER_ID = "NO_PEER_ID",
+}
+
+export type FetchRpaResultCodesHistogramReturnType = z.infer<
+  typeof rpaResultCodesHistogramResponseSchema
+>;
+
+const rpaResultCodesHistogramResponseSchema = z.object({
+  total: z.number(),
+  metadata: z.record(
+    z.string(),
+    z.object({
+      name: z.string(),
+      description: z.string(),
+    })
+  ),
+  days: z.array(
+    z.object({
+      day: z.string().datetime(),
+      total: z.number(),
+      results: z.array(
+        z.object({
+          code: z.string(),
+          count: z.number(),
+          percentage: z.number(),
+        })
+      ),
+    })
+  ),
+});
+
+export async function fetchRpaResultCodesHistogram(): Promise<FetchRpaResultCodesHistogramReturnType> {
+  const endpoint = `${CDP_API_URL}/stats/acc/providers/rpa/metrics/retrieval-result-codes`;
+  const response = await fetch(endpoint);
+
+  throwHTTPErrorOrSkip(
+    response,
+    `CDP API returned status ${response.status} when fetching RPA result codes histogram; URL: ${endpoint}`
+  );
+
+  const json = await response.json();
+
+  assertSchema(
+    json,
+    rpaResultCodesHistogramResponseSchema,
+    `CDP API returned invalid response when fetching RPA result codes histogram; URL: ${endpoint}`
+  );
+
+  return json;
+}
