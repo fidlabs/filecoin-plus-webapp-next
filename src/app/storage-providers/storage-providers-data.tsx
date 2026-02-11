@@ -471,3 +471,58 @@ export async function fetchRpaResultCodesHistogram(): Promise<FetchRpaResultCode
 
   return json;
 }
+
+// RPA metrics
+export type FetchRPAMetricHistogramParameters = z.infer<
+  typeof fetchRpaMetricHistogramParametersSchema
+>;
+export type FetchRPAMetricHistogramReturnType = z.infer<
+  typeof rpaMetricHistogramResponseSchema
+>;
+
+const fetchRpaMetricHistogramParametersSchema = z.object({
+  startDate: z.string().datetime().optional(),
+  endDate: z.string().datetime().optional(),
+  metricType: z.enum(["BANDWIDTH", "TTFB", "RPA_RETRIEVABILITY"]),
+});
+
+const rpaMetricHistogramResponseSchema = z.object({
+  total: z.number(),
+  results: z.array(
+    z.object({
+      week: z.string().datetime(),
+      total: z.number(),
+      results: z.array(
+        z.object({
+          valueFromExclusive: z.number(),
+          valueToInclusive: z.number(),
+          count: z.number(),
+          totalDatacap: numericalStringSchema,
+        })
+      ),
+    })
+  ),
+});
+
+export async function fetchRpaMetricHistogram(
+  parameters: FetchRPAMetricHistogramParameters
+): Promise<FetchRPAMetricHistogramReturnType> {
+  const searchParams = objectToURLSearchParams(parameters);
+  const endpoint = `${CDP_API_URL}/stats/acc/providers/rpa/metric?${searchParams.toString()}`;
+  const response = await fetch(endpoint);
+
+  throwHTTPErrorOrSkip(
+    response,
+    `CDP API returned status ${response.status} when fetching RPA metric histogram; URL: ${endpoint}`
+  );
+
+  const json = await response.json();
+
+  assertSchema(
+    json,
+    rpaMetricHistogramResponseSchema,
+    `CDP API returned invalid response when fetching RPA metric histogram; URL: ${endpoint}`
+  );
+
+  return json as FetchRPAMetricHistogramReturnType;
+}

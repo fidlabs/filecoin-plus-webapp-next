@@ -37,6 +37,7 @@ export enum QueryKey {
   STORAGE_PROVIDER_FILSCAN_INFO = "storage_provider_filscan_info",
   STORAGE_PROVIDER_BY_ID = "storage_provider_by_id",
   RPA_RESULT_CODES_HISTOGRAM = "rpa_result_codes_histogram",
+  RPA_METRIC_HISTOGRAM = "rpa_metric_histogram",
 }
 
 export enum DashboardPageSectionId {
@@ -81,6 +82,8 @@ export enum StorageProvidersPageSectionId {
   LIST = "list",
   RETRIEVABILITY = "retrievability",
   RPA_RESULT_CODES_HISTOGRAM = "rpa-results",
+  TTFB_HISTOGRAM = "ttfb",
+  BANDWIDTH_HISTOGRAM = "bandwidth-histogram",
   CLIENT_DIVERSITY = "client-diversity",
   CLIENT_DISTRIBUTION = "client-distribution",
   IPNI_MISREPORTING = "ipni-misreporting",
