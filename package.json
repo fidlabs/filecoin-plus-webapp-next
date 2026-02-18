@@ -47,6 +47,7 @@
     "react-dom": "^18",
     "react-resizable-panels": "^2.1.4",
     "react-simple-maps": "^3.0.0",
+    "react-zoom-pan-pinch": "^3.7.0",
     "recharts": "^3.3.0",
     "schema-dts": "^1.1.2",
     "semver": "^7.7.3",
