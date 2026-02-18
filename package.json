@@ -1,6 +1,6 @@
 {
   "name": "filecoin-plus-webapp-next",
-  "version": "1.37.0",
+  "version": "1.38.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -49,7 +49,7 @@
     "react-simple-maps": "^3.0.0",
     "recharts": "^3.3.0",
     "schema-dts": "^1.1.2",
-    "semver": "^7.7.3",
+    "semver": "^7.7.4",
     "sonner": "^1.5.0",
     "swr": "^2.3.5",
     "tailwind-merge": "^2.5.2",
