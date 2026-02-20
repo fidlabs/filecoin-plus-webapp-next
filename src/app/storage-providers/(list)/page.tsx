@@ -7,6 +7,8 @@ import { SWRConfig, unstable_serialize } from "swr";
 import { StorageProvidersComplianceWidget } from "../components/storage-providers-compliance-widget";
 import { StorageProvidersListWidget } from "../components/storage-providers-list-widget";
 import {
+  fetchRpaMetricHistogram,
+  FetchRPAMetricHistogramParameters,
   fetchRpaResultCodesHistogram,
   fetchStorageProvidersClientDistributionData,
   FetchStorageProvidersClientDistributionDataParameters,
@@ -31,6 +33,8 @@ import {
 import { BackToTop } from "@/components/back-to-top";
 import { StorageProvidersStatisticsWidget } from "../components/storage-providers-statistics-widget";
 import { RpaResultCodesHistogramWidget } from "../components/rpa-result-codes-histogram-widget";
+import { StorageProvidersTTFBWidget } from "../components/storage-providers-ttfb-widget";
+import { StorageProvidersBandwidthWidget } from "../components/storage-providers-bandwith-widget";
 
 export const revalidate = 300;
 
@@ -71,12 +75,22 @@ const clientDistributionDataDefaultParams: FetchStorageProvidersClientDistributi
     editionId: undefined,
   };
 
+const ttfbHistogramParams: FetchRPAMetricHistogramParameters = {
+  metricType: "TTFB",
+};
+
+const bandwidthHistogramParams: FetchRPAMetricHistogramParameters = {
+  metricType: "BANDWIDTH",
+};
+
 const sectionTabs = {
   [StorageProvidersPageSectionId.STATISTICS]: "Statistics",
   [StorageProvidersPageSectionId.COMPLIANCE]: "Compliance",
   [StorageProvidersPageSectionId.LIST]: "List",
   [StorageProvidersPageSectionId.RETRIEVABILITY]: "Retrievability",
   [StorageProvidersPageSectionId.RPA_RESULT_CODES_HISTOGRAM]: "RPA Results",
+  [StorageProvidersPageSectionId.TTFB_HISTOGRAM]: "TTFB",
+  [StorageProvidersPageSectionId.BANDWIDTH_HISTOGRAM]: "Bandwidth",
   [StorageProvidersPageSectionId.CLIENT_DIVERSITY]: "Client Diversity",
   [StorageProvidersPageSectionId.CLIENT_DISTRIBUTION]: "Client Distribution",
   [StorageProvidersPageSectionId.IPNI_MISREPORTING]: "IPNI Misreporting",
@@ -95,16 +109,21 @@ export default async function StorageProvidersPage() {
     rpaResultCodesHistogramResult,
     clientDiversityDataResult,
     clientDistributionDataResult,
+    ttfbHistogramResult,
+    bandwidthHistogramResult,
   ] = await Promise.allSettled([
     fetchStorageProvidersDashboardStatistics(statisticsDefaultParamters),
     fetchStorageProvidersList(),
     fetchStorageProvidersComplianceData(complianceDataDefaultParams),
     fetchStorageProvidersRetrievabilityData(retrievabilityDataDefaultParams),
     fetchRpaResultCodesHistogram(),
+
     fetchStorageProvidersClientDiversityData(clientDiversityDataDefaultParams),
     fetchStorageProvidersClientDistributionData(
       clientDistributionDataDefaultParams
     ),
+    fetchRpaMetricHistogram(ttfbHistogramParams),
+    fetchRpaMetricHistogram(bandwidthHistogramParams),
   ]);
 
   return (
@@ -128,6 +147,7 @@ export default async function StorageProvidersPage() {
           [QueryKey.RPA_RESULT_CODES_HISTOGRAM]: unwrapResult(
             rpaResultCodesHistogramResult
           ),
+
           [unstable_serialize([
             QueryKey.STORAGE_PROVIDERS_CLIENT_DIVERSITY_DATA,
             clientDiversityDataDefaultParams,
@@ -136,6 +156,14 @@ export default async function StorageProvidersPage() {
             QueryKey.STORAGE_PROVIDERS_CLIENT_DISTRIBUTION_DATA,
             clientDistributionDataDefaultParams,
           ])]: unwrapResult(clientDistributionDataResult),
+          [unstable_serialize([
+            QueryKey.RPA_METRIC_HISTOGRAM,
+            ttfbHistogramParams,
+          ])]: unwrapResult(ttfbHistogramResult),
+          [unstable_serialize([
+            QueryKey.RPA_METRIC_HISTOGRAM,
+            bandwidthHistogramParams,
+          ])]: unwrapResult(bandwidthHistogramResult),
         },
       }}
     >
@@ -159,6 +187,12 @@ export default async function StorageProvidersPage() {
         />
         <RpaResultCodesHistogramWidget
           id={StorageProvidersPageSectionId.RPA_RESULT_CODES_HISTOGRAM}
+        />
+        <StorageProvidersTTFBWidget
+          id={StorageProvidersPageSectionId.TTFB_HISTOGRAM}
+        />
+        <StorageProvidersBandwidthWidget
+          id={StorageProvidersPageSectionId.BANDWIDTH_HISTOGRAM}
         />
         <StorageProvidersClientDiversityWidget
           id={StorageProvidersPageSectionId.CLIENT_DIVERSITY}
