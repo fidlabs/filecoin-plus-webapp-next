@@ -1,6 +1,6 @@
 import { Charts } from "@/app/(dashboard)/components/charts";
-import { DatacapFlow } from "@/app/(dashboard)/components/datacap-flow";
 import { Container } from "@/components/container";
+import { DatacapFlowWidget } from "@/components/datacap-flow-widget";
 import { JsonLd } from "@/components/json.ld";
 import { PageHeader, PageSubtitle, PageTitle } from "@/components/page-header";
 import {
@@ -83,7 +83,7 @@ export default async function Home() {
               allocationWeeklyByClient={allocationWeeklyByClient}
               allocators={allocators}
             />
-            <DatacapFlow />
+            <DatacapFlowWidget className="mb-28" />
           </Container>
         </main>
       </SWRConfig>

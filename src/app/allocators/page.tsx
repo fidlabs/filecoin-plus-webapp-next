@@ -1,5 +1,6 @@
 import { BackToTop } from "@/components/back-to-top";
 import { Container } from "@/components/container";
+import { DatacapFlowWidget } from "@/components/datacap-flow-widget";
 import { PageHeader, PageSubtitle, PageTitle } from "@/components/page-header";
 import {
   IdBasedStickyTabNaviation,
@@ -44,7 +45,6 @@ import { AllocatorsScoringBreakdownWidget } from "./components/allocators-scorin
 import { AllocatorsSPsComplianceWidget } from "./components/allocators-sps-compliance-widget";
 import { AllocatorsStatisticsWidget } from "./components/allocators-statistics-widget";
 import { AuditsFlowWidget } from "./components/audits-flow-widget";
-import { DCFlowWidget } from "./components/dc-flow-widget";
 import { MetaallocatorsListWidget } from "./components/metaallocators-list-widget";
 
 export const revalidate = 300;
@@ -249,7 +249,7 @@ export default async function AllocatorsPage() {
         <AllocatorsChecksBreakdownWidget
           id={AllocatorsPageSectionId.ALERTS_BREAKDOWN}
         />
-        <DCFlowWidget id={AllocatorsPageSectionId.DC_FLOW} />
+        <DatacapFlowWidget id={AllocatorsPageSectionId.DC_FLOW} />
         <AuditsFlowWidget
           id={AllocatorsPageSectionId.AUDITS_FLOW}
           defaultParameters={auditsFlowDefaultParameters}
