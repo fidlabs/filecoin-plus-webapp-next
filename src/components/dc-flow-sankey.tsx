@@ -13,7 +13,7 @@ import {
   Node,
   SankeyTree,
 } from "@/lib/sankey-utils";
-import { isPlainObject, partition } from "@/lib/utils";
+import { isPlainObject, partition, stringToColor } from "@/lib/utils";
 import { UTCDate } from "@date-fns/utc";
 import { filesize } from "filesize";
 import NextLink from "next/link";
@@ -25,9 +25,12 @@ import {
   useState,
 } from "react";
 import {
+  Layer,
+  Rectangle,
   ResponsiveContainer,
   Sankey,
   Tooltip,
+  useChartWidth,
   type TooltipContentProps,
 } from "recharts";
 import { type LinkProps, type NodeProps } from "recharts/types/chart/Sankey";
@@ -35,13 +38,28 @@ import { Button } from "./ui/button";
 import { ChartLoader } from "./ui/chart-loader";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
+import {
+  TransformWrapper,
+  TransformComponent,
+  useControls,
+} from "react-zoom-pan-pinch";
+import {
+  LocateFixedIcon,
+  ShrinkIcon,
+  XIcon,
+  ZoomInIcon,
+  ZoomOutIcon,
+} from "lucide-react";
 
+type TransformWrapperProps = ComponentProps<typeof TransformWrapper>;
+type ZoomHandler = NonNullable<TransformWrapperProps["onZoom"]>;
 type Allocator = AllocatorsDCFlowData["data"][number];
 
 type DCFlowExtras = {
@@ -70,7 +88,9 @@ type SankeyClickHandler = (
   e: MouseEvent
 ) => void;
 export interface DCFlowSankeyProps {
+  fullscreen?: boolean;
   snapshotDate?: Date;
+  onFullscreenChange?(fullscreen: boolean): void;
 }
 
 const nodeNamesDict = {
@@ -92,6 +112,9 @@ const epmaAllocatorId = "f03521515";
 const faucetMetaallocatorId = "f03136591";
 const faucetAllocatorId = "f03220716";
 const ormaAllocatorId = "f03634130";
+
+const minZoom = 0.4;
+const maxZoom = 2;
 
 // List of allocators that are groups on the chart and we show
 // allocators under them. Need to filter them out to avoid showing
@@ -396,7 +419,9 @@ function expandAllocatorTree(
   tree: DCFlowTree,
   expandedNodeName: string | null
 ): DCFlowTree {
-  if (tree.name === expandedNodeName && tree.leafs.length === 0) {
+  const expanded = expandedNodeName === "*" || tree.name === expandedNodeName;
+
+  if (tree.leafs.length === 0 && expanded) {
     return {
       ...tree,
       leafs: tree.allocators.map((allocator) => {
@@ -460,22 +485,34 @@ function padTreeToDepth(
   };
 }
 
-export function DCFlowSankey({ snapshotDate }: DCFlowSankeyProps) {
-  const [selectedNode, setSelectedNode] = useState<string | null>(null);
+export function DCFlowSankey({
+  fullscreen,
+  snapshotDate,
+  onFullscreenChange,
+}: DCFlowSankeyProps) {
+  const [zoom, setZoom] = useState(minZoom);
   const {
     data: allocatorsDCFlowData,
     error,
     isLoading,
   } = useAllocatorsDCFlow(snapshotDate);
 
-  const [chartData, chartHeight] = useMemo<[ChartData | null, number]>(() => {
+  const { chartData, chartHeight, chartWidth } = useMemo<{
+    chartData: ChartData | null;
+    chartHeight: number;
+    chartWidth: number | `${number}%`;
+  }>(() => {
     if (!allocatorsDCFlowData) {
-      return [null, 0];
+      return {
+        chartData: null,
+        chartHeight: 0,
+        chartWidth: 0,
+      };
     }
 
     const tree = dcFlowDataToDCFlowTree(allocatorsDCFlowData);
-    const expandedTree = expandAllocatorTree(tree, selectedNode);
-    const paddedTree = padTreeToDepth(expandedTree);
+    const expandedTree = expandAllocatorTree(tree, fullscreen ? "*" : null);
+    const paddedTree = fullscreen ? expandedTree : padTreeToDepth(expandedTree);
     const nodes = getNodesFromSankeyTree(paddedTree);
     const links = getLinksFromSankeyTree(paddedTree);
 
@@ -498,8 +535,12 @@ export function DCFlowSankey({ snapshotDate }: DCFlowSankeyProps) {
       links,
     };
 
-    return [chartData, Math.max(800, nonHiddenNonParentNodesCount * 64)];
-  }, [allocatorsDCFlowData, selectedNode]);
+    return {
+      chartData,
+      chartHeight: Math.max(800, nonHiddenNonParentNodesCount * 64),
+      chartWidth: fullscreen ? getTreeDepth(paddedTree) * 800 : "100%",
+    };
+  }, [allocatorsDCFlowData, fullscreen]);
 
   const handleSankeyClick = useCallback<SankeyClickHandler>(
     (params, elementType) => {
@@ -508,19 +549,19 @@ export function DCFlowSankey({ snapshotDate }: DCFlowSankeyProps) {
         const { allocators, expandable } = nodeClickParams.payload;
 
         if (expandable) {
-          setSelectedNode((currentSelectedNode) => {
-            return currentSelectedNode === nodeClickParams.payload.name
-              ? null
-              : nodeClickParams.payload.name;
-          });
+          onFullscreenChange?.(true);
         } else if (allocators.length === 1) {
           const allocator = allocators[0];
           window.open(`/allocators/${allocator.allocatorId}`, "_blank");
         }
       }
     },
-    []
+    [onFullscreenChange]
   );
+
+  const handleFullscreenZoom = useCallback<ZoomHandler>((ref) => {
+    setZoom(ref.state.scale);
+  }, []);
 
   const renderTooltipContent = useCallback(
     ({ payload }: TooltipContentProps<number, string>): ReactNode => {
@@ -552,11 +593,11 @@ export function DCFlowSankey({ snapshotDate }: DCFlowSankeyProps) {
               <p>{filesize(value, { standard: "iec" }) + " Datacap"}</p>
             )}
 
-            {!!nodeData.expandable && (
+            {!!nodeData.expandable && !fullscreen && (
               <>
                 <p>{allocatorsCount} Allocators</p>
                 <p className="text-xs text-muted-foreground mt-4">
-                  Click on the node to expand / contract
+                  Click on the node to expand in full screen
                 </p>
               </>
             )}
@@ -579,71 +620,136 @@ export function DCFlowSankey({ snapshotDate }: DCFlowSankeyProps) {
         </Card>
       );
     },
-    []
+    [fullscreen]
   );
 
+  const chartElement = (() => {
+    if (isLoading || !!error || !chartData) {
+      return (
+        <div>
+          {isLoading && <ChartLoader />}
+
+          {!isLoading && !!error && (
+            <p className="text-center text-muted-foreground">
+              An error has occured. Please try again later.
+            </p>
+          )}
+
+          {!isLoading && !error && !chartData && (
+            <p className="text-center text-muted-foreground">
+              Nothing to show.
+            </p>
+          )}
+        </div>
+      );
+    }
+
+    return (
+      <ResponsiveContainer width={chartWidth} height={chartHeight}>
+        <Sankey
+          data={chartData}
+          node={CustomSankeyNode}
+          nodePadding={50}
+          link={ColouredLink}
+          iterations={0}
+          style={{
+            cursor: fullscreen ? "grab" : "default",
+          }}
+          onClick={
+            handleSankeyClick as unknown as ComponentProps<
+              typeof Sankey
+            >["onClick"]
+          } // I feel bad but recharts types are broken
+        >
+          <Tooltip content={renderTooltipContent} />
+        </Sankey>
+      </ResponsiveContainer>
+    );
+  })();
+
   return (
-    <div
-      className={`h-[${chartHeight + 20}px] max-w-full overflow-y-auto flex flex-col justify-center items-center`}
-    >
-      {isLoading && <ChartLoader />}
+    <>
+      <div
+        className={`h-[${chartHeight + 20}px] max-w-full overflow-y-auto flex flex-col justify-center items-center`}
+      >
+        {chartElement}
 
-      {!isLoading && !!error && (
-        <p className="text-center text-muted-foreground">
-          An error has occured. Please try again later.
-        </p>
-      )}
-
-      {!isLoading && !error && !chartData && (
-        <p className="text-center text-muted-foreground">Nothing to show.</p>
-      )}
-
-      {!isLoading && !error && !!chartData && (
-        <>
-          <ResponsiveContainer width="100%" height={chartHeight}>
-            <Sankey
-              data={chartData}
-              node={CustomSankeyNode}
-              nodePadding={50}
-              iterations={0}
-              link={{ stroke: "var(--color-medium-turquoise)" }}
-              margin={{
-                left: 50,
-                right: 300,
-                top: 100,
-                bottom: 50,
-              }}
-              onClick={
-                handleSankeyClick as unknown as ComponentProps<
-                  typeof Sankey
-                >["onClick"]
-              } // I feel bad but recharts types are broken
-            >
-              <Tooltip content={renderTooltipContent} />
-            </Sankey>
-          </ResponsiveContainer>
-
-          {!!allocatorsDCFlowData && (
-            <p className="text-sm text-center text-muted-foreground">
-              Showing state as of{" "}
-              <strong className="font-semibold">
-                {new UTCDate(
-                  allocatorsDCFlowData.cutoffDate
-                ).toLocaleDateString("en-US", {
+        {!isLoading && !error && !!chartData && !!allocatorsDCFlowData && (
+          <p className="text-sm text-center text-muted-foreground">
+            Showing state as of{" "}
+            <strong className="font-semibold">
+              {new UTCDate(allocatorsDCFlowData.cutoffDate).toLocaleDateString(
+                "en-US",
+                {
                   day: "numeric",
                   month: "long",
                   year: "numeric",
-                })}
-              </strong>
-            </p>
-          )}
-        </>
-      )}
-    </div>
+                }
+              )}
+            </strong>
+          </p>
+        )}
+      </div>
+
+      <Dialog open={fullscreen} onOpenChange={onFullscreenChange}>
+        <DialogContent className="max-w-screen h-screen p-0 sm:rounded-none">
+          <TransformWrapper
+            initialScale={minZoom}
+            minScale={0.4}
+            maxScale={maxZoom}
+            onZoom={handleFullscreenZoom}
+          >
+            <TransformComponent wrapperClass="max-w-full max-h-full">
+              <div className="landscape:p-[10vh] portrait:p-[10vw]">
+                {chartElement}
+              </div>
+            </TransformComponent>
+            <FullscreenControls zoom={zoom} />
+          </TransformWrapper>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
-function CustomSankeyNode({ x, y, width, height, payload }: NodeProps) {
+function ColouredLink(props: LinkProps) {
+  const {
+    sourceX,
+    targetX,
+    sourceY,
+    targetY,
+    sourceControlX,
+    targetControlX,
+    linkWidth,
+    index,
+    payload,
+  } = props;
+
+  const color = stringToColor(payload.target.name);
+
+  return (
+    <Layer key={`CustomLink${index}`}>
+      <path
+        d={`
+            M${sourceX},${sourceY + linkWidth / 2}
+            C${sourceControlX},${sourceY + linkWidth / 2}
+              ${targetControlX},${targetY + linkWidth / 2}
+              ${targetX},${targetY + linkWidth / 2}
+            L${targetX},${targetY - linkWidth / 2}
+            C${targetControlX},${targetY - linkWidth / 2}
+              ${sourceControlX},${sourceY - linkWidth / 2}
+              ${sourceX},${sourceY - linkWidth / 2}
+            Z
+          `}
+        fill={color ?? "var(--color-echo-blue)"}
+        fillOpacity={0.25}
+        strokeWidth="0"
+      />
+    </Layer>
+  );
+}
+
+function CustomSankeyNode({ x, y, width, height, payload, index }: NodeProps) {
   const {
     name,
     allocators,
@@ -652,41 +758,49 @@ function CustomSankeyNode({ x, y, width, height, payload }: NodeProps) {
     totalDatacap,
   } = payload as unknown as DCFlowNode;
 
-  if (hidden || isNaN(x) || isNaN(y)) {
+  const containerWidth = useChartWidth();
+
+  if (containerWidth == null || hidden || isNaN(x) || isNaN(y)) {
     return <g transform={`translate(${x},${y})`}></g>;
   }
 
+  const color =
+    name === "Root Key Holder"
+      ? "hsl(var(--color-dodger-blue))"
+      : stringToColor(name);
+  const isOut = x + width + 6 > containerWidth;
   const totalDatacapString = filesize(totalDatacap, { standard: "iec" });
-  const clickable = allocators.length > 0;
 
   const content = (
-    <g
-      transform={`translate(${x},${y})`}
-      cursor={!clickable ? "default" : "pointer"}
-    >
-      <rect
-        x={-width}
-        y={-5}
-        width={width * 2}
-        rx={4}
-        height={height + 10}
-        fill={
-          !clickable ? "var(--color-horizon)" : "hsl(var(--color-dodger-blue))"
-        }
+    <Layer key={`CustomNode${index}`}>
+      <Rectangle
+        x={x}
+        y={y}
+        width={width}
+        height={height}
+        fill={color}
+        fillOpacity="1"
       />
       <text
-        x={width * 1.5}
-        y={height / 2 - 7}
-        fill="black"
-        fontSize={14}
+        textAnchor={isOut ? "end" : "start"}
+        x={isOut ? x - 6 : x + width + 6}
+        y={y + height / 2}
+        fontSize="14"
         fontWeight={500}
+        fill="black"
       >
         {name}
       </text>
-      <text x={width * 1.5} y={height / 2 + 7} fill="black" fontSize={12}>
+      <text
+        textAnchor={isOut ? "end" : "start"}
+        x={isOut ? x - 6 : x + width + 6}
+        y={y + height / 2 + 13}
+        fontSize="12"
+        fill="black"
+      >
         {totalDatacapString}
       </text>
-    </g>
+    </Layer>
   );
 
   return !expandable && allocators.length > 1 ? (
@@ -721,5 +835,65 @@ function CustomSankeyNode({ x, y, width, height, payload }: NodeProps) {
     </Dialog>
   ) : (
     content
+  );
+}
+
+function FullscreenControls({ zoom }: { zoom: number }) {
+  const { zoomIn, zoomOut, centerView, resetTransform } = useControls();
+
+  const handleCenterButtonClick = useCallback(() => {
+    centerView();
+  }, [centerView]);
+
+  const handleZoomInButtonClick = useCallback(() => {
+    zoomIn();
+  }, [zoomIn]);
+
+  const handleZoomOutButtonClick = useCallback(() => {
+    zoomOut();
+  }, [zoomOut]);
+
+  const handleResetButtonClick = useCallback(() => {
+    resetTransform();
+  }, [resetTransform]);
+
+  return (
+    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 [&>button]:rounded-none [&>button:first-child]:rounded-l-md [&>button:last-child]:rounded-r-md">
+      <Button
+        title="Zoom Out"
+        size="icon"
+        disabled={zoom <= minZoom}
+        onClick={handleZoomOutButtonClick}
+      >
+        <ZoomOutIcon />
+      </Button>
+
+      <Button
+        title="Zoom In"
+        size="icon"
+        disabled={zoom >= maxZoom}
+        onClick={handleZoomInButtonClick}
+      >
+        <ZoomInIcon />
+      </Button>
+
+      <Button
+        title="Center Sankey"
+        size="icon"
+        onClick={handleCenterButtonClick}
+      >
+        <LocateFixedIcon />
+      </Button>
+
+      <Button title="Reset" size="icon" onClick={handleResetButtonClick}>
+        <XIcon />
+      </Button>
+
+      <DialogClose asChild>
+        <Button title="Exit Full Screen" size="icon">
+          <ShrinkIcon />
+        </Button>
+      </DialogClose>
+    </div>
   );
 }
