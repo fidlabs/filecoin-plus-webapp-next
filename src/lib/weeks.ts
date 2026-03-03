@@ -74,8 +74,8 @@ export function weekToReadableString(
 
   if (format === "range") {
     const date = weekToUTCDate(week);
-    const startDate = startOfWeek(date);
-    const endDate = endOfWeek(date);
+    const startDate = startOfWeek(date, { weekStartsOn: 1 });
+    const endDate = endOfWeek(date, { weekStartsOn: 1 });
 
     return weekRangeFormatter.formatRange(startDate, endDate);
   }

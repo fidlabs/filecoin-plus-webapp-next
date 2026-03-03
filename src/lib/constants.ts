@@ -36,6 +36,7 @@ export enum QueryKey {
   STORAGE_PROVIDERS_STATISTICS = "storage_providers_statistics",
   STORAGE_PROVIDER_FILSCAN_INFO = "storage_provider_filscan_info",
   STORAGE_PROVIDER_BY_ID = "storage_provider_by_id",
+  STORAGE_PROVIDER_RPA_METRIC_HISTOGRAM = "storage_provider_rpa_metric_histogram",
   RPA_RESULT_CODES_HISTOGRAM = "rpa_result_codes_histogram",
   RPA_METRIC_HISTOGRAM = "rpa_metric_histogram",
 }
@@ -87,6 +88,14 @@ export enum StorageProvidersPageSectionId {
   CLIENT_DIVERSITY = "client-diversity",
   CLIENT_DISTRIBUTION = "client-distribution",
   IPNI_MISREPORTING = "ipni-misreporting",
+}
+
+export enum StorageProviderDetailsPageSectionId {
+  STATS = "stats",
+  CLIENTS = "clients",
+  RETRIEVABILITY = "retrievability",
+  TTFB = "ttfb",
+  BANDWIDTH = "bandwidth",
 }
 
 export const CHECKS_BREAKDOWN_INTERVAL_PARAM_KEY = "interval";
