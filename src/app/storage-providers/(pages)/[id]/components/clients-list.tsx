@@ -8,14 +8,15 @@ import { Paginator } from "@/components/ui/pagination";
 import { getStorageProviderById } from "@/lib/api";
 import { QueryKey } from "@/lib/constants";
 import { parseAsInteger, useQueryState } from "nuqs";
-import { useCallback } from "react";
+import { type ComponentProps, useCallback } from "react";
 import useSWR from "swr";
 
-export interface ClientsListProps {
-  id: string;
+type CardProps = ComponentProps<typeof Card>;
+export interface ClientsListProps extends Omit<CardProps, "children"> {
+  providerId: string;
 }
 
-export function ClientsList({ id }: ClientsListProps) {
+export function ClientsList({ providerId, ...rest }: ClientsListProps) {
   const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
   const [pageSize, setPageSize] = useQueryState(
     "limit",
@@ -43,7 +44,7 @@ export function ClientsList({ id }: ClientsListProps) {
   const { data } = useSWR(
     [
       QueryKey.STORAGE_PROVIDER_BY_ID,
-      id,
+      providerId,
       { page, limit: pageSize, filter, sort },
     ],
     ([, providerId, searchParams]) => {
@@ -55,26 +56,29 @@ export function ClientsList({ id }: ClientsListProps) {
   );
 
   return (
-    <Card>
+    <Card {...rest}>
       <GenericContentHeader
         placeholder="Search by Client ID..."
         fixedHeight={false}
         setQuery={handleFilter}
         header={
           <div>
-            <h1 className="text-2xl text-black leading-none font-semibold flex items-center gap-2">
+            <h1 className="text-lg font-medium leading-none font-semibold flex items-center gap-2">
               Verified Clients
             </h1>
           </div>
         }
         getCsv={{
           method: async () => {
-            const data = await getStorageProviderById(id, { filter, sort });
+            const data = await getStorageProviderById(providerId, {
+              filter,
+              sort,
+            });
             return {
               data: data.data as never[],
             };
           },
-          title: `sp_${id}_clients.csv`,
+          title: `sp_${providerId}_clients.csv`,
           headers: csvHeaders,
         }}
       />
