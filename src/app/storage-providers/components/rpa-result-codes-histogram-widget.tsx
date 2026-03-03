@@ -214,7 +214,7 @@ export function RpaResultCodesHistogramWidget({
       return String(value);
     }
 
-    return percentageFormatter.format(numericValue);
+    return percentageFormatter.format(Math.min(numericValue, 1));
   }, []);
 
   const formatTooltipValue = useCallback<Formatter<number | string, NameType>>(
@@ -298,7 +298,13 @@ export function RpaResultCodesHistogramWidget({
               fontSize={12}
               tickFormatter={formatXAxisTick}
             />
-            <YAxis fontSize={14} tickFormatter={formatValue} width="auto" />
+            <YAxis
+              fontSize={14}
+              tickFormatter={formatValue}
+              width="auto"
+              domain={[0, 1]}
+              allowDataOverflow={false}
+            />
 
             <Tooltip
               labelFormatter={formatDate}
