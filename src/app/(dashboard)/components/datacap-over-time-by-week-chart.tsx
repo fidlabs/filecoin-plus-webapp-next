@@ -142,6 +142,7 @@ export function DatacapOverTimeByWeekChart({
           data={data}
           margin={{
             bottom: 84,
+            top: 16,
           }}
         >
           <CartesianGrid strokeDasharray="3 3" />
