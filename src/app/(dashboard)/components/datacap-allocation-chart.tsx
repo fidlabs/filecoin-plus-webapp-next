@@ -1,13 +1,15 @@
 "use client";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ActiveShapeSimple } from "@/components/ui/pie-active-shape";
 import { IFilPlusStats } from "@/lib/interfaces/dmob/dmob.interface";
 import { convertBytesToIEC, palette } from "@/lib/utils";
-import { memo, useMemo, useState } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import {
   Cell,
   Pie,
   PieChart,
+  PieProps,
   ResponsiveContainer,
   Tooltip,
   TooltipContentProps,
@@ -16,7 +18,6 @@ import {
   NameType,
   ValueType,
 } from "recharts/types/component/DefaultTooltipContent";
-import { PieSectorDataItem } from "recharts/types/polar/Pie";
 
 interface Props {
   data: IFilPlusStats;
@@ -24,6 +25,20 @@ interface Props {
 
 const Component = ({ data }: Props) => {
   const [chartDataParsing, setChartDataParsing] = useState(true);
+  const [activeTooltipIndex, setActiveTooltipIndex] = useState(-1);
+
+  const handlePieEnter = useCallback<NonNullable<PieProps["onMouseEnter"]>>(
+    (_data, index) => {
+      setActiveTooltipIndex(() => index);
+    },
+    []
+  );
+
+  const handlePieLeave = useCallback<
+    NonNullable<PieProps["onMouseLeave"]>
+  >(() => {
+    setActiveTooltipIndex(() => -1);
+  }, []);
 
   const renderTooltip = (props: TooltipContentProps<ValueType, NameType>) => {
     const payload = props?.payload?.[0]?.payload;
@@ -107,20 +122,9 @@ const Component = ({ data }: Props) => {
                 innerRadius={"65%"}
                 fill="#8884d8"
                 dataKey="value"
-                activeShape={(props: PieSectorDataItem) =>
-                  ActiveShapeSimple(
-                    props,
-                    <div className="flex flex-col items-center justify-center w-[150px] h-[150px]">
-                      <div className="flex items-end gap-1">
-                        <p className="text-3xl">{totalDc[0]}</p>
-                        <p className="text-sm">{totalDc[1]}</p>
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        Total DataCap
-                      </p>
-                    </div>
-                  )
-                }
+                activeShape={ActiveShapeSimple}
+                onMouseEnter={handlePieEnter}
+                onMouseLeave={handlePieLeave}
               >
                 {chartData?.map((_entry, index) => (
                   <Cell
@@ -129,8 +133,26 @@ const Component = ({ data }: Props) => {
                   />
                 ))}
               </Pie>
-              <Tooltip content={renderTooltip} />
-              <Tooltip defaultIndex={0} active={true} content={() => ""} />
+              <foreignObject
+                x="calc(50% - 75px)"
+                y="calc(50% - 75px)"
+                width="150"
+                height="150"
+              >
+                <div className="flex flex-col items-center justify-center w-[150px] h-[150px]">
+                  <div className="flex items-end gap-1">
+                    <p className="text-3xl">{totalDc[0]}</p>
+                    <p className="text-sm">{totalDc[1]}</p>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Total DataCap</p>
+                </div>
+              </foreignObject>
+              <Tooltip content={renderTooltip} active defaultIndex={0} />
+              <Tooltip
+                content={() => null}
+                defaultIndex={activeTooltipIndex}
+                active={activeTooltipIndex !== -1}
+              />
             </PieChart>
           </ResponsiveContainer>
         )}
