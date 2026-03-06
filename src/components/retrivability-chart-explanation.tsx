@@ -22,6 +22,7 @@ export function RetrievabilityChartExplanation({
       type="single"
       collapsible
       className={cn("mt-6 border-t", className)}
+      defaultValue="data-disclaimer"
     >
       <AccordionItem className="border-b-0" value="data-disclaimer">
         <AccordionTrigger className="px-4 text-sm">
