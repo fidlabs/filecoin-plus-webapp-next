@@ -154,6 +154,7 @@ export function DatacapOverTimeByAllocatorChart({
           data={data}
           margin={{
             bottom: 100,
+            top: 16,
           }}
         >
           <CartesianGrid strokeDasharray="3 3" />

@@ -75,7 +75,7 @@ export function AllocatorsLeaderboard({
       .map(([, gropScores]) => gropScores);
 
     const lastWeekGroups = Object.entries(
-      groupBy(scores, (score) => score.weekAgoScorePercentage)
+      groupBy(scores, (score) => score.weekAgoScorePercentage ?? "0")
     )
       .sort(([aScorePercentage], [bScorePercentage]) => {
         return parseFloat(bScorePercentage) - parseFloat(aScorePercentage);
