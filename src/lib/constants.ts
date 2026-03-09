@@ -17,6 +17,10 @@ export enum QueryKey {
   ALLOCATORS_OLD_DATACAP = "allocators_old_datacap",
   ALLOCATORS_CHECKS_BREAKDOWN = "allocators_checks_breakdown",
   ALLOCATORS_SCORING_BREAKDOWN = "allocators_scoring_breakdown",
+  ALLOCATOR_BY_ID = "allocator_by_id",
+  ALLOCATOR_REPORTS = "allocator_reports",
+  ALLOCATOR_SCORE = "allocator_score",
+  ALLOCATOR_VERIFIED_CLIENTS = "allocator_verified_clients",
   CLIENTS_DASHBOARD_STATISTICS = "clients_dashboard_statistics",
   CLIENTS_LIST = "clients_list",
   CLIENTS_OLD_DATACAP = "clients_old_datacap",
@@ -63,6 +67,13 @@ export enum AllocatorsPageSectionId {
   OLD_DATACAP = "old-datacap",
 }
 
+export enum AllocatorDetailsPageSectionId {
+  CLIENTS = "clients",
+  REPORTS = "reports",
+  SCORE = "score",
+  ALLOCATIONS = "allocations",
+}
+
 export enum ClientsPageSectionId {
   STATS = "stats",
   LIST = "list",
@@ -90,3 +101,4 @@ export enum StorageProvidersPageSectionId {
 }
 
 export const CHECKS_BREAKDOWN_INTERVAL_PARAM_KEY = "interval";
+export const ALLOCATOR_SCORE_REPORT_ID_QUERY_KEY = "score_report_id";

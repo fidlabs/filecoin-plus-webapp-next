@@ -1,15 +1,32 @@
+import { BackToTop } from "@/components/back-to-top";
 import { FilecoinPulseButton } from "@/components/filecoin-pulse-button";
 import { GithubButton } from "@/components/github-button";
 import { JsonLd } from "@/components/json.ld";
 import { PageHeader, PageSubtitle, PageTitle } from "@/components/page-header";
+import {
+  IdBasedStickyTabNaviation,
+  type IdBasedStickyTabNaviationProps,
+} from "@/components/sticky-tab-navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ResponsiveView } from "@/components/ui/responsive-view";
 import { getAllocatorById, getAllocators } from "@/lib/api";
+import { AllocatorDetailsPageSectionId } from "@/lib/constants";
 import { createAllocatorLink } from "@/lib/filecoin-pulse";
 import { convertBytesToIEC, generatePageMetadata } from "@/lib/utils";
-import { Metadata } from "next";
-import { cache, PropsWithChildren, Suspense } from "react";
-import { Person, WithContext } from "schema-dts";
+import { type Metadata } from "next";
+import { cache, type PropsWithChildren, Suspense } from "react";
+import { type Person, type WithContext } from "schema-dts";
+
+interface IPageProps {
+  params: { id: string };
+}
+
+const sectionTabs = {
+  [AllocatorDetailsPageSectionId.CLIENTS]: "Clients",
+  [AllocatorDetailsPageSectionId.REPORTS]: "Reports",
+  [AllocatorDetailsPageSectionId.SCORE]: "Score",
+  [AllocatorDetailsPageSectionId.ALLOCATIONS]: "Allocations",
+} as const satisfies IdBasedStickyTabNaviationProps["tabs"];
 
 async function fetchJsonUrl(id: string): Promise<string | null> {
   const allocatorsResponse = await getAllocators({
@@ -24,10 +41,6 @@ const fetchData = cache(async (id: string) => {
     limit: "1",
   });
 });
-
-interface IPageProps {
-  params: { id: string };
-}
 
 export async function generateMetadata({
   params,
@@ -68,51 +81,52 @@ const AllocatorDetailsLayout = async ({
 
   return (
     <JsonLd data={person}>
-      <main>
-        <PageHeader
-          className="mb-8"
-          containerProps={{
-            className: "flex w-full justify-between",
-          }}
-        >
-          <div>
-            <PageTitle>
-              {allocatorResponse.name && allocatorResponse.name.length > 0
-                ? allocatorResponse.name
-                : allocatorResponse.addressId}
-            </PageTitle>
-            <PageSubtitle className="mb-4">
-              Allocator ID: {allocatorResponse?.addressId}
-            </PageSubtitle>
-            <div className="flex items-center gap-2">
-              <FilecoinPulseButton url={createAllocatorLink(params.id)}>
-                <span className="lg:hidden">Pulse</span>
-                <span className="hidden lg:inline">View on Filecoin Pulse</span>
-              </FilecoinPulseButton>
-              {jsonUrl != null && (
-                <GithubButton className="mb-1" url={jsonUrl}>
-                  <span className="lg:hidden">GitHub</span>
-                  <span className="hidden lg:inline">
-                    View Registry JSON File
-                  </span>
-                </GithubButton>
-              )}
-            </div>
+      <PageHeader
+        containerProps={{
+          className: "flex w-full justify-between",
+        }}
+      >
+        <div>
+          <PageTitle>
+            {allocatorResponse.name && allocatorResponse.name.length > 0
+              ? allocatorResponse.name
+              : allocatorResponse.addressId}
+          </PageTitle>
+          <PageSubtitle className="mb-4">
+            Allocator ID: {allocatorResponse?.addressId}
+          </PageSubtitle>
+          <div className="flex items-center gap-2">
+            <FilecoinPulseButton url={createAllocatorLink(params.id)}>
+              <span className="lg:hidden">Pulse</span>
+              <span className="hidden lg:inline">View on Filecoin Pulse</span>
+            </FilecoinPulseButton>
+            {jsonUrl != null && (
+              <GithubButton className="mb-1" url={jsonUrl}>
+                <span className="lg:hidden">GitHub</span>
+                <span className="hidden lg:inline">
+                  View Registry JSON File
+                </span>
+              </GithubButton>
+            )}
           </div>
-          <ResponsiveView>
-            <div className="p-4 pb-10 md:my-6 md:p-0">
-              <Card>
-                <CardHeader className="p-4">
-                  <CardTitle>Remaining DataCap</CardTitle>
-                </CardHeader>
-                <CardContent className="p-4 pt-0">
-                  {convertBytesToIEC(allocatorResponse?.remainingDatacap)}
-                </CardContent>
-              </Card>
-            </div>
-          </ResponsiveView>
-        </PageHeader>
+        </div>
+        <ResponsiveView>
+          <div className="p-4 pb-10 md:my-6 md:p-0">
+            <Card>
+              <CardHeader className="p-4">
+                <CardTitle>Remaining DataCap</CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 pt-0">
+                {convertBytesToIEC(allocatorResponse?.remainingDatacap)}
+              </CardContent>
+            </Card>
+          </div>
+        </ResponsiveView>
+      </PageHeader>
+      <IdBasedStickyTabNaviation className="mb-8" tabs={sectionTabs} />
+      <main>
         <Suspense>{children}</Suspense>
+        <BackToTop />
       </main>
     </JsonLd>
   );
