@@ -718,3 +718,101 @@ export async function fetchAllocatorsScoringBreakdown(
 
   return json as FetchAllocatorsScoringBreakdownReturnType;
 }
+
+// Allocator's verified clients
+export interface FetchAllocatorVerifiedClientsParameters {
+  allocatorId: string;
+  limit?: number;
+  page?: number;
+  sort?: string;
+  order?: "asc" | "desc";
+}
+
+export type FetchAllocatorVerifiedClientsReturnType = z.infer<
+  typeof allocatorVerfiedClientsResponseSchema
+>;
+
+const allocatorVerfiedClientsResponseSchema = z.object({
+  pagination: z.object({
+    total: z.number(),
+    limit: z.number().nullish(),
+    page: z.number().nullish(),
+    pages: z.number().nullish(),
+  }),
+  data: z.array(
+    z.object({
+      addressId: z.string(),
+      address: z.string(),
+      name: z.string().nullable(),
+      orgName: z.string().nullable(),
+      verifierAddressId: z.string(),
+      usedDatacap: numericalStringSchema,
+      remainingDatacap: numericalStringSchema,
+      usedDatacapChange: numericalStringSchema,
+    })
+  ),
+});
+
+export async function fetchAllocatorVerifiedClients({
+  allocatorId,
+  ...restOfParams
+}: FetchAllocatorVerifiedClientsParameters): Promise<FetchAllocatorVerifiedClientsReturnType> {
+  const searchParams = objectToURLSearchParams(restOfParams, true);
+  const endpoint = `${CDP_API_URL}/allocators/${allocatorId}/verified-clients?${searchParams.toString()}`;
+  const response = await fetch(endpoint);
+
+  throwHTTPErrorOrSkip(
+    response,
+    `CDP API returned status code ${response.status} when fetching allocator verified clients; URL: ${endpoint}`
+  );
+
+  const json = await response.json();
+
+  assertSchema(
+    json,
+    allocatorVerfiedClientsResponseSchema,
+    `CDP API return invalid data when fetching allocator verified clients; URL: ${endpoint}`
+  );
+
+  return json as FetchAllocatorVerifiedClientsReturnType;
+}
+
+// Allocator's report
+export interface FetchAllocatorReportsParameters {
+  allocatorId: string;
+}
+
+export type FetchAllocatorReportsReturnType = z.infer<
+  typeof allocatorReportsResponseSchema
+>;
+
+const allocatorReportsResponseSchema = z.array(
+  z.object({
+    id: z.string(),
+    allocator: z.string(),
+    create_date: z.string().datetime(),
+    // more fields are present but we care only about those for listing
+  })
+);
+
+export async function fetchAllocatorReports({
+  allocatorId,
+}: FetchAllocatorReportsParameters): Promise<FetchAllocatorReportsReturnType> {
+  const endpoint = `${CDP_API_URL}/allocator-report/${allocatorId}`;
+  const response = await fetch(endpoint);
+
+  throwHTTPErrorOrSkip(
+    response,
+    `CDP API returned status code ${response.status} when fetching allocator reports; URL: ${endpoint}`
+  );
+
+  const json = await response.json();
+
+  assertSchema(
+    json,
+    allocatorReportsResponseSchema,
+    `CDP API return invalid data when fetching allocator reports; URL: ${endpoint}`
+  );
+
+  return json;
+}
