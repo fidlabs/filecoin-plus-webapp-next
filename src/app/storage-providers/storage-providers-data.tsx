@@ -180,7 +180,7 @@ export async function fetchStorageProvidersComplianceDataWeeks() {
 
 // Retrievability
 const retrievabilityResponseSchema = z.object({
-  averageHttpSuccessRate: z.number().nullable(),
+  averageHttpSuccessRate: z.number().nullish(),
   averageUrlFinderSuccessRate: z.number().nullable(),
   histogram: z.object({
     total: z.number(),
@@ -188,7 +188,7 @@ const retrievabilityResponseSchema = z.object({
       z.object({
         week: z.string(),
         total: z.number(),
-        averageHttpSuccessRate: z.number().nullable(),
+        averageHttpSuccessRate: z.number().nullish(),
         averageUrlFinderSuccessRate: z.number().nullable(),
         results: z.array(
           z.object({
