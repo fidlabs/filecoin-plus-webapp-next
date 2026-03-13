@@ -84,6 +84,10 @@ export interface IClientReportStorageProviderDistribution {
   claims_count: string | undefined;
   location: IGenericReportLocation;
   piece_working_url: string | undefined;
+  consistent_retrievability?: number | null;
+  inconsistent_retrievability?: number | null;
+  ttfb?: number | null;
+  bandwidth?: number | null;
 }
 
 export interface IGenericReportLocation {
