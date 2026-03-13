@@ -1,11 +1,17 @@
+import { BackToTop } from "@/components/back-to-top";
 import { Container } from "@/components/container";
 import { FilecoinPulseButton } from "@/components/filecoin-pulse-button";
 import { PageHeader, PageTitle } from "@/components/page-header";
+import {
+  IdBasedStickyTabNaviation,
+  type IdBasedStickyTabNaviationProps,
+} from "@/components/sticky-tab-navigation";
 import { getStorageProviderById } from "@/lib/api";
+import { StorageProviderDetailsPageSectionId } from "@/lib/constants";
 import { createStorageProviderLink } from "@/lib/filecoin-pulse";
 import { generatePageMetadata } from "@/lib/utils";
-import { Metadata } from "next";
-import { cache, PropsWithChildren, Suspense } from "react";
+import { type Metadata } from "next";
+import { cache, type PropsWithChildren, Suspense } from "react";
 
 const fetchData = cache(async (id: string) => {
   return await getStorageProviderById(id, {
@@ -38,6 +44,14 @@ export async function generateMetadata({
   });
 }
 
+const sectionTabs = {
+  [StorageProviderDetailsPageSectionId.STATS]: "Statistics",
+  [StorageProviderDetailsPageSectionId.CLIENTS]: "Verified Clients",
+  [StorageProviderDetailsPageSectionId.RETRIEVABILITY]: "Retrievability",
+  [StorageProviderDetailsPageSectionId.TTFB]: "TTFB",
+  [StorageProviderDetailsPageSectionId.BANDWIDTH]: "Bandwidth",
+} as const satisfies IdBasedStickyTabNaviationProps["tabs"];
+
 export default async function StorageProviderDetailsLayout({
   children,
   params,
@@ -46,15 +60,17 @@ export default async function StorageProviderDetailsLayout({
 
   return (
     <>
-      <PageHeader className="mb-8">
+      <PageHeader>
         <PageTitle className="mb-2">{spResponse?.providerId}</PageTitle>
         <FilecoinPulseButton url={createStorageProviderLink(params.id)}>
           <span className="lg:hidden">Pulse</span>
           <span className="hidden lg:inline">View on Filecoin Pulse</span>
         </FilecoinPulseButton>
       </PageHeader>
+      <IdBasedStickyTabNaviation className="mb-8" tabs={sectionTabs} />
       <Container>
         <Suspense>{children}</Suspense>
+        <BackToTop />
       </Container>
     </>
   );

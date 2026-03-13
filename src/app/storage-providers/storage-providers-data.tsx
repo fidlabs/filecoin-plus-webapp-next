@@ -206,6 +206,7 @@ const retrievabilityResponseSchema = z.object({
 export interface FetchStorageProvidersRetrievabilityDataParameters {
   editionId?: string;
   openDataOnly?: boolean;
+  retrievabilityType?: "RPA" | "CONSISTENT" | "INCONSISTENT";
 }
 
 export type FetchStorageProvidersRetrievabilityDataReturnType = z.infer<
@@ -215,12 +216,17 @@ export type FetchStorageProvidersRetrievabilityDataReturnType = z.infer<
 export async function fetchStorageProvidersRetrievabilityData(
   parameters?: FetchStorageProvidersRetrievabilityDataParameters
 ): Promise<FetchStorageProvidersRetrievabilityDataReturnType> {
-  const { editionId, openDataOnly = false } = parameters ?? {};
+  const {
+    editionId,
+    openDataOnly = false,
+    retrievabilityType,
+  } = parameters ?? {};
 
   const searchParams = objectToURLSearchParams(
     {
       editionId,
       openDataOnly,
+      retrievabilityType,
     },
     true
   );
@@ -525,4 +531,57 @@ export async function fetchRpaMetricHistogram(
   );
 
   return json as FetchRPAMetricHistogramReturnType;
+}
+
+// RPA Metric per SP
+export interface FetchStorageProviderRpaMetricHistogramParameters {
+  provider: string;
+  metricType:
+    | "TTFB"
+    | "BANDWIDTH"
+    | "RPA_RETRIEVABILITY"
+    | "CONSISTENT_RETRIEVABILITY"
+    | "INCONSISTENT_RETRIEVABILITY";
+}
+
+export type FetchStorageProviderRpaMetricHistogramReturnType = z.infer<
+  typeof fetchStorageProviderRpaMetricHistogramSchema
+>;
+
+const fetchStorageProviderRpaMetricHistogramSchema = z.object({
+  metadata: z.object({
+    metricName: z.string(),
+    metricDescription: z.string(),
+    metricUnit: z.string(),
+  }),
+  results: z.array(
+    z.object({
+      date: z.string().datetime(),
+      value: z.number(),
+    })
+  ),
+});
+
+export async function fetchStorageProviderRpaMetricHistogram(
+  paramters: FetchStorageProviderRpaMetricHistogramParameters
+): Promise<FetchStorageProviderRpaMetricHistogramReturnType> {
+  const { provider, ...restOfParameters } = paramters;
+  const searchParams = objectToURLSearchParams(restOfParameters);
+  const endpoint = `${CDP_API_URL}/stats/acc/providers/${provider}/rpa/metric?${searchParams.toString()}`;
+  const response = await fetch(endpoint);
+
+  throwHTTPErrorOrSkip(
+    response,
+    `CDP API returned status ${response.status} when fetching Storage Provider RPA metric histogram; URL: ${endpoint}`
+  );
+
+  const json = await response.json();
+
+  assertSchema(
+    json,
+    fetchStorageProviderRpaMetricHistogramSchema,
+    `CDP API returned invalid response when fetching Storage Provider RPA metric histogram; URL: ${endpoint}`
+  );
+
+  return json;
 }
