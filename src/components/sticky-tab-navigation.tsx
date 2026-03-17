@@ -27,6 +27,12 @@ interface DragScrollingState {
   pointerFrom: number;
 }
 
+function getHash(): string | undefined {
+  return typeof window !== "undefined"
+    ? window.location.hash.replace(/^#!?/, "")
+    : undefined;
+}
+
 export const StickyTabNavigation = forwardRef<
   HTMLDivElement,
   StickyTabNavigationProps
@@ -197,6 +203,20 @@ export function IdBasedStickyTabNaviation({
       element.offsetLeft - container.offsetWidth + element.clientWidth;
     container.scrollTo({ left: Math.max(scrollLeft, 0), behavior: "smooth" });
   }, [activeId]);
+
+  useEffect(() => {
+    const hash = getHash();
+
+    if (!hash) {
+      return;
+    }
+
+    const initialElement = document.getElementById(hash);
+
+    if (initialElement) {
+      initialElement.scrollIntoView({ block: "center" });
+    }
+  }, []);
 
   return (
     <StickyTabNavigation {...rest} containerRef={containerRef}>

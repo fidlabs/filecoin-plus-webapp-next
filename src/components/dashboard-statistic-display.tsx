@@ -235,31 +235,28 @@ export function DashboardStatisticDisplay({
         )}
       </CardHeader>
       <CardContent className="py-0">
-        <p className="text-lg font-semibold truncate">
-          {!showLoading && (
-            <>
-              {Array.isArray(value) ? (
-                <span className="cursor-pointer" onClick={handleValueClick}>
-                  <span className={cn(showRawValue && "hidden")}>
-                    {value[0]}
-                  </span>
-                  <span className={cn(!showRawValue && "hidden")}>
-                    {value[1]}
-                  </span>
+        {!showLoading ? (
+          <p className="text-lg font-semibold truncate">
+            {Array.isArray(value) ? (
+              <span className="cursor-pointer" onClick={handleValueClick}>
+                <span className={cn(showRawValue && "hidden")}>{value[0]}</span>
+                <span className={cn(!showRawValue && "hidden")}>
+                  {value[1]}
                 </span>
-              ) : (
-                value
-              )}
-            </>
-          )}
+              </span>
+            ) : (
+              value
+            )}
 
-          {dashboardStatistic.percentageChange !== null && !showLoading && (
-            <ChangeText
-              percentageChange={dashboardStatistic.percentageChange}
-            />
-          )}
-          {showLoading && <Skeleton className="h-7 w-[100px]" />}
-        </p>
+            {dashboardStatistic.percentageChange !== null && (
+              <ChangeText
+                percentageChange={dashboardStatistic.percentageChange}
+              />
+            )}
+          </p>
+        ) : (
+          <Skeleton className="h-7 w-[100px]" />
+        )}
 
         {!!link && (
           <Button className="mt-1 text-xs" asChild variant="link">

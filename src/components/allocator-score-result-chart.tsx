@@ -61,8 +61,8 @@ export function AllocatorScoreResultChart({
   );
 
   return (
-    <article className="bg-white rounded-lg shadow-f-card pb-4 max-w-full">
-      <header className="flex justify-between items-top p-4 space-x-4">
+    <article className="max-w-full">
+      <header className="flex justify-between items-top px-6 space-x-4">
         <div className="min-w-0">
           <h5 className="text-md font-semibold mb-1">{name}</h5>
           <p className="text-xs text-muted-foreground whitespace-nowrap overflow-hidden text-ellipsis">
@@ -117,8 +117,8 @@ export function AllocatorScoreResultChart({
               },
             ]}
             margin={{
-              left: 30,
-              right: 30,
+              left: 24,
+              right: 24,
             }}
           >
             <YAxis type="category" width={0} />

@@ -17,6 +17,10 @@ export enum QueryKey {
   ALLOCATORS_OLD_DATACAP = "allocators_old_datacap",
   ALLOCATORS_CHECKS_BREAKDOWN = "allocators_checks_breakdown",
   ALLOCATORS_SCORING_BREAKDOWN = "allocators_scoring_breakdown",
+  ALLOCATOR_BY_ID = "allocator_by_id",
+  ALLOCATOR_REPORTS = "allocator_reports",
+  ALLOCATOR_SCORE = "allocator_score",
+  ALLOCATOR_VERIFIED_CLIENTS = "allocator_verified_clients",
   CLIENTS_DASHBOARD_STATISTICS = "clients_dashboard_statistics",
   CLIENTS_LIST = "clients_list",
   CLIENTS_OLD_DATACAP = "clients_old_datacap",
@@ -36,6 +40,7 @@ export enum QueryKey {
   STORAGE_PROVIDERS_STATISTICS = "storage_providers_statistics",
   STORAGE_PROVIDER_FILSCAN_INFO = "storage_provider_filscan_info",
   STORAGE_PROVIDER_BY_ID = "storage_provider_by_id",
+  STORAGE_PROVIDER_RPA_METRIC_HISTOGRAM = "storage_provider_rpa_metric_histogram",
   RPA_RESULT_CODES_HISTOGRAM = "rpa_result_codes_histogram",
   RPA_METRIC_HISTOGRAM = "rpa_metric_histogram",
 }
@@ -61,6 +66,13 @@ export enum AllocatorsPageSectionId {
   AUDIT_TIMES = "audit-times",
   LEADERBOARDS = "leaderboards",
   OLD_DATACAP = "old-datacap",
+}
+
+export enum AllocatorDetailsPageSectionId {
+  CLIENTS = "clients",
+  REPORTS = "reports",
+  SCORE = "score",
+  ALLOCATIONS = "allocations",
 }
 
 export enum ClientsPageSectionId {
@@ -89,4 +101,13 @@ export enum StorageProvidersPageSectionId {
   IPNI_MISREPORTING = "ipni-misreporting",
 }
 
+export enum StorageProviderDetailsPageSectionId {
+  STATS = "stats",
+  CLIENTS = "clients",
+  RETRIEVABILITY = "retrievability",
+  TTFB = "ttfb",
+  BANDWIDTH = "bandwidth",
+}
+
 export const CHECKS_BREAKDOWN_INTERVAL_PARAM_KEY = "interval";
+export const ALLOCATOR_SCORE_REPORT_ID_QUERY_KEY = "score_report_id";

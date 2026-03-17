@@ -1,11 +1,12 @@
 "use client";
 
 import { HealthCheck } from "@/components/health-check";
+import { RetrievabilityChartExplanation } from "@/components/retrivability-chart-explanation";
 import { useScrollObserver } from "@/lib/hooks/useScrollObserver";
 import { type IClientFullReport } from "@/lib/interfaces/cdp/cdp.interface";
 import { cn } from "@/lib/utils";
+import { ReportViewProviderList } from "./report-view-provider-list";
 import { ReportViewProviderMap } from "./report-view-provider-map";
-import { ReportViewProviderTable } from "./report-view-provider-table";
 
 export interface ReportViewProvidersProps {
   comparsionEnabled: boolean;
@@ -62,12 +63,13 @@ export function ReportViewProviders({
                   ).length
                 }
               </div>
-              <ReportViewProviderTable
+              <ReportViewProviderList
                 report={report}
                 reportToCompare={
                   comparsionEnabled ? reports[index - 1] : undefined
                 }
               />
+              <RetrievabilityChartExplanation className="border-b mt-0" />
               <ReportViewProviderMap
                 providerDistribution={report.storage_provider_distribution}
               />

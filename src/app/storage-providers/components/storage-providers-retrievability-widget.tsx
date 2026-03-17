@@ -12,6 +12,7 @@ import {
   ChartTypeTabsSelect,
 } from "@/components/chart-type-tabs-select";
 import { OverlayLoader } from "@/components/overlay-loader";
+import { RetrievabilityChartExplanation } from "@/components/retrivability-chart-explanation";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -148,6 +149,7 @@ export function StorageProvidersRetrievabilityWidget({
   className,
   ...rest
 }: StorageProvidersRetrievabilityWidgetProps) {
+  const [retrievabilityType, setRetrievabilityType] = useState("RPA");
   const [editionId, setEditionId] = useState<string>();
   const [openDataOnly, setOpenDataOnly] = useState(false);
   const [scale, setScale] = useState<string>(scales[0]);
@@ -164,6 +166,10 @@ export function StorageProvidersRetrievabilityWidget({
   const parameters: FetchStorageProvidersRetrievabilityDataParameters = {
     editionId,
     openDataOnly,
+    retrievabilityType:
+      editionId === "5"
+        ? "RPA" // no other types for
+        : (retrievabilityType as FetchStorageProvidersRetrievabilityDataParameters["retrievabilityType"]),
   };
 
   const { data, isLoading } = useSWR(
@@ -184,16 +190,27 @@ export function StorageProvidersRetrievabilityWidget({
       };
     }
 
-    const [previousWeekData, currentWeekData] =
-      data.histogram.results.slice(-2) ?? [];
-
-    if (!currentWeekData) {
+    if (data.histogram.results.length === 0) {
       return {
         weeklyAverage: "N/A",
         weeklyAveragePercentageChange: undefined,
       };
     }
 
+    if (data.histogram.results.length === 1) {
+      const currentWeekAverage =
+        data.histogram.results[0].averageUrlFinderSuccessRate;
+
+      return {
+        weeklyAverage: currentWeekAverage
+          ? percentageFormatter.format(currentWeekAverage / 100)
+          : "N/A",
+        weeklyAveragePercentageChange: undefined,
+      };
+    }
+
+    const [previousWeekData, currentWeekData] =
+      data.histogram.results.slice(-2) ?? [];
     const currentWeekAverage = currentWeekData.averageUrlFinderSuccessRate;
     const previousWeekAverage = previousWeekData.averageUrlFinderSuccessRate;
 
@@ -342,17 +359,47 @@ export function StorageProvidersRetrievabilityWidget({
   );
 
   return (
-    <Card {...rest} className={cn("pb-4", className)}>
+    <Card {...rest} className={cn("", className)}>
       <header className="px-4 py-4 max-w-[min(50vw, 200px)]">
         <h3 className="text-lg font-medium">Retrievability Score</h3>
         <p className="text-xs text-muted-foreground">
-          Storage Providers and their datacap grouped by their retrievability
-          score.
+          Storage Providers and their datacap grouped by their weekly average
+          retrievability score.
         </p>
       </header>
 
       <div className="px-4 mb-4">
         <div className="flex flex-wrap items-center gap-2 mb-6">
+          <Select
+            value={editionId ?? "all"}
+            onValueChange={handleEditionChange}
+          >
+            <SelectTrigger className="bg-background">
+              <SelectValue placeholder="All Editions" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Editions</SelectItem>
+              <SelectItem value="5">Edition 5</SelectItem>
+              <SelectItem value="6">Edition 6</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {editionId !== "5" && (
+            <Select
+              value={retrievabilityType}
+              onValueChange={setRetrievabilityType}
+            >
+              <SelectTrigger className="bg-background">
+                <SelectValue placeholder="Retrievability Type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="RPA">Default RPA</SelectItem>
+                <SelectItem value="CONSISTENT">Consistent</SelectItem>
+                <SelectItem value="INCONSISTENT">Inconsistent</SelectItem>
+              </SelectContent>
+            </Select>
+          )}
+
           <Tabs value={mode} onValueChange={setMode}>
             <TabsList>
               {modes.map((possibleMode) => (
@@ -386,20 +433,6 @@ export function StorageProvidersRetrievabilityWidget({
             </TabsList>
           </Tabs>
 
-          <Select
-            value={editionId ?? "all"}
-            onValueChange={handleEditionChange}
-          >
-            <SelectTrigger className="bg-background">
-              <SelectValue placeholder="All Editions" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Editions</SelectItem>
-              <SelectItem value="5">Edition 5</SelectItem>
-              <SelectItem value="6">Edition 6</SelectItem>
-            </SelectContent>
-          </Select>
-
           <ChartTypeTabsSelect
             chartType={chartType}
             enable={enabledChartTypes}
@@ -423,7 +456,7 @@ export function StorageProvidersRetrievabilityWidget({
 
         <div className="flex flex-wrap gap-x-8">
           <ChartStat
-            label="Weekly Average"
+            label="Last Week Average"
             value={weeklyAverage}
             percentageChange={weeklyAveragePercentageChange}
           />
@@ -539,6 +572,8 @@ export function StorageProvidersRetrievabilityWidget({
         </ResponsiveContainer>
         {<OverlayLoader show={!data || isLongLoading} />}
       </div>
+
+      <RetrievabilityChartExplanation />
     </Card>
   );
 }
