@@ -7,21 +7,15 @@ import { ProviderMap } from "./provider-map";
 import { ProviderTable } from "./provider-table";
 
 export interface ProvidersViewProps {
+  allocatorId: string;
   comparsionEnabled: boolean;
-  page: number;
-  pageSize: number;
   reports: ICDPAllocatorFullReport[];
-  onPageChange(nextPage: number): void;
-  onPageSizeChange(nextPage: number): void;
 }
 
 export function ProvidersView({
+  allocatorId,
   comparsionEnabled,
-  page,
-  pageSize,
   reports,
-  onPageChange,
-  onPageSizeChange,
 }: ProvidersViewProps) {
   const { top, ref } = useScrollObserver();
 
@@ -56,20 +50,15 @@ export function ProvidersView({
             >
               <div className="p-4 flex items-center gap-1">
                 Number of providers:{" "}
-                {report.storage_provider_distribution.data.length}
+                {report.storage_provider_distribution.pagination?.total ??
+                  "N/A"}
               </div>
               <ProviderTable
-                report={report}
-                reportToCompare={
-                  comparsionEnabled ? reports[index - 1] : undefined
+                allocatorId={allocatorId}
+                reportId={report.id}
+                comparedReportId={
+                  comparsionEnabled ? reports[index - 1]?.id : undefined
                 }
-                page={page}
-                pageSize={pageSize}
-                totalPages={
-                  report.storage_provider_distribution.pagination?.total
-                }
-                onPageChange={onPageChange}
-                onPageSizeChange={onPageSizeChange}
               />
               <ProviderMap
                 providerDistribution={report.storage_provider_distribution.data}

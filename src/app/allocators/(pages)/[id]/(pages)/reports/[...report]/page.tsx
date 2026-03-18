@@ -1,6 +1,11 @@
-import { getAllocatorReportById } from "@/lib/api";
+import {
+  getAllocatorReportById,
+  type GetAllocatorReportByIdParameters,
+} from "@/lib/api";
+import { QueryKey } from "@/lib/constants";
 import { isHTTPError } from "@/lib/http-errors";
 import { notFound } from "next/navigation";
+import { SWRConfig, unstable_serialize } from "swr";
 import { ReportsLayout } from "./components/reports-layout";
 
 export const revalidate = 3600;
@@ -10,21 +15,25 @@ interface PageProps {
   searchParams?: Record<string, string | undefined>;
 }
 
-export default async function AllocatorReportDetailPage({
-  params,
-  searchParams,
-}: PageProps) {
-  const queryParams = {
-    clientPaginationPage: searchParams?.clientPaginationPage ?? "1",
-    clientPaginationLimit: searchParams?.clientPaginationLimit ?? "10",
-    providerPaginationPage: searchParams?.providerPaginationPage ?? "1",
-    providerPaginationLimit: searchParams?.providerPaginationLimit ?? "10",
-  };
+const reportDefaultParameters: Omit<
+  GetAllocatorReportByIdParameters,
+  "allocatorId" | "reportId"
+> = {
+  clientPaginationPage: 1,
+  clientPaginationLimit: 10,
+  providerPaginationPage: 1,
+  providerPaginationLimit: 10,
+};
 
+export default async function AllocatorReportDetailPage({ params }: PageProps) {
   try {
     const reports = await Promise.all(
       params.report.map((report) =>
-        getAllocatorReportById(params.id, report, queryParams)
+        getAllocatorReportById({
+          ...reportDefaultParameters,
+          allocatorId: params.id,
+          reportId: report,
+        })
       )
     );
 
@@ -35,7 +44,32 @@ export default async function AllocatorReportDetailPage({
       return dateA - dateB;
     });
 
-    return <ReportsLayout reports={reportsSortedByDateAsc} />;
+    const fallback = reports.reduce((result, report) => {
+      const parameters: GetAllocatorReportByIdParameters = {
+        ...reportDefaultParameters,
+        allocatorId: params.id,
+        reportId: report.id,
+      };
+
+      return {
+        ...result,
+        [unstable_serialize([QueryKey.ALLOCATOR_REPORT_BY_ID, parameters])]:
+          report,
+      };
+    }, {});
+
+    return (
+      <SWRConfig
+        value={{
+          fallback,
+        }}
+      >
+        <ReportsLayout
+          allocatorId={params.id}
+          reports={reportsSortedByDateAsc}
+        />
+      </SWRConfig>
+    );
   } catch (error) {
     if (isHTTPError(error) && error.status === 404) {
       return notFound();

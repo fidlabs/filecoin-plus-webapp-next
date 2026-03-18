@@ -155,12 +155,22 @@ export async function getClientReportById(clientId: string, reportId: string) {
   return data as IClientFullReport;
 }
 
-export async function getAllocatorReportById(
-  allocatorId: string,
-  reportId: string,
-  query?: IApiQuery
-) {
-  const url = `${CDP_API_URL}/allocator-report/${allocatorId}/${reportId}${parseQuery(query)}`;
+export interface GetAllocatorReportByIdParameters {
+  allocatorId: string;
+  reportId: string;
+  clientPaginationPage?: number;
+  clientPaginationLimit?: number;
+  providerPaginationPage?: number;
+  providerPaginationLimit?: number;
+}
+
+export async function getAllocatorReportById({
+  allocatorId,
+  reportId,
+  ...restOfParams
+}: GetAllocatorReportByIdParameters) {
+  const searchParams = objectToURLSearchParams(restOfParams, true);
+  const url = `${CDP_API_URL}/allocator-report/${allocatorId}/${reportId}?${searchParams.toString()}`;
   const response = await fetch(url);
   throwHTTPErrorOrSkip(
     response,

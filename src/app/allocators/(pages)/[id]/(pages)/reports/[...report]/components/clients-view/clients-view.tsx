@@ -5,18 +5,15 @@ import { useScrollObserver } from "@/lib/hooks/useScrollObserver";
 import {
   AllocatorReportCheckType,
   ClientReportCheckType,
-  ICDPAllocatorFullReport,
+  type ICDPAllocatorFullReport,
 } from "@/lib/interfaces/cdp/cdp.interface";
 import { cn } from "@/lib/utils";
 import { CheckIcon, TriangleAlertIcon } from "lucide-react";
 import { ClientsViewTable } from "./clients-view-table";
 
 export interface ClientsViewProps {
-  page: number;
-  pageSize: number;
+  allocatorId: string;
   reports: ICDPAllocatorFullReport[];
-  onPageChange(nextPage: number): void;
-  onPageSizeChange(nextPageSize: number): void;
 }
 
 const checkTypes = [
@@ -43,13 +40,7 @@ const checkTypes = [
   ClientReportCheckType.DEAL_DATA_REPLICATION_HIGH_REPLICA,
 ];
 
-export function ClientsView({
-  page,
-  pageSize,
-  reports,
-  onPageChange,
-  onPageSizeChange,
-}: ClientsViewProps) {
+export function ClientsView({ allocatorId, reports }: ClientsViewProps) {
   const { top, ref } = useScrollObserver();
 
   const showMutipleAllocatorsExplanation = reports.some((report) => {
@@ -95,32 +86,6 @@ export function ClientsView({
         }}
       >
         {reports.map((report, index) => {
-          const idsUsingContract = report.clients.data
-            .filter(
-              (client) => !client.not_found && client.using_client_contract
-            )
-            .map((client) => client.client_id);
-
-          const idsReceivingDatacapFromMultipleAllocators =
-            report.check_results.find((result) => {
-              return (
-                result.check ===
-                AllocatorReportCheckType.CLIENT_MULTIPLE_ALLOCATORS
-              );
-            })?.metadata.violating_ids;
-
-          const idsWithNotEnoughReplicas =
-            report.check_results.find((result) => {
-              return (
-                result.check ===
-                AllocatorReportCheckType.CLIENT_NOT_ENOUGH_COPIES
-              );
-            })?.metadata.violating_ids ?? [];
-
-          const foundClients = report.clients.data.filter(
-            (client) => !client.not_found
-          );
-
           return (
             <div
               key={index}
@@ -132,17 +97,8 @@ export function ClientsView({
                 )}
               />
               <ClientsViewTable
-                clients={foundClients}
-                idsUsingContract={idsUsingContract}
-                idsReceivingDatacapFromMultipleAllocators={
-                  idsReceivingDatacapFromMultipleAllocators
-                }
-                idsWithNotEnoughReplicas={idsWithNotEnoughReplicas}
-                page={page}
-                pageSize={pageSize}
-                totalPages={report.clients.pagination?.total}
-                onPageChange={onPageChange}
-                onPageSizeChange={onPageSizeChange}
+                allocatorId={allocatorId}
+                reportId={report.id}
               />
             </div>
           );

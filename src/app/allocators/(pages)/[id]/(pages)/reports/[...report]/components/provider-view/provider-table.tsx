@@ -1,6 +1,7 @@
 "use client";
 
 import { CompareIcon } from "@/components/icons/compare.icon";
+import { OverlayLoader } from "@/components/overlay-loader";
 import { CardFooter } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
 import {
@@ -11,8 +12,13 @@ import {
 import { Paginator } from "@/components/ui/pagination";
 import { RandomPieceAvailabilityTooltip } from "@/components/ui/random-piece-availability-tooltip";
 import {
+  getAllocatorReportById,
+  type GetAllocatorReportByIdParameters,
+} from "@/lib/api";
+import { QueryKey } from "@/lib/constants";
+import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
+import {
   type ComparedValue,
-  type ICDPAllocatorFullReport,
   type ICDPAllocatorFullReportStorageProviderDistribution,
 } from "@/lib/interfaces/cdp/cdp.interface";
 import { type ArrayElement, bigintToPercentage } from "@/lib/utils";
@@ -22,16 +28,14 @@ import {
 } from "@tanstack/react-table";
 import { filesize } from "filesize";
 import Link from "next/link";
-import { useMemo } from "react";
+import { parseAsInteger, useQueryState } from "nuqs";
+import { useCallback, useEffect, useMemo, useRef } from "react";
+import useSWR from "swr";
 
 export interface ProviderTableProps {
-  page: number;
-  pageSize: number;
-  report: ICDPAllocatorFullReport;
-  reportToCompare?: ICDPAllocatorFullReport;
-  totalPages?: number;
-  onPageChange(nextPage: number): void;
-  onPageSizeChange(nextPage: number): void;
+  allocatorId: string;
+  comparedReportId?: string;
+  reportId: string;
 }
 
 interface EnrichedTableItem
@@ -199,7 +203,7 @@ const columns = [
       }
 
       return (
-        <div className="h-full flex items-center justify-start gap-1">
+        <div className="flex items-center justify-end gap-1">
           {percentageFormatter.format(successRate.value)}
           <CompareIcon compare={successRate.result} />
         </div>
@@ -281,20 +285,105 @@ function compareEnrichedItems(
 }
 
 export function ProviderTable({
-  page,
-  pageSize,
-  report,
-  reportToCompare,
-  totalPages,
-  onPageChange,
-  onPageSizeChange,
+  allocatorId,
+  comparedReportId,
+  reportId,
 }: ProviderTableProps) {
+  const containerRef = useRef<HTMLElement | null>(null);
+  const [page, setPage] = useQueryState(
+    "providerPaginationPage",
+    parseAsInteger.withDefault(1)
+  );
+  const [pageSize, setPageSize] = useQueryState(
+    "providerPaginationLimit",
+    parseAsInteger.withDefault(10)
+  );
+
+  const commonParameters: Omit<GetAllocatorReportByIdParameters, "reportId"> = {
+    allocatorId,
+    providerPaginationPage: page,
+    providerPaginationLimit: pageSize,
+    clientPaginationPage: 1,
+    clientPaginationLimit: 10,
+  };
+
+  const {
+    data: report,
+    error: reportFetchError,
+    isLoading: reportLoading,
+    mutate: refetchReport,
+  } = useSWR(
+    [QueryKey.ALLOCATOR_REPORT_BY_ID, { ...commonParameters, reportId }],
+    ([, fetchParameters]) => {
+      return getAllocatorReportById(fetchParameters);
+    },
+    { keepPreviousData: true, revalidateOnMount: false }
+  );
+
+  const {
+    data: comparedReport,
+    error: comparedReportFetchError,
+    isLoading: comparedReportLoading,
+    mutate: refetchComparedReport,
+  } = useSWR(
+    [
+      QueryKey.ALLOCATOR_REPORT_BY_ID,
+      { ...commonParameters, reportId: comparedReportId ?? reportId },
+    ],
+    ([, fetchParameters]) => {
+      return getAllocatorReportById(fetchParameters);
+    },
+    { keepPreviousData: true, revalidateOnMount: false }
+  );
+
+  const error = reportFetchError || comparedReportFetchError;
+  const isLongLoading = useDelayedFlag(
+    reportLoading || comparedReportLoading,
+    500
+  );
+
+  useEffect(() => {
+    if (!report && !reportFetchError && !reportLoading) {
+      refetchReport();
+    }
+  }, [report, reportFetchError, reportLoading, refetchReport]);
+
+  useEffect(() => {
+    if (
+      !comparedReport &&
+      !comparedReportFetchError &&
+      !comparedReportLoading
+    ) {
+      refetchComparedReport();
+    }
+  }, [
+    comparedReport,
+    comparedReportFetchError,
+    comparedReportLoading,
+    refetchComparedReport,
+  ]);
+
+  useEffect(() => {
+    const containerElement = containerRef.current;
+
+    if (containerElement) {
+      requestAnimationFrame(() => {
+        containerElement.scrollIntoView({ block: "start" });
+      });
+    }
+  }, [page, pageSize]);
+
   const items = useMemo(() => {
+    if (!report) {
+      return [];
+    }
+
     const enrichedItems =
       report.storage_provider_distribution.data.map(enrichTableItem);
-    const comparedEnrichedItems = reportToCompare
-      ? reportToCompare.storage_provider_distribution.data.map(enrichTableItem)
-      : [];
+    const comparedEnrichedItems =
+      !!comparedReportId && !!comparedReport
+        ? comparedReport.storage_provider_distribution.data.map(enrichTableItem)
+        : [];
 
     return enrichedItems.map((item) => {
       const comparedItem = comparedEnrichedItems.find(
@@ -302,7 +391,7 @@ export function ProviderTable({
       );
       return compareEnrichedItems(item, comparedItem);
     });
-  }, [report, reportToCompare]);
+  }, [comparedReport, comparedReportId, report]);
 
   const hideSparkRetrievability = useMemo(() => {
     return items.every((item) => {
@@ -324,26 +413,50 @@ export function ProviderTable({
     }, {});
   }, [items]);
 
+  const setContainerRef = useCallback((element: HTMLElement | null) => {
+    containerRef.current = element;
+  }, []);
+
   return (
-    <div className="border-b border-t table-select-warning">
-      <DataTable
-        columns={columns}
-        columnVisibility={{
-          [httpRetrievabilityColumnId]: !hideSparkRetrievability,
-        }}
-        data={items}
-        rowSelection={rowSelection}
-      />
-      <CardFooter className="border-t w-full p-3">
-        <Paginator
-          page={page}
-          pageSize={pageSize}
-          pageSizeOptions={[10, 15, 25]}
-          onPageChange={onPageChange}
-          onPageSizeChange={onPageSizeChange}
-          total={totalPages ?? 0}
-        />
-      </CardFooter>
+    <div
+      className="border-b border-t table-select-warning"
+      ref={setContainerRef}
+    >
+      {!!error && !reportLoading && (
+        <div className="p-6">
+          <p className="text-sm text-muted-foreground">
+            An error occurred, please try again later. {String(error)}
+          </p>
+        </div>
+      )}
+
+      {!!report && !error && (
+        <>
+          <div className="relative">
+            <DataTable
+              columns={columns}
+              columnVisibility={{
+                [httpRetrievabilityColumnId]: !hideSparkRetrievability,
+              }}
+              data={items}
+              rowSelection={rowSelection}
+            />
+            <OverlayLoader show={isLongLoading} />
+          </div>
+          <CardFooter className="border-t w-full p-3">
+            <Paginator
+              page={page}
+              pageSize={pageSize}
+              pageSizeOptions={[10, 15, 25]}
+              onPageChange={setPage}
+              onPageSizeChange={setPageSize}
+              total={
+                report?.storage_provider_distribution.pagination?.total ?? 0
+              }
+            />
+          </CardFooter>
+        </>
+      )}
     </div>
   );
 }
