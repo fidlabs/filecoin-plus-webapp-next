@@ -36,7 +36,10 @@ async function fetchReportData({
   allocatorId,
   reportId,
 }: FetchReportParameters): Promise<ReportData> {
-  const latestReport = await getAllocatorReportById(allocatorId, "latest");
+  const latestReport = await getAllocatorReportById({
+    allocatorId,
+    reportId: "latest",
+  });
 
   if (!reportId || latestReport.id === reportId) {
     return {
@@ -45,7 +48,10 @@ async function fetchReportData({
     };
   }
 
-  const report = await getAllocatorReportById(allocatorId, reportId);
+  const report = await getAllocatorReportById({
+    allocatorId,
+    reportId,
+  });
 
   return {
     report,

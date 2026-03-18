@@ -4,9 +4,8 @@ import { ClientOnlyWrapper } from "@/components/client-only-wrapper";
 import { Container } from "@/components/container";
 import { GenericContentHeader } from "@/components/generic-content-view";
 import { Card, CardContent } from "@/components/ui/card";
-import { ICDPAllocatorFullReport } from "@/lib/interfaces/cdp/cdp.interface";
+import { type ICDPAllocatorFullReport } from "@/lib/interfaces/cdp/cdp.interface";
 import { format } from "date-fns";
-import { parseAsInteger, useQueryState } from "nuqs";
 import { useState } from "react";
 import { AllocatorReportDataTypesSection } from "./allocator-report-data-types-section";
 import { AllocatorReportOverviewSection } from "./allocator-report-overview-section";
@@ -24,32 +23,12 @@ function parseId(id: string) {
 }
 
 export interface ReportsLayoutProps {
+  allocatorId: string;
   reports: ICDPAllocatorFullReport[];
 }
 
-const clientsPageParamKey = "clientPaginationPage";
-const clientsPageSizeParamKey = "clientPaginationLimit";
-const providersPageParamKey = "providerPaginationPage";
-const providersPageSizeParamKey = "providerPaginationLimit";
-
-export function ReportsLayout({ reports }: ReportsLayoutProps) {
+export function ReportsLayout({ allocatorId, reports }: ReportsLayoutProps) {
   const [comparsionEnabled, setComparsionEnabled] = useState(true);
-  const [clientsPage, setClientsPage] = useQueryState(
-    clientsPageParamKey,
-    parseAsInteger.withDefault(1)
-  );
-  const [clientsPageSize, setClientsPageSize] = useQueryState(
-    clientsPageSizeParamKey,
-    parseAsInteger.withDefault(10)
-  );
-  const [providersPage, setProvidersPage] = useQueryState(
-    providersPageParamKey,
-    parseAsInteger.withDefault(1)
-  );
-  const [providersPageSize, setProvidersPageSize] = useQueryState(
-    providersPageSizeParamKey,
-    parseAsInteger.withDefault(10)
-  );
 
   const content = (
     <Card>
@@ -93,20 +72,11 @@ export function ReportsLayout({ reports }: ReportsLayoutProps) {
         <AllocatorReportScoringSection reports={reports} />
         <AllocatorReportOverviewSection reports={reports} />
         <AllocatorReportDataTypesSection reports={reports} />
-        <ClientsView
-          reports={reports}
-          page={clientsPage}
-          pageSize={clientsPageSize}
-          onPageChange={setClientsPage}
-          onPageSizeChange={setClientsPageSize}
-        />
+        <ClientsView allocatorId={allocatorId} reports={reports} />
         <ProvidersView
+          allocatorId={allocatorId}
           comparsionEnabled={comparsionEnabled}
           reports={reports}
-          page={providersPage}
-          pageSize={providersPageSize}
-          onPageChange={setProvidersPage}
-          onPageSizeChange={setProvidersPageSize}
         />
       </CardContent>
     </Card>
