@@ -141,6 +141,7 @@ export function AllocatorsListWidget({
     setParameters((currentParameters) => ({
       ...currentParameters,
       editionId: value === "all" ? undefined : value,
+      page: 1,
     }));
   }, []);
 
@@ -148,6 +149,7 @@ export function AllocatorsListWidget({
     setParameters((currentParameters) => ({
       ...currentParameters,
       dataType: isAllowedDataType(value) ? value : undefined,
+      page: 1,
     }));
   }, []);
 
