@@ -33,6 +33,7 @@ import {
   gradientPalette,
 } from "@/lib/utils";
 import { weekFromDate, weekToReadableString } from "@/lib/weeks";
+import { UTCDate } from "@date-fns/utc";
 import { filesize } from "filesize";
 import { type ComponentProps, useCallback, useMemo, useState } from "react";
 import {
@@ -40,13 +41,16 @@ import {
   Bar,
   ComposedChart,
   Line,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   TooltipContentProps,
   XAxis,
   YAxis,
 } from "recharts";
+import { type Segment } from "recharts/types/cartesian/ReferenceLine";
 import useSWR from "swr";
+import { createTrend } from "trendline";
 import {
   fetchStorageProvidersRetrievabilityData,
   FetchStorageProvidersRetrievabilityDataParameters,
@@ -150,7 +154,7 @@ export function StorageProvidersRetrievabilityWidget({
   ...rest
 }: StorageProvidersRetrievabilityWidgetProps) {
   const [retrievabilityType, setRetrievabilityType] = useState("RPA");
-  const [editionId, setEditionId] = useState<string>();
+  const [editionId, setEditionId] = useState<string | undefined>("6");
   const [openDataOnly, setOpenDataOnly] = useState(false);
   const [scale, setScale] = useState<string>(scales[0]);
   const [mode, setMode] = useState<string>(modes[0]);
@@ -227,6 +231,45 @@ export function StorageProvidersRetrievabilityWidget({
         : "N/A",
       weeklyAveragePercentageChange,
     };
+  }, [data]);
+
+  const trendData = useMemo<Segment[] | null>(() => {
+    if (!data) {
+      return null;
+    }
+
+    const trendInput = data.histogram.results
+      .map<Record<string, number> | null>((item) => {
+        return item.averageUrlFinderSuccessRate !== null
+          ? {
+              date: new Date(item.week).valueOf(),
+              value: item.averageUrlFinderSuccessRate,
+            }
+          : null;
+      })
+      .filter((maybeEntry): maybeEntry is Record<string, number> => {
+        return maybeEntry !== null;
+      });
+
+    const trendStart = trendInput.at(0);
+    const trendEnd = trendInput.at(-1);
+
+    if (!trendStart || !trendEnd) {
+      return null;
+    }
+
+    const trend = createTrend(trendInput, "date", "value");
+
+    return [
+      {
+        x: new UTCDate(trendStart.date).toISOString(),
+        y: trend.calcY(trendStart.date),
+      },
+      {
+        x: new UTCDate(trendEnd.date).toISOString(),
+        y: trend.calcY(trendEnd.date),
+      },
+    ];
   }, [data]);
 
   const [ranges, chartData] = useMemo<[Range[], ChartDataEntry[]]>(() => {
@@ -565,9 +608,18 @@ export function StorageProvidersRetrievabilityWidget({
               yAxisId="average"
               dataKey="averageSuccessRate"
               name="Average Success Rate"
-              stroke="rgba(0, 0, 0, 0.5)"
+              stroke="rgba(0, 0, 0, 0.4)"
               animationDuration={animationDuration}
             />
+
+            {trendData !== null && (
+              <ReferenceLine
+                yAxisId="average"
+                stroke="black"
+                strokeDasharray="5 5"
+                segment={trendData}
+              />
+            )}
           </ComposedChart>
         </ResponsiveContainer>
         {<OverlayLoader show={!data || isLongLoading} />}

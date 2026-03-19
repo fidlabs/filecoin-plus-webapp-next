@@ -34,22 +34,26 @@ import {
   Bar,
   ComposedChart,
   Line,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
-  TooltipContentProps,
+  type TooltipContentProps,
   XAxis,
   YAxis,
 } from "recharts";
 import useSWR from "swr";
 import {
   fetchAllocatorsRetrievabilityData,
-  FetchAllocatorsRetrievabilityDataParameters,
+  type FetchAllocatorsRetrievabilityDataParameters,
 } from "../allocators-data";
 import {
   ChartType,
   ChartTypeTabsSelect,
 } from "@/components/chart-type-tabs-select";
 import { useDynamicBarsCount } from "@/lib/hooks/use-dynamic-bars-count";
+import createTrend from "trendline";
+import { UTCDate } from "@date-fns/utc";
+import { type Segment } from "recharts/types/cartesian/ReferenceLine";
 
 type CardProps = ComponentProps<typeof Card>;
 type CheckboxProps = ComponentProps<typeof Checkbox>;
@@ -222,6 +226,45 @@ export function AllocatorsRetrievabilityWidget({
       weeklyAveragePercentageChange,
     };
   }, [data, retrievabilityType]);
+
+  const trendData = useMemo<Segment[] | null>(() => {
+    if (!data) {
+      return null;
+    }
+
+    const trendInput = data.histogram.results
+      .map<Record<string, number> | null>((item) => {
+        return item.averageUrlFinderSuccessRate !== null
+          ? {
+              date: new Date(item.week).valueOf(),
+              value: item.averageUrlFinderSuccessRate,
+            }
+          : null;
+      })
+      .filter((maybeEntry): maybeEntry is Record<string, number> => {
+        return maybeEntry !== null;
+      });
+
+    const trendStart = trendInput.at(0);
+    const trendEnd = trendInput.at(-1);
+
+    if (!trendStart || !trendEnd) {
+      return null;
+    }
+
+    const trend = createTrend(trendInput, "date", "value");
+
+    return [
+      {
+        x: new UTCDate(trendStart.date).toISOString(),
+        y: trend.calcY(trendStart.date),
+      },
+      {
+        x: new UTCDate(trendEnd.date).toISOString(),
+        y: trend.calcY(trendEnd.date),
+      },
+    ];
+  }, [data]);
 
   const [ranges, chartData] = useMemo<[Range[], ChartDataEntry[]]>(() => {
     if (!data) {
@@ -539,9 +582,18 @@ export function AllocatorsRetrievabilityWidget({
               yAxisId="average"
               dataKey="averageSuccessRate"
               name="Average Success Rate"
-              stroke="rgba(0, 0, 0, 0.5)"
+              stroke="rgba(0, 0, 0, 0.4)"
               animationDuration={animationDuration}
             />
+
+            {trendData !== null && (
+              <ReferenceLine
+                yAxisId="average"
+                stroke="black"
+                strokeDasharray="5 5"
+                segment={trendData}
+              />
+            )}
 
             <Tooltip
               labelFormatter={formatDate}
