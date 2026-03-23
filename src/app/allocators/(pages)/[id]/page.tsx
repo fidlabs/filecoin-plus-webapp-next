@@ -1,16 +1,17 @@
 import { Container } from "@/components/container";
-import { AllocatorVerifiedClientsWidget } from "./components/allocator-verified-clients-widget";
-import { AllocatorReportsWidget } from "./components/allocator-reports-widget";
 import { AllocatorDetailsPageSectionId, QueryKey } from "@/lib/constants";
-import { AllocatorScoreWidget } from "./components/allocator-score-widget";
-import { AllocatorAllocationsWidget } from "./components/allocator-allocations-widget";
 import { SWRConfig, unstable_serialize } from "swr";
 import {
+  fetchAllocatorAllocations,
+  type FetchAllocatorAllocationsParameters,
   fetchAllocatorReports,
   fetchAllocatorVerifiedClients,
-  FetchAllocatorVerifiedClientsParameters,
+  type FetchAllocatorVerifiedClientsParameters,
 } from "../../allocators-data";
-import { getAllocatorById } from "@/lib/api";
+import { AllocatorAllocationsWidget } from "./components/allocator-allocations-widget";
+import { AllocatorReportsWidget } from "./components/allocator-reports-widget";
+import { AllocatorScoreWidget } from "./components/allocator-score-widget";
+import { AllocatorVerifiedClientsWidget } from "./components/allocator-verified-clients-widget";
 
 export const revalidate = 300;
 
@@ -33,11 +34,18 @@ export default async function AllocatorDetailsPage(pageParams: PageProps) {
     order: "asc",
   };
 
-  const [verifiedClientResult, reportsResult, allocatorResult] =
+  const allocationsParameters: FetchAllocatorAllocationsParameters = {
+    allocatorId,
+    showAllocations: true,
+    groupBy: "week",
+    showEmptyPeriods: false,
+  };
+
+  const [verifiedClientResult, reportsResult, allocationsResult] =
     await Promise.allSettled([
       fetchAllocatorVerifiedClients(verifiedClientsParameters),
       fetchAllocatorReports({ allocatorId }),
-      getAllocatorById(allocatorId),
+      fetchAllocatorAllocations(allocationsParameters),
     ]);
 
   const fallback = {
@@ -47,8 +55,10 @@ export default async function AllocatorDetailsPage(pageParams: PageProps) {
     ])]: unwrapResult(verifiedClientResult),
     [unstable_serialize([QueryKey.ALLOCATOR_REPORTS, allocatorId])]:
       unwrapResult(reportsResult),
-    [unstable_serialize([QueryKey.ALLOCATOR_BY_ID, allocatorId])]:
-      unwrapResult(allocatorResult),
+    [unstable_serialize([
+      QueryKey.ALLOCATOR_ALLOCATIONS,
+      allocationsParameters,
+    ])]: unwrapResult(allocationsResult),
   };
 
   return (

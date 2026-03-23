@@ -22,6 +22,7 @@ export enum QueryKey {
   ALLOCATOR_SCORE = "allocator_score",
   ALLOCATOR_VERIFIED_CLIENTS = "allocator_verified_clients",
   ALLOCATOR_REPORT_BY_ID = "allocator_report_by_id",
+  ALLOCATOR_ALLOCATIONS = "allocator_allocations",
   CLIENTS_DASHBOARD_STATISTICS = "clients_dashboard_statistics",
   CLIENTS_LIST = "clients_list",
   CLIENTS_OLD_DATACAP = "clients_old_datacap",
