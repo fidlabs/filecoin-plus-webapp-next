@@ -1,29 +1,33 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getAllocatorById } from "@/lib/api";
-import { QueryKey } from "@/lib/constants";
-import { IClient } from "@/lib/interfaces/dmob/client.interface";
 import {
-  calculateDateFromHeight,
-  convertBytesToIEC,
-  palette,
-} from "@/lib/utils";
-import { groupBy } from "lodash";
-import { ComponentProps, useMemo } from "react";
+  fetchAllocatorAllocations,
+  type FetchAllocatorAllocationsParameters,
+} from "@/app/allocators/allocators-data";
+import {
+  ChartTooltipContainer,
+  ChartTooltipHeader,
+  ChartTooltipTitle,
+} from "@/components/chart-tooltip";
+import { Card } from "@/components/ui/card";
+import { QueryKey } from "@/lib/constants";
+import { palette } from "@/lib/utils";
+import { weekFromDate, weekToReadableString } from "@/lib/weeks";
+import { filesize } from "filesize";
+import { type ComponentProps, useCallback, useMemo } from "react";
 import {
   Area,
   Bar,
   ComposedChart,
   ResponsiveContainer,
   Tooltip,
-  TooltipContentProps,
+  type TooltipContentProps,
   XAxis,
   YAxis,
 } from "recharts";
 import {
-  NameType,
-  ValueType,
+  type NameType,
+  type ValueType,
 } from "recharts/types/component/DefaultTooltipContent";
 import useSWR from "swr";
 
@@ -33,92 +37,129 @@ export interface AllocatorAllocationsWidgetProps
   allocatorId: string;
 }
 
+interface Allocation {
+  client: string;
+  clientName: string;
+  allocation: bigint;
+  isNew: boolean;
+}
+
+interface ChartEntry {
+  week: string;
+  allocationsToDate: number;
+  totalAllocations: number;
+  allocations: Allocation[];
+}
+
 export function AllocatorAllocationsWidget({
   allocatorId,
   ...rest
 }: AllocatorAllocationsWidgetProps) {
+  const parameters: FetchAllocatorAllocationsParameters = {
+    allocatorId,
+    showAllocations: true,
+    groupBy: "week",
+    showEmptyPeriods: false,
+  };
+
   const { data } = useSWR(
-    [QueryKey.ALLOCATOR_BY_ID, allocatorId],
-    ([, allocatorId]) => {
-      return getAllocatorById(allocatorId);
+    [QueryKey.ALLOCATOR_ALLOCATIONS, parameters],
+    ([, fetchParameters]) => {
+      return fetchAllocatorAllocations(fetchParameters);
     },
     {
       keepPreviousData: true,
     }
   );
 
-  const chartData = useMemo(() => {
-    if (!data) return [];
-    const groupedByHeight = groupBy(
-      data.data.sort((a, b) => a.createdAtHeight - b.createdAtHeight),
-      (val) => val.createdAtHeight
-    );
+  const chartData = useMemo<ChartEntry[]>(() => {
+    if (!data) {
+      return [];
+    }
 
-    const newData = [] as {
-      name: string;
-      value: number;
-      allocationValue: number;
-      clients: IClient[];
-    }[];
-
-    Object.entries(groupedByHeight).forEach(([key, value], index) => {
-      const totalDatacap = newData[index - 1]?.value || 0;
-      const valueParsed = value.reduce(
-        (acc, val) => acc + +val.initialAllowance,
-        0
-      );
-      newData.push({
-        name: key,
-        value: totalDatacap + valueParsed,
-        allocationValue: valueParsed,
-        clients: value,
+    const clientsPairs = data.flatMap((item) => {
+      return item.newClients.map<[string, string]>((newClient) => {
+        return [newClient.client, newClient.clientName ?? newClient.client];
       });
     });
 
-    return newData;
+    const clientsMap = Object.fromEntries(clientsPairs);
+
+    return data.map<ChartEntry>((item) => {
+      const allocations = item.newAllocations
+        ? item.newAllocations.map<Allocation>((newAllocation) => {
+            return {
+              client: newAllocation.client,
+              clientName:
+                clientsMap[newAllocation.client] ?? newAllocation.client,
+              allocation: BigInt(newAllocation.allocation),
+              isNew:
+                item.newClients.findIndex((newClient) => {
+                  return newClient.client === newAllocation.client;
+                }) !== -1,
+            };
+          })
+        : [];
+
+      const totalAllocations = allocations.reduce((total, item) => {
+        return total + item.allocation;
+      }, 0n);
+
+      return {
+        week: item.date,
+        allocationsToDate: Number(BigInt(item.totalAllocationsToDate)),
+        totalAllocations: Number(totalAllocations),
+        allocations,
+      };
+    });
   }, [data]);
+
+  const formatXAxisTick = useCallback((value: unknown) => {
+    if (typeof value !== "string") {
+      return String(value);
+    }
+
+    return weekToReadableString(weekFromDate(value));
+  }, []);
+
+  const formatYAxisTick = useCallback((value: unknown) => {
+    if (typeof value !== "number") {
+      return String(value);
+    }
+
+    return filesize(value, { standard: "iec" });
+  }, []);
 
   return (
     <Card {...rest}>
-      <div className="p-4">
+      <div className="p-4 mb-6">
         <header>
           <h3 className="text-xl font-medium">Allocation Over Time</h3>
         </header>
       </div>
-      <div>
+      <div className="px-4">
         <ResponsiveContainer width="100%" height={500} debounce={150}>
-          <ComposedChart
-            data={chartData}
-            margin={{ top: 40, right: 50, left: 20, bottom: 20 }}
-          >
+          <ComposedChart data={chartData}>
             <XAxis
-              dataKey="name"
-              tick={{
-                fontSize: 12,
-                fontWeight: 500,
-                fill: "var(--muted-foreground)",
-              }}
-              tickFormatter={(value) => calculateDateFromHeight(value)}
+              dataKey="week"
+              fontSize={12}
+              tickFormatter={formatXAxisTick}
             />
             <YAxis
-              dataKey="value"
               domain={[0, "dataMax"]}
-              tickFormatter={(value) => convertBytesToIEC(value)}
-              tick={{
-                fontSize: 12,
-                fontWeight: 500,
-                fill: "var(--muted-foreground)",
-              }}
+              fontSize={12}
+              width="auto"
+              tickFormatter={formatYAxisTick}
             />
             <Tooltip content={renderTooltip} />
             <Area
-              name="Allocations over time"
+              name="Allocations Over Time"
               type="monotone"
-              dataKey="value"
+              dataKey="allocationsToDate"
               stroke={palette(64)}
               fill={palette(64)}
             />
-            <Bar dataKey="allocationValue" fill={palette(0)} />
+            <Bar dataKey="totalAllocations" fill={palette(0)} maxBarSize={32} />
           </ComposedChart>
         </ResponsiveContainer>
       </div>
@@ -131,29 +172,37 @@ const renderTooltip = (props: TooltipContentProps<ValueType, NameType>) => {
   if (!payload) {
     return <></>;
   }
-  const { name, value, clients } = payload;
+  const { week, allocationsToDate, allocations } = payload;
 
   return (
-    <Card key={props?.payload?.length}>
-      <CardHeader className="flex flex-col items-start gap-1">
-        <CardTitle>{calculateDateFromHeight(name)}</CardTitle>
-        <CardTitle>
-          Total Allocations to Date: {convertBytesToIEC(value)}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="flex flex-col items-start gap-1">
-        <CardTitle>New Clients:</CardTitle>
-        {(clients as IClient[]).map((client) => (
-          <div key={client.id} className="flex flex-col gap-1">
-            <div>
-              <span className="font-semibold text-dodger-blue">
-                {client.name}
-              </span>{" "}
-              - {convertBytesToIEC(client.initialAllowance)}
-            </div>
-          </div>
+    <ChartTooltipContainer>
+      <ChartTooltipHeader>
+        <ChartTooltipTitle>
+          {weekToReadableString(weekFromDate(week))}
+        </ChartTooltipTitle>
+        <p className="text-sm text-muted-foreground">
+          Total Allocations to Date:{" "}
+          <span className="font-semibold">
+            {filesize(allocationsToDate, { standard: "iec" })}
+          </span>
+        </p>
+      </ChartTooltipHeader>
+
+      <ul>
+        {(allocations as Allocation[]).map((allocation) => (
+          <li key={allocation.client}>
+            <span className="font-semibold text-dodger-blue">
+              {allocation.clientName}
+            </span>{" "}
+            - {filesize(allocation.allocation, { standard: "iec" })}
+            {allocation.isNew && (
+              <span className="text-[10px] font-semibold px-2 py-1 bg-dodger-blue/50 border border-dodger-blue rounded-full ml-2">
+                New Client
+              </span>
+            )}
+          </li>
         ))}
-      </CardContent>
-    </Card>
+      </ul>
+    </ChartTooltipContainer>
   );
 };
