@@ -816,3 +816,67 @@ export async function fetchAllocatorReports({
 
   return json;
 }
+
+// Allocator's allocations
+export interface FetchAllocatorAllocationsParameters {
+  allocatorId: string;
+  groupBy?: "week" | "month";
+  showEmptyPeriods?: boolean;
+  showAllocations?: boolean;
+}
+
+export type FetchAllocatorAllocationsReturnType = z.infer<
+  typeof allocatorAllocationsResponseSchema
+>;
+
+const allocatorAllocationsResponseSchema = z.array(
+  z.object({
+    date: z.string().datetime(),
+    totalAllocationsToDate: numericalStringSchema,
+    clientsToDate: z.array(
+      z.object({
+        client: z.string(),
+        allocationsToDate: z.string(),
+      })
+    ),
+    newClients: z.array(
+      z.object({
+        client: z.string(),
+        clientName: z.string().nullable(),
+        allocationsToDate: numericalStringSchema,
+      })
+    ),
+    newAllocations: z
+      .array(
+        z.object({
+          client: z.string(),
+          allocation: numericalStringSchema,
+        })
+      )
+      .nullable(),
+  })
+);
+
+export async function fetchAllocatorAllocations({
+  allocatorId,
+  ...restOfParameters
+}: FetchAllocatorAllocationsParameters): Promise<FetchAllocatorAllocationsReturnType> {
+  const searchParams = objectToURLSearchParams(restOfParameters, true);
+  const endpoint = `${CDP_API_URL}/allocators/${allocatorId}/allocations?${searchParams.toString()}`;
+  const response = await fetch(endpoint);
+
+  throwHTTPErrorOrSkip(
+    response,
+    `CDP API returned status code ${response.status} when fetching allocation over time; URL: ${endpoint}`
+  );
+
+  const json = await response.json();
+
+  assertSchema(
+    json,
+    allocatorAllocationsResponseSchema,
+    `CDP API return invalid data when fetching allocation over time; URL: ${endpoint}`
+  );
+
+  return json as FetchAllocatorAllocationsReturnType;
+}
