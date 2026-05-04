@@ -47,7 +47,7 @@ export interface RpaResultCodesHistogramWidgetProps extends CardProps {
 type Results = Record<string, { count: number; percentage: number }>;
 
 interface ChartDataEntry {
-  date: string;
+  dates: string;
   results: Results;
 }
 
@@ -86,7 +86,7 @@ function getColorForResultCode(
 ): string {
   switch (resultCode) {
     case otherGroupKey:
-      return disabledColor;
+      return `rgba(0, 0, 0, 0.2)`;
     case RpaResultCode.SUCCESS:
       return "#66a61e";
     default:
@@ -115,7 +115,7 @@ export function RpaResultCodesHistogramWidget({
       return [otherGroupKey];
     }
 
-    return [otherGroupKey, ...Object.keys(data.metadata)];
+    return [...Object.keys(data.metadata), otherGroupKey];
   }, [data]);
 
   const testedStorageProvidersStat = useMemo<
@@ -156,7 +156,7 @@ export function RpaResultCodesHistogramWidget({
       return [];
     }
 
-    return data.days.map<ChartDataEntry>((day) => {
+    return data.days.map<ChartDataEntry>((day, index, input) => {
       const results = day.results.reduce<Results>((acc, item) => {
         if (disabledResultCodes.includes(item.code)) {
           const currentOtherGroup = acc[otherGroupKey];
@@ -164,8 +164,12 @@ export function RpaResultCodesHistogramWidget({
           return {
             ...acc,
             [otherGroupKey]: {
-              count: currentOtherGroup?.count ?? 0 + item.count,
-              percentage: currentOtherGroup?.percentage ?? 0 + item.percentage,
+              count: currentOtherGroup
+                ? currentOtherGroup.count + item.count
+                : item.count,
+              percentage: currentOtherGroup
+                ? currentOtherGroup.percentage + item.percentage
+                : item.percentage,
             },
           };
         }
@@ -176,35 +180,32 @@ export function RpaResultCodesHistogramWidget({
         };
       }, {});
 
+      const dateParsed = new Date(day.day);
+      const longDate = isValidDate(dateParsed)
+        ? dateFormatter.format(dateParsed)
+        : day.day;
+      const previousEntry = index !== 0 ? input.at(index - 1) : undefined;
+      const shortDate =
+        !!previousEntry && isSameMonth(dateParsed, previousEntry.day)
+          ? dateParsed.getDate().toString()
+          : `${dateParsed.getDate()} ${dateMonthFormatter.format(dateParsed)}`;
+
       return {
-        date: day.day,
+        dates: `${longDate};${shortDate}`,
+        shortDate,
         results,
       };
     }, []);
   }, [data, disabledResultCodes]);
 
-  const formatXAxisTick = useCallback(
-    (value: unknown, index: number) => {
-      if (typeof value !== "string" && typeof value !== "number") {
-        return String(value);
-      }
+  const formatXAxisTick = useCallback((value: string) => {
+    const [, shortDate] = value.split(";");
+    return shortDate;
+  }, []);
 
-      const date = new Date(value);
-      const previousEntry = chartData[index - 1];
-      return !!previousEntry && isSameMonth(date, previousEntry.date)
-        ? date.getDate().toString()
-        : `${date.getDate()} ${dateMonthFormatter.format(date)}`;
-    },
-    [chartData]
-  );
-
-  const formatDate = useCallback((value: unknown) => {
-    if (typeof value !== "string") {
-      return String(value);
-    }
-
-    const date = new Date(value);
-    return isValidDate(date) ? dateFormatter.format(date) : String(date);
+  const formatDate = useCallback((value: string) => {
+    const [longDate] = value.split(";");
+    return longDate;
   }, []);
 
   const formatValue = useCallback((value: string | number) => {
@@ -294,8 +295,9 @@ export function RpaResultCodesHistogramWidget({
             }}
           >
             <XAxis
-              dataKey="date"
+              dataKey="dates"
               fontSize={12}
+              interval="equidistantPreserveStart"
               tickFormatter={formatXAxisTick}
             />
             <YAxis
