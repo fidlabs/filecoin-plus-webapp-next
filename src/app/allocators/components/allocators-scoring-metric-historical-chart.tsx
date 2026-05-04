@@ -69,7 +69,7 @@ export function AllocatorsScoringMetricHistoricalChart({
 }: AllocatorsScoringMetricHistoricalChartProps) {
   const chartData = useMemo(() => {
     if (data.length >= minIntervalsCount) {
-      return data.toReversed().slice(-minIntervalsCount);
+      return data.slice(-minIntervalsCount);
     }
 
     const now = new UTCDate();
@@ -78,7 +78,7 @@ export function AllocatorsScoringMetricHistoricalChart({
 
     return [...Array(minIntervalsCount)]
       .map<ChartEntry>((_, index) => {
-        const dataEntry = data[index];
+        const dataEntry = data.at(index - 1);
 
         if (dataEntry) {
           return dataEntry;
