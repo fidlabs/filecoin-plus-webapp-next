@@ -77,7 +77,7 @@ export function ChartTooltipGrid<
         return (
           <div key={innerPayload.dataKey ?? index}>
             <p
-              className="text-lg font-medium"
+              className="text-lg font-medium drop-shadow-md"
               style={{
                 color: innerPayload.color,
               }}

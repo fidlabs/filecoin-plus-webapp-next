@@ -12,6 +12,7 @@ import { getAllocators, getClients, getStorageProviders } from "@/lib/api";
 import {
   AllocatorsPageSectionId,
   ClientsPageSectionId,
+  PoRepPageSectionId,
   StorageProvidersPageSectionId,
 } from "@/lib/constants";
 import { IAllocatorsResponse } from "@/lib/interfaces/dmob/allocator.interface";
@@ -335,6 +336,18 @@ const defaultActions = [
       "diversity",
     ],
     link: `/storage-providers#${StorageProvidersPageSectionId.CLIENT_DIVERSITY}`,
+  },
+  {
+    name: "PoRep Market Dasshboard",
+    group: "PoRep",
+    tags: ["porep", "po-rep"],
+    link: "/po-rep",
+  },
+  {
+    name: "PoRep Market Participating Providers",
+    group: "PoRep",
+    tags: ["porep", "po-rep", "providers", "list"],
+    link: `/po-rep#${PoRepPageSectionId.PARTICIPATING_STORAGE_PROVIDERS}`,
   },
 ] as Action[];
 

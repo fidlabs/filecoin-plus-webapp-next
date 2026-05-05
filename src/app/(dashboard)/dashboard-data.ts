@@ -1,14 +1,14 @@
 import { CDP_API_URL } from "@/lib/constants";
 import { throwHTTPErrorOrSkip } from "@/lib/http-errors";
 import {
-  AllocatorsDashboardStatistic,
+  type AllocatorsDashboardStatistic,
   AllocatorsDashboardStatisticType,
   cdpAllocatorsStatisticsResponseSchema,
   cdpClientsStatisticsResponseSchema,
   cdpStorageProvidersStatisticsResponseSchema,
-  ClientsDashboardStatistic,
+  type ClientsDashboardStatistic,
   ClientsDashboardStatisticType,
-  StorageProvidersDashboardStatistic,
+  type StorageProvidersDashboardStatistic,
   StorageProvidersDashboardStatisticType,
 } from "@/lib/schemas";
 import { assertSchema, objectToURLSearchParams } from "@/lib/utils";
