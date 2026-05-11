@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { QueryKey } from "@/lib/constants";
 import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
-import { cn, isValidDate, palette } from "@/lib/utils";
+import { cn, isSameMonth, isValidDate, palette } from "@/lib/utils";
 import { get } from "lodash";
 import {
   type ComponentProps,
@@ -51,8 +51,6 @@ interface ChartDataEntry {
   results: Results;
 }
 
-type DateLike = Date | string | number;
-
 const disabledColor = "#AAA";
 const otherGroupKey = "Other";
 const dateMonthFormatter = new Intl.DateTimeFormat("en-US", {
@@ -67,18 +65,6 @@ const percentageFormatter = new Intl.NumberFormat("en-US", {
   style: "percent",
   maximumFractionDigits: 2,
 });
-
-function isSameMonth(a: DateLike, b: DateLike): boolean {
-  const dateA = new Date(a);
-  const dateB = new Date(b);
-
-  return (
-    isValidDate(dateA) &&
-    isValidDate(dateB) &&
-    dateA.getMonth() === dateB.getMonth() &&
-    dateA.getFullYear() === dateB.getFullYear()
-  );
-}
 
 function getColorForResultCode(
   resultCode: string,

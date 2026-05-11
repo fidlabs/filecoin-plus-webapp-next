@@ -148,3 +148,18 @@ export const cdpStorageProvidersStatisticsResponseSchema = z.array(
 export type CdpStorageProvidersStatisticsResponse = z.infer<
   typeof cdpStorageProvidersStatisticsResponseSchema
 >;
+
+export enum PoRepDashboardStatisticType {
+  TOTAL_DEALS_DONE = "TOTAL_DEALS_DONE",
+  TOTAL_FIL_PAID = "TOTAL_FIL_PAID",
+}
+
+export const poRepDashboardStatisticSchema = z.intersection(
+  dashboardStatisticSchema,
+  z.object({
+    type: z.string(),
+  })
+);
+export type PoRepDashboardStatistic = z.infer<
+  typeof poRepDashboardStatisticSchema
+>;

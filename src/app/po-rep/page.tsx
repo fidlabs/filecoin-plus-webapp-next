@@ -1,0 +1,98 @@
+import { BackToTop } from "@/components/back-to-top";
+import { Container } from "@/components/container";
+import { PageHeader, PageTitle } from "@/components/page-header";
+import {
+  IdBasedStickyTabNaviation,
+  type IdBasedStickyTabNaviationProps,
+} from "@/components/sticky-tab-navigation";
+import { Button } from "@/components/ui/button";
+import { PoRepPageSectionId, QueryKey } from "@/lib/constants";
+import Link from "next/link";
+// import { PoRepStatisticsWidget } from "./components/po-rep-statistics-widget";
+import { PoRepParticipantsWidget } from "./components/po-rep-participants-widget";
+import {
+  fetchPoRepProviders,
+  FetchPoRepProvidersParameters,
+} from "./po-rep-data";
+import { SWRConfig, unstable_serialize } from "swr";
+// import { SLAPerformanceWidget } from "./components/sla-performance-widget";
+// import { PoRepLeaderboardsWidget } from "./components/po-rep-leaderboards-widget";
+// import { RPASLIWidget } from "./components/rpa-sli-widget";
+// import { BandwidthSLIWidget } from "./components/bandwidth-sli-widget";
+// import { TTFBSLIWidget } from "./components/ttfb-sli-widget";
+// import { AveragePriceWidget } from "./components/average-price-widget";
+// import { PoRepDCAllocatedWidget } from "./components/po-rep-dc-allocated-widget";
+// import { PoRepMoneyFlowWidget } from "./components/po-rep-money-flow-widget";
+
+const sectionTabs = {
+  // [PoRepPageSectionId.STATS]: "Statistics",
+  [PoRepPageSectionId.PARTICIPATING_STORAGE_PROVIDERS]: "Participating SPs",
+  // [PoRepPageSectionId.SLA_PERFORMANCE_SCORE]: "SLA Performance",
+  // [PoRepPageSectionId.SLA_RANKING]: "SLA Ranking",
+  // [PoRepPageSectionId.RPA]: "RPA",
+  // [PoRepPageSectionId.BANDWIDTH]: "Bandwidth",
+  // [PoRepPageSectionId.TTFB]: "TTFB",
+  // [PoRepPageSectionId.AVERAGE_PRICE]: "Average Price",
+  // [PoRepPageSectionId.DC_ALLOCATED]: "DC Allocated",
+  // [PoRepPageSectionId.MONEY_FLOW]: "Money Flow",
+} as const satisfies IdBasedStickyTabNaviationProps["tabs"];
+
+const providersDefaultParameters: FetchPoRepProvidersParameters = {
+  page: 1,
+  limit: 5,
+};
+
+function unwrapResult<T>(result: PromiseSettledResult<T>): T | undefined {
+  return result.status === "fulfilled" ? result.value : undefined;
+}
+
+export default async function PoRepPage() {
+  const [providersResult] = await Promise.allSettled([
+    fetchPoRepProviders(providersDefaultParameters),
+  ]);
+
+  const fallback = {
+    [unstable_serialize([
+      QueryKey.PO_REP_PROVIDERS,
+      providersDefaultParameters,
+    ])]: unwrapResult(providersResult),
+  };
+
+  return (
+    <SWRConfig value={{ fallback }}>
+      <>
+        <PageHeader>
+          <PageTitle className="mb-4">PoRepMarket</PageTitle>
+          <Button
+            variant="outline"
+            asChild
+            className="bg-transparent rounded-full text-white hover:text-dodger-blue"
+          >
+            <Link
+              href="https://filecoin-provider-onboard.replit.app/"
+              target="_blank"
+            >
+              Register Now
+            </Link>
+          </Button>
+        </PageHeader>
+        <IdBasedStickyTabNaviation className="mb-8" tabs={sectionTabs} />
+        <Container className="flex flex-col gap-y-8">
+          {/* <PoRepStatisticsWidget id={PoRepPageSectionId.STATS} /> */}
+          <PoRepParticipantsWidget
+            id={PoRepPageSectionId.PARTICIPATING_STORAGE_PROVIDERS}
+          />
+          {/* <SLAPerformanceWidget id={PoRepPageSectionId.SLA_PERFORMANCE_SCORE} /> */}
+          {/* <PoRepLeaderboardsWidget id={PoRepPageSectionId.SLA_RANKING} /> */}
+          {/* <RPASLIWidget id={PoRepPageSectionId.RPA} /> */}
+          {/* <BandwidthSLIWidget id={PoRepPageSectionId.BANDWIDTH} /> */}
+          {/* <TTFBSLIWidget id={PoRepPageSectionId.TTFB} /> */}
+          {/* <AveragePriceWidget id={PoRepPageSectionId.AVERAGE_PRICE} /> */}
+          {/* <PoRepDCAllocatedWidget id={PoRepPageSectionId.DC_ALLOCATED} /> */}
+          {/* <PoRepMoneyFlowWidget id={PoRepPageSectionId.MONEY_FLOW} /> */}
+          <BackToTop />
+        </Container>
+      </>
+    </SWRConfig>
+  );
+}
