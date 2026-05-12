@@ -2,13 +2,16 @@
 
 import { DashboardStatisticDisplay } from "@/components/dashboard-statistic-display";
 import { StatisticsHeading } from "@/components/statistics-heading";
+import { QueryKey } from "@/lib/constants";
 import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
-import {
-  PoRepDashboardStatistic,
-  PoRepDashboardStatisticType,
-} from "@/lib/schemas";
+import { PoRepDashboardStatistic } from "@/lib/schemas";
 import { LoaderCircleIcon } from "lucide-react";
-import { type HTMLAttributes, useState } from "react";
+import { type HTMLAttributes, useEffect, useState } from "react";
+import useSWR from "swr";
+import {
+  fetchPoRepDashboardStatistics,
+  FetchPoRepDashboardStatisticsParameters,
+} from "../po-rep-data";
 
 export type PoRepStatisticsWidgetProps = Omit<
   HTMLAttributes<HTMLDivElement>,
@@ -20,38 +23,28 @@ type Interval = NonNullable<
 
 export function PoRepStatisticsWidget(props: PoRepStatisticsWidgetProps) {
   const [interval, setIntervalValue] = useState<Interval>("day");
-  const statistics: PoRepDashboardStatistic[] = [
-    {
-      type: PoRepDashboardStatisticType.TOTAL_DEALS_DONE,
-      title: "Total Deals Done",
-      description: null,
-      value: {
-        type: "numeric",
-        value: 1234,
-      },
-      percentageChange: {
-        value: 0.1234,
-        interval,
-        increaseNegative: false,
-      },
+  const parameters: FetchPoRepDashboardStatisticsParameters = {
+    interval,
+  };
+
+  const { data, error, isLoading, mutate } = useSWR(
+    [QueryKey.PO_REP_STATISTICS, parameters],
+    ([, fetchParameters]) => {
+      return fetchPoRepDashboardStatistics(fetchParameters);
     },
     {
-      type: PoRepDashboardStatisticType.TOTAL_FIL_PAID,
-      title: "Total FIL Paid",
-      description: null,
-      value: {
-        type: "numeric",
-        value: 4321,
-      },
-      percentageChange: {
-        value: 0.4321,
-        interval,
-        increaseNegative: false,
-      },
-    },
-  ];
-  const isLoading = false;
+      keepPreviousData: true,
+      revalidateOnMount: false,
+    }
+  );
   const isLongLoading = useDelayedFlag(isLoading, 200);
+  const statistics = data ?? [];
+
+  useEffect(() => {
+    if (!data && !error && !isLoading) {
+      mutate();
+    }
+  }, [data, error, isLoading, mutate]);
 
   return (
     <div {...props}>

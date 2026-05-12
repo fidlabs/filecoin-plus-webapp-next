@@ -8,9 +8,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { PoRepPageSectionId, QueryKey } from "@/lib/constants";
 import Link from "next/link";
-// import { PoRepStatisticsWidget } from "./components/po-rep-statistics-widget";
+import { PoRepStatisticsWidget } from "./components/po-rep-statistics-widget";
 import { PoRepParticipantsWidget } from "./components/po-rep-participants-widget";
 import {
+  fetchPoRepDashboardStatistics,
+  FetchPoRepDashboardStatisticsParameters,
+  fetchPoRepPaymentsHistory,
   fetchPoRepProviders,
   FetchPoRepProvidersParameters,
 } from "./po-rep-data";
@@ -22,10 +25,10 @@ import { SWRConfig, unstable_serialize } from "swr";
 // import { TTFBSLIWidget } from "./components/ttfb-sli-widget";
 // import { AveragePriceWidget } from "./components/average-price-widget";
 // import { PoRepDCAllocatedWidget } from "./components/po-rep-dc-allocated-widget";
-// import { PoRepMoneyFlowWidget } from "./components/po-rep-money-flow-widget";
+import { PoRepMoneyFlowWidget } from "./components/po-rep-money-flow-widget";
 
 const sectionTabs = {
-  // [PoRepPageSectionId.STATS]: "Statistics",
+  [PoRepPageSectionId.STATS]: "Statistics",
   [PoRepPageSectionId.PARTICIPATING_STORAGE_PROVIDERS]: "Participating SPs",
   // [PoRepPageSectionId.SLA_PERFORMANCE_SCORE]: "SLA Performance",
   // [PoRepPageSectionId.SLA_RANKING]: "SLA Ranking",
@@ -34,8 +37,12 @@ const sectionTabs = {
   // [PoRepPageSectionId.TTFB]: "TTFB",
   // [PoRepPageSectionId.AVERAGE_PRICE]: "Average Price",
   // [PoRepPageSectionId.DC_ALLOCATED]: "DC Allocated",
-  // [PoRepPageSectionId.MONEY_FLOW]: "Money Flow",
+  [PoRepPageSectionId.MONEY_FLOW]: "Money Flow",
 } as const satisfies IdBasedStickyTabNaviationProps["tabs"];
+
+const statisticsDefaultParameters: FetchPoRepDashboardStatisticsParameters = {
+  interval: "day",
+};
 
 const providersDefaultParameters: FetchPoRepProvidersParameters = {
   page: 1,
@@ -47,22 +54,30 @@ function unwrapResult<T>(result: PromiseSettledResult<T>): T | undefined {
 }
 
 export default async function PoRepPage() {
-  const [providersResult] = await Promise.allSettled([
-    fetchPoRepProviders(providersDefaultParameters),
-  ]);
+  const [statisticsResult, providersResult, paymentsHistoryResult] =
+    await Promise.allSettled([
+      fetchPoRepDashboardStatistics(statisticsDefaultParameters),
+      fetchPoRepProviders(providersDefaultParameters),
+      fetchPoRepPaymentsHistory(),
+    ]);
 
   const fallback = {
+    [unstable_serialize([
+      QueryKey.PO_REP_STATISTICS,
+      statisticsDefaultParameters,
+    ])]: unwrapResult(statisticsResult),
     [unstable_serialize([
       QueryKey.PO_REP_PROVIDERS,
       providersDefaultParameters,
     ])]: unwrapResult(providersResult),
+    [QueryKey.PO_REP_PAYMENTS_HISTORY]: unwrapResult(paymentsHistoryResult),
   };
 
   return (
     <SWRConfig value={{ fallback }}>
       <>
         <PageHeader>
-          <PageTitle className="mb-4">PoRepMarket</PageTitle>
+          <PageTitle className="mb-4">PoRep Market</PageTitle>
           <Button
             variant="outline"
             asChild
@@ -78,7 +93,7 @@ export default async function PoRepPage() {
         </PageHeader>
         <IdBasedStickyTabNaviation className="mb-8" tabs={sectionTabs} />
         <Container className="flex flex-col gap-y-8">
-          {/* <PoRepStatisticsWidget id={PoRepPageSectionId.STATS} /> */}
+          <PoRepStatisticsWidget id={PoRepPageSectionId.STATS} />
           <PoRepParticipantsWidget
             id={PoRepPageSectionId.PARTICIPATING_STORAGE_PROVIDERS}
           />
@@ -89,7 +104,7 @@ export default async function PoRepPage() {
           {/* <TTFBSLIWidget id={PoRepPageSectionId.TTFB} /> */}
           {/* <AveragePriceWidget id={PoRepPageSectionId.AVERAGE_PRICE} /> */}
           {/* <PoRepDCAllocatedWidget id={PoRepPageSectionId.DC_ALLOCATED} /> */}
-          {/* <PoRepMoneyFlowWidget id={PoRepPageSectionId.MONEY_FLOW} /> */}
+          <PoRepMoneyFlowWidget id={PoRepPageSectionId.MONEY_FLOW} />
           <BackToTop />
         </Container>
       </>

@@ -15,15 +15,19 @@ type SLI = SLIs[number];
 type SLIType = SLI["type"];
 
 export interface ProviderSLIsGridProps extends DivProps {
+  providerId: string;
   slis: SLIs;
 }
 
 interface SLIProps {
+  providerId: string;
   sli: SLI;
 }
 
 interface ChangeChartProps {
   data: SLI["measuredValues"];
+  providerId: string;
+  sliType: SLI["type"];
   variant: "positive" | "negative";
 }
 
@@ -64,7 +68,11 @@ const dateFormatter = new Intl.DateTimeFormat("en-US", {
   year: "numeric",
 });
 
-export function ProviderSLIsGrid({ className, slis }: ProviderSLIsGridProps) {
+export function ProviderSLIsGrid({
+  className,
+  providerId,
+  slis,
+}: ProviderSLIsGridProps) {
   return (
     <div
       className={cn(
@@ -73,13 +81,13 @@ export function ProviderSLIsGrid({ className, slis }: ProviderSLIsGridProps) {
       )}
     >
       {slis.map((sli) => (
-        <SLI key={sli.type} sli={sli} />
+        <SLI key={sli.type} sli={sli} providerId={providerId} />
       ))}
     </div>
   );
 }
 
-function SLI({ sli }: SLIProps) {
+function SLI({ providerId, sli }: SLIProps) {
   const measuredValue = sli.measuredValues.at(0);
   const previousValue = sli.measuredValues.at(1);
   const showWarning =
@@ -98,11 +106,8 @@ function SLI({ sli }: SLIProps) {
       : measuredValue.value / previousValue.value - 1;
   }, [measuredValue, previousValue]);
 
-  const hasIncreased =
-    !!measuredValue &&
-    !!previousValue &&
-    measuredValue.value >= previousValue.value;
-  const hasImproved = sli.type === "latencyMs" ? !hasIncreased : hasIncreased;
+  const hasImproved =
+    change !== null && (sli.type === "latencyMs" ? change < 0 : change > 0);
 
   return (
     <div>
@@ -139,7 +144,13 @@ function SLI({ sli }: SLIProps) {
           <>
             <ChangeChart
               data={sli.measuredValues.toReversed()}
-              variant={hasImproved ? "positive" : "negative"}
+              providerId={providerId}
+              sliType={sli.type}
+              variant={
+                hasImproved || change === null || change === 0
+                  ? "positive"
+                  : "negative"
+              }
             />
             {change !== null && (
               <TooltipProvider>
@@ -148,8 +159,8 @@ function SLI({ sli }: SLIProps) {
                     <p
                       className={cn(
                         "text-sm text-muted-foreground",
-                        change >= 0 && "text-green-600",
-                        change < 0 && "text-red-500"
+                        change !== 0 && hasImproved && "text-green-600",
+                        change !== 0 && !hasImproved && "text-red-500"
                       )}
                     >
                       {changeFormatter.format(change)}
@@ -171,12 +182,14 @@ function SLI({ sli }: SLIProps) {
   );
 }
 
-function ChangeChart({ data, variant }: ChangeChartProps) {
+function ChangeChart({ data, providerId, sliType, variant }: ChangeChartProps) {
+  const gradientId = `${providerId}_${sliType}_${variant}_fillColor`;
+
   return (
     <ResponsiveContainer height={30} width={50}>
       <AreaChart data={data}>
         <defs>
-          <linearGradient id="fillColor" x1="0" y1="0" x2="0" y2="1">
+          <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
             <stop offset="5%" stopColor={colors[variant]} stopOpacity={0.8} />
             <stop offset="95%" stopColor={colors[variant]} stopOpacity={0} />
           </linearGradient>
@@ -187,7 +200,7 @@ function ChangeChart({ data, variant }: ChangeChartProps) {
           animationDuration={150}
           activeDot={false}
           fillOpacity={1}
-          fill="url(#fillColor)"
+          fill={`url(#${gradientId})`}
           dataKey="value"
           stroke={colors[variant]}
         />
