@@ -45,7 +45,9 @@ export enum QueryKey {
   STORAGE_PROVIDER_RPA_METRIC_HISTOGRAM = "storage_provider_rpa_metric_histogram",
   RPA_RESULT_CODES_HISTOGRAM = "rpa_result_codes_histogram",
   RPA_METRIC_HISTOGRAM = "rpa_metric_histogram",
+  PO_REP_STATISTICS = "po_rep_statistics",
   PO_REP_PROVIDERS = "po_rep_providers",
+  PO_REP_PAYMENTS_HISTORY = "po_rep_payments_history",
 }
 
 export enum DashboardPageSectionId {

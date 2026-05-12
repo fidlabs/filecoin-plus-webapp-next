@@ -115,7 +115,11 @@ export function PoRepParticipantsWidget(props: PoRepParticipantsWidgetProps) {
                 </div>
               </header>
 
-              <ProviderSLIsGrid className="mb-4" slis={provider.slis} />
+              <ProviderSLIsGrid
+                className="mb-4"
+                providerId={provider.providerId}
+                slis={provider.slis}
+              />
 
               <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-4">
                 {[

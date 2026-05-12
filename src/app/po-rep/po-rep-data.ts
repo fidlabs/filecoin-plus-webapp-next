@@ -1,5 +1,9 @@
 import { CDP_API_URL } from "@/lib/constants";
 import { throwHTTPErrorOrSkip } from "@/lib/http-errors";
+import {
+  CdpPoRepStatisticsResponse,
+  cdpPoRepStatisticsResponseSchema,
+} from "@/lib/schemas";
 import { assertSchema, objectToURLSearchParams } from "@/lib/utils";
 import { numericalStringSchema } from "@/lib/zod-extensions";
 import { z } from "zod";
@@ -38,6 +42,37 @@ const paginationSchema = z.object({
   limit: z.number().optional(),
   pages: z.number().optional(),
 });
+
+// Statistics
+export interface FetchPoRepDashboardStatisticsParameters {
+  interval?: "day" | "week" | "month";
+}
+
+export type FetchPoRepDashboardStatisticsReturnType =
+  CdpPoRepStatisticsResponse;
+
+export async function fetchPoRepDashboardStatistics(
+  parameters?: FetchPoRepDashboardStatisticsParameters
+): Promise<FetchPoRepDashboardStatisticsReturnType> {
+  const searchParams = objectToURLSearchParams(parameters ?? {});
+  const endpoint = `${CDP_API_URL}/po-rep/statistics?${searchParams.toString()}`;
+  const response = await fetch(endpoint);
+
+  throwHTTPErrorOrSkip(
+    response,
+    `CDP API returned status ${response.status} when fetching PoRep statistics; URL: ${endpoint}`
+  );
+
+  const json = await response.json();
+
+  assertSchema(
+    json,
+    cdpPoRepStatisticsResponseSchema,
+    `CDP API returned invalid response when fetching PoRep statistics; URL: ${endpoint}`
+  );
+
+  return json;
+}
 
 // Providers
 export type FetchPoRepProvidersParameters = PaginationParameters;
@@ -96,4 +131,37 @@ export async function fetchPoRepProviders(
   );
 
   return json as FetchPoRepProvidersReturnType;
+}
+
+// Payments history
+export type FetchPoRepPaymentsHistoryReturnType = z.infer<
+  typeof poRepPaymentsHistoryResponseSchema
+>;
+
+const poRepPaymentsHistoryResponseSchema = z.array(
+  z.object({
+    day: z.string().date(),
+    dailyAmountUSD: z.number(),
+    cumulativeAmountUSD: z.number(),
+  })
+);
+
+export async function fetchPoRepPaymentsHistory(): Promise<FetchPoRepPaymentsHistoryReturnType> {
+  const endpoint = `${CDP_API_URL}/po-rep/payments-history`;
+  const response = await fetch(endpoint);
+
+  throwHTTPErrorOrSkip(
+    response,
+    `CDP API returned response status "${response.status}" when fetchin Po-Rep payments history; URL: ${endpoint}`
+  );
+
+  const json = await response.json();
+
+  assertSchema(
+    json,
+    poRepPaymentsHistoryResponseSchema,
+    `Invalid response from CDP API when fetching Po-Rep payments history; URL: ${endpoint}`
+  );
+
+  return json;
 }

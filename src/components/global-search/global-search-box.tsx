@@ -338,16 +338,28 @@ const defaultActions = [
     link: `/storage-providers#${StorageProvidersPageSectionId.CLIENT_DIVERSITY}`,
   },
   {
-    name: "PoRep Market Dasshboard",
+    name: "PoRep Market Dashboard",
     group: "PoRep",
     tags: ["porep", "po-rep"],
     link: "/po-rep",
+  },
+  {
+    name: "PoRep Market Statistics",
+    group: "PoRep",
+    tags: ["porep", "po-rep", "statistics"],
+    link: `/po-rep#${PoRepPageSectionId.STATS}`,
   },
   {
     name: "PoRep Market Participating Providers",
     group: "PoRep",
     tags: ["porep", "po-rep", "providers", "list"],
     link: `/po-rep#${PoRepPageSectionId.PARTICIPATING_STORAGE_PROVIDERS}`,
+  },
+  {
+    name: "PoRep Market Money Flow",
+    group: "PoRep",
+    tags: ["porep", "po-rep", "money", "flow", "payments", "history"],
+    link: `/po-rep#${PoRepPageSectionId.MONEY_FLOW}`,
   },
 ] as Action[];
 
