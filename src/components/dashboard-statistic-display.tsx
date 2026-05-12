@@ -124,9 +124,9 @@ function formatDashboardStatisticValue(
     );
 
     if (
-      dashboardStatistic.type === PoRepDashboardStatisticType.TOTAL_FIL_PAID
+      dashboardStatistic.type === PoRepDashboardStatisticType.TOTAL_USD_PAID
     ) {
-      return `${numericString} FIL`;
+      return `${numericString} USD`;
     }
 
     return numericString;
