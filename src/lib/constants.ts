@@ -47,6 +47,8 @@ export enum QueryKey {
   RPA_METRIC_HISTOGRAM = "rpa_metric_histogram",
   PO_REP_STATISTICS = "po_rep_statistics",
   PO_REP_PROVIDERS = "po_rep_providers",
+  PO_REP_ONBOARDED_DATA_HISTORY = "po_rep_onboarded_data_history",
+  PO_REP_DEALS_VALUE_HISTORY = "po_rep_deals_value_history",
   PO_REP_PAYMENTS_HISTORY = "po_rep_payments_history",
 }
 
@@ -124,6 +126,8 @@ export enum PoRepPageSectionId {
   TTFB = "ttfb",
   AVERAGE_PRICE = "average-price",
   DC_ALLOCATED = "dc-allocated",
+  ONBOARDED_DATA = "onboarded-data",
+  DEALS_VALUE = "deals-value",
   MONEY_FLOW = "money-flow",
 }
 

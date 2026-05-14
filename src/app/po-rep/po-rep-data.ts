@@ -22,6 +22,10 @@ type PaginationParameters =
   | EmptyPaginationParameters
   | FilledPaginationParameters;
 
+interface HistoricalChartParameters {
+  windowSize?: "day" | "week" | "month";
+}
+
 const poRepSLITypes = [
   "retrievabilityBps",
   "bandwidthMbps",
@@ -119,7 +123,7 @@ export async function fetchPoRepProviders(
 
   throwHTTPErrorOrSkip(
     response,
-    `CDP API returned response status "${response.status}" when fetchin Po-Rep Providers; URL: ${endpoint}`
+    `CDP API returned response status "${response.status}" when fetching Po-Rep Providers; URL: ${endpoint}`
   );
 
   const json = await response.json();
@@ -133,21 +137,100 @@ export async function fetchPoRepProviders(
   return json as FetchPoRepProvidersReturnType;
 }
 
+// Onboarded data history
+export type FetchPoRepOnboardedDataHistoryParameters =
+  HistoricalChartParameters;
+export type FetchPoRepOnboardedDataHistoryReturnType = z.infer<
+  typeof poRepOnboardedDataHistoryResponseSchema
+>;
+
+const poRepOnboardedDataHistoryResponseSchema = z.array(
+  z.object({
+    date: z.string().date(),
+    volume: z.string(),
+    cumulativeTotal: z.string(),
+  })
+);
+
+export async function fetchPoRepOnboardedDataHistory(
+  parameters: FetchPoRepOnboardedDataHistoryParameters = {}
+): Promise<FetchPoRepOnboardedDataHistoryReturnType> {
+  const searchParams = objectToURLSearchParams(parameters, true);
+  const endpoint = `${CDP_API_URL}/po-rep/onboarded-data-history?${searchParams.toString()}`;
+  const response = await fetch(endpoint);
+
+  throwHTTPErrorOrSkip(
+    response,
+    `CDP API returned response status "${response.status}" when fetching Po-Rep onboarded data history; URL: ${endpoint}`
+  );
+
+  const json = await response.json();
+
+  assertSchema(
+    json,
+    poRepOnboardedDataHistoryResponseSchema,
+    `Invalid response from CDP API when fetching Po-Rep onboarded data history; URL: ${endpoint}`
+  );
+
+  return json;
+}
+
+// Deals value history
+export type FetchPoRepDealsValueHistoryParameters = HistoricalChartParameters;
+export type FetchPoRepDealsValueHistoryReturnType = z.infer<
+  typeof poRepDealsValueHistoryResponseSchema
+>;
+
+const poRepDealsValueHistoryResponseSchema = z.array(
+  z.object({
+    date: z.string().date(),
+    volumeUSD: z.number(),
+    cumulativeTotalUSD: z.number(),
+  })
+);
+
+export async function fetchPoRepDealsValueHistory(
+  parameters: FetchPoRepDealsValueHistoryParameters = {}
+): Promise<FetchPoRepDealsValueHistoryReturnType> {
+  const searchParams = objectToURLSearchParams(parameters, true);
+  const endpoint = `${CDP_API_URL}/po-rep/deals-value-history?${searchParams.toString()}`;
+  const response = await fetch(endpoint);
+
+  throwHTTPErrorOrSkip(
+    response,
+    `CDP API returned response status "${response.status}" when fetching Po-Rep deals value history; URL: ${endpoint}`
+  );
+
+  const json = await response.json();
+
+  assertSchema(
+    json,
+    poRepDealsValueHistoryResponseSchema,
+    `Invalid response from CDP API when fetching Po-Rep deals value history; URL: ${endpoint}`
+  );
+
+  return json;
+}
+
 // Payments history
+export type FetchPoRepPaymentsHistoryParameters = HistoricalChartParameters;
 export type FetchPoRepPaymentsHistoryReturnType = z.infer<
   typeof poRepPaymentsHistoryResponseSchema
 >;
 
 const poRepPaymentsHistoryResponseSchema = z.array(
   z.object({
-    day: z.string().date(),
+    date: z.string().date(),
     dailyAmountUSD: z.number(),
     cumulativeAmountUSD: z.number(),
   })
 );
 
-export async function fetchPoRepPaymentsHistory(): Promise<FetchPoRepPaymentsHistoryReturnType> {
-  const endpoint = `${CDP_API_URL}/po-rep/payments-history`;
+export async function fetchPoRepPaymentsHistory(
+  parameters: FetchPoRepPaymentsHistoryParameters = {}
+): Promise<FetchPoRepPaymentsHistoryReturnType> {
+  const searchParams = objectToURLSearchParams(parameters, true);
+  const endpoint = `${CDP_API_URL}/po-rep/payments-history?${searchParams.toString()}`;
   const response = await fetch(endpoint);
 
   throwHTTPErrorOrSkip(

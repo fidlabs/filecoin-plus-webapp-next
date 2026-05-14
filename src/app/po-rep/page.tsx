@@ -13,7 +13,12 @@ import { PoRepParticipantsWidget } from "./components/po-rep-participants-widget
 import {
   fetchPoRepDashboardStatistics,
   FetchPoRepDashboardStatisticsParameters,
+  fetchPoRepDealsValueHistory,
+  FetchPoRepDealsValueHistoryParameters,
+  fetchPoRepOnboardedDataHistory,
+  FetchPoRepOnboardedDataHistoryParameters,
   fetchPoRepPaymentsHistory,
+  FetchPoRepPaymentsHistoryParameters,
   fetchPoRepProviders,
   FetchPoRepProvidersParameters,
 } from "./po-rep-data";
@@ -26,6 +31,8 @@ import { SWRConfig, unstable_serialize } from "swr";
 // import { AveragePriceWidget } from "./components/average-price-widget";
 // import { PoRepDCAllocatedWidget } from "./components/po-rep-dc-allocated-widget";
 import { PoRepMoneyFlowWidget } from "./components/po-rep-money-flow-widget";
+import { PoRepOnboardedDataHistoryWidget } from "./components/po-rep-onboarded-data-history-widget";
+import { PoRepDealsValueHistoryWidget } from "./components/po-rep-deals-value-history-widget";
 
 const sectionTabs = {
   [PoRepPageSectionId.STATS]: "Statistics",
@@ -37,6 +44,7 @@ const sectionTabs = {
   // [PoRepPageSectionId.TTFB]: "TTFB",
   // [PoRepPageSectionId.AVERAGE_PRICE]: "Average Price",
   // [PoRepPageSectionId.DC_ALLOCATED]: "DC Allocated",
+  [PoRepPageSectionId.ONBOARDED_DATA]: "Onboarded Data",
   [PoRepPageSectionId.MONEY_FLOW]: "Money Flow",
 } as const satisfies IdBasedStickyTabNaviationProps["tabs"];
 
@@ -49,17 +57,38 @@ const providersDefaultParameters: FetchPoRepProvidersParameters = {
   limit: 5,
 };
 
+const onboardedDataHistoryDefaultParameters: FetchPoRepOnboardedDataHistoryParameters =
+  {
+    windowSize: "day",
+  };
+
+const dealsValueHistoryDefaultParameters: FetchPoRepDealsValueHistoryParameters =
+  {
+    windowSize: "day",
+  };
+
+const paymentsHistoryDefaultParameters: FetchPoRepPaymentsHistoryParameters = {
+  windowSize: "day",
+};
+
 function unwrapResult<T>(result: PromiseSettledResult<T>): T | undefined {
   return result.status === "fulfilled" ? result.value : undefined;
 }
 
 export default async function PoRepPage() {
-  const [statisticsResult, providersResult, paymentsHistoryResult] =
-    await Promise.allSettled([
-      fetchPoRepDashboardStatistics(statisticsDefaultParameters),
-      fetchPoRepProviders(providersDefaultParameters),
-      fetchPoRepPaymentsHistory(),
-    ]);
+  const [
+    statisticsResult,
+    providersResult,
+    onboardedDataHistoryResult,
+    dealsValueHistoryResult,
+    paymentsHistoryResult,
+  ] = await Promise.allSettled([
+    fetchPoRepDashboardStatistics(statisticsDefaultParameters),
+    fetchPoRepProviders(providersDefaultParameters),
+    fetchPoRepOnboardedDataHistory(onboardedDataHistoryDefaultParameters),
+    fetchPoRepDealsValueHistory(dealsValueHistoryDefaultParameters),
+    fetchPoRepPaymentsHistory(paymentsHistoryDefaultParameters),
+  ]);
 
   const fallback = {
     [unstable_serialize([
@@ -70,7 +99,18 @@ export default async function PoRepPage() {
       QueryKey.PO_REP_PROVIDERS,
       providersDefaultParameters,
     ])]: unwrapResult(providersResult),
-    [QueryKey.PO_REP_PAYMENTS_HISTORY]: unwrapResult(paymentsHistoryResult),
+    [unstable_serialize([
+      QueryKey.PO_REP_ONBOARDED_DATA_HISTORY,
+      onboardedDataHistoryDefaultParameters,
+    ])]: unwrapResult(onboardedDataHistoryResult),
+    [unstable_serialize([
+      QueryKey.PO_REP_DEALS_VALUE_HISTORY,
+      dealsValueHistoryDefaultParameters,
+    ])]: unwrapResult(dealsValueHistoryResult),
+    [unstable_serialize([
+      QueryKey.PO_REP_PAYMENTS_HISTORY,
+      paymentsHistoryDefaultParameters,
+    ])]: unwrapResult(paymentsHistoryResult),
   };
 
   return (
@@ -104,6 +144,10 @@ export default async function PoRepPage() {
           {/* <TTFBSLIWidget id={PoRepPageSectionId.TTFB} /> */}
           {/* <AveragePriceWidget id={PoRepPageSectionId.AVERAGE_PRICE} /> */}
           {/* <PoRepDCAllocatedWidget id={PoRepPageSectionId.DC_ALLOCATED} /> */}
+          <PoRepOnboardedDataHistoryWidget
+            id={PoRepPageSectionId.ONBOARDED_DATA}
+          />
+          <PoRepDealsValueHistoryWidget id={PoRepPageSectionId.DEALS_VALUE} />
           <PoRepMoneyFlowWidget id={PoRepPageSectionId.MONEY_FLOW} />
           <BackToTop />
         </Container>
