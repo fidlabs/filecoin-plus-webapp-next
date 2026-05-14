@@ -45,6 +45,11 @@ export enum QueryKey {
   STORAGE_PROVIDER_RPA_METRIC_HISTOGRAM = "storage_provider_rpa_metric_histogram",
   RPA_RESULT_CODES_HISTOGRAM = "rpa_result_codes_histogram",
   RPA_METRIC_HISTOGRAM = "rpa_metric_histogram",
+  PO_REP_STATISTICS = "po_rep_statistics",
+  PO_REP_PROVIDERS = "po_rep_providers",
+  PO_REP_ONBOARDED_DATA_HISTORY = "po_rep_onboarded_data_history",
+  PO_REP_DEALS_VALUE_HISTORY = "po_rep_deals_value_history",
+  PO_REP_PAYMENTS_HISTORY = "po_rep_payments_history",
 }
 
 export enum DashboardPageSectionId {
@@ -109,6 +114,21 @@ export enum StorageProviderDetailsPageSectionId {
   RETRIEVABILITY = "retrievability",
   TTFB = "ttfb",
   BANDWIDTH = "bandwidth",
+}
+
+export enum PoRepPageSectionId {
+  STATS = "stats",
+  PARTICIPATING_STORAGE_PROVIDERS = "participating-sps",
+  SLA_PERFORMANCE_SCORE = "sla-performance",
+  SLA_RANKING = "sla-ranking",
+  RPA = "rpa",
+  BANDWIDTH = "bandwidth",
+  TTFB = "ttfb",
+  AVERAGE_PRICE = "average-price",
+  DC_ALLOCATED = "dc-allocated",
+  ONBOARDED_DATA = "onboarded-data",
+  DEALS_VALUE = "deals-value",
+  MONEY_FLOW = "money-flow",
 }
 
 export const CHECKS_BREAKDOWN_INTERVAL_PARAM_KEY = "interval";

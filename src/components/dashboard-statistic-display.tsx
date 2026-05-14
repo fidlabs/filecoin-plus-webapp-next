@@ -8,11 +8,13 @@ import { useSingleClickHandler } from "@/lib/hooks/use-single-click-handler";
 import {
   AllocatorsDashboardStatisticType,
   ClientsDashboardStatisticType,
+  PoRepDashboardStatisticType,
   StorageProvidersDashboardStatisticType,
   type AllocatorsDashboardStatistic,
   type ClientsDashboardStatistic,
   type DashboardStatistic,
   type DashboardStatisticDurationValue,
+  type PoRepDashboardStatistic,
   type StorageProvidersDashboardStatistic,
 } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
@@ -30,7 +32,8 @@ import { Skeleton } from "./ui/skeleton";
 type AnyDashboardStatistic =
   | AllocatorsDashboardStatistic
   | ClientsDashboardStatistic
-  | StorageProvidersDashboardStatistic;
+  | StorageProvidersDashboardStatistic
+  | PoRepDashboardStatistic;
 
 interface Link {
   label: ReactNode;
@@ -116,7 +119,17 @@ function formatDashboardStatisticValue(
   }
 
   if (dashboardStatistic.value.type === "numeric") {
-    return numericFormatter.format(dashboardStatistic.value.value);
+    const numericString = numericFormatter.format(
+      dashboardStatistic.value.value
+    );
+
+    if (
+      dashboardStatistic.type === PoRepDashboardStatisticType.TOTAL_USD_PAID
+    ) {
+      return `${numericString} USD`;
+    }
+
+    return numericString;
   }
 
   return String(dashboardStatistic.value.value);

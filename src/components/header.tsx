@@ -57,6 +57,10 @@ const navigation: Array<NavigationItem | NavigationGroup> = [
     path: "/about",
   },
   {
+    label: "PoRep",
+    path: "/po-rep",
+  },
+  {
     label: "Ecosystem",
     items: [
       {

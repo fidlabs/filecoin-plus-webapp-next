@@ -17,6 +17,8 @@ export type OnlyPropsMatchingType<T, V> = {
 
 export type ArrayElement<T> = T extends readonly unknown[] ? T[number] : never;
 
+type DateLike = Date | string | number;
+
 const filExponent = 10n ** 18n; // 10 to power of 18 decimal places
 const filBalanceNumberFormatter = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 4,
@@ -380,6 +382,7 @@ export function assertSchema<T>(
   const result = schema.safeParse(input);
 
   if (result.error) {
+    console.warn(result.error.errors);
     throw new TypeError(message);
   }
 }
@@ -394,4 +397,16 @@ export function formatFilBalance(balance: number): string {
 
 export function isValidDate(input: unknown): input is Date {
   return input instanceof Date && !isNaN(Number(input));
+}
+
+export function isSameMonth(a: DateLike, b: DateLike): boolean {
+  const dateA = new Date(a);
+  const dateB = new Date(b);
+
+  return (
+    isValidDate(dateA) &&
+    isValidDate(dateB) &&
+    dateA.getMonth() === dateB.getMonth() &&
+    dateA.getFullYear() === dateB.getFullYear()
+  );
 }
