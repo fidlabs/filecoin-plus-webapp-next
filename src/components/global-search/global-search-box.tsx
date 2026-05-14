@@ -356,6 +356,18 @@ const defaultActions = [
     link: `/po-rep#${PoRepPageSectionId.PARTICIPATING_STORAGE_PROVIDERS}`,
   },
   {
+    name: "PoRep Market Onboarded Data",
+    group: "PoRep",
+    tags: ["porep", "po-rep", "onboarded", "data"],
+    link: `/po-rep#${PoRepPageSectionId.ONBOARDED_DATA}`,
+  },
+  {
+    name: "PoRep Market Deals Value",
+    group: "PoRep",
+    tags: ["porep", "po-rep", "deals", "value"],
+    link: `/po-rep#${PoRepPageSectionId.DEALS_VALUE}`,
+  },
+  {
     name: "PoRep Market Money Flow",
     group: "PoRep",
     tags: ["porep", "po-rep", "money", "flow", "payments", "history"],

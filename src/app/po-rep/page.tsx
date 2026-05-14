@@ -45,6 +45,7 @@ const sectionTabs = {
   // [PoRepPageSectionId.AVERAGE_PRICE]: "Average Price",
   // [PoRepPageSectionId.DC_ALLOCATED]: "DC Allocated",
   [PoRepPageSectionId.ONBOARDED_DATA]: "Onboarded Data",
+  [PoRepPageSectionId.DEALS_VALUE]: "Deals Value",
   [PoRepPageSectionId.MONEY_FLOW]: "Money Flow",
 } as const satisfies IdBasedStickyTabNaviationProps["tabs"];
 
