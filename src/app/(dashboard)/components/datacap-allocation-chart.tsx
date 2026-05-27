@@ -2,9 +2,11 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ActiveShapeSimple } from "@/components/ui/pie-active-shape";
-import { IFilPlusStats } from "@/lib/interfaces/dmob/dmob.interface";
-import { convertBytesToIEC, palette } from "@/lib/utils";
-import { memo, useCallback, useMemo, useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { QueryKey } from "@/lib/constants";
+import { cn, palette } from "@/lib/utils";
+import { filesize } from "filesize";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Cell,
   Pie,
@@ -18,14 +20,31 @@ import {
   NameType,
   ValueType,
 } from "recharts/types/component/DefaultTooltipContent";
+import useSWR from "swr";
+import { fetchDatacapUsageInfo } from "../dashboard-data";
 
-interface Props {
-  data: IFilPlusStats;
-}
+const percentageFormatter = new Intl.NumberFormat("en-US", {
+  style: "percent",
+  maximumFractionDigits: 2,
+});
 
-const Component = ({ data }: Props) => {
-  const [chartDataParsing, setChartDataParsing] = useState(true);
+export function DatacapAllocationChart() {
   const [activeTooltipIndex, setActiveTooltipIndex] = useState(-1);
+
+  const { data, error, isLoading, mutate } = useSWR(
+    QueryKey.ALLOCATORS_DATACAP_USAGE_INFO,
+    fetchDatacapUsageInfo,
+    {
+      keepPreviousData: true,
+      revalidateOnMount: false,
+    }
+  );
+
+  useEffect(() => {
+    if (!data && !error && !isLoading) {
+      mutate();
+    }
+  }, [data, error, isLoading, mutate]);
 
   const handlePieEnter = useCallback<NonNullable<PieProps["onMouseEnter"]>>(
     (_data, index) => {
@@ -40,68 +59,63 @@ const Component = ({ data }: Props) => {
     setActiveTooltipIndex(() => -1);
   }, []);
 
-  const renderTooltip = (props: TooltipContentProps<ValueType, NameType>) => {
-    const payload = props?.payload?.[0]?.payload;
-    if (!payload) {
-      return <></>;
-    }
-    const { name, value } = payload;
+  const formatBytes = useCallback(
+    (input: string | bigint | number | Array<string | number>) => {
+      if (Array.isArray(input)) {
+        return String(input);
+      }
 
-    return (
-      <Card key={props?.payload?.length}>
-        <CardHeader className="flex flex-col items-start gap-1">
-          <CardTitle>{name}</CardTitle>
-          <CardTitle></CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col items-start gap-1">
-          {convertBytesToIEC(value)}
-        </CardContent>
-      </Card>
-    );
-  };
+      return filesize(input, { standard: "iec" });
+    },
+    []
+  );
+
+  const renderTooltip = useCallback(
+    (props: TooltipContentProps<ValueType, NameType>) => {
+      const payload = props?.payload?.[0]?.payload;
+      if (!payload) {
+        return <></>;
+      }
+      const { label, value } = payload;
+
+      return (
+        <Card key={props?.payload?.length}>
+          <CardHeader className="pb-2">
+            <CardTitle>{label}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-lg font-semibold">{formatBytes(value)}</p>
+          </CardContent>
+        </Card>
+      );
+    },
+    [formatBytes]
+  );
 
   const chartData = useMemo(() => {
     if (!data) {
-      return undefined;
+      return [];
     }
-    setChartDataParsing(true);
-
-    const { totalDcGivenToAllocators, totalDcUsedByAllocators } = data;
-    const usedDataCapNum = +totalDcUsedByAllocators;
-    const availableDataCapNum =
-      +totalDcGivenToAllocators - +totalDcUsedByAllocators;
-
-    if (isNaN(usedDataCapNum) || isNaN(availableDataCapNum)) {
-      return undefined;
-    }
-
-    setChartDataParsing(false);
 
     return [
       {
-        name: "Allocated",
-        value: usedDataCapNum,
-        percent: (usedDataCapNum / +totalDcGivenToAllocators) * 100,
+        label: "Allocated",
+        value: Number(BigInt(data.usedDatacap.value)),
       },
       {
-        name: "Available",
-        value: availableDataCapNum,
-        percent: (availableDataCapNum / +totalDcGivenToAllocators) * 100,
+        label: "Available",
+        value: Number(BigInt(data.remainingDatacap.value)),
       },
     ];
   }, [data]);
 
-  const isLoading = useMemo(() => {
-    return chartDataParsing;
-  }, [chartDataParsing]);
-
-  const totalDc = useMemo(() => {
-    if (!data) {
-      return ["", ""];
-    }
-
-    return convertBytesToIEC(data?.totalDcGivenToAllocators).split(" ");
-  }, [data]);
+  const totalDatacap = data
+    ? BigInt(data.usedDatacap.value) + BigInt(data.remainingDatacap.value)
+    : 0n;
+  const summaryItems = [
+    ["Used DataCap Allowance", data?.usedDatacap],
+    ["Remaining DataCap Allowance", data?.remainingDatacap],
+  ] as const;
 
   return (
     <Card>
@@ -126,12 +140,8 @@ const Component = ({ data }: Props) => {
                 onMouseEnter={handlePieEnter}
                 onMouseLeave={handlePieLeave}
               >
-                {chartData?.map((_entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={index === 0 ? palette(index) : "#E7E7E7"}
-                  />
-                ))}
+                <Cell fill={palette(0)} />
+                <Cell fill="#E7E7E7" />
               </Pie>
               <foreignObject
                 x="calc(50% - 75px)"
@@ -140,14 +150,20 @@ const Component = ({ data }: Props) => {
                 height="150"
               >
                 <div className="flex flex-col items-center justify-center w-[150px] h-[150px]">
-                  <div className="flex items-end gap-1">
-                    <p className="text-3xl">{totalDc[0]}</p>
-                    <p className="text-sm">{totalDc[1]}</p>
-                  </div>
+                  {data ? (
+                    <p className="text-3xl">{formatBytes(totalDatacap)}</p>
+                  ) : (
+                    <Skeleton className="w-[90px] h-9" />
+                  )}
                   <p className="text-xs text-muted-foreground">Total DataCap</p>
                 </div>
               </foreignObject>
-              <Tooltip content={renderTooltip} active defaultIndex={0} />
+              <Tooltip
+                content={renderTooltip}
+                formatter={formatBytes}
+                active
+                defaultIndex={0}
+              />
               <Tooltip
                 content={() => null}
                 defaultIndex={activeTooltipIndex}
@@ -156,43 +172,38 @@ const Component = ({ data }: Props) => {
             </PieChart>
           </ResponsiveContainer>
         )}
-        {chartData && (
-          <div className="w-full flex flex-col gap-4">
-            <div className="flex items-start justify-between gap-2 w-full">
+
+        <div className="flex flex-col gap-4 w-full">
+          {summaryItems.map(([label, entry], index) => (
+            <div key={index} className="flex items-start justify-between gap-2">
               <div className="flex gap-2 items-center">
-                <div className="w-[10px] h-[10px] bg-dodger-blue rounded-full" />
-                <p className="text-sm">Used DataCap Allowance</p>
+                <div
+                  className={cn(
+                    "w-[10px] h-[10px] bg-dodger-blue rounded-full",
+                    index !== 0 && "bg-[#E7E7E7]"
+                  )}
+                />
+                <p className="text-sm">{label}</p>
               </div>
               <div className="flex flex-col items-end">
-                <p className="text-sm">
-                  {convertBytesToIEC(chartData[0].value)}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {chartData[0].percent.toFixed(2)}%
-                </p>
+                {entry ? (
+                  <p className="text-sm">{formatBytes(entry.value)}</p>
+                ) : (
+                  <Skeleton className="w-[50px] h-[14px] my-[3px]" />
+                )}
+
+                {entry ? (
+                  <p className="text-xs text-muted-foreground">
+                    {percentageFormatter.format(entry.percentage)}
+                  </p>
+                ) : (
+                  <Skeleton className="w-[50px] h-[16px] my-[2px]" />
+                )}
               </div>
             </div>
-            <div className="flex items-start justify-between gap-2 w-full">
-              <div className="flex gap-2 items-center">
-                <div className="w-[10px] h-[10px] bg-[#E7E7E7] rounded-full" />
-                <p className="text-sm">Remaining DataCap Allowance</p>
-              </div>
-              <div className="flex flex-col items-end">
-                <p className="text-sm">
-                  {convertBytesToIEC(chartData[1].value)}
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  {chartData[1].percent.toFixed(2)}%
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
+          ))}
+        </div>
       </CardContent>
     </Card>
   );
-};
-
-const DatacapAllocationChart = memo(Component);
-
-export { DatacapAllocationChart };
+}

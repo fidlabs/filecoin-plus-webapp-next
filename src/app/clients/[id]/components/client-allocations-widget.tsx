@@ -23,8 +23,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { QueryKey } from "@/lib/constants";
-import { calculateDateFromHeight, cn } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import { filesize } from "filesize";
+import { groupBy } from "lodash";
 import Link from "next/link";
 import { type ComponentProps, useCallback, useMemo, useState } from "react";
 import {
@@ -51,7 +52,7 @@ interface ChartEntry {
 interface AllocationsTableEntry {
   allocatorId: string;
   totalSize: bigint;
-  date: string | null;
+  date: string;
 }
 
 interface AllocatorsTableEntry {
@@ -95,25 +96,29 @@ export function ClientAllocationsWidget({
       return [];
     }
 
-    return allocationsResponse.data
-      .flatMap((client) => client.allowanceArray)
-      .sort((a, b) => {
-        return a.height - b.height;
-      })
-      .reduce<ChartEntry[]>((result, allowanceArrayEntry, currentIndex) => {
+    return allocationsResponse
+      .reduce<ChartEntry[]>((result, item, currentIndex) => {
         const total =
-          currentIndex > 0 ? BigInt(result[currentIndex - 1].totalDatacap) : 0n;
-        const allowance = BigInt(allowanceArrayEntry.allowance);
+          currentIndex > 0
+            ? (result.at(currentIndex - 1)?.totalDatacap ?? 0)
+            : 0;
+        const allowance = Number(BigInt(item.datacapAmount));
 
         const entry: ChartEntry = {
-          date: calculateDateFromHeight(allowanceArrayEntry.height),
-          allocatorId: allowanceArrayEntry.verifierAddressId,
-          allocatedDatacap: Number(allowance),
-          totalDatacap: Number(total + allowance),
+          date: item.timestamp,
+          allocatorId: item.allocatorId,
+          allocatedDatacap: allowance,
+          totalDatacap: total + allowance,
         };
 
         return [...result, entry];
-      }, []);
+      }, [])
+      .toSorted((a, b) => {
+        const dateA = new Date(a.date).valueOf();
+        const dateB = new Date(b.date).valueOf();
+
+        return dateA - dateB;
+      });
   }, [allocationsResponse]);
 
   const allocationsTableData = useMemo<AllocationsTableEntry[]>(() => {
@@ -121,17 +126,19 @@ export function ClientAllocationsWidget({
       return [];
     }
 
-    return allocationsResponse.data
-      .flatMap((client) => client.allowanceArray)
-      .sort((a, b) => {
-        return b.height - a.height;
-      })
-      .map<AllocationsTableEntry>((allowanceArrayEntry) => {
+    return allocationsResponse
+      .map<AllocationsTableEntry>((item) => {
         return {
-          allocatorId: allowanceArrayEntry.verifierAddressId,
-          totalSize: BigInt(allowanceArrayEntry.allowance),
-          date: calculateDateFromHeight(allowanceArrayEntry.height),
+          allocatorId: item.allocatorId,
+          totalSize: BigInt(item.datacapAmount),
+          date: item.timestamp,
         };
+      })
+      .toSorted((a, b) => {
+        const dateA = new Date(a.date).valueOf();
+        const dateB = new Date(b.date).valueOf();
+
+        return dateB - dateA;
       });
   }, [allocationsResponse]);
 
@@ -140,12 +147,20 @@ export function ClientAllocationsWidget({
       return [];
     }
 
-    return allocationsResponse.data.map<AllocatorsTableEntry>((entry) => {
-      return {
-        allocatorId: entry.verifierAddressId,
-        totalSize: BigInt(entry.initialAllowance),
-      };
-    });
+    const groupedData = groupBy(allocationsResponse, (i) => i.allocatorId);
+
+    return Object.entries(groupedData).map<AllocatorsTableEntry>(
+      ([allocatorId, allocations]) => {
+        const totalSize = allocations.reduce((sum, allocation) => {
+          return sum + BigInt(allocation.datacapAmount);
+        }, 0n);
+
+        return {
+          allocatorId,
+          totalSize,
+        };
+      }
+    );
   }, [allocationsResponse]);
 
   const handleChartMouseMove = useCallback<CategoricalChartFunc>((state) => {

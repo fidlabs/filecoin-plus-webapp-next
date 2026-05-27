@@ -1,4 +1,6 @@
 "use client";
+
+import { ChartTooltip } from "@/components/chart-tooltip";
 import {
   Card,
   CardContent,
@@ -6,60 +8,71 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ChartTooltip } from "@/components/ui/chart";
-import { IFilDCAllocationsWeekly } from "@/lib/interfaces/dmob/dmob.interface";
-import { convertBytesToIEC, palette } from "@/lib/utils";
+import { ChartLoader } from "@/components/ui/chart-loader";
+import { QueryKey } from "@/lib/constants";
+import { palette } from "@/lib/utils";
 import { weekToReadableString } from "@/lib/weeks";
-import { memo, useMemo } from "react";
+import { filesize } from "filesize";
+import { useCallback, useEffect, useMemo } from "react";
 import {
   Legend,
   Line,
   LineChart,
   ResponsiveContainer,
-  TooltipContentProps,
+  Tooltip,
   XAxis,
   YAxis,
 } from "recharts";
-import {
-  NameType,
-  ValueType,
-} from "recharts/types/component/DefaultTooltipContent";
+import useSWR from "swr";
 import { useMediaQuery } from "usehooks-ts";
+import { fetchCumulativeAllocationsHistory } from "../dashboard-data";
 
-interface Props {
-  data: IFilDCAllocationsWeekly;
+interface ChartDataEntry {
+  name: string;
+  value: number;
 }
 
-const Component = ({ data }: Props) => {
+export function DatacapAllocationWeeklyChart() {
   const isDesktop = useMediaQuery("(min-width: 768px)");
-
-  const chartData = useMemo(() => {
-    const normalData: {
-      name: string;
-      value: number;
-    }[] = [];
-
-    if (data) {
-      Object.keys(data).forEach((yearKey) => {
-        const year = parseInt(yearKey);
-        const yearObj = data[yearKey];
-
-        Object.keys(yearObj).forEach((weekKey) => {
-          const weekNumber = parseInt(weekKey);
-
-          if (year === 2024 && weekNumber < 17) {
-            return;
-          }
-
-          normalData.push({
-            name: weekToReadableString({ year, weekNumber }),
-            value: +yearObj[weekKey],
-          });
-        });
-      });
+  const { data, error, isLoading, mutate } = useSWR(
+    QueryKey.ALLOCATORS_CUMULATIVE_ALLOCATIONS_HISTORY,
+    fetchCumulativeAllocationsHistory,
+    {
+      keepPreviousData: true,
+      revalidateOnMount: false,
     }
-    return normalData;
+  );
+
+  useEffect(() => {
+    if (!data && !error && !isLoading) {
+      mutate();
+    }
+  }, [data, error, isLoading, mutate]);
+
+  const chartData = useMemo<ChartDataEntry[]>(() => {
+    if (!data) {
+      return [];
+    }
+
+    return data.map(({ year, week: weekNumber, cumulativeTotal }) => {
+      return {
+        name: weekToReadableString({ year, weekNumber }),
+        value: Number(BigInt(cumulativeTotal)),
+      };
+    });
   }, [data]);
+
+  const formatBytes = useCallback((value: unknown) => {
+    if (
+      typeof value === "bigint" ||
+      typeof value === "number" ||
+      typeof value === "string"
+    ) {
+      return filesize(value, { standard: "iec" });
+    }
+
+    return String(value);
+  }, []);
 
   return (
     <Card>
@@ -70,92 +83,78 @@ const Component = ({ data }: Props) => {
         </CardDescription>
       </CardHeader>
       <CardContent className="flex w-full items-center justify-center">
-        {!chartData && <p>Error loading data</p>}
-        {chartData && (
-          <ResponsiveContainer
-            width="100%"
-            aspect={isDesktop ? 1.77 : 16 / chartData.length}
-            debounce={500}
+        {!!error && !isLoading && <p>Error loading data</p>}
+        <ResponsiveContainer
+          width="100%"
+          aspect={isDesktop ? 1.77 : 16 / chartData.length}
+          debounce={500}
+        >
+          {isLoading && <ChartLoader />}
+
+          <LineChart
+            data={chartData}
+            layout={isDesktop ? "horizontal" : "vertical"}
+            margin={{ right: 50, left: 20, bottom: 84 }}
           >
-            <LineChart
-              data={chartData}
-              layout={isDesktop ? "horizontal" : "vertical"}
-              margin={{ right: 50, left: 20, bottom: 84 }}
-            >
-              {isDesktop && (
-                <XAxis
-                  dataKey="name"
-                  interval={1}
-                  minTickGap={0}
-                  tick={<CustomizedAxisTick />}
-                />
-              )}
-              {isDesktop && (
-                <YAxis
-                  dataKey="value"
-                  domain={["dataMin", "dataMax"]}
-                  tickFormatter={(value) => convertBytesToIEC(value)}
-                  tick={{
-                    fontSize: 12,
-                    fontWeight: 500,
-                    fill: "var(--muted-foreground)",
-                  }}
-                />
-              )}
-              {!isDesktop && (
-                <YAxis
-                  dataKey="name"
-                  type="category"
-                  interval={0}
-                  minTickGap={0}
-                  tick={<CustomizedAxisTickMobile />}
-                />
-              )}
-              {!isDesktop && (
-                <XAxis
-                  dataKey="value"
-                  type="number"
-                  domain={["dataMin", "dataMax"]}
-                  tickFormatter={(value) => convertBytesToIEC(value)}
-                  tick={{
-                    fontSize: 12,
-                    fontWeight: 500,
-                    fill: "var(--muted-foreground)",
-                  }}
-                />
-              )}
-              <ChartTooltip
-                content={(props: TooltipContentProps<ValueType, NameType>) => {
-                  return (
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>{props.label}</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        {convertBytesToIEC(
-                          props?.payload?.[0]?.value?.toString() ?? 0
-                        )}
-                      </CardContent>
-                    </Card>
-                  );
+            {isDesktop && (
+              <XAxis
+                dataKey="name"
+                interval={1}
+                minTickGap={0}
+                tick={<CustomizedAxisTick />}
+              />
+            )}
+            {isDesktop && (
+              <YAxis
+                dataKey="value"
+                domain={["dataMin", "dataMax"]}
+                tickFormatter={formatBytes}
+                tick={{
+                  fontSize: 12,
+                  fontWeight: 500,
+                  fill: "var(--muted-foreground)",
                 }}
               />
-              <Legend align="center" verticalAlign="top" />
-              <Line
-                isAnimationActive={false}
-                layout={isDesktop ? "horizontal" : "vertical"}
-                name="DataCap used per week"
-                type="monotone"
-                dataKey="value"
-                stroke={palette(0)}
+            )}
+            {!isDesktop && (
+              <YAxis
+                dataKey="name"
+                type="category"
+                interval={0}
+                minTickGap={0}
+                tick={<CustomizedAxisTickMobile />}
               />
-            </LineChart>
-          </ResponsiveContainer>
-        )}
+            )}
+            {!isDesktop && (
+              <XAxis
+                dataKey="value"
+                type="number"
+                domain={["dataMin", "dataMax"]}
+                tickFormatter={formatBytes}
+                tick={{
+                  fontSize: 12,
+                  fontWeight: 500,
+                  fill: "var(--muted-foreground)",
+                }}
+              />
+            )}
+            <Tooltip content={ChartTooltip} formatter={formatBytes} />
+            <Legend align="center" verticalAlign="top" />
+            <Line
+              isAnimationActive={false}
+              layout={isDesktop ? "horizontal" : "vertical"}
+              name="Cumulative Total Allocated Datacap"
+              type="monotone"
+              dataKey="value"
+              stroke={palette(0)}
+              dot={false}
+            />
+          </LineChart>
+        </ResponsiveContainer>
       </CardContent>
     </Card>
   );
-};
+}
 
 const CustomizedAxisTick = (props: {
   x?: number;
@@ -219,7 +218,3 @@ const CustomizedAxisTickMobile = (props: {
     </g>
   );
 };
-
-const DatacapAllocationWeeklyChart = memo(Component);
-
-export { DatacapAllocationWeeklyChart };

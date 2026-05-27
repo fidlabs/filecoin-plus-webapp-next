@@ -3,12 +3,6 @@ import { Container } from "@/components/container";
 import { DatacapFlowWidget } from "@/components/datacap-flow-widget";
 import { JsonLd } from "@/components/json.ld";
 import { PageHeader, PageSubtitle, PageTitle } from "@/components/page-header";
-import {
-  getAllocators,
-  getDataCapAllocationsWeekly,
-  getDataCapAllocationsWeeklyByClient,
-  getStats,
-} from "@/lib/api";
 import { QueryKey } from "@/lib/constants";
 import { WebPage, WithContext } from "schema-dts";
 import { SWRConfig, unstable_serialize } from "swr";
@@ -38,18 +32,6 @@ function unwrapResult<T>(result: PromiseSettledResult<T>): T | undefined {
 }
 
 export default async function Home() {
-  const [stats, allocationWeekly, allocationWeeklyByClient, allocators] =
-    await Promise.all([
-      getStats(),
-      getDataCapAllocationsWeekly(),
-      getDataCapAllocationsWeeklyByClient(),
-      getAllocators({
-        page: "1",
-        limit: "999999",
-        showInactive: "true",
-      }),
-    ]);
-
   const [statisticsResult] = await Promise.allSettled([
     fetchDashboardStatistics(statisticsDefaultParameters),
   ]);
@@ -77,12 +59,7 @@ export default async function Home() {
           </PageHeader>
           <Container className="flex flex-col gap-6 w-full">
             <DashboardStatistics />
-            <Charts
-              stats={stats}
-              allocationWeekly={allocationWeekly}
-              allocationWeeklyByClient={allocationWeeklyByClient}
-              allocators={allocators}
-            />
+            <Charts />
             <DatacapFlowWidget className="mb-28" />
           </Container>
         </main>

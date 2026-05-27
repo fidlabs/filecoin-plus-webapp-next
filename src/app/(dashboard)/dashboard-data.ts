@@ -12,8 +12,9 @@ import {
   StorageProvidersDashboardStatisticType,
 } from "@/lib/schemas";
 import { assertSchema, objectToURLSearchParams } from "@/lib/utils";
+import { numericalStringSchema } from "@/lib/zod-extensions";
 import { identity } from "lodash";
-import { type ZodType } from "zod";
+import { z, type ZodType } from "zod";
 
 type DashboardStatistic =
   | AllocatorsDashboardStatistic
@@ -73,4 +74,106 @@ export async function fetchDashboardStatistics(
   return responses
     .flatMap<DashboardStatistic>(identity)
     .filter((statistic) => shownStatisticsTypes.includes(statistic.type));
+}
+
+// Datacap usage info
+export type FetchDatacapUsageInfoReturnType = z.infer<
+  typeof datacapUsageInfoResponseSchema
+>;
+
+const datacapUsageValueSchema = z.object({
+  value: numericalStringSchema,
+  percentage: z.number(),
+});
+const datacapUsageInfoResponseSchema = z.object({
+  usedDatacap: datacapUsageValueSchema,
+  remainingDatacap: datacapUsageValueSchema,
+});
+
+export async function fetchDatacapUsageInfo(): Promise<FetchDatacapUsageInfoReturnType> {
+  const endpoint = `${CDP_API_URL}/allocators/datacap-usage-info`;
+  const response = await fetch(endpoint);
+
+  throwHTTPErrorOrSkip(
+    response,
+    `CDP API returned status ${response.status} when fetching datacap usage info; URL: ${endpoint}`
+  );
+
+  const data = await response.json();
+
+  assertSchema(
+    data,
+    datacapUsageInfoResponseSchema,
+    `Invalid response from CDP when fetching datacap usage info; URL: ${endpoint}`
+  );
+
+  return data as FetchDatacapUsageInfoReturnType;
+}
+
+// Cumulative allocations history
+export type FetchCumulativeAllocationsHistoryReturnType = z.infer<
+  typeof cumulativeAllocationsResponseSchema
+>;
+
+const cumulativeAllocationsResponseSchema = z.array(
+  z.object({
+    year: z.number(),
+    week: z.number(),
+    cumulativeTotal: numericalStringSchema,
+  })
+);
+
+export async function fetchCumulativeAllocationsHistory(): Promise<FetchCumulativeAllocationsHistoryReturnType> {
+  const endpoint = `${CDP_API_URL}/allocators/cumulative-allocations-history`;
+  const response = await fetch(endpoint);
+
+  throwHTTPErrorOrSkip(
+    response,
+    `CDP API returned status ${response.status} when fetching cumulative allocations history; URL: ${endpoint}`
+  );
+
+  const data = await response.json();
+
+  assertSchema(
+    data,
+    cumulativeAllocationsResponseSchema,
+    `Invalid response from CDP when fetching cumulative allocations history; URL: ${endpoint}`
+  );
+
+  return data as FetchCumulativeAllocationsHistoryReturnType;
+}
+
+// Allocations by allocator history
+export type FetchAllocationsByAllocatorHistoryReturnType = z.infer<
+  typeof allocationsByAllocatorResponseSchema
+>;
+
+const allocationsByAllocatorResponseSchema = z.array(
+  z.object({
+    year: z.number(),
+    week: z.number(),
+    allocatorId: z.string(),
+    allocatorName: z.string().nullable(),
+    weekTotal: numericalStringSchema,
+  })
+);
+
+export async function fetchAllocationsByAllocatorHistory(): Promise<FetchAllocationsByAllocatorHistoryReturnType> {
+  const endpoint = `${CDP_API_URL}/allocators/allocations-by-allocator-history`;
+  const response = await fetch(endpoint);
+
+  throwHTTPErrorOrSkip(
+    response,
+    `CDP API returned status ${response.status} when fetching allocations by allocator history; URL: ${endpoint}`
+  );
+
+  const data = await response.json();
+
+  assertSchema(
+    data,
+    allocationsByAllocatorResponseSchema,
+    `Invalid response from CDP when fetching allocations by allocator history; URL: ${endpoint}`
+  );
+
+  return data as FetchAllocationsByAllocatorHistoryReturnType;
 }

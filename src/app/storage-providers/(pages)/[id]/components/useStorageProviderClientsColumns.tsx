@@ -1,125 +1,166 @@
-import { DMOBDataTableSort } from "@/components/dmob-data-table-sort";
+import { FetchStorageProviderClientsListReturnType } from "@/app/storage-providers/storage-providers-data";
 import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card";
-import { IStorageProviderClient } from "@/lib/interfaces/dmob/sp.interface";
-import { calculateDateFromHeight, convertBytesToIEC } from "@/lib/utils";
-import { ColumnDef } from "@tanstack/react-table";
-import { InfoIcon } from "lucide-react";
+  DataTableSort,
+  type DataTableSortProps,
+} from "@/components/data-table-sort";
+import { createColumnHelper } from "@tanstack/react-table";
+import { filesize } from "filesize";
 import Link from "next/link";
 
-type FilterCallback = (key: string, direction: string) => void;
+type SortDirection = NonNullable<DataTableSortProps["direction"]>;
 
-export const useStorageProviderClientsColumns = (
-  filterCallback: FilterCallback
-) => {
+interface Sorting {
+  key: string;
+  direction: SortDirection;
+}
+
+export interface UseStorageProviderClientsColumnsOptions {
+  sorting?: Sorting | null;
+  onSort(key: string, direction: SortDirection): void;
+}
+
+const columnHelper =
+  createColumnHelper<
+    FetchStorageProviderClientsListReturnType["data"][number]
+  >();
+
+const dateFormatter = Intl.DateTimeFormat("en-US", {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+});
+
+function getSortDirectionForProperty(
+  sorting: Sorting | null | undefined,
+  property: string
+): SortDirection | undefined {
+  if (!sorting) {
+    return undefined;
+  }
+
+  return sorting.key === property ? sorting.direction : undefined;
+}
+
+export const useStorageProviderClientsColumns = ({
+  sorting,
+  onSort,
+}: UseStorageProviderClientsColumnsOptions) => {
   const columns = [
-    {
-      accessorKey: "client",
-      header: () => {
+    columnHelper.accessor("clientId", {
+      header() {
         return (
-          <DMOBDataTableSort property="client" onSort={filterCallback}>
-            Verified Client ID
-          </DMOBDataTableSort>
+          <DataTableSort
+            direction={getSortDirectionForProperty(sorting, "clientId")}
+            onSort={(direction) => onSort("clientId", direction)}
+          >
+            Client ID
+          </DataTableSort>
         );
       },
-      cell: ({ row }) => {
-        const client = row.getValue("client") as string;
+      cell: ({ getValue }) => {
+        const clientId = getValue();
+
         return (
-          <Link className="table-link" href={`/clients/${client}`}>
-            {client}
+          <Link className="table-link" href={`/clients/${clientId}`}>
+            {clientId}
           </Link>
         );
       },
-    },
-    {
-      accessorKey: "noOfVerifiedDeals",
-      header: () => {
+    }),
+    columnHelper.accessor("clientName", {
+      header() {
         return (
-          <DMOBDataTableSort
-            property="noOfVerifiedDeals"
-            onSort={filterCallback}
+          <DataTableSort
+            direction={getSortDirectionForProperty(sorting, "clientName")}
+            onSort={(direction) => onSort("clientName", direction)}
           >
-            Deals
-          </DMOBDataTableSort>
+            Client Name
+          </DataTableSort>
         );
       },
-      cell: ({ row }) => {
-        const noOfVerifiedDeals = row.getValue("noOfVerifiedDeals") as string;
-        return <p>{noOfVerifiedDeals}</p>;
-      },
-    },
-    {
-      accessorKey: "verifiedDealsTotalSize",
-      header: () => {
+      cell: ({ getValue, row }) => {
+        const clientId = row.original.clientId;
+        const clientName = getValue();
+
         return (
-          <DMOBDataTableSort
-            property="verifiedDealsTotalSize"
-            onSort={filterCallback}
+          <Link className="table-link" href={`/clients/${clientId}`}>
+            {clientName}
+          </Link>
+        );
+      },
+    }),
+    columnHelper.accessor("dealsCount", {
+      header() {
+        return (
+          <DataTableSort
+            direction={getSortDirectionForProperty(sorting, "dealsCount")}
+            onSort={(direction) => onSort("dealsCount", direction)}
           >
-            Verified Deals Total Size
-          </DMOBDataTableSort>
+            Deals Count
+          </DataTableSort>
         );
       },
-      cell: ({ row }) => {
-        const verifiedDealsTotalSize = row.getValue(
-          "verifiedDealsTotalSize"
-        ) as string;
-        return <p>{convertBytesToIEC(verifiedDealsTotalSize)}</p>;
-      },
-    },
-    {
-      accessorKey: "lastDealHeight",
-      header: () => {
+    }),
+    columnHelper.accessor("totalDealsSize", {
+      header() {
         return (
-          <DMOBDataTableSort property="lastDealHeight" onSort={filterCallback}>
-            Last Deal Date
-          </DMOBDataTableSort>
+          <DataTableSort
+            direction={getSortDirectionForProperty(sorting, "totalDealsSize")}
+            onSort={(direction) => onSort("totalDealsSize", direction)}
+          >
+            Total Deals Size
+          </DataTableSort>
         );
       },
-      cell: ({ row }) => {
-        const lastDealHeight = row.getValue("lastDealHeight") as string;
+      cell({ getValue }) {
+        return filesize(getValue(), { standard: "iec" });
+      },
+    }),
+    columnHelper.accessor("lastDealDate", {
+      header() {
         return (
-          <div className="whitespace-nowrap flex gap-1 items-center justify-end">
-            {calculateDateFromHeight(+lastDealHeight)}
-            <HoverCard openDelay={100} closeDelay={50}>
-              <HoverCardTrigger>
-                <InfoIcon
-                  size={15}
-                  className="text-muted-foreground cursor-help"
-                />
-              </HoverCardTrigger>
-              <HoverCardContent className="w-32">
-                <p>Block height</p>
-                <p>{lastDealHeight}</p>
-              </HoverCardContent>
-            </HoverCard>
-          </div>
+          <DataTableSort
+            direction={getSortDirectionForProperty(sorting, "lastDealDate")}
+            onSort={(direction) => onSort("lastDealDate", direction)}
+          >
+            Total Deals Size
+          </DataTableSort>
         );
       },
-    },
-  ] as ColumnDef<IStorageProviderClient>[];
+      cell({ getValue }) {
+        const dateString = getValue();
+
+        if (!dateString) {
+          return "N/A";
+        }
+
+        return dateFormatter.format(new Date(dateString));
+      },
+    }),
+  ];
 
   const csvHeaders = [
     {
-      label: "Verified Client ID",
-      key: "concat",
+      label: "Client ID",
+      key: "clientId",
     },
     {
-      label: "Deals",
-      key: "noOfVerifiedDeals",
+      label: "Client Name",
+      key: "Client Name",
     },
     {
-      label: "Verified Deals Total Size",
-      key: "verifiedDealsTotalSize",
+      label: "Deals Count",
+      key: "dealsCount",
+    },
+    {
+      label: "Total Deals Size",
+      key: "totalDealsSize",
     },
     {
       label: "Last Deal Date",
-      key: "lastDealHeight",
+      key: "lastDealDate",
     },
   ];
 
-  return { columns, csvHeaders };
+  return { columns, csvHeaders } as const;
 };

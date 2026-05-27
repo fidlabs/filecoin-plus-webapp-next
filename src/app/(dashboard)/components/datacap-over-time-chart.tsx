@@ -3,133 +3,107 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScaleSelector } from "@/components/ui/scale-selector";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { IAllocatorsResponse } from "@/lib/interfaces/dmob/allocator.interface";
-import { IFilDCAllocationsWeeklyByClient } from "@/lib/interfaces/dmob/dmob.interface";
-import { useMemo, useState } from "react";
+import { QueryKey } from "@/lib/constants";
+import { weekFromString, weekToString } from "@/lib/weeks";
+import { groupBy } from "lodash";
+import { useEffect, useMemo, useState } from "react";
+import useSWR from "swr";
+import { fetchAllocationsByAllocatorHistory } from "../dashboard-data";
 import {
   DatacapOverTimeByAllocatorChart,
-  DatacapOverTimeByAllocatorChartProps,
+  type DatacapOverTimeByAllocatorChartProps,
 } from "./datacap-over-time-by-allocator-chart";
 import {
   DatacapOverTimeByWeekChart,
-  DatacapOverTimeByWeekChartProps,
+  type DatacapOverTimeByWeekChartProps,
 } from "./datacap-over-time-by-week-chart";
 
-interface Props {
-  data: IFilDCAllocationsWeeklyByClient;
-  allocators: IAllocatorsResponse;
-}
-
-function findAllocatorName(
-  allocators: IAllocatorsResponse,
-  allocatorId: string
-): string {
-  const matchingAllocator = allocators.data.find(
-    (candidate) => candidate.addressId === allocatorId
-  );
-
-  const maybeName = matchingAllocator?.name ?? matchingAllocator?.orgName;
-
-  if (!maybeName || maybeName.length === 0) {
-    return allocatorId;
-  }
-
-  return maybeName;
-}
-
-export function DatacapOverTimeChart({ data, allocators }: Props) {
+export function DatacapOverTimeChart() {
   const [mode, setMode] = useState("week");
   const [scale, setScale] = useState<"linear" | "log">("linear");
+  const { data, error, isLoading, mutate } = useSWR(
+    QueryKey.ALLOCATORS_ALLOCATIONS_BY_ALLOCATOR_HISTORY,
+    fetchAllocationsByAllocatorHistory,
+    {
+      keepPreviousData: true,
+      revalidateOnMount: false,
+    }
+  );
 
-  const dataByWeek = useMemo(() => {
-    type Data = DatacapOverTimeByWeekChartProps["data"];
-    type WeekEntries = Data[number]["entries"];
+  useEffect(() => {
+    if (!data && !error && !isLoading) {
+      mutate();
+    }
+  }, [data, error, isLoading, mutate]);
 
-    return Object.entries(data).flatMap(([yearString, yearData]) => {
-      const year = parseInt(yearString, 10);
+  type ByWeekData = DatacapOverTimeByWeekChartProps["data"];
 
-      return Object.entries(yearData).reduce<Data>(
-        (items, [weekString, weekData]) => {
-          const weekNumber = parseInt(weekString, 10);
-          const entries: WeekEntries = Object.entries(weekData)
-            .reduce<WeekEntries>((entries, [allocatorId, bytesString]) => {
-              return [
-                ...entries,
-                {
-                  allocatorId,
-                  allocatorName: findAllocatorName(allocators, allocatorId),
-                  datacap: BigInt(bytesString),
-                },
-              ];
-            }, [])
-            .toSorted((a, b) => (b.datacap > a.datacap ? -1 : 1));
+  const dataByWeek = useMemo<ByWeekData>(() => {
+    if (!data) {
+      return [];
+    }
 
-          return [
-            ...items,
-            {
-              week: {
-                year,
-                weekNumber,
-              },
-              entries,
-            },
-          ];
-        },
-        []
-      );
+    const resultsGroupedByWeek = groupBy(data, (item) => {
+      return weekToString({ year: item.year, weekNumber: item.week });
     });
-  }, [allocators, data]);
 
-  const dataByAllocator = useMemo(() => {
-    type Data = DatacapOverTimeByAllocatorChartProps["data"];
-    type AllocatorEntries = Data[number]["entries"];
-    type AllocatorDatacapMap = Record<string, AllocatorEntries>;
-
-    const datacapMap = Object.entries(data).reduce<AllocatorDatacapMap>(
-      (datacapMap, [yearString, yearData]) => {
-        const year = parseInt(yearString, 10);
-
-        return Object.entries(yearData).reduce<AllocatorDatacapMap>(
-          (yearDatacapMap, [weekString, weekData]) => {
-            const weekNumber = parseInt(weekString, 10);
-
-            return Object.entries(weekData).reduce<AllocatorDatacapMap>(
-              (weekDatacapMap, [allocatorId, bytesString]) => {
-                const allocatorEntries = weekDatacapMap[allocatorId] ?? [];
-
-                return {
-                  ...weekDatacapMap,
-                  [allocatorId]: [
-                    ...allocatorEntries,
-                    {
-                      week: {
-                        weekNumber,
-                        year,
-                      },
-                      datacap: BigInt(bytesString),
-                    },
-                  ],
-                };
-              },
-              yearDatacapMap
-            );
-          },
-          datacapMap
+    return Object.entries(resultsGroupedByWeek).map<ByWeekData[number]>(
+      ([weekString, results]) => {
+        const entries = results.map<ByWeekData[number]["entries"][number]>(
+          (result) => {
+            return {
+              allocatorId: result.allocatorId,
+              allocatorName: result.allocatorName ?? result.allocatorId,
+              datacap: BigInt(result.weekTotal),
+            };
+          }
         );
-      },
-      {}
-    );
 
-    return Object.entries(datacapMap).map<Data[number]>(
-      ([allocatorId, entries]) => {
         return {
-          allocatorId,
-          allocatorName: findAllocatorName(allocators, allocatorId),
+          week: weekFromString(weekString),
           entries,
         };
       }
     );
-  }, [allocators, data]);
+  }, [data]);
+
+  type ByAllocatorData = DatacapOverTimeByAllocatorChartProps["data"];
+
+  const dataByAllocator = useMemo<ByAllocatorData>(() => {
+    if (!data) {
+      return [];
+    }
+
+    const glue = "_";
+    const resultsGroupedByAllocator = groupBy(data, (item) => {
+      return [item.allocatorId, item.allocatorName ?? item.allocatorId].join(
+        glue
+      );
+    });
+
+    return Object.entries(resultsGroupedByAllocator).map<
+      ByAllocatorData[number]
+    >(([allocatorString, results]) => {
+      const [allocatorId, allocatorName] = allocatorString.split(glue);
+      const entries = results.map<ByAllocatorData[number]["entries"][number]>(
+        (entry) => {
+          return {
+            week: {
+              year: entry.year,
+              weekNumber: entry.week,
+            },
+            datacap: BigInt(entry.weekTotal),
+          };
+        }
+      );
+
+      return {
+        allocatorId,
+        allocatorName,
+        entries,
+      };
+    });
+  }, [data]);
 
   return (
     <Card className="hidden md:block md:col-span-3">

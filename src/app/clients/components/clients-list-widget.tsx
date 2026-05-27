@@ -21,6 +21,7 @@ import useSWR from "swr";
 import { useDebounceCallback } from "usehooks-ts";
 import { fetchClients, FetchClientsParameters } from "../clients-data";
 import { useClientsColumns } from "./useClientsColumns";
+import { parseAsInteger, parseAsStringEnum, useQueryState } from "nuqs";
 
 type CardProps = ComponentProps<typeof Card>;
 export interface ClientsListWidgetProps extends Omit<CardProps, "children"> {
@@ -29,13 +30,58 @@ export interface ClientsListWidgetProps extends Omit<CardProps, "children"> {
 
 const pageSizeOptions = [10, 25, 50];
 
+const pageKey = "clp";
+const limitKey = "cll";
+const sortKey = "cls";
+const orderKey = "clo";
+const filterKey = "clf";
+
 export function ClientsListWidget({
   defaultParameters = {},
   ...rest
 }: ClientsListWidgetProps) {
+  const [page, setPage] = useQueryState(
+    pageKey,
+    defaultParameters.page
+      ? parseAsInteger.withDefault(defaultParameters.page)
+      : parseAsInteger
+  );
+
+  const [limit, setLimit] = useQueryState(
+    limitKey,
+    defaultParameters.page
+      ? parseAsInteger.withDefault(defaultParameters.limit)
+      : parseAsInteger
+  );
+
+  const [sort, setSort] = useQueryState(sortKey);
+
+  const [order, setOrder] = useQueryState(
+    orderKey,
+    parseAsStringEnum(["asc", "desc"] as const)
+  );
+
+  const [filter, setFilter] = useQueryState(filterKey);
+
   const widgetRef = useRef<HTMLDivElement | null>(null);
   const [searchPhrase, setSearchPhrase] = useState("");
-  const [parameters, setParameters] = useState(defaultParameters);
+  const nonPaginationParameters: Omit<
+    FetchClientsParameters,
+    "page" | "limit"
+  > = {
+    filter: filter ?? undefined,
+    sort: sort ?? undefined,
+    order: order ?? undefined,
+  };
+  const parameters: FetchClientsParameters =
+    page !== null && limit !== null
+      ? {
+          ...nonPaginationParameters,
+          page,
+          limit,
+        }
+      : nonPaginationParameters;
+
   const { data, isLoading } = useSWR(
     [QueryKey.CLIENTS_LIST, parameters],
     ([, fetchParameters]) => fetchClients(fetchParameters),
@@ -43,7 +89,7 @@ export function ClientsListWidget({
       keepPreviousData: true,
     }
   );
-  const isLongLoading = useDelayedFlag(isLoading, 1000);
+  const isLongLoading = useDelayedFlag(isLoading, 500);
 
   const scrollToListTop = useCallback(() => {
     if (widgetRef.current) {
@@ -63,48 +109,47 @@ export function ClientsListWidget({
     setSearchPhrase("");
   }, []);
 
-  const handleSearch = useCallback((filter: string) => {
-    setParameters((currentParameters) => ({
-      ...currentParameters,
-      filter,
-      page: 1,
-    }));
-  }, []);
+  const handleSearch = useCallback(
+    (filter: string) => {
+      setPage(1);
+      setFilter(filter);
+    },
+    [setFilter, setPage]
+  );
   const handleSearchDebounced = useDebounceCallback(handleSearch, 150);
 
-  const handleSort = useCallback((key: string, direction: "asc" | "desc") => {
-    setParameters((currentParameters) => ({
-      ...currentParameters,
-      sort: {
-        key,
-        direction,
-      },
-    }));
-  }, []);
+  const handleSort = useCallback(
+    (sort: string, order: "asc" | "desc") => {
+      setSort(sort);
+      setOrder(order);
+    },
+    [setOrder, setSort]
+  );
 
   const handlePageChange = useCallback<PaginatorProps["onPageChange"]>(
     (page) => {
-      setParameters((currentParameters) => ({
-        ...currentParameters,
-        page,
-      }));
-
+      setPage(page);
       scrollToListTop();
     },
-    [scrollToListTop]
+    [scrollToListTop, setPage]
   );
 
   const handlePageSizeChange = useCallback<
     NonNullable<PaginatorProps["onPageSizeChange"]>
-  >((limit) => {
-    setParameters((currentParameters) => ({
-      ...currentParameters,
-      limit,
-    }));
-  }, []);
+  >(
+    (limit) => {
+      setLimit(limit);
+    },
+    [setLimit]
+  );
 
   const columns = useClientsColumns({
-    sorting: parameters.sort,
+    sorting: parameters.sort
+      ? {
+          key: parameters.sort,
+          direction: parameters.order ?? "desc",
+        }
+      : undefined,
     onSort: handleSort,
   });
 
@@ -155,7 +200,7 @@ export function ClientsListWidget({
           pageSizeOptions={pageSizeOptions}
           onPageChange={handlePageChange}
           onPageSizeChange={handlePageSizeChange}
-          total={data?.count ? parseInt(data.count, 10) : 0}
+          total={data?.pagination.total ?? 0}
         />
       </CardFooter>
     </Card>

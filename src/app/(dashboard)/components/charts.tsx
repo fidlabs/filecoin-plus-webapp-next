@@ -1,61 +1,19 @@
-import { DatacapAllocationChart } from "@/app/(dashboard)/components/datacap-allocation-chart";
-import { DatacapAllocationWeeklyChart } from "@/app/(dashboard)/components/datacap-allocation-weekly-chart";
-import { DatacapOverTimeChart } from "@/app/(dashboard)/components/datacap-over-time-chart";
-import {
-  IFilDCAllocationsWeekly,
-  IFilDCAllocationsWeeklyByClient,
-  IFilPlusStats,
-} from "@/lib/interfaces/dmob/dmob.interface";
-import { IAllocatorsResponse } from "@/lib/interfaces/dmob/allocator.interface";
-import { Suspense } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { ChartLoader } from "@/components/ui/chart-loader";
 import { DashboardPageSectionId } from "@/lib/constants";
+import { DatacapAllocationChart } from "./datacap-allocation-chart";
+import { DatacapAllocationWeeklyChart } from "./datacap-allocation-weekly-chart";
+import { DatacapOverTimeChart } from "./datacap-over-time-chart";
 
-interface IChartsProps {
-  stats: IFilPlusStats;
-  allocationWeekly: IFilDCAllocationsWeekly;
-  allocationWeeklyByClient: IFilDCAllocationsWeeklyByClient;
-  allocators: IAllocatorsResponse;
-}
-
-const Charts = async ({
-  stats,
-  allocationWeekly,
-  allocationWeeklyByClient,
-  allocators,
-}: IChartsProps) => {
+export function Charts() {
   return (
     <div className="w-full grid grid-cols-1 lg:grid-cols-3 gap-6 content-evenly">
-      <Suspense fallback={<Fallback />}>
-        <DatacapAllocationChart data={stats} />
-      </Suspense>
-      <Suspense fallback={<Fallback />}>
-        <div
-          className="lg:col-span-2"
-          id={DashboardPageSectionId.DATACAP_ALLOCATIONS_OVER_TIME}
-        >
-          <DatacapAllocationWeeklyChart data={allocationWeekly} />
-        </div>
-      </Suspense>
-      <Suspense fallback={<Fallback />}>
-        <DatacapOverTimeChart
-          data={allocationWeeklyByClient}
-          allocators={allocators}
-        />
-      </Suspense>
+      <DatacapAllocationChart />
+      <div
+        className="lg:col-span-2"
+        id={DashboardPageSectionId.DATACAP_ALLOCATIONS_OVER_TIME}
+      >
+        <DatacapAllocationWeeklyChart />
+      </div>
+      <DatacapOverTimeChart />
     </div>
   );
-};
-
-const Fallback = () => {
-  return (
-    <Card className="w-full min-h-96">
-      <CardContent className="w-full h-full flex items-center justify-center">
-        <ChartLoader />
-      </CardContent>
-    </Card>
-  );
-};
-
-export { Charts };
+}
