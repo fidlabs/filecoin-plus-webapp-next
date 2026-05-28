@@ -123,7 +123,7 @@ export const useStorageProviderClientsColumns = ({
             direction={getSortDirectionForProperty(sorting, "lastDealDate")}
             onSort={(direction) => onSort("lastDealDate", direction)}
           >
-            Total Deals Size
+            Last Deal Date
           </DataTableSort>
         );
       },

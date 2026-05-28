@@ -84,7 +84,7 @@ export function useClientsColumns({
             direction={getSortDirectionForProperty(sorting, "name")}
             onSort={(direction) => onSort("name", direction)}
           >
-            Client name
+            Client Name
           </DataTableSort>
         );
       },

@@ -63,7 +63,7 @@ const columns = [
     header() {
       return (
         <SortableTableHead sortKey="addressId">
-          Verfied Client ID
+          Verified Client ID
         </SortableTableHead>
       );
     },

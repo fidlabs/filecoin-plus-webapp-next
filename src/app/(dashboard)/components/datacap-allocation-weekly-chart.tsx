@@ -77,7 +77,7 @@ export function DatacapAllocationWeeklyChart() {
   return (
     <Card>
       <CardHeader className="flex-col items-start">
-        <CardTitle>Accumulated DataCap Allocation to clients</CardTitle>
+        <CardTitle>Accumulated DataCap Allocation to Clients</CardTitle>
         <CardDescription>
           How much DataCap was used by allocators/given out to clients so far
         </CardDescription>
