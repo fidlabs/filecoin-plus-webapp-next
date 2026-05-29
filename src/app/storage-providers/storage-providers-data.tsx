@@ -585,3 +585,59 @@ export async function fetchStorageProviderRpaMetricHistogram(
 
   return json;
 }
+
+// SP clients
+export interface FetchStorageProviderClientsListParameters {
+  providerId: string;
+  page?: number;
+  limit?: number;
+  sort?: string;
+  order?: "asc" | "desc";
+  filter?: string;
+}
+
+export type FetchStorageProviderClientsListReturnType = z.infer<
+  typeof storageProviderClientsListResponseSchema
+>;
+
+const storageProviderClientsListResponseSchema = z.object({
+  pagination: z.object({
+    total: z.number(),
+    limit: z.number().nullish(),
+    page: z.number().nullish(),
+    pages: z.number().nullish(),
+  }),
+  data: z.array(
+    z.object({
+      clientId: z.string(),
+      clientName: z.string().nullable(),
+      totalDealsSize: numericalStringSchema,
+      dealsCount: z.number(),
+      lastDealDate: z.string().datetime().nullable(),
+    })
+  ),
+});
+
+export async function fetchStorageProviderClientsList(
+  paramters: FetchStorageProviderClientsListParameters
+): Promise<FetchStorageProviderClientsListReturnType> {
+  const { providerId, ...restOfParameters } = paramters;
+  const searchParams = objectToURLSearchParams(restOfParameters, true);
+  const endpoint = `${CDP_API_URL}/storage-providers/${providerId}/clients?${searchParams.toString()}`;
+  const response = await fetch(endpoint);
+
+  throwHTTPErrorOrSkip(
+    response,
+    `CDP API returned status ${response.status} when fetching Storage Provider clients list; URL: ${endpoint}`
+  );
+
+  const json = await response.json();
+
+  assertSchema(
+    json,
+    storageProviderClientsListResponseSchema,
+    `CDP API returned invalid response when fetching Storage Provider clients list; URL: ${endpoint}`
+  );
+
+  return json as FetchStorageProviderClientsListReturnType;
+}

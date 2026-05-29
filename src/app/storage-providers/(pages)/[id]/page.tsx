@@ -1,8 +1,9 @@
 import { ClientsList } from "@/app/storage-providers/(pages)/[id]/components/clients-list";
-import { getStorageProviderById } from "@/lib/api";
 import { QueryKey, StorageProviderDetailsPageSectionId } from "@/lib/constants";
 import { SWRConfig, unstable_serialize } from "swr";
 import {
+  fetchStorageProviderClientsList,
+  FetchStorageProviderClientsListParameters,
   fetchStorageProviderFilscanInfo,
   fetchStorageProviderRpaMetricHistogram,
   type FetchStorageProviderRpaMetricHistogramParameters,
@@ -17,7 +18,10 @@ interface PageProps {
   params: { id: string };
 }
 
-const clientsListDefaultParams = { page: 1, limit: 10, filter: "" };
+const clientsListDefaultParams: Omit<
+  FetchStorageProviderClientsListParameters,
+  "providerId"
+> = { page: 1, limit: 10, filter: "" };
 
 function unwrapResult<T>(result: PromiseSettledResult<T>): T | undefined {
   return result.status === "fulfilled" ? result.value : undefined;
@@ -51,7 +55,10 @@ export default async function StorageProviderDetailsPage({
     bandwidthResult,
   ] = await Promise.allSettled([
     fetchStorageProviderFilscanInfo({ storageProviderId }),
-    getStorageProviderById(storageProviderId, clientsListDefaultParams),
+    fetchStorageProviderClientsList({
+      ...clientsListDefaultParams,
+      providerId: storageProviderId,
+    }),
     fetchStorageProviderRpaMetricHistogram(rpaParams),
     fetchStorageProviderRpaMetricHistogram(ttfbParams),
     fetchStorageProviderRpaMetricHistogram(bandwidthParams),
@@ -63,9 +70,8 @@ export default async function StorageProviderDetailsPage({
       storageProviderId,
     ])]: unwrapResult(filscanInfoResult),
     [unstable_serialize([
-      QueryKey.STORAGE_PROVIDER_BY_ID,
-      storageProviderId,
-      clientsListDefaultParams,
+      QueryKey.STORAGE_PROVIDER_CLIENTS_LIST,
+      { providerId: storageProviderId, ...clientsListDefaultParams },
     ])]: unwrapResult(clientsListResult),
     [unstable_serialize([
       QueryKey.STORAGE_PROVIDER_RPA_METRIC_HISTOGRAM,

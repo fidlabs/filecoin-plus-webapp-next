@@ -1,5 +1,4 @@
 import { BackToTop } from "@/components/back-to-top";
-import { FilecoinPulseButton } from "@/components/filecoin-pulse-button";
 import { GithubButton } from "@/components/github-button";
 import { JsonLd } from "@/components/json.ld";
 import { PageHeader, PageSubtitle, PageTitle } from "@/components/page-header";
@@ -9,11 +8,11 @@ import {
 } from "@/components/sticky-tab-navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ResponsiveView } from "@/components/ui/responsive-view";
-import { getAllocatorById, getAllocators } from "@/lib/api";
+import { getAllocators } from "@/lib/api";
 import { AllocatorDetailsPageSectionId } from "@/lib/constants";
-import { createAllocatorLink } from "@/lib/filecoin-pulse";
 import { convertBytesToIEC, generatePageMetadata } from "@/lib/utils";
 import { type Metadata } from "next";
+import { redirect } from "next/navigation";
 import { cache, type PropsWithChildren, Suspense } from "react";
 import { type Person, type WithContext } from "schema-dts";
 
@@ -37,8 +36,8 @@ async function fetchJsonUrl(id: string): Promise<string | null> {
 }
 
 const fetchData = cache(async (id: string) => {
-  return await getAllocatorById(id, {
-    limit: "1",
+  return await getAllocators({
+    filter: id,
   });
 });
 
@@ -47,16 +46,17 @@ export async function generateMetadata({
 }: IPageProps): Promise<Metadata> {
   const { id } = params;
 
-  const allocatorResponse = await fetchData(id);
+  const allocatorsResponse = await fetchData(id);
+  const allocator = allocatorsResponse.data.at(0);
 
-  if (!allocatorResponse) {
+  if (!allocator) {
     return {
       title: "404",
     };
   }
 
   return generatePageMetadata({
-    title: `Fil+ DataCap Stats | ${allocatorResponse.name}`,
+    title: `Fil+ DataCap Stats | ${allocator.name}`,
     description: "Fil+ Allocator",
     url: `https://datacapstats.io/allocators/${id}`,
   });
@@ -66,15 +66,21 @@ const AllocatorDetailsLayout = async ({
   children,
   params,
 }: PropsWithChildren<IPageProps>) => {
-  const [allocatorResponse, jsonUrl] = await Promise.all([
+  const [allocatorsResponse, jsonUrl] = await Promise.all([
     fetchData(params.id),
     fetchJsonUrl(params.id),
   ]);
 
+  const allocator = allocatorsResponse.data.at(0);
+
+  if (!allocator) {
+    return redirect("/404");
+  }
+
   const person: WithContext<Person> = {
     "@context": "https://schema.org",
     "@type": "Person",
-    name: allocatorResponse?.name ?? params.id,
+    name: allocator.name ?? params.id,
     description: "Fil+ Allocator",
     url: `https://datacapstats.io/allocators/${params.id}`,
   };
@@ -88,18 +94,14 @@ const AllocatorDetailsLayout = async ({
       >
         <div>
           <PageTitle>
-            {allocatorResponse.name && allocatorResponse.name.length > 0
-              ? allocatorResponse.name
-              : allocatorResponse.addressId}
+            {allocator.name && allocator.name.length > 0
+              ? allocator.name
+              : allocator.addressId}
           </PageTitle>
           <PageSubtitle className="mb-4">
-            Allocator ID: {allocatorResponse?.addressId}
+            Allocator ID: {allocator.addressId}
           </PageSubtitle>
           <div className="flex items-center gap-2">
-            <FilecoinPulseButton url={createAllocatorLink(params.id)}>
-              <span className="lg:hidden">Pulse</span>
-              <span className="hidden lg:inline">View on Filecoin Pulse</span>
-            </FilecoinPulseButton>
             {jsonUrl != null && (
               <GithubButton className="mb-1" url={jsonUrl}>
                 <span className="lg:hidden">GitHub</span>
@@ -117,7 +119,7 @@ const AllocatorDetailsLayout = async ({
                 <CardTitle>Remaining DataCap</CardTitle>
               </CardHeader>
               <CardContent className="p-4 pt-0">
-                {convertBytesToIEC(allocatorResponse?.remainingDatacap)}
+                {convertBytesToIEC(allocator.remainingDatacap)}
               </CardContent>
             </Card>
           </div>

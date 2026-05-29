@@ -6,28 +6,14 @@ import {
   IClientReportsResponse,
 } from "@/lib/interfaces/cdp/cdp.interface";
 import { IGoogleSheetResponse } from "@/lib/interfaces/cdp/google.interface";
-import {
-  IAllocatorResponse,
-  IAllocatorsResponse,
-} from "@/lib/interfaces/dmob/allocator.interface";
-import { IClientsResponse } from "@/lib/interfaces/dmob/client.interface";
-import {
-  IFilDCAllocationsWeekly,
-  IFilDCAllocationsWeeklyByClient,
-  IFilDCFLow,
-  IFilPlusStats,
-} from "@/lib/interfaces/dmob/dmob.interface";
-import {
-  IStorageProviderResponse,
-  IStorageProvidersResponse,
-} from "@/lib/interfaces/dmob/sp.interface";
+import { IAllocatorsResponse } from "@/lib/interfaces/dmob/allocator.interface";
+import { IStorageProvidersResponse } from "@/lib/interfaces/dmob/sp.interface";
 import * as z from "zod";
 import { CDP_API_URL } from "./constants";
 import { throwHTTPErrorOrSkip } from "./http-errors";
 import { objectToURLSearchParams } from "./utils";
 
 const revalidate = 30;
-const apiUrl = "https://api.datacapstats.io/api";
 
 export const fetchData = async (url: string) => {
   const headers = new Headers();
@@ -79,21 +65,6 @@ export const parseQuery = (query?: Record<string, string | undefined>) => {
   return `?${searchParams.toString()}`;
 };
 
-export const getStats = async () => {
-  const url = `${apiUrl}/getFilPlusStats`;
-  return (await fetchData(url)) as IFilPlusStats;
-};
-
-export const getDataCapAllocationsWeekly = async () => {
-  const url = `${apiUrl}/get-dc-allocated-to-clients-total-by-week`;
-  return (await fetchData(url)) as IFilDCAllocationsWeekly;
-};
-
-export const getDataCapAllocationsWeeklyByClient = async () => {
-  const url = `${apiUrl}/get-dc-allocated-to-clients-grouped-by-verifiers-wow`;
-  return (await fetchData(url)) as IFilDCAllocationsWeeklyByClient;
-};
-
 export const getAllocators = async (query?: IApiQuery) => {
   const url = `${CDP_API_URL}/allocators${parseQuery(query)}`;
   return (await fetchData(url)) as IAllocatorsResponse;
@@ -104,21 +75,6 @@ export const getAllocatorsByCompliance = async (query?: IApiQuery) => {
   return (await fetchData(url)) as IAllocatorsResponse;
 };
 
-export const getAllocatorById = async (id: string, query?: IApiQuery) => {
-  const url = `${apiUrl}/getVerifiedClients/${id}${parseQuery(query)}`;
-  return (await fetchData(url)) as IAllocatorResponse;
-};
-
-export const getDCFlow = async () => {
-  const url = `${apiUrl}/get-dc-flow-graph-grouped-by-audit-status`;
-  return (await fetchData(url)) as IFilDCFLow;
-};
-
-export const getClients = async (query?: IApiQuery) => {
-  const url = `${apiUrl}/getVerifiedClients${parseQuery(query)}`;
-  return (await fetchData(url)) as IClientsResponse;
-};
-
 export const getStorageProviders = async (query?: IApiQuery) => {
   const url = `${CDP_API_URL}/storage-providers${parseQuery(query)}`;
   return (await fetchData(url)) as IStorageProvidersResponse;
@@ -127,15 +83,6 @@ export const getStorageProviders = async (query?: IApiQuery) => {
 export const getStorageProvidersByCompliance = async (query?: IApiQuery) => {
   const url = `${CDP_API_URL}/storage-providers/compliance-data${parseQuery(query)}`;
   return (await fetchData(url)) as IStorageProvidersResponse;
-};
-
-export const getStorageProviderById = async (
-  id: string,
-  query: Record<string, unknown> = {}
-) => {
-  const searchParams = objectToURLSearchParams(query, true);
-  const url = `${apiUrl}/v2/getMinerInfo/${id}?${searchParams.toString()}`;
-  return (await fetchData(url)) as IStorageProviderResponse;
 };
 
 export const getAllocatorReports = async (allocatorId: string) => {

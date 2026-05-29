@@ -1,14 +1,17 @@
 "use client";
 
 import { useStorageProviderClientsColumns } from "@/app/storage-providers/(pages)/[id]/components/useStorageProviderClientsColumns";
+import {
+  fetchStorageProviderClientsList,
+  FetchStorageProviderClientsListParameters,
+} from "@/app/storage-providers/storage-providers-data";
 import { GenericContentHeader } from "@/components/generic-content-view";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
 import { Paginator } from "@/components/ui/pagination";
-import { getStorageProviderById } from "@/lib/api";
 import { QueryKey } from "@/lib/constants";
-import { parseAsInteger, useQueryState } from "nuqs";
-import { type ComponentProps, useCallback } from "react";
+import { parseAsInteger, parseAsStringEnum, useQueryState } from "nuqs";
+import { type ComponentProps, useCallback, useEffect } from "react";
 import useSWR from "swr";
 
 type CardProps = ComponentProps<typeof Card>;
@@ -16,20 +19,31 @@ export interface ClientsListProps extends Omit<CardProps, "children"> {
   providerId: string;
 }
 
+const pageKey = "clp";
+const limitKey = "cll";
+const sortKey = "cls";
+const orderKey = "clo";
+const filterKey = "clf";
+
 export function ClientsList({ providerId, ...rest }: ClientsListProps) {
-  const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
-  const [pageSize, setPageSize] = useQueryState(
-    "limit",
+  const [page, setPage] = useQueryState(pageKey, parseAsInteger.withDefault(1));
+  const [limit, setLimit] = useQueryState(
+    limitKey,
     parseAsInteger.withDefault(10)
   );
-  const [sort, setSort] = useQueryState("sort");
-  const [filter, setFilter] = useQueryState("filter");
+  const [sort, setSort] = useQueryState(sortKey);
+  const [order, setOrder] = useQueryState(
+    orderKey,
+    parseAsStringEnum(["asc", "desc" as const])
+  );
+  const [filter, setFilter] = useQueryState(filterKey);
 
   const handleSort = useCallback(
-    (key: string, direction: string) => {
-      setSort(`[["${key}",${direction}]]`);
+    (key: string, direction: "asc" | "desc") => {
+      setSort(key);
+      setOrder(direction);
     },
-    [setSort]
+    [setOrder, setSort]
   );
 
   const handleFilter = useCallback(
@@ -40,20 +54,35 @@ export function ClientsList({ providerId, ...rest }: ClientsListProps) {
     [setFilter, setPage]
   );
 
-  const { columns, csvHeaders } = useStorageProviderClientsColumns(handleSort);
-  const { data } = useSWR(
-    [
-      QueryKey.STORAGE_PROVIDER_BY_ID,
-      providerId,
-      { page, limit: pageSize, filter, sort },
-    ],
-    ([, providerId, searchParams]) => {
-      return getStorageProviderById(providerId, searchParams);
+  const { columns, csvHeaders } = useStorageProviderClientsColumns({
+    sorting: sort ? { key: sort, direction: order ?? "asc" } : undefined,
+    onSort: handleSort,
+  });
+
+  const parameters: FetchStorageProviderClientsListParameters = {
+    providerId,
+    page,
+    limit,
+    filter: filter ?? undefined,
+    sort: sort ?? undefined,
+    order: order ?? undefined,
+  };
+  const { data, error, isLoading, mutate } = useSWR(
+    [QueryKey.STORAGE_PROVIDER_CLIENTS_LIST, parameters],
+    ([, fetchParameters]) => {
+      return fetchStorageProviderClientsList(fetchParameters);
     },
     {
       keepPreviousData: true,
+      revalidateOnMount: false,
     }
   );
+
+  useEffect(() => {
+    if (!data && !error && !isLoading) {
+      mutate();
+    }
+  }, [data, error, isLoading, mutate]);
 
   return (
     <Card {...rest}>
@@ -70,9 +99,10 @@ export function ClientsList({ providerId, ...rest }: ClientsListProps) {
         }
         getCsv={{
           method: async () => {
-            const data = await getStorageProviderById(providerId, {
-              filter,
-              sort,
+            const data = await fetchStorageProviderClientsList({
+              providerId,
+              sort: sort ?? undefined,
+              order: order ?? undefined,
             });
             return {
               data: data.data as never[],
@@ -87,12 +117,12 @@ export function ClientsList({ providerId, ...rest }: ClientsListProps) {
       </CardContent>
       <CardFooter className="border-t w-full p-3">
         <Paginator
-          total={data?.count ?? 0}
+          total={data?.pagination.total ?? 0}
           page={page}
-          pageSize={pageSize}
+          pageSize={limit}
           pageSizeOptions={[10, 15, 25]}
           onPageChange={setPage}
-          onPageSizeChange={setPageSize}
+          onPageSizeChange={setLimit}
         />
       </CardFooter>
     </Card>
