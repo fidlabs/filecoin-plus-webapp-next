@@ -95,6 +95,10 @@ export function AllocatorsOldDatacapWidget({
       return [null, "Total allocated"];
     }
 
+    if (data.results.length === 0) {
+      return [filesize(0, { standard: "iec" }), "Total allocated"];
+    }
+
     const startWeek = weekFromDate(data.results[0].week);
     const endWeek = weekFromDate(data.results[data.results.length - 1].week);
     const totalAllocatedBytes = data.results.reduce((sum, result) => {

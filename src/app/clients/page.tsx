@@ -43,6 +43,7 @@ const fetchClientsDefaultParameters: FetchClientsParameters = {
   limit: 10,
   filter: undefined,
   sort: undefined,
+  order: undefined,
 };
 
 export default async function ClientsPage() {

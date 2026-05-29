@@ -1,6 +1,10 @@
 "use client";
 
 import {
+  fetchClients,
+  FetchClientsReturnType,
+} from "@/app/clients/clients-data";
+import {
   CommandDialog,
   CommandEmpty,
   CommandGroup,
@@ -8,7 +12,7 @@ import {
   CommandItem,
 } from "@/components/ui/command";
 import { Separator } from "@/components/ui/separator";
-import { getAllocators, getClients, getStorageProviders } from "@/lib/api";
+import { getAllocators, getStorageProviders } from "@/lib/api";
 import {
   AllocatorsPageSectionId,
   ClientsPageSectionId,
@@ -16,7 +20,6 @@ import {
   StorageProvidersPageSectionId,
 } from "@/lib/constants";
 import { IAllocatorsResponse } from "@/lib/interfaces/dmob/allocator.interface";
-import { IClientsResponse } from "@/lib/interfaces/dmob/client.interface";
 import { IStorageProvidersResponse } from "@/lib/interfaces/dmob/sp.interface";
 import { CommandList } from "cmdk";
 import { groupBy } from "lodash";
@@ -32,7 +35,7 @@ interface Action {
 
 type AllSettledResult = [
   PromiseFulfilledResult<IAllocatorsResponse>,
-  PromiseFulfilledResult<IClientsResponse>,
+  PromiseFulfilledResult<FetchClientsReturnType>,
   PromiseFulfilledResult<IStorageProvidersResponse>,
 ];
 
@@ -429,7 +432,7 @@ const GlobalSearchBox = () => {
     if (!actions.length) {
       const apiSearch = (await Promise.allSettled([
         getAllocators(searchParams),
-        getClients(searchParams),
+        fetchClients({ filter: query, page: 1, limit: 3 }),
         getStorageProviders(searchParams),
       ])) as AllSettledResult;
 
@@ -465,27 +468,27 @@ const GlobalSearchBox = () => {
       apiSearch[1].value.data.forEach((client) => {
         actions.push({
           name: `Client Details`,
-          group: `${client.name ?? client.addressId}`,
+          group: `${client.name ?? client.id}`,
           tags: ["clients", "client", "details"],
-          link: `/clients/${client.addressId}`,
+          link: `/clients/${client.id}`,
         });
         actions.push({
           name: "Client providers",
-          group: `${client.name ?? client.addressId}`,
+          group: `${client.name ?? client.id}`,
           tags: ["allocators", "allocator", "providers", "list"],
-          link: `/clients/${client.addressId}/providers`,
+          link: `/clients/${client.id}/providers`,
         });
         actions.push({
           name: "Client allocations",
-          group: `${client.name ?? client.addressId}`,
+          group: `${client.name ?? client.id}`,
           tags: ["allocators", "allocator", "allocations", "list"],
-          link: `/clients/${client.addressId}/allocations`,
+          link: `/clients/${client.id}/allocations`,
         });
         actions.push({
           name: "Client reports",
-          group: `${client.name ?? client.addressId}`,
+          group: `${client.name ?? client.id}`,
           tags: ["allocators", "allocator", "reports", "reporting"],
-          link: `/clients/${client.addressId}/reports`,
+          link: `/clients/${client.id}/reports`,
         });
       });
     }

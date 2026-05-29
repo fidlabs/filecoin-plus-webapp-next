@@ -1,9 +1,5 @@
-import { CDP_API_URL, DCS_API_URL } from "@/lib/constants";
+import { CDP_API_URL } from "@/lib/constants";
 import { throwHTTPErrorOrSkip } from "@/lib/http-errors";
-import {
-  type IClientAllocationsResponse,
-  type IClientsResponse,
-} from "@/lib/interfaces/dmob/client.interface";
 import {
   cdpClientsStatisticsResponseSchema,
   type ClientsDashboardStatistic,
@@ -55,42 +51,56 @@ export async function fetchClientsDashboardStatistics(
 }
 
 // Clients list
-export interface FetchClientsParameters {
-  page?: number;
-  limit?: number;
+export type FetchClientsParameters = PaginationParameters & {
+  sort?: string;
+  order?: "asc" | "desc";
   filter?: string;
-  sort?: {
-    key: string;
-    direction: "asc" | "desc";
-  };
-}
+};
 
-export type FetchClientsReturnType = IClientsResponse;
+export type FetchClientsReturnType = z.infer<typeof clientsListResponseSchema>;
+
+const clientsListResponseSchema = z.object({
+  pagination: z.object({
+    total: z.number(),
+    limit: z.number().nullish(),
+    page: z.number().nullish(),
+    pages: z.number().nullish(),
+  }),
+  data: z.array(
+    z.object({
+      id: z.string(),
+      name: z.string().nullable(),
+      address: z.string().nullable(),
+      githubUrl: z.string().nullable(),
+      datacapReceived: numericalStringSchema,
+      datacapRemaining: numericalStringSchema,
+      datacapUsed2Weeks: numericalStringSchema,
+      datacapUsed90Days: numericalStringSchema,
+    })
+  ),
+});
 
 export async function fetchClients(
   parameters: FetchClientsParameters = {}
 ): Promise<FetchClientsReturnType> {
-  const { sort, ...restOfParameters } = parameters;
-  const searchParams = objectToURLSearchParams(
-    {
-      ...restOfParameters,
-      sort: sort
-        ? `[["${sort.key}",${sort.direction === "asc" ? "1" : "0"}]]`
-        : undefined,
-    },
-    true
-  );
-  const endpoint =
-    await `${DCS_API_URL}/getVerifiedClients?${searchParams.toString()}`;
+  const searchParams = objectToURLSearchParams(parameters, true);
+  const endpoint = await `${CDP_API_URL}/clients?${searchParams.toString()}`;
   const response = await fetch(endpoint);
 
   throwHTTPErrorOrSkip(
     response,
-    `DCS API returned error when fetching clients list; URL: ${endpoint}`
+    `CDP API returned error when fetching clients list; URL: ${endpoint}`
   );
 
   const data = await response.json();
-  return data as IClientsResponse;
+
+  assertSchema(
+    data,
+    clientsListResponseSchema,
+    `CDP API returned invalid response when fetching clients list; URL: ${endpoint}`
+  );
+
+  return data as FetchClientsReturnType;
 }
 
 // Old datacap
@@ -245,24 +255,38 @@ export interface FetchClientAllocationsParameters {
   clientId: string;
 }
 
-export type FetchClientAllocationsReturnType = IClientAllocationsResponse;
+export type FetchClientAllocationsReturnType = z.infer<
+  typeof clientAllocationsResponseSchema
+>;
+
+const clientAllocationsResponseSchema = z.array(
+  z.object({
+    allocatorId: z.string(),
+    clientId: z.string(),
+    datacapAmount: numericalStringSchema,
+    timestamp: z.string().datetime(),
+  })
+);
 
 export async function fetchClientAllocations({
   clientId,
 }: FetchClientAllocationsParameters): Promise<FetchClientAllocationsReturnType> {
-  const endpoint = `${DCS_API_URL}/getVerifiedClients?filter=${clientId}`;
-  const response = await fetch(endpoint, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+  const endpoint = `${CDP_API_URL}/clients/${clientId}/datacap-allocations`;
+  const response = await fetch(endpoint);
 
   throwHTTPErrorOrSkip(
     response,
-    `DCS API returned status ${response.status} when fetching Client's allocations; URL: ${endpoint}`
+    `CDP API returned status ${response.status} when fetching Client's allocations; URL: ${endpoint}`
   );
 
   const json = await response.json();
+
+  assertSchema(
+    json,
+    clientAllocationsResponseSchema,
+    `CDP API returned invalid data when fetching Client's allocations; URL: ${endpoint}`
+  );
+
   return json as FetchClientAllocationsReturnType;
 }
 

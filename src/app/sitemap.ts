@@ -1,5 +1,6 @@
+import { getAllocators, getStorageProviders } from "@/lib/api";
 import { MetadataRoute } from "next";
-import { getAllocators, getClients, getStorageProviders } from "@/lib/api";
+import { fetchClients } from "./clients/clients-data";
 
 // Define the base URL of your application
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://filplus.storage";
@@ -40,32 +41,29 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })
   );
 
-  const clients = await getClients({
-    page: "1",
-    limit: "10000",
-  });
-  const clientSitemapEntries = clients.data.map(({ addressId }) => {
+  const clients = await fetchClients();
+  const clientSitemapEntries = clients.data.map(({ id }) => {
     return [
       {
-        url: `${baseUrl}/clients/${addressId}`,
+        url: `${baseUrl}/clients/${id}`,
         lastModified: currentDate,
         changeFrequency: "daily" as const,
         priority: 0.7,
       },
       {
-        url: `${baseUrl}/clients/${addressId}/allocations`,
+        url: `${baseUrl}/clients/${id}/allocations`,
         lastModified: currentDate,
         changeFrequency: "daily" as const,
         priority: 0.7,
       },
       {
-        url: `${baseUrl}/clients/${addressId}/providers`,
+        url: `${baseUrl}/clients/${id}/providers`,
         lastModified: currentDate,
         changeFrequency: "daily" as const,
         priority: 0.7,
       },
       {
-        url: `${baseUrl}/clients/${addressId}/reports`,
+        url: `${baseUrl}/clients/${id}/reports`,
         lastModified: currentDate,
         changeFrequency: "daily" as const,
         priority: 0.7,

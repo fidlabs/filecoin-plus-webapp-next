@@ -1,6 +1,5 @@
 export const CDP_API_URL =
   process.env.NEXT_PUBLIC_CDP_API_URL ?? "https://cdp.allocator.tech";
-export const DCS_API_URL = "https://api.datacapstats.io/api";
 export const DEFAULT_EDITION_ROUND_ID =
   process.env.NEXT_PUBLIC_DEFAULT_EDITION_ROUND_ID ?? "6";
 
@@ -17,6 +16,9 @@ export enum QueryKey {
   ALLOCATORS_OLD_DATACAP = "allocators_old_datacap",
   ALLOCATORS_CHECKS_BREAKDOWN = "allocators_checks_breakdown",
   ALLOCATORS_SCORING_BREAKDOWN = "allocators_scoring_breakdown",
+  ALLOCATORS_DATACAP_USAGE_INFO = "allocators_datacap_usage_info",
+  ALLOCATORS_CUMULATIVE_ALLOCATIONS_HISTORY = "allocators_cumulative_allocations_history",
+  ALLOCATORS_ALLOCATIONS_BY_ALLOCATOR_HISTORY = "allocators_allocations_by_allocator_history",
   ALLOCATOR_BY_ID = "allocator_by_id",
   ALLOCATOR_REPORTS = "allocator_reports",
   ALLOCATOR_SCORE = "allocator_score",
@@ -43,6 +45,7 @@ export enum QueryKey {
   STORAGE_PROVIDER_FILSCAN_INFO = "storage_provider_filscan_info",
   STORAGE_PROVIDER_BY_ID = "storage_provider_by_id",
   STORAGE_PROVIDER_RPA_METRIC_HISTOGRAM = "storage_provider_rpa_metric_histogram",
+  STORAGE_PROVIDER_CLIENTS_LIST = "storage_provider_clients_list",
   RPA_RESULT_CODES_HISTOGRAM = "rpa_result_codes_histogram",
   RPA_METRIC_HISTOGRAM = "rpa_metric_histogram",
   PO_REP_STATISTICS = "po_rep_statistics",
