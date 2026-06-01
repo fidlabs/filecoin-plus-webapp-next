@@ -7,7 +7,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { z } from "zod";
 import { CDP_API_URL } from "../constants";
 import { useEditionRound } from "../providers/edition-round-provider";
-import { dateToYearWeek, groupBy, mapObject } from "../utils";
+import { assertSchema, dateToYearWeek, groupBy, mapObject } from "../utils";
 import { numericalStringSchema } from "../zod-extensions";
 import { fetchData } from "../api";
 import useSWR from "swr";
@@ -657,7 +657,9 @@ const allocatorsDCFlowSchema = z.object({
   filPlusEditionId: z.number(),
   data: z.array(
     z.object({
-      metapathwayType: z.enum(["MDMA", "RKH", "AMA", "ORMA"]).nullable(),
+      metapathwayType: z
+        .enum(["MDMA", "RKH", "AMA", "ORMA", "EPMA"])
+        .nullable(),
       applicationAudit: z
         .enum([
           "Public Open",
@@ -699,23 +701,15 @@ const allocatorsDCFlowSchema = z.object({
 
 export type AllocatorsDCFlowData = z.infer<typeof allocatorsDCFlowSchema>;
 
-function assertIsAllocatorsDCFlowData(
-  input: unknown
-): asserts input is AllocatorsDCFlowData {
-  const result = allocatorsDCFlowSchema.safeParse(input);
-
-  if (!result.success) {
-    throw new TypeError(
-      "Invalid response from CDP when fetching allocators DC Flow"
-    );
-  }
-}
-
 export function useAllocatorsDCFlow(cutoffDate?: Date) {
   const fetcher = useCallback(async (url: string) => {
     const response = await fetchData(url);
-    assertIsAllocatorsDCFlowData(response);
-    return response;
+    assertSchema(
+      response,
+      allocatorsDCFlowSchema,
+      `Invalid response from CDP when fetching allocators DC Flow; URL: ${url}`
+    );
+    return response as AllocatorsDCFlowData;
   }, []);
 
   const params = new URLSearchParams();
