@@ -105,6 +105,7 @@ const nodeNamesDict = {
   DirectRKHAutomatic: "Direct RKH Automatic",
   DirectRKHManual: "Direct RKH Manual",
   Faucet: "Faucet",
+  P2PP: "P2PP",
 } as const satisfies Record<string, string>;
 
 const mdmaAllocatorId = "f03358620";
@@ -112,6 +113,7 @@ const epmaAllocatorId = "f03521515";
 const faucetMetaallocatorId = "f03136591";
 const faucetAllocatorId = "f03220716";
 const ormaAllocatorId = "f03634130";
+const p2ppAllocatorId = "f03771751";
 
 const minZoom = 0.4;
 const maxZoom = 2;
@@ -368,8 +370,20 @@ function prepareDefaultTree(dcFlowData: AllocatorsDCFlowData): DCFlowTree {
     allocators: epmaAllocators,
   });
 
-  const [automatedAllocators, directRKHAllocators] = partition(
+  const [p2ppAllocators, nonP2ppAllocators] = partition(
     nonEpmaAllocators,
+    (allocator) => {
+      return allocator.allocatorId === p2ppAllocatorId;
+    }
+  );
+
+  const p2ppTree = createTreeForAllocators({
+    name: nodeNamesDict.P2PP,
+    allocators: p2ppAllocators,
+  });
+
+  const [automatedAllocators, directRKHAllocators] = partition(
+    nonP2ppAllocators,
     (allocator) => {
       return (
         allocator.applicationAudit === "Automated Allocator" ||
@@ -400,6 +414,7 @@ function prepareDefaultTree(dcFlowData: AllocatorsDCFlowData): DCFlowTree {
       epmaTree,
       amaTree,
       ormaTree,
+      p2ppTree,
       automatedTree,
       directRKHTree,
       faucetTree,
