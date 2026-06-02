@@ -6,7 +6,7 @@ import { QueryKey } from "@/lib/constants";
 import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
 import { PoRepDashboardStatistic } from "@/lib/schemas";
 import { LoaderCircleIcon } from "lucide-react";
-import { type HTMLAttributes, useEffect, useState } from "react";
+import { type HTMLAttributes, useState } from "react";
 import useSWR from "swr";
 import {
   fetchPoRepDashboardStatistics,
@@ -27,24 +27,17 @@ export function PoRepStatisticsWidget(props: PoRepStatisticsWidgetProps) {
     interval,
   };
 
-  const { data, error, isLoading, mutate } = useSWR(
+  const { data, error, isLoading } = useSWR(
     [QueryKey.PO_REP_STATISTICS, parameters],
     ([, fetchParameters]) => {
       return fetchPoRepDashboardStatistics(fetchParameters);
     },
     {
       keepPreviousData: true,
-      revalidateOnMount: false,
     }
   );
   const isLongLoading = useDelayedFlag(isLoading, 200);
   const statistics = data ?? [];
-
-  useEffect(() => {
-    if (!data && !error && !isLoading) {
-      mutate();
-    }
-  }, [data, error, isLoading, mutate]);
 
   return (
     <div {...props}>
@@ -62,15 +55,23 @@ export function PoRepStatisticsWidget(props: PoRepStatisticsWidgetProps) {
         </div>
       )}
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
-        {statistics.map((statistic) => (
-          <DashboardStatisticDisplay
-            key={statistic.type}
-            dashboardStatistic={statistic}
-            showLoading={isLongLoading}
-          />
-        ))}
-      </div>
+      {!isLoading && !!error && (
+        <p className="text-sm text-muted-foreground text-center">
+          An error has occured while loading the data. Please try again later.
+        </p>
+      )}
+
+      {!isLoading && !error && (
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+          {statistics.map((statistic) => (
+            <DashboardStatisticDisplay
+              key={statistic.type}
+              dashboardStatistic={statistic}
+              showLoading={isLongLoading}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

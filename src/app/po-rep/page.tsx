@@ -34,6 +34,8 @@ import { PoRepMoneyFlowWidget } from "./components/po-rep-money-flow-widget";
 import { PoRepOnboardedDataHistoryWidget } from "./components/po-rep-onboarded-data-history-widget";
 import { PoRepDealsValueHistoryWidget } from "./components/po-rep-deals-value-history-widget";
 
+export const revalidate = 1800; // 30 minutes
+
 const sectionTabs = {
   [PoRepPageSectionId.STATS]: "Statistics",
   [PoRepPageSectionId.PARTICIPATING_STORAGE_PROVIDERS]: "Participating SPs",

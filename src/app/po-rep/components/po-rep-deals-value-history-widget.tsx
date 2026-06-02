@@ -5,13 +5,7 @@ import { OverlayLoader } from "@/components/overlay-loader";
 import { Card } from "@/components/ui/card";
 import { QueryKey } from "@/lib/constants";
 import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  type ComponentProps,
-} from "react";
+import { useCallback, useMemo, useState, type ComponentProps } from "react";
 import useSWR from "swr";
 import {
   fetchPoRepDealsValueHistory,
@@ -48,23 +42,16 @@ export function PoRepDealsValueHistoryWidget(
   const parameters: FetchPoRepDealsValueHistoryParameters = {
     windowSize,
   };
-  const { data, error, isLoading, mutate } = useSWR(
+  const { data, error, isLoading } = useSWR(
     [QueryKey.PO_REP_DEALS_VALUE_HISTORY, parameters],
     ([, fetchParameters]) => {
       return fetchPoRepDealsValueHistory(fetchParameters);
     },
     {
       keepPreviousData: true,
-      revalidateOnMount: false,
     }
   );
   const isLongLoading = useDelayedFlag(isLoading, 500);
-
-  useEffect(() => {
-    if (!data && !error && !isLoading) {
-      mutate();
-    }
-  }, [data, error, isLoading, mutate]);
 
   const chartData = useMemo(() => {
     return data ?? [];
@@ -157,15 +144,24 @@ export function PoRepDealsValueHistoryWidget(
       </div>
 
       <div className="relative">
-        <CumulativeChartWithVolume
-          data={chartData}
-          dateKey="date"
-          cumulativeKey="cumulativeTotalUSD"
-          volumeKey="volumeUSD"
-          syncId={syncId}
-          windowSize={windowSize}
-          formatValue={formatValue}
-        />
+        {!!error && (
+          <p className="text-sm text-muted-foreground text-center">
+            An error has occured while loading the data. Please try again later.
+          </p>
+        )}
+
+        {!error && (
+          <CumulativeChartWithVolume
+            data={chartData}
+            dateKey="date"
+            cumulativeKey="cumulativeTotalUSD"
+            volumeKey="volumeUSD"
+            syncId={syncId}
+            windowSize={windowSize}
+            formatValue={formatValue}
+          />
+        )}
+
         <OverlayLoader show={isLongLoading} />
       </div>
     </Card>

@@ -7,13 +7,7 @@ import { QueryKey } from "@/lib/constants";
 import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
 import { divideBigint } from "@/lib/utils";
 import { filesize } from "filesize";
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  type ComponentProps,
-} from "react";
+import { useCallback, useMemo, useState, type ComponentProps } from "react";
 import useSWR from "swr";
 import {
   fetchPoRepOnboardedDataHistory,
@@ -44,23 +38,16 @@ export function PoRepOnboardedDataHistoryWidget(
   const parameters: FetchPoRepOnboardedDataHistoryParameters = {
     windowSize,
   };
-  const { data, error, isLoading, mutate } = useSWR(
+  const { data, error, isLoading } = useSWR(
     [QueryKey.PO_REP_ONBOARDED_DATA_HISTORY, parameters],
     ([, fetchParameters]) => {
       return fetchPoRepOnboardedDataHistory(fetchParameters);
     },
     {
       keepPreviousData: true,
-      revalidateOnMount: false,
     }
   );
   const isLongLoading = useDelayedFlag(isLoading, 500);
-
-  useEffect(() => {
-    if (!data && !error && !isLoading) {
-      mutate();
-    }
-  }, [data, error, isLoading, mutate]);
 
   const chartData = useMemo(() => {
     return data
@@ -168,16 +155,24 @@ export function PoRepOnboardedDataHistoryWidget(
       </div>
 
       <div className="relative">
-        <CumulativeChartWithVolume
-          data={chartData}
-          dateKey="date"
-          cumulativeKey="cumulativeTotal"
-          volumeKey="volume"
-          syncId={syncId}
-          windowSize={windowSize}
-          formatValue={formatBytes}
-          formatYAxisTick={formatBytes}
-        />
+        {!!error && (
+          <p className="text-sm text-muted-foreground text-center">
+            An error has occured while loading the data. Please try again later.
+          </p>
+        )}
+
+        {!error && (
+          <CumulativeChartWithVolume
+            data={chartData}
+            dateKey="date"
+            cumulativeKey="cumulativeTotal"
+            volumeKey="volume"
+            syncId={syncId}
+            windowSize={windowSize}
+            formatValue={formatBytes}
+            formatYAxisTick={formatBytes}
+          />
+        )}
         <OverlayLoader show={isLongLoading} />
       </div>
     </Card>

@@ -1,15 +1,11 @@
 "use client";
 
 import { ChartStat } from "@/components/chart-stat";
+import { OverlayLoader } from "@/components/overlay-loader";
 import { Card } from "@/components/ui/card";
 import { QueryKey } from "@/lib/constants";
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  type ComponentProps,
-} from "react";
+import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
+import { useCallback, useMemo, useState, type ComponentProps } from "react";
 import useSWR from "swr";
 import {
   fetchPoRepPaymentsHistory,
@@ -20,8 +16,6 @@ import {
   HistoricalChartWindowSizeSelect,
   type HistoricalChartWindowSizeSelectProps,
 } from "./historical-chart-window-size-select";
-import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
-import { OverlayLoader } from "@/components/overlay-loader";
 
 type WindowSize = HistoricalChartWindowSizeSelectProps["windowSize"];
 type CardProps = ComponentProps<typeof Card>;
@@ -46,23 +40,16 @@ export function PoRepMoneyFlowWidget(props: PoRepMoneyFlowWidgetProps) {
   const parameters: FetchPoRepPaymentsHistoryParameters = {
     windowSize,
   };
-  const { data, error, isLoading, mutate } = useSWR(
+  const { data, error, isLoading } = useSWR(
     [QueryKey.PO_REP_PAYMENTS_HISTORY, parameters],
     ([, fetchParameters]) => {
       return fetchPoRepPaymentsHistory(fetchParameters);
     },
     {
       keepPreviousData: true,
-      revalidateOnMount: false,
     }
   );
   const isLongLoading = useDelayedFlag(isLoading, 500);
-
-  useEffect(() => {
-    if (!data && !error && !isLoading) {
-      mutate();
-    }
-  }, [data, error, isLoading, mutate]);
 
   const chartData = useMemo(() => {
     return data ?? [];
@@ -155,15 +142,23 @@ export function PoRepMoneyFlowWidget(props: PoRepMoneyFlowWidgetProps) {
       </div>
 
       <div className="relative">
-        <CumulativeChartWithVolume
-          data={chartData}
-          dateKey="date"
-          cumulativeKey="cumulativeAmountUSD"
-          volumeKey="dailyAmountUSD"
-          syncId={syncId}
-          windowSize={windowSize}
-          formatValue={formatValue}
-        />
+        {!!error && (
+          <p className="text-sm text-muted-foreground text-center">
+            An error has occured while loading the data. Please try again later.
+          </p>
+        )}
+
+        {!error && (
+          <CumulativeChartWithVolume
+            data={chartData}
+            dateKey="date"
+            cumulativeKey="cumulativeAmountUSD"
+            volumeKey="dailyAmountUSD"
+            syncId={syncId}
+            windowSize={windowSize}
+            formatValue={formatValue}
+          />
+        )}
         <OverlayLoader show={isLongLoading} />
       </div>
     </Card>

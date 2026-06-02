@@ -1,9 +1,11 @@
 "use client";
 
+import { OverlayLoader } from "@/components/overlay-loader";
 import { Button } from "@/components/ui/button";
 import { Card, CardFooter } from "@/components/ui/card";
 import { Paginator } from "@/components/ui/pagination";
 import { QueryKey } from "@/lib/constants";
+import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
 import { calculateTimestampFromHeight } from "@/lib/utils";
 import Link from "next/link";
 import { parseAsInteger, useQueryState } from "nuqs";
@@ -16,8 +18,6 @@ import {
 import { ProviderSLIsGrid } from "./provider-slis-grid";
 import { ProviderSpaceInfoBar } from "./provider-space-info-bar";
 import { ProviderStatusBadge } from "./provider-status-badge";
-import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
-import { OverlayLoader } from "@/components/overlay-loader";
 
 type CardProps = ComponentProps<typeof Card>;
 export type PoRepParticipantsWidgetProps = Omit<CardProps, "children">;
@@ -49,24 +49,17 @@ export function PoRepParticipantsWidget(props: PoRepParticipantsWidgetProps) {
     };
   }, [page, pageSize]);
 
-  const { data, error, isLoading, mutate } = useSWR(
+  const { data, error, isLoading } = useSWR(
     [QueryKey.PO_REP_PROVIDERS, parameters],
     ([, fetchParameters]) => {
       return fetchPoRepProviders(fetchParameters);
     },
     {
       keepPreviousData: true,
-      revalidateOnMount: false,
     }
   );
   const isLongLoading = useDelayedFlag(isLoading, 500);
   const providers = data?.data ?? [];
-
-  useEffect(() => {
-    if (!data && !error && !isLoading) {
-      mutate();
-    }
-  }, [data, error, isLoading, mutate]);
 
   useEffect(() => {
     if (headerRef.current !== null) {
