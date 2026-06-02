@@ -116,7 +116,7 @@ export function PoRepDealsValueHistoryWidget(
     <Card {...props}>
       <header className="px-4 pt-6 mb-4 flex flex-wrap gap-2 justify-between">
         <div>
-          <h3 className="text-lg font-medium">Deals Value</h3>
+          <h3 className="text-lg font-medium">Predicted ARR</h3>
           <p className="text-xs text-muted-foreground">
             Total USD value locked in accepted deals, assuming they will not be
             terminated early
