@@ -326,7 +326,7 @@ export type FetchStorageProvidersIPNIMistreportingDataReturnType =
 const ipniMisreportingSchema = z.object({
   results: z.array(
     z.object({
-      week: z.string().datetime(),
+      week: z.iso.datetime(),
       misreporting: z.number(),
       notReporting: z.number(),
       ok: z.number(),
@@ -445,7 +445,7 @@ const rpaResultCodesHistogramResponseSchema = z.object({
   ),
   days: z.array(
     z.object({
-      day: z.string().datetime(),
+      day: z.iso.datetime(),
       total: z.number(),
       results: z.array(
         z.object({
@@ -487,8 +487,8 @@ export type FetchRPAMetricHistogramReturnType = z.infer<
 >;
 
 const fetchRpaMetricHistogramParametersSchema = z.object({
-  startDate: z.string().datetime().optional(),
-  endDate: z.string().datetime().optional(),
+  startDate: z.iso.datetime().optional(),
+  endDate: z.iso.datetime().optional(),
   metricType: z.enum(["BANDWIDTH", "TTFB", "RPA_RETRIEVABILITY"]),
 });
 
@@ -496,7 +496,7 @@ const rpaMetricHistogramResponseSchema = z.object({
   total: z.number(),
   results: z.array(
     z.object({
-      week: z.string().datetime(),
+      week: z.iso.datetime(),
       total: z.number(),
       results: z.array(
         z.object({
@@ -556,7 +556,7 @@ const fetchStorageProviderRpaMetricHistogramSchema = z.object({
   }),
   results: z.array(
     z.object({
-      date: z.string().datetime(),
+      date: z.iso.datetime(),
       value: z.number(),
     })
   ),
@@ -613,7 +613,7 @@ const storageProviderClientsListResponseSchema = z.object({
       clientName: z.string().nullable(),
       totalDealsSize: numericalStringSchema,
       dealsCount: z.number(),
-      lastDealDate: z.string().datetime().nullable(),
+      lastDealDate: z.iso.datetime().nullable(),
     })
   ),
 });

@@ -103,7 +103,7 @@ const poRepProvidersResponseSchema = z.object({
           declaredValue: z.number(),
           measuredValues: z.array(
             z.object({
-              date: z.string().datetime(),
+              date: z.iso.datetime(),
               value: z.number(),
             })
           ),
@@ -146,7 +146,7 @@ export type FetchPoRepOnboardedDataHistoryReturnType = z.infer<
 
 const poRepOnboardedDataHistoryResponseSchema = z.array(
   z.object({
-    date: z.string().date(),
+    date: z.iso.date(),
     volume: z.string(),
     cumulativeTotal: z.string(),
   })
@@ -183,7 +183,7 @@ export type FetchPoRepDealsValueHistoryReturnType = z.infer<
 
 const poRepDealsValueHistoryResponseSchema = z.array(
   z.object({
-    date: z.string().date(),
+    date: z.iso.date(),
     volumeUSD: z.number(),
     cumulativeTotalUSD: z.number(),
   })
@@ -220,7 +220,7 @@ export type FetchPoRepPaymentsHistoryReturnType = z.infer<
 
 const poRepPaymentsHistoryResponseSchema = z.array(
   z.object({
-    date: z.string().date(),
+    date: z.iso.date(),
     dailyAmountUSD: z.number(),
     cumulativeAmountUSD: z.number(),
   })

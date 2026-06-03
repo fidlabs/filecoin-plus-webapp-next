@@ -376,13 +376,12 @@ export function bigintToPercentage(
 
 export function assertSchema<T>(
   input: unknown,
-  schema: ZodType<T>,
+  schema: ZodType<T, T>,
   message = "Input does not match schema"
 ): asserts input is T {
   const result = schema.safeParse(input);
 
   if (result.error) {
-    console.warn(result.error.errors);
     throw new TypeError(message);
   }
 }

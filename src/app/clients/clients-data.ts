@@ -107,7 +107,7 @@ export async function fetchClients(
 const clientsOldDatacapResponseSchema = z.object({
   results: z.array(
     z.object({
-      week: z.string().datetime(),
+      week: z.iso.datetime(),
       clients: z.number(),
       oldDatacap: numericalStringSchema,
       claims: numericalStringSchema,
@@ -178,7 +178,7 @@ const latestClaimsResponseSchema = z.object({
       providerId: z.string(),
       pieceCid: z.string(),
       pieceSize: numericalStringSchema,
-      createdAt: z.string().datetime(),
+      createdAt: z.iso.datetime(),
       isDDO: z.boolean(),
     })
   ),
@@ -264,7 +264,7 @@ const clientAllocationsResponseSchema = z.array(
     allocatorId: z.string(),
     clientId: z.string(),
     datacapAmount: numericalStringSchema,
-    timestamp: z.string().datetime(),
+    timestamp: z.iso.datetime(),
   })
 );
 
@@ -302,7 +302,7 @@ export type FetchClientReportsReturnType = z.infer<
 const clientReportsResponseSchema = z.array(
   z.object({
     id: z.string(),
-    create_date: z.string().datetime(),
+    create_date: z.iso.datetime(),
     client: z.string(),
     // more fields are returned here but we don't care about them atm
   })

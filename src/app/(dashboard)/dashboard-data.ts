@@ -46,7 +46,7 @@ const shownStatisticsTypes: string[] = [
   StorageProvidersDashboardStatisticType.TOTAL_STORAGE_PROVIDERS,
 ];
 
-function resolveResponse<T>(schema: ZodType<T>) {
+function resolveResponse<T>(schema: ZodType<T, T>) {
   return async function resolveResponseInner(response: Response): Promise<T> {
     throwHTTPErrorOrSkip(response);
     const json = await response.json();
