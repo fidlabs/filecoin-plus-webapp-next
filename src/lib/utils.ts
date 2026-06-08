@@ -4,7 +4,7 @@ import isFinite from "lodash/isFinite";
 import { filesize } from "filesize";
 import { type Metadata } from "next";
 import { getWeek, getWeekYear } from "date-fns";
-import { type ZodType } from "zod";
+import { prettifyError, type ZodType } from "zod";
 import { NumericalString } from "./zod-extensions";
 
 export type KeysMatchingType<T, V> = {
@@ -382,6 +382,10 @@ export function assertSchema<T>(
   const result = schema.safeParse(input);
 
   if (result.error) {
+    if (process.env.NODE_ENV === "development") {
+      console.warn(prettifyError(result.error));
+    }
+
     throw new TypeError(message);
   }
 }

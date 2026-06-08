@@ -53,6 +53,7 @@ export enum QueryKey {
   PO_REP_ONBOARDED_DATA_HISTORY = "po_rep_onboarded_data_history",
   PO_REP_DEALS_VALUE_HISTORY = "po_rep_deals_value_history",
   PO_REP_PAYMENTS_HISTORY = "po_rep_payments_history",
+  PO_REP_SLI_COMPLIANCE_HISTORY = "po_rep_sli_compliance_history",
 }
 
 export enum DashboardPageSectionId {
@@ -122,7 +123,7 @@ export enum StorageProviderDetailsPageSectionId {
 export enum PoRepPageSectionId {
   STATS = "stats",
   PARTICIPATING_STORAGE_PROVIDERS = "participating-sps",
-  SLA_PERFORMANCE_SCORE = "sla-performance",
+  SLI_PERFORMANCE = "sli-performance",
   SLA_RANKING = "sla-ranking",
   RPA = "rpa",
   BANDWIDTH = "bandwidth",

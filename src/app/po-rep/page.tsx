@@ -21,9 +21,10 @@ import {
   FetchPoRepPaymentsHistoryParameters,
   fetchPoRepProviders,
   FetchPoRepProvidersParameters,
+  fetchSLIComplianceHistory,
+  FetchSLIComplianceHistoryParameters,
 } from "./po-rep-data";
 import { SWRConfig, unstable_serialize } from "swr";
-// import { SLAPerformanceWidget } from "./components/sla-performance-widget";
 // import { PoRepLeaderboardsWidget } from "./components/po-rep-leaderboards-widget";
 // import { RPASLIWidget } from "./components/rpa-sli-widget";
 // import { BandwidthSLIWidget } from "./components/bandwidth-sli-widget";
@@ -33,22 +34,23 @@ import { SWRConfig, unstable_serialize } from "swr";
 import { PoRepMoneyFlowWidget } from "./components/po-rep-money-flow-widget";
 import { PoRepOnboardedDataHistoryWidget } from "./components/po-rep-onboarded-data-history-widget";
 import { PoRepDealsValueHistoryWidget } from "./components/po-rep-deals-value-history-widget";
+import { SLIComplianceHistoryWidget } from "./components/sli-compliance-history-widget";
 
 export const revalidate = 1800; // 30 minutes
 
 const sectionTabs = {
   [PoRepPageSectionId.STATS]: "Statistics",
+  [PoRepPageSectionId.ONBOARDED_DATA]: "Onboarded Data",
+  [PoRepPageSectionId.DEALS_VALUE]: "Predicted ARR",
+  [PoRepPageSectionId.MONEY_FLOW]: "Money Flow",
+  [PoRepPageSectionId.SLI_PERFORMANCE]: "SLI Performance",
   [PoRepPageSectionId.PARTICIPATING_STORAGE_PROVIDERS]: "Participating SPs",
-  // [PoRepPageSectionId.SLA_PERFORMANCE_SCORE]: "SLA Performance",
   // [PoRepPageSectionId.SLA_RANKING]: "SLA Ranking",
   // [PoRepPageSectionId.RPA]: "RPA",
   // [PoRepPageSectionId.BANDWIDTH]: "Bandwidth",
   // [PoRepPageSectionId.TTFB]: "TTFB",
   // [PoRepPageSectionId.AVERAGE_PRICE]: "Average Price",
   // [PoRepPageSectionId.DC_ALLOCATED]: "DC Allocated",
-  [PoRepPageSectionId.ONBOARDED_DATA]: "Onboarded Data",
-  [PoRepPageSectionId.DEALS_VALUE]: "Deals Value",
-  [PoRepPageSectionId.MONEY_FLOW]: "Money Flow",
 } as const satisfies IdBasedStickyTabNaviationProps["tabs"];
 
 const statisticsDefaultParameters: FetchPoRepDashboardStatisticsParameters = {
@@ -74,6 +76,12 @@ const paymentsHistoryDefaultParameters: FetchPoRepPaymentsHistoryParameters = {
   windowSize: "day",
 };
 
+const sliHistoryDefaultParameters: FetchSLIComplianceHistoryParameters = {
+  windowSize: "week",
+  sliType: undefined,
+  providerId: undefined,
+};
+
 function unwrapResult<T>(result: PromiseSettledResult<T>): T | undefined {
   return result.status === "fulfilled" ? result.value : undefined;
 }
@@ -85,12 +93,14 @@ export default async function PoRepPage() {
     onboardedDataHistoryResult,
     dealsValueHistoryResult,
     paymentsHistoryResult,
+    sliHistoryResult,
   ] = await Promise.allSettled([
     fetchPoRepDashboardStatistics(statisticsDefaultParameters),
     fetchPoRepProviders(providersDefaultParameters),
     fetchPoRepOnboardedDataHistory(onboardedDataHistoryDefaultParameters),
     fetchPoRepDealsValueHistory(dealsValueHistoryDefaultParameters),
     fetchPoRepPaymentsHistory(paymentsHistoryDefaultParameters),
+    fetchSLIComplianceHistory(sliHistoryDefaultParameters),
   ]);
 
   const fallback = {
@@ -114,6 +124,10 @@ export default async function PoRepPage() {
       QueryKey.PO_REP_PAYMENTS_HISTORY,
       paymentsHistoryDefaultParameters,
     ])]: unwrapResult(paymentsHistoryResult),
+    [unstable_serialize([
+      QueryKey.PO_REP_SLI_COMPLIANCE_HISTORY,
+      sliHistoryDefaultParameters,
+    ])]: unwrapResult(sliHistoryResult),
   };
 
   return (
@@ -137,10 +151,7 @@ export default async function PoRepPage() {
         <IdBasedStickyTabNaviation className="mb-8" tabs={sectionTabs} />
         <Container className="flex flex-col gap-y-8">
           <PoRepStatisticsWidget id={PoRepPageSectionId.STATS} />
-          <PoRepParticipantsWidget
-            id={PoRepPageSectionId.PARTICIPATING_STORAGE_PROVIDERS}
-          />
-          {/* <SLAPerformanceWidget id={PoRepPageSectionId.SLA_PERFORMANCE_SCORE} /> */}
+
           {/* <PoRepLeaderboardsWidget id={PoRepPageSectionId.SLA_RANKING} /> */}
           {/* <RPASLIWidget id={PoRepPageSectionId.RPA} /> */}
           {/* <BandwidthSLIWidget id={PoRepPageSectionId.BANDWIDTH} /> */}
@@ -152,6 +163,10 @@ export default async function PoRepPage() {
           />
           <PoRepDealsValueHistoryWidget id={PoRepPageSectionId.DEALS_VALUE} />
           <PoRepMoneyFlowWidget id={PoRepPageSectionId.MONEY_FLOW} />
+          <SLIComplianceHistoryWidget id={PoRepPageSectionId.SLI_PERFORMANCE} />
+          <PoRepParticipantsWidget
+            id={PoRepPageSectionId.PARTICIPATING_STORAGE_PROVIDERS}
+          />
           <BackToTop />
         </Container>
       </>

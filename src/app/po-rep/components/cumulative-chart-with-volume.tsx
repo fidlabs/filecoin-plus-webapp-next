@@ -84,7 +84,7 @@ const defaultFormatDate: DateFormatFn = (dateString, windowSize) => {
 
 const defaultFormatXAxisTick: XAxisTickFormatFn = (
   dateString,
-  index,
+  _index,
   values,
   windowSize
 ) => {
@@ -106,7 +106,9 @@ const defaultFormatXAxisTick: XAxisTickFormatFn = (
     return weekToReadableString(weekFromDate(date));
   }
 
-  const previousDateString = index > 0 ? values.at(index - 1) : undefined;
+  const currentIndex = values.findIndex((value) => value === dateString);
+  const previousDateString =
+    currentIndex > 0 ? values.at(currentIndex - 1) : undefined;
   const previousDate = previousDateString
     ? new UTCDate(previousDateString)
     : undefined;

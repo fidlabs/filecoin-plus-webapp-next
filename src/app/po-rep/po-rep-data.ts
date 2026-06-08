@@ -5,7 +5,10 @@ import {
   cdpPoRepStatisticsResponseSchema,
 } from "@/lib/schemas";
 import { assertSchema, objectToURLSearchParams } from "@/lib/utils";
-import { numericalStringSchema } from "@/lib/zod-extensions";
+import {
+  type NumericalString,
+  numericalStringSchema,
+} from "@/lib/zod-extensions";
 import { z } from "zod";
 
 interface EmptyPaginationParameters {
@@ -235,7 +238,7 @@ export async function fetchPoRepPaymentsHistory(
 
   throwHTTPErrorOrSkip(
     response,
-    `CDP API returned response status "${response.status}" when fetchin Po-Rep payments history; URL: ${endpoint}`
+    `CDP API returned response status "${response.status}" when fetching Po-Rep payments history; URL: ${endpoint}`
   );
 
   const json = await response.json();
@@ -247,4 +250,58 @@ export async function fetchPoRepPaymentsHistory(
   );
 
   return json;
+}
+
+// SLI compliance history
+export interface FetchSLIComplianceHistoryParameters {
+  windowSize?: "day" | "week" | "month";
+  sliType?: "retrievabilityBps" | "bandwidthMbps" | "latencyMs" | "indexingPct";
+  providerId?: NumericalString | bigint | number;
+  dealId?: NumericalString | bigint | number;
+}
+
+export type FetchSLIComplianceHistoryReturnType = z.infer<
+  typeof sliComplianceHistoryResponseSchema
+>;
+
+const sliComplianceHistoryResponseSchema = z.array(
+  z.intersection(
+    z.object({
+      date: z.iso.date(),
+    }),
+    z.record(
+      z.enum(["compliant", "nonCompliant", "unknown"]),
+      z.object({
+        providersCount: z.number(),
+        providersPercentage: z.number(),
+        dealsCount: z.number(),
+        dealsPercentage: z.number(),
+        totalDealsSize: numericalStringSchema,
+        totalDealsSizePercentage: z.number(),
+      })
+    )
+  )
+);
+
+export async function fetchSLIComplianceHistory(
+  parameters: FetchSLIComplianceHistoryParameters
+): Promise<FetchSLIComplianceHistoryReturnType> {
+  const searchParams = objectToURLSearchParams(parameters, true);
+  const endpoint = `${CDP_API_URL}/po-rep/sli-compliance-history?${searchParams.toString()}`;
+  const response = await fetch(endpoint);
+
+  throwHTTPErrorOrSkip(
+    response,
+    `CDP API returned response status "${response.status}" when fetching Po-Rep SLI compliance history; URL: ${endpoint}`
+  );
+
+  const json = await response.json();
+
+  assertSchema(
+    json,
+    sliComplianceHistoryResponseSchema,
+    `Invalid response from CDP API when fetching Po-Rep SLI compliance history; URL: ${endpoint}`
+  );
+
+  return json as FetchSLIComplianceHistoryReturnType;
 }
