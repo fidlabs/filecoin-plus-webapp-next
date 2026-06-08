@@ -374,9 +374,7 @@ const allocatorsAuditStatesResponseSchema = z.array(
       z.object({
         started: z.iso.datetime().nullable(),
         ended: z.iso.datetime().nullable(),
-        dc_allocated: z
-          .union([z.literal(""), z.iso.datetime()])
-          .nullable(),
+        dc_allocated: z.union([z.literal(""), z.iso.datetime()]).nullable(),
         outcome: z.enum([
           "invalid",
           "unknown",
