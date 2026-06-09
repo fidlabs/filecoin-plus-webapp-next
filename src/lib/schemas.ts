@@ -132,6 +132,8 @@ export type StorageProvidersDashboardStatistic = z.infer<
 export enum PoRepDashboardStatisticType {
   TOTAL_DEALS_DONE = "TOTAL_DEALS_DONE",
   TOTAL_USD_PAID = "TOTAL_USD_PAID",
+  TOTAL_DATA_OBOARDED = "TOTAL_DATA_ONBOARDED",
+  TOTAL_DEALS_VALUE = "TOTAL_DEALS_VALUE",
 }
 
 export const poRepDashboardStatisticSchema = z.intersection(

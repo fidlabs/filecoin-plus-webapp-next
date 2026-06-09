@@ -2,6 +2,7 @@ import {
   AllocatorsPageSectionId,
   ClientsPageSectionId,
   DashboardPageSectionId,
+  PoRepPageSectionId,
   StorageProvidersPageSectionId,
 } from "@/lib/constants";
 import { useSingleClickHandler } from "@/lib/hooks/use-single-click-handler";
@@ -48,6 +49,11 @@ export interface DashboardStatisticDisplayProps {
 const bytesStatisticTypes: string[] = [
   ClientsDashboardStatisticType.DATACAP_SPENT_BY_CLIENTS,
   ClientsDashboardStatisticType.TOTAL_REMAINING_CLIENTS_DATACAP,
+  PoRepDashboardStatisticType.TOTAL_DATA_OBOARDED,
+];
+const usdStatisticTypes: string[] = [
+  PoRepDashboardStatisticType.TOTAL_DEALS_VALUE,
+  PoRepDashboardStatisticType.TOTAL_USD_PAID,
 ];
 const numericFormatter = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 2,
@@ -123,9 +129,7 @@ function formatDashboardStatisticValue(
       dashboardStatistic.value.value
     );
 
-    if (
-      dashboardStatistic.type === PoRepDashboardStatisticType.TOTAL_USD_PAID
-    ) {
+    if (usdStatisticTypes.includes(dashboardStatistic.type)) {
       return `${numericString} USD`;
     }
 
@@ -180,6 +184,18 @@ function getStatisticLinkTuple(
         "IPNI Breakdown",
         `/storage-providers#${StorageProvidersPageSectionId.IPNI_MISREPORTING}`,
       ];
+    case PoRepDashboardStatisticType.TOTAL_DATA_OBOARDED:
+      return [
+        "Onboarded Data History",
+        `/po-rep#${PoRepPageSectionId.ONBOARDED_DATA}`,
+      ];
+    case PoRepDashboardStatisticType.TOTAL_DEALS_VALUE:
+      return [
+        "Predicted ARR History",
+        `/po-rep#${PoRepPageSectionId.DEALS_VALUE}`,
+      ];
+    case PoRepDashboardStatisticType.TOTAL_USD_PAID:
+      return ["Money Flow", `/po-rep#${PoRepPageSectionId.MONEY_FLOW}`];
     default:
       return null;
   }
