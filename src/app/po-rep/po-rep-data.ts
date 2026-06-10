@@ -1,4 +1,5 @@
 import { CDP_API_URL } from "@/lib/constants";
+import { F0IdInput } from "@/lib/f0-id";
 import { throwHTTPErrorOrSkip } from "@/lib/http-errors";
 import {
   CdpPoRepStatisticsResponse,
@@ -82,7 +83,10 @@ export async function fetchPoRepDashboardStatistics(
 }
 
 // Providers
-export type FetchPoRepProvidersParameters = PaginationParameters;
+export type FetchPoRepProvidersParameters = PaginationParameters & {
+  filter?: F0IdInput;
+  showActive?: boolean;
+};
 export type FetchPoRepProvidersReturnType = z.infer<
   typeof poRepProvidersResponseSchema
 >;

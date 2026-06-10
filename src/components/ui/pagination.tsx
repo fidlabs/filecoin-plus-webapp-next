@@ -99,56 +99,60 @@ const Paginator = ({
 
   return (
     <div className="flex w-full justify-between">
-      <Pagination>
-        <PaginationContent>
-          <PaginationItem
-            className={cn(!canGoBack && "pointer-events-none")}
-            onClick={handlePreviousPageButtonClick}
-          >
-            <PaginationPrevious />
-          </PaginationItem>
+      {total > 0 ? (
+        <Pagination>
+          <PaginationContent>
+            <PaginationItem
+              className={cn(!canGoBack && "pointer-events-none")}
+              onClick={handlePreviousPageButtonClick}
+            >
+              <PaginationPrevious />
+            </PaginationItem>
 
-          {showFirstPage && (
-            <PaginatorPage
-              page={1}
-              isActive={page === 1}
-              onPageChange={onPageChange}
-            />
-          )}
+            {showFirstPage && (
+              <PaginatorPage
+                page={1}
+                isActive={page === 1}
+                onPageChange={onPageChange}
+              />
+            )}
 
-          {showPreviousEllipsis && (
-            <PaginationEllipsis className="hidden md:flex" />
-          )}
+            {showPreviousEllipsis && (
+              <PaginationEllipsis className="hidden md:flex" />
+            )}
 
-          {visiblePages.map((pageNumber) => (
-            <PaginatorPage
-              key={`page_${pageNumber}`}
-              page={pageNumber}
-              isActive={pageNumber === page}
-              onPageChange={onPageChange}
-            />
-          ))}
+            {visiblePages.map((pageNumber) => (
+              <PaginatorPage
+                key={`page_${pageNumber}`}
+                page={pageNumber}
+                isActive={pageNumber === page}
+                onPageChange={onPageChange}
+              />
+            ))}
 
-          {showNextEllipsis && (
-            <PaginationEllipsis className="hidden md:flex" />
-          )}
+            {showNextEllipsis && (
+              <PaginationEllipsis className="hidden md:flex" />
+            )}
 
-          {showEndPage && (
-            <PaginatorPage
-              page={lastPage}
-              isActive={page === lastPage}
-              onPageChange={onPageChange}
-            />
-          )}
+            {showEndPage && (
+              <PaginatorPage
+                page={lastPage}
+                isActive={page === lastPage}
+                onPageChange={onPageChange}
+              />
+            )}
 
-          <PaginationItem
-            className={cn(!canGoForward && "pointer-events-none")}
-            onClick={handleNextPageButtonClick}
-          >
-            <PaginationNext />
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
+            <PaginationItem
+              className={cn(!canGoForward && "pointer-events-none")}
+              onClick={handleNextPageButtonClick}
+            >
+              <PaginationNext />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
+      ) : (
+        <div />
+      )}
 
       {!!pageSizeOptions && (
         <div className="flex gap-2 font-semibold items-center text-muted-foreground">

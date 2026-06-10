@@ -144,6 +144,7 @@ const config: Config = {
   },
   plugins: [
     require("tailwindcss-animate"),
+    require("tailwindcss-aria-attributes"),
     plugin(({ matchUtilities }) => {
       //Add the css properties that you use in tailwind
       matchUtilities({
@@ -161,4 +162,5 @@ const config: Config = {
     }),
   ],
 };
+
 export default config;
