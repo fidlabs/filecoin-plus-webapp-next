@@ -9,7 +9,7 @@ import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
 import { calculateTimestampFromHeight } from "@/lib/utils";
 import Link from "next/link";
 import { parseAsInteger, useQueryState } from "nuqs";
-import { useEffect, useMemo, useRef, type ComponentProps } from "react";
+import { useCallback, useMemo, useRef, type ComponentProps } from "react";
 import useSWR from "swr";
 import {
   fetchPoRepProviders,
@@ -61,11 +61,27 @@ export function PoRepParticipantsWidget(props: PoRepParticipantsWidgetProps) {
   const isLongLoading = useDelayedFlag(isLoading, 500);
   const providers = data?.data ?? [];
 
-  useEffect(() => {
+  const scrollIntoView = useCallback(() => {
     if (headerRef.current !== null) {
       headerRef.current.scrollIntoView();
     }
-  }, [page, pageSize]);
+  }, []);
+
+  const handlePageChange = useCallback(
+    (page: number | null) => {
+      setPage(page);
+      scrollIntoView();
+    },
+    [scrollIntoView, setPage]
+  );
+
+  const handlePageSizeChange = useCallback(
+    (pageSize: number | null) => {
+      setPageSize(pageSize);
+      scrollIntoView();
+    },
+    [scrollIntoView, setPageSize]
+  );
 
   return (
     <Card {...props}>
@@ -158,8 +174,8 @@ export function PoRepParticipantsWidget(props: PoRepParticipantsWidgetProps) {
           page={page}
           pageSize={pageSize}
           pageSizeOptions={[5, 10, 20]}
-          onPageChange={setPage}
-          onPageSizeChange={setPageSize}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
           total={data?.pagination.total ?? 0}
         />
       </CardFooter>
