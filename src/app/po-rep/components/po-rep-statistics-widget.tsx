@@ -62,7 +62,7 @@ export function PoRepStatisticsWidget(props: PoRepStatisticsWidgetProps) {
       )}
 
       {!isLoading && !error && (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
           {statistics.map((statistic) => (
             <DashboardStatisticDisplay
               key={statistic.type}

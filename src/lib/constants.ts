@@ -54,6 +54,7 @@ export enum QueryKey {
   PO_REP_DEALS_VALUE_HISTORY = "po_rep_deals_value_history",
   PO_REP_PAYMENTS_HISTORY = "po_rep_payments_history",
   PO_REP_SLI_COMPLIANCE_HISTORY = "po_rep_sli_compliance_history",
+  PO_REP_ACTIVE_CLIENTS_HISTORY = "po_rep_active_clients_history",
 }
 
 export enum DashboardPageSectionId {
@@ -133,6 +134,7 @@ export enum PoRepPageSectionId {
   ONBOARDED_DATA = "onboarded-data",
   DEALS_VALUE = "deals-value",
   MONEY_FLOW = "money-flow",
+  ACTIVE_CLIENTS_HISTORY = "active-clients",
 }
 
 export const CHECKS_BREAKDOWN_INTERVAL_PARAM_KEY = "interval";

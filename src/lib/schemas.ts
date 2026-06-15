@@ -134,6 +134,7 @@ export enum PoRepDashboardStatisticType {
   TOTAL_USD_PAID = "TOTAL_USD_PAID",
   TOTAL_DATA_OBOARDED = "TOTAL_DATA_ONBOARDED",
   TOTAL_DEALS_VALUE = "TOTAL_DEALS_VALUE",
+  ACTIVE_CLIENTS_COUNT = "ACTIVE_CLIENTS_COUNT",
 }
 
 export const poRepDashboardStatisticSchema = z.intersection(

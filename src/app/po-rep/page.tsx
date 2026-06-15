@@ -11,6 +11,8 @@ import Link from "next/link";
 import { PoRepStatisticsWidget } from "./components/po-rep-statistics-widget";
 import { PoRepParticipantsWidget } from "./components/po-rep-participants-widget";
 import {
+  fetchPoRepActiveClientsHistory,
+  FetchPoRepActiveClientsHistoryParameters,
   fetchPoRepDashboardStatistics,
   FetchPoRepDashboardStatisticsParameters,
   fetchPoRepDealsValueHistory,
@@ -35,6 +37,7 @@ import { PoRepMoneyFlowWidget } from "./components/po-rep-money-flow-widget";
 import { PoRepOnboardedDataHistoryWidget } from "./components/po-rep-onboarded-data-history-widget";
 import { PoRepDealsValueHistoryWidget } from "./components/po-rep-deals-value-history-widget";
 import { SLIComplianceHistoryWidget } from "./components/sli-compliance-history-widget";
+import { PoRepActiveClientsHistoryWidget } from "./components/po-rep-active-clients-history-widget";
 
 export const revalidate = 1800; // 30 minutes
 
@@ -43,6 +46,7 @@ const sectionTabs = {
   [PoRepPageSectionId.ONBOARDED_DATA]: "Onboarded Data",
   [PoRepPageSectionId.DEALS_VALUE]: "Predicted ARR",
   [PoRepPageSectionId.MONEY_FLOW]: "Money Flow",
+  [PoRepPageSectionId.ACTIVE_CLIENTS_HISTORY]: "Active Clients",
   [PoRepPageSectionId.SLI_PERFORMANCE]: "SLI Performance",
   [PoRepPageSectionId.PARTICIPATING_STORAGE_PROVIDERS]: "Participating SPs",
   // [PoRepPageSectionId.SLA_RANKING]: "SLA Ranking",
@@ -76,6 +80,11 @@ const paymentsHistoryDefaultParameters: FetchPoRepPaymentsHistoryParameters = {
   windowSize: "day",
 };
 
+const activeClientsHistoryDefaultParameters: FetchPoRepActiveClientsHistoryParameters =
+  {
+    windowSize: "day",
+  };
+
 const sliHistoryDefaultParameters: FetchSLIComplianceHistoryParameters = {
   windowSize: "week",
   sliType: undefined,
@@ -93,6 +102,7 @@ export default async function PoRepPage() {
     onboardedDataHistoryResult,
     dealsValueHistoryResult,
     paymentsHistoryResult,
+    activeClientsHistoryResult,
     sliHistoryResult,
   ] = await Promise.allSettled([
     fetchPoRepDashboardStatistics(statisticsDefaultParameters),
@@ -100,6 +110,7 @@ export default async function PoRepPage() {
     fetchPoRepOnboardedDataHistory(onboardedDataHistoryDefaultParameters),
     fetchPoRepDealsValueHistory(dealsValueHistoryDefaultParameters),
     fetchPoRepPaymentsHistory(paymentsHistoryDefaultParameters),
+    fetchPoRepActiveClientsHistory(activeClientsHistoryDefaultParameters),
     fetchSLIComplianceHistory(sliHistoryDefaultParameters),
   ]);
 
@@ -124,6 +135,10 @@ export default async function PoRepPage() {
       QueryKey.PO_REP_PAYMENTS_HISTORY,
       paymentsHistoryDefaultParameters,
     ])]: unwrapResult(paymentsHistoryResult),
+    [unstable_serialize([
+      QueryKey.PO_REP_ACTIVE_CLIENTS_HISTORY,
+      activeClientsHistoryDefaultParameters,
+    ])]: unwrapResult(activeClientsHistoryResult),
     [unstable_serialize([
       QueryKey.PO_REP_SLI_COMPLIANCE_HISTORY,
       sliHistoryDefaultParameters,
@@ -163,6 +178,9 @@ export default async function PoRepPage() {
           />
           <PoRepDealsValueHistoryWidget id={PoRepPageSectionId.DEALS_VALUE} />
           <PoRepMoneyFlowWidget id={PoRepPageSectionId.MONEY_FLOW} />
+          <PoRepActiveClientsHistoryWidget
+            id={PoRepPageSectionId.ACTIVE_CLIENTS_HISTORY}
+          />
           <SLIComplianceHistoryWidget id={PoRepPageSectionId.SLI_PERFORMANCE} />
           <PoRepParticipantsWidget
             id={PoRepPageSectionId.PARTICIPATING_STORAGE_PROVIDERS}

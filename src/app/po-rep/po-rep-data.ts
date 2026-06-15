@@ -309,3 +309,42 @@ export async function fetchSLIComplianceHistory(
 
   return json as FetchSLIComplianceHistoryReturnType;
 }
+
+// Active clients history
+export type FetchPoRepActiveClientsHistoryParameters =
+  HistoricalChartParameters & {
+    providerId?: NumericalString | bigint | number;
+  };
+export type FetchPoRepActiveClientsHistoryReturnType = z.infer<
+  typeof poRepActiveClientsHistoryResponseSchema
+>;
+
+const poRepActiveClientsHistoryResponseSchema = z.array(
+  z.object({
+    date: z.iso.date(),
+    activeClientsCount: z.number(),
+  })
+);
+
+export async function fetchPoRepActiveClientsHistory(
+  parameters: FetchPoRepActiveClientsHistoryParameters = {}
+): Promise<FetchPoRepActiveClientsHistoryReturnType> {
+  const searchParams = objectToURLSearchParams(parameters, true);
+  const endpoint = `${CDP_API_URL}/po-rep/active-clients-history?${searchParams.toString()}`;
+  const response = await fetch(endpoint);
+
+  throwHTTPErrorOrSkip(
+    response,
+    `CDP API returned response status "${response.status}" when fetching Po-Rep active clients history; URL: ${endpoint}`
+  );
+
+  const json = await response.json();
+
+  assertSchema(
+    json,
+    poRepActiveClientsHistoryResponseSchema,
+    `Invalid response from CDP API when fetching Po-Rep active clients history; URL: ${endpoint}`
+  );
+
+  return json;
+}

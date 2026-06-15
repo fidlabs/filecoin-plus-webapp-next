@@ -196,6 +196,11 @@ function getStatisticLinkTuple(
       ];
     case PoRepDashboardStatisticType.TOTAL_USD_PAID:
       return ["Money Flow", `/po-rep#${PoRepPageSectionId.MONEY_FLOW}`];
+    case PoRepDashboardStatisticType.ACTIVE_CLIENTS_COUNT:
+      return [
+        "Active Clients History",
+        `/po-rep#${PoRepPageSectionId.ACTIVE_CLIENTS_HISTORY}`,
+      ];
     default:
       return null;
   }

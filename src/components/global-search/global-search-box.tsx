@@ -376,6 +376,18 @@ const defaultActions = [
     tags: ["porep", "po-rep", "money", "flow", "payments", "history"],
     link: `/po-rep#${PoRepPageSectionId.MONEY_FLOW}`,
   },
+  {
+    name: "PoRep Market Active Clients History",
+    group: "PoRep",
+    tags: ["porep", "po-rep", "active", "client", "history"],
+    link: `/po-rep#${PoRepPageSectionId.ACTIVE_CLIENTS_HISTORY}`,
+  },
+  {
+    name: "PoRep Market SLI Performace",
+    group: "PoRep",
+    tags: ["porep", "po-rep", "sli", "sla", "performance", "history"],
+    link: `/po-rep#${PoRepPageSectionId.SLI_PERFORMANCE}`,
+  },
 ] as Action[];
 
 const GlobalSearchBox = () => {
