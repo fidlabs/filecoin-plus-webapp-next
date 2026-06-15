@@ -32,10 +32,6 @@ type WindowSize = HistoricalChartWindowSizeSelectProps["windowSize"];
 type CardProps = ComponentProps<typeof Card>;
 export type PoRepActiveClientsHistoryWidgetProps = Omit<CardProps, "children">;
 
-const dateMonthFormatter = new Intl.DateTimeFormat("en-US", {
-  month: "short",
-});
-
 const dateFormatter = new Intl.DateTimeFormat("en-US", {
   day: "numeric",
   month: "short",
@@ -110,7 +106,7 @@ export function PoRepActiveClientsHistoryWidget(
 
       return date.getDate().toString();
     },
-    [windowSize]
+    [data, windowSize]
   );
 
   const formatDate = useCallback((value: unknown) => {
