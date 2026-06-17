@@ -228,8 +228,8 @@ export type FetchPoRepPaymentsHistoryReturnType = z.infer<
 const poRepPaymentsHistoryResponseSchema = z.array(
   z.object({
     date: z.iso.date(),
-    dailyAmountUSD: z.number(),
-    cumulativeAmountUSD: z.number(),
+    volumeUSD: z.number(),
+    cumulativeTotalUSD: z.number(),
   })
 );
 

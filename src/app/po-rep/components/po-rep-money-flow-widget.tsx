@@ -85,27 +85,27 @@ export function PoRepMoneyFlowWidget(props: PoRepMoneyFlowWidgetProps) {
 
     if (!previousEntry) {
       return {
-        cumulativeAmount: formatValue(currentEntry.cumulativeAmountUSD),
+        cumulativeAmount: formatValue(currentEntry.cumulativeTotalUSD),
         cumulativeAmountChange: undefined,
-        currentWindowAmount: formatValue(currentEntry.dailyAmountUSD),
+        currentWindowAmount: formatValue(currentEntry.volumeUSD),
         currentWindowAmountChange: undefined,
       };
     }
 
     const cumulativeAmountChange =
-      previousEntry.cumulativeAmountUSD === 0
+      previousEntry.cumulativeTotalUSD === 0
         ? undefined
-        : currentEntry.cumulativeAmountUSD / previousEntry.cumulativeAmountUSD -
+        : currentEntry.cumulativeTotalUSD / previousEntry.cumulativeTotalUSD -
           1;
     const currentDailyAmountChange =
-      previousEntry.dailyAmountUSD === 0
+      previousEntry.volumeUSD === 0
         ? undefined
-        : currentEntry.dailyAmountUSD / previousEntry.dailyAmountUSD - 1;
+        : currentEntry.volumeUSD / previousEntry.volumeUSD - 1;
 
     return {
-      cumulativeAmount: formatValue(currentEntry.cumulativeAmountUSD),
+      cumulativeAmount: formatValue(currentEntry.volumeUSD),
       cumulativeAmountChange,
-      currentWindowAmount: formatValue(currentEntry.dailyAmountUSD),
+      currentWindowAmount: formatValue(currentEntry.volumeUSD),
       currentWindowAmountChange: currentDailyAmountChange,
     };
   }, [chartData, formatValue]);
@@ -143,7 +143,7 @@ export function PoRepMoneyFlowWidget(props: PoRepMoneyFlowWidgetProps) {
 
       <div className="relative">
         {!!error && (
-          <p className="text-sm text-muted-foreground text-center">
+          <p className="text-sm text-muted-foreground text-center mb-8">
             An error has occured while loading the data. Please try again later.
           </p>
         )}
@@ -152,8 +152,8 @@ export function PoRepMoneyFlowWidget(props: PoRepMoneyFlowWidgetProps) {
           <CumulativeChartWithVolume
             data={chartData}
             dateKey="date"
-            cumulativeKey="cumulativeAmountUSD"
-            volumeKey="dailyAmountUSD"
+            cumulativeKey="cumulativeTotalUSD"
+            volumeKey="volumeUSD"
             syncId={syncId}
             windowSize={windowSize}
             formatValue={formatValue}
