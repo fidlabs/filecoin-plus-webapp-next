@@ -45,7 +45,7 @@ const gridItemVariants = cva("py-4 px-6 bg-gray-100/50 rounded-md", {
   variants: {
     variant: {
       success: "text-green-500",
-      warning: "text-orange-500",
+      warning: "text-yellow-500",
       error: "text-red-500",
       default: "",
     },
@@ -109,12 +109,12 @@ export function PoRepProviderSLIPerformanceStatisticsGrid({
       {
         label: labels.nonCompliantDealsCount,
         value: data.nonCompliantDealsCount,
-        variant: data.nonCompliantDealsCount === 0 ? "default" : "warning",
+        variant: data.nonCompliantDealsCount === 0 ? "default" : "error",
       },
       {
         label: labels.unknownDealsCount,
         value: data.unknownDealsCount,
-        variant: data.unknownDealsCount === 0 ? "default" : "error",
+        variant: data.unknownDealsCount === 0 ? "default" : "warning",
       },
     ];
   }, [data]);
