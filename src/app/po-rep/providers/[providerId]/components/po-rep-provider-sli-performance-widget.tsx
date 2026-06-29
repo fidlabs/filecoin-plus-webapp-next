@@ -19,7 +19,7 @@ export function PoRepProviderSLIPerformanceWidget({
   providerId,
 }: PoRepProviderPerformanceWidgetProps) {
   return (
-    <Card className="py-6">
+    <Card className="pt-6">
       <header className="mb-6 px-4">
         <h3 className="text-lg font-semibold">SLI Performance</h3>
         <p className="text-sm text-muted-foreground">

@@ -143,9 +143,9 @@ function GridItem({ label, value, variant = "default" }: GridItemProps) {
     <div className={cn(gridItemVariants({ variant }))}>
       <p className="text-xs text-muted-foreground mb-2">{label}</p>
       {value !== null ? (
-        <p className="text-lg font-semibold">{value}</p>
+        <p className="text-2xl font-semibold">{value}</p>
       ) : (
-        <Skeleton className="h-6 w-[100px]" />
+        <Skeleton className="h-8 w-[100px]" />
       )}
     </div>
   );
