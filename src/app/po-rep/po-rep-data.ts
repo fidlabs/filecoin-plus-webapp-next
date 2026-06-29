@@ -1,5 +1,5 @@
 import { CDP_API_URL } from "@/lib/constants";
-import { F0IdInput } from "@/lib/f0-id";
+import { F0Id, F0IdInput } from "@/lib/f0-id";
 import { throwHTTPErrorOrSkip } from "@/lib/http-errors";
 import {
   CdpPoRepStatisticsResponse,
@@ -260,7 +260,7 @@ export async function fetchPoRepPaymentsHistory(
 export interface FetchSLIComplianceHistoryParameters {
   windowSize?: "day" | "week" | "month";
   sliType?: "retrievabilityBps" | "bandwidthMbps" | "latencyMs" | "indexingPct";
-  providerId?: NumericalString | bigint | number;
+  providerId?: F0IdInput;
   dealId?: NumericalString | bigint | number;
 }
 
@@ -344,6 +344,46 @@ export async function fetchPoRepActiveClientsHistory(
     json,
     poRepActiveClientsHistoryResponseSchema,
     `Invalid response from CDP API when fetching Po-Rep active clients history; URL: ${endpoint}`
+  );
+
+  return json;
+}
+
+// Provider SLI compliance statistics
+export interface FetchPoRepProviderSliComplianceStatisticsParameters {
+  providerId: F0Id | F0IdInput;
+}
+
+export type FetchPoRepProviderSliComplianceStatisticsReturnType = z.infer<
+  typeof poRepProviderSliComplianceStatisticsSchema
+>;
+
+const poRepProviderSliComplianceStatisticsSchema = z.object({
+  totalDealsCount: z.number(),
+  activeDealsCount: z.number(),
+  compliantDealsPercentage: z.number().nullable(),
+  compliantDealsCount: z.number(),
+  nonCompliantDealsCount: z.number(),
+  unknownDealsCount: z.number(),
+});
+
+export async function fetchPoRepProviderSliComplianceStatistics({
+  providerId,
+}: FetchPoRepProviderSliComplianceStatisticsParameters): Promise<FetchPoRepProviderSliComplianceStatisticsReturnType> {
+  const endpoint = `${CDP_API_URL}/po-rep/providers/${F0Id.from(providerId).toString()}/compliance-stats`;
+  const response = await fetch(endpoint);
+
+  throwHTTPErrorOrSkip(
+    response,
+    `CDP API returned response status "${response.status}" when fetching Po-Rep provider SLI compliance statistics; URL: ${endpoint}`
+  );
+
+  const json = await response.json();
+
+  assertSchema(
+    json,
+    poRepProviderSliComplianceStatisticsSchema,
+    `Invalid response from CDP API when fetching Po-Rep provider SLI compliance statistics; URL: ${endpoint}`
   );
 
   return json;

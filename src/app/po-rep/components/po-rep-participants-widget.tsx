@@ -220,7 +220,7 @@ export function PoRepParticipantsWidget(props: PoRepParticipantsWidgetProps) {
             >
               <header className="mb-4">
                 <Button asChild variant="link" className="text-md mb-1">
-                  <Link href={`/storage-providers/${provider.providerId}`}>
+                  <Link href={`/po-rep/providers/${provider.providerId}`}>
                     {provider.providerId}
                   </Link>
                 </Button>

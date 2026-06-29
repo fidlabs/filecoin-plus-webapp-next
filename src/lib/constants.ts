@@ -55,6 +55,8 @@ export enum QueryKey {
   PO_REP_PAYMENTS_HISTORY = "po_rep_payments_history",
   PO_REP_SLI_COMPLIANCE_HISTORY = "po_rep_sli_compliance_history",
   PO_REP_ACTIVE_CLIENTS_HISTORY = "po_rep_active_clients_history",
+  PO_REP_DEALS_LIST = "po_rep_deals_list",
+  PO_REP_PROVIDER_SLI_COMPLIANCE_STATISTICS = "po_rep_provider_sli_compliance_statistics",
 }
 
 export enum DashboardPageSectionId {

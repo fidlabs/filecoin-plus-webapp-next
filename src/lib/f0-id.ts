@@ -1,7 +1,11 @@
 type F0IdString = `f0${number}`;
-export type F0IdInput = `f0${number}` | `${number}` | bigint | number;
+export type F0IdInput = F0Id | F0IdString | `${number}` | bigint | number;
 
 export function isF0IdInput(input: unknown): input is F0IdInput {
+  if (input instanceof F0Id) {
+    return true;
+  }
+
   if (
     typeof input !== "string" &&
     typeof input !== "bigint" &&
@@ -19,7 +23,11 @@ export function isF0IdInput(input: unknown): input is F0IdInput {
 }
 
 export class F0Id {
-  public static from(input: string | bigint | number): F0Id {
+  public static from(input: F0Id | string | bigint | number): F0Id {
+    if (input instanceof F0Id) {
+      return F0Id.from(input.toBigInt());
+    }
+
     return new F0Id(input);
   }
 
