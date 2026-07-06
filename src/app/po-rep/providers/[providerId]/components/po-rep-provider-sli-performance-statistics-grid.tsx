@@ -1,27 +1,15 @@
 "use client";
 
-import {
-  fetchPoRepProviderSliComplianceStatistics,
-  type FetchPoRepProviderSliComplianceStatisticsParameters,
-} from "@/app/po-rep/po-rep-data";
-import { Skeleton } from "@/components/ui/skeleton";
+import { StatBox, type StatBoxProps } from "@/components/stat-box";
+import { fetchPoRepProviderComplianceStatistics } from "@/lib/cdp";
 import { QueryKey } from "@/lib/constants";
+import { createFetcherHook } from "@/lib/data-loading";
 import { type F0IdInput } from "@/lib/f0-id";
-import { cn } from "@/lib/utils";
-import { cva, type VariantProps } from "class-variance-authority";
-import { useMemo, type ReactNode } from "react";
-import useSWR from "swr";
+import { useMemo } from "react";
 
 export interface PoRepProviderSLIPerformanceStatisticsGridProps {
   providerId: F0IdInput;
 }
-
-interface GridItemMetadata {
-  label: string;
-  value: ReactNode;
-}
-
-type GridItemProps = GridItemMetadata & VariantProps<typeof gridItemVariants>;
 
 const labels = {
   totalDealCount: "Total Deals Count",
@@ -41,35 +29,17 @@ const percentageFormatter = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 2,
 });
 
-const gridItemVariants = cva("py-4 px-6 bg-gray-100/50 rounded-md", {
-  variants: {
-    variant: {
-      success: "text-green-500",
-      warning: "text-yellow-500",
-      error: "text-red-500",
-      default: "",
-    },
-  },
-  defaultVariants: {
-    variant: "default",
-  },
-});
+const useStats = createFetcherHook(
+  fetchPoRepProviderComplianceStatistics,
+  QueryKey.PO_REP_SLI_COMPLIANCE_HISTORY
+);
 
 export function PoRepProviderSLIPerformanceStatisticsGrid({
   providerId,
 }: PoRepProviderSLIPerformanceStatisticsGridProps) {
-  const parameters: FetchPoRepProviderSliComplianceStatisticsParameters = {
-    providerId,
-  };
+  const { data, error } = useStats({ providerId });
 
-  const { data, error } = useSWR(
-    [QueryKey.PO_REP_PROVIDER_SLI_COMPLIANCE_STATISTICS, parameters],
-    ([, fetchParameters]) => {
-      return fetchPoRepProviderSliComplianceStatistics(fetchParameters);
-    }
-  );
-
-  const gridItems = useMemo<GridItemProps[]>(() => {
+  const gridItems = useMemo<StatBoxProps[]>(() => {
     if (!data) {
       return Object.values(labels).map((label) => ({
         label,
@@ -130,22 +100,9 @@ export function PoRepProviderSLIPerformanceStatisticsGrid({
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
           {gridItems.map((gridItemProps, index) => (
-            <GridItem {...gridItemProps} key={index} />
+            <StatBox {...gridItemProps} key={index} />
           ))}
         </div>
-      )}
-    </div>
-  );
-}
-
-function GridItem({ label, value, variant = "default" }: GridItemProps) {
-  return (
-    <div className={cn(gridItemVariants({ variant }))}>
-      <p className="text-xs text-muted-foreground mb-2">{label}</p>
-      {value !== null ? (
-        <p className="text-2xl font-semibold">{value}</p>
-      ) : (
-        <Skeleton className="h-8 w-[100px]" />
       )}
     </div>
   );

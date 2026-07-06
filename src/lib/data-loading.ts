@@ -1,167 +1,188 @@
+import { useCallback } from "react";
 import useSWR, {
   type SWRConfiguration,
   type SWRResponse,
   unstable_serialize,
 } from "swr";
+import useSWRInfinite, {
+  SWRInfiniteConfiguration,
+  SWRInfiniteResponse,
+} from "swr/infinite";
 import { type ZodType } from "zod";
 import { throwHTTPErrorOrSkip } from "./http-errors";
 import { assertSchema } from "./utils";
-import useSWRInfinite, {
-  SWRInfiniteConfiguration,
-  SWRInfiniteKeyLoader,
-  SWRInfiniteResponse,
-} from "swr/infinite";
-import { useCallback } from "react";
 
 interface PreloadConfig<TE extends boolean> {
   throwErrors?: TE;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type FetcherFn<R = unknown, Args extends any[] = any[]> = (
-  ...args: Args
-) => Promise<R>;
+type NullaryFetcherFn<R> = () => Promise<R>;
+type UnaryFetcherFn<R, P> = (parameters: P) => Promise<R>;
+export type FetcherFn<R, P> = NullaryFetcherFn<R> | UnaryFetcherFn<R, P>;
 
-type ParametrizedDataFetcher<R, P> = (parameters: P) => Promise<R>;
-type NonParametrizedDataFetcher<R> = () => Promise<R>;
-
-export type DataFetcher<R, P> =
-  | ParametrizedDataFetcher<R, P>
-  | NonParametrizedDataFetcher<R>;
-
-type DataLoader<F extends FetcherFn<unknown>> = [queryKey: string, F];
 type PreloadResult<R, TE extends boolean> = [
   string,
   TE extends true ? R : R | undefined,
 ];
 
-type PreloadFn<F extends FetcherFn<unknown>, TE extends boolean> = (
-  ...args: Parameters<F>
-) => Promise<PreloadResult<ReturnType<F>, TE>>;
-type FetcherFnResult<F extends FetcherFn> = Awaited<ReturnType<F>>;
-type CompositeFetcherKey<F extends FetcherFn> =
-  Parameters<F> extends [] ? string : [string, ...Parameters<F>];
-
-// Default fetcher hook types
-type FetcherHookConfiguration<F extends FetcherFn> = SWRConfiguration<
-  FetcherFnResult<F>
+type NullaryFetcherPreloadFn<R, TE extends boolean> = () => Promise<
+  PreloadResult<R, TE>
 >;
-type FetcherHookParameters<F extends FetcherFn> = [
-  ...Parameters<F>,
-  config: FetcherHookConfiguration<F> | void,
-];
-interface CreateFetcherHookReturnType<F extends FetcherFn> {
-  (...args: FetcherHookParameters<F>): SWRResponse<FetcherFnResult<F>>;
-}
+type UnaryFetcherPreloadFn<R, P, TE extends boolean> = (
+  parameters: P
+) => Promise<PreloadResult<R, TE>>;
+type CompositeFetcherKey<
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  F extends NullaryFetcherFn<any> | UnaryFetcherFn<any, any>,
+> = F extends NullaryFetcherFn<unknown> ? string : [string, Parameters<F>[0]];
+type CreateNullaryFetcherHookReturnType<R> = (
+  config?: SWRConfiguration<R>
+) => SWRResponse<R>;
+type CreateUnaryFetcherHookReturnType<R, P> = (
+  parameters: P,
+  config?: SWRConfiguration<R>
+) => SWRResponse<R>;
 
 // Infinite fetcher hook types
-interface InfiniteKeyGenerator<F extends FetcherFn> {
-  (
-    pageIndex: number,
-    previousData: FetcherFnResult<F> | null,
-    ...restArgs: Parameters<F>
-  ): CompositeFetcherKey<F> | null;
-}
-type InfiniteFetcherHookConfiguration<F extends FetcherFn> =
-  SWRInfiniteConfiguration<FetcherFnResult<F>>;
-type InfiniteFetcherHookParameters<F extends FetcherFn> = [
-  ...Parameters<F>,
-  config: InfiniteFetcherHookConfiguration<F> | void,
-];
-interface CreateInfiniteFetcherHookReturnType<F extends FetcherFn> {
-  (
-    ...args: InfiniteFetcherHookParameters<F>
-  ): SWRInfiniteResponse<FetcherFnResult<F>>;
-}
+type NullaryFetcherInfiniteKeyGenerator<R> = (
+  pageIndex: number,
+  previousData: R | null
+) => string | null;
+type UnaryFetcherInfiniteKeyGenerator<R, P> = (
+  pageIndex: number,
+  previousData: R | null,
+  parameters: P
+) => [string, P] | null;
+type CreateInfiniteNullaryFetcherHookReturnType<R> = (
+  config?: SWRInfiniteConfiguration<R>
+) => SWRInfiniteResponse<R>;
+type CreateInfiniteUnaryFetcherHookReturnType<R, P> = (
+  parameters: P,
+  config?: SWRInfiniteConfiguration<R>
+) => SWRInfiniteResponse<R>;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type UrlGenerator = (...args: any[]) => string;
-type UrlOrUrlGenerator = string | UrlGenerator;
-type UrlGeneratorParams<U extends UrlOrUrlGenerator> = U extends UrlGenerator
-  ? Parameters<U>
-  : [];
-interface JsonFetcherOptions<U extends UrlOrUrlGenerator, R> {
-  url: U;
+export type UrlGenerator<P> = (parameters: P) => string;
+
+interface BaseJsonFetcherOptions<R> {
   schema: ZodType<R, R>;
   context?: string;
+}
+
+interface NonParametrizedJsonFetcherOptions<R>
+  extends BaseJsonFetcherOptions<R> {
+  url: string;
+}
+
+interface ParametrizedJsonFetcherOptions<R, P>
+  extends BaseJsonFetcherOptions<R> {
+  url: UrlGenerator<P>;
 }
 
 function createCacheKey(queryKey: string, ...args: unknown[]): string {
   return args.length === 0 ? queryKey : unstable_serialize([queryKey, ...args]);
 }
 
-export function createDataLoader<F extends FetcherFn<unknown>>(
+export function createPreloader<R, TE extends boolean>(
   queryKey: string,
-  fetcher: F
-): DataLoader<F> {
-  return [queryKey, fetcher];
-}
-
-export function createPreloader<F extends FetcherFn, TE extends boolean>(
-  queryKey: string,
-  fetcher: F,
+  fetcher: NullaryFetcherFn<R>,
   config?: PreloadConfig<TE>
-): PreloadFn<F, TE> {
-  async function preloadInner(
-    ...args: Parameters<F>
-  ): Promise<PreloadResult<FetcherFnResult<F>, TE>> {
-    const cacheKey = createCacheKey(queryKey, ...args);
+): NullaryFetcherPreloadFn<R, TE>;
+export function createPreloader<R, P, TE extends boolean>(
+  queryKey: string,
+  fetcher: UnaryFetcherFn<R, P>,
+  config?: PreloadConfig<TE>
+): UnaryFetcherPreloadFn<R, P, TE>;
+export function createPreloader<R, P, TE extends boolean>(
+  queryKey: string,
+  fetcher: NullaryFetcherFn<R> | UnaryFetcherFn<R, P>,
+  config?: PreloadConfig<TE>
+): NullaryFetcherPreloadFn<R, TE> | UnaryFetcherPreloadFn<R, P, TE> {
+  async function preloadInner(parameters?: P): Promise<PreloadResult<R, TE>> {
+    const cacheKey = createCacheKey(queryKey, [parameters]);
 
     try {
-      const result = (await fetcher(...args)) as FetcherFnResult<F>;
+      const result = (await fetcher(parameters as P)) as R;
       return [cacheKey, result];
     } catch (error) {
       if (config?.throwErrors) {
         throw error;
       }
 
-      return [cacheKey, undefined as FetcherFnResult<F>];
+      return [cacheKey, undefined as R];
     }
   }
 
   return preloadInner;
 }
 
-function createResolver<F extends FetcherFn>(
-  fetcher: FetcherFn
-): (key: CompositeFetcherKey<F>) => Promise<FetcherFnResult<F>> {
+function createResolver<R, P>(
+  fetcher: FetcherFn<R, P>
+): (key: CompositeFetcherKey<FetcherFn<R, P>>) => Promise<R> {
   return function resolver(key) {
-    const parameters = Array.isArray(key) ? key.slice(1) : [];
-    return fetcher(...parameters) as Promise<FetcherFnResult<F>>;
+    const parameters = fetcher.length === 1 ? key[1] : undefined;
+    return fetcher(parameters as P) as Promise<R>;
   };
 }
 
-export function createFetcherHook<F extends FetcherFn>(
-  fetcher: F,
+export function createFetcherHook<R>(
+  fetcher: NullaryFetcherFn<R>,
   queryKey: string
-): CreateFetcherHookReturnType<F> {
-  return function useFetcher(...args): SWRResponse<FetcherFnResult<F>> {
-    const parameters = args.slice(0, -1) as Parameters<F>;
-    const config = args.at(-1) as FetcherHookConfiguration<F> | undefined;
-    const cacheKey =
-      parameters.length > 0 ? [queryKey, ...parameters] : queryKey;
+): CreateNullaryFetcherHookReturnType<R>;
+export function createFetcherHook<R, P>(
+  fetcher: UnaryFetcherFn<R, P>,
+  queryKey: string
+): CreateUnaryFetcherHookReturnType<R, P>;
+export function createFetcherHook<R, P>(
+  fetcher: NullaryFetcherFn<R> | UnaryFetcherFn<R, P>,
+  queryKey: string
+):
+  | CreateNullaryFetcherHookReturnType<R>
+  | CreateUnaryFetcherHookReturnType<R, P> {
+  return function useFetcher(
+    parametersOrConfig?: P | SWRConfiguration<R>,
+    maybeConfig?: SWRConfiguration<R>
+  ) {
+    const parameters =
+      fetcher.length === 1 ? (parametersOrConfig as P) : undefined;
+    const config =
+      fetcher.length === 1
+        ? maybeConfig
+        : (parametersOrConfig as SWRConfiguration<R>);
+    const cacheKey = fetcher.length === 1 ? [queryKey, parameters] : queryKey;
     return useSWR(cacheKey, createResolver(fetcher), config);
   };
 }
 
-export function createInfiniteFetcherHook<F extends FetcherFn>(
-  fetcher: F,
-  infiniteKeyGenerator: InfiniteKeyGenerator<F>
-): CreateInfiniteFetcherHookReturnType<F> {
-  type KeyLoader = SWRInfiniteKeyLoader<
-    FetcherFnResult<F>,
-    CompositeFetcherKey<F> | null
-  >;
+export function createInfiniteFetcherHook<R>(
+  fetcher: NullaryFetcherFn<R>,
+  infiniteKeyGenerator: NullaryFetcherInfiniteKeyGenerator<R>
+): CreateInfiniteNullaryFetcherHookReturnType<R>;
+export function createInfiniteFetcherHook<R, P>(
+  fetcher: UnaryFetcherFn<R, P>,
+  infiniteKeyGenerator: UnaryFetcherInfiniteKeyGenerator<R, P>
+): CreateInfiniteUnaryFetcherHookReturnType<R, P>;
+export function createInfiniteFetcherHook<R, P>(
+  fetcher: NullaryFetcherFn<R> | UnaryFetcherFn<R, P>,
+  infiniteKeyGenerator:
+    | NullaryFetcherInfiniteKeyGenerator<R>
+    | UnaryFetcherInfiniteKeyGenerator<R, P>
+):
+  | CreateInfiniteNullaryFetcherHookReturnType<R>
+  | CreateInfiniteUnaryFetcherHookReturnType<R, P> {
+  return function useInifiniteFetcher(
+    parametersOrConfig?: P | SWRInfiniteConfiguration<R>,
+    maybeConfig?: SWRInfiniteConfiguration<R>
+  ) {
+    const parameters =
+      fetcher.length === 1 ? (parametersOrConfig as P) : undefined;
+    const config =
+      fetcher.length === 1
+        ? maybeConfig
+        : (parametersOrConfig as SWRInfiniteConfiguration<R>);
 
-  return function useInifiniteFetcher(...args) {
-    const parameters = args.slice(0, -1) as Parameters<F>;
-    const config = args.at(-1) as
-      | InfiniteFetcherHookConfiguration<F>
-      | undefined;
-
-    const generateKey = useCallback<KeyLoader>(
-      (pageIndex, previousData) => {
-        return infiniteKeyGenerator(pageIndex, previousData, ...parameters);
+    const generateKey = useCallback(
+      (pageIndex: number, previousData: R | null) => {
+        return infiniteKeyGenerator(pageIndex, previousData, parameters as P);
       },
       [parameters]
     );
@@ -170,14 +191,22 @@ export function createInfiniteFetcherHook<F extends FetcherFn>(
   };
 }
 
-export function createJsonFetcher<R, U extends string | UrlGenerator>(
-  options: JsonFetcherOptions<U, R>
-): FetcherFn<R, UrlGeneratorParams<U>> {
+export function createJsonFetcher<R>(
+  options: NonParametrizedJsonFetcherOptions<R>
+): NullaryFetcherFn<R>;
+export function createJsonFetcher<R, P>(
+  options: ParametrizedJsonFetcherOptions<R, P>
+): UnaryFetcherFn<R, P>;
+export function createJsonFetcher<R, P>(
+  options:
+    | NonParametrizedJsonFetcherOptions<R>
+    | ParametrizedJsonFetcherOptions<R, P>
+): NullaryFetcherFn<R> | UnaryFetcherFn<R, P> {
   const contextPrefix = options.context ? options.context + " " : "";
 
-  async function fetcher(...args: UrlGeneratorParams<U>): Promise<R> {
+  async function fetcher(parameters: P): Promise<R> {
     const url =
-      typeof options.url === "string" ? options.url : options.url(...args);
+      typeof options.url === "string" ? options.url : options.url(parameters);
     const response = await fetch(url);
 
     throwHTTPErrorOrSkip(

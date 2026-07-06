@@ -9,7 +9,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  fetchPoRepSliComplianceHistory,
+  type PoRepSliComplianceHistory,
+  type PoRepSliComplianceHistoryParameters,
+} from "@/lib/cdp";
 import { QueryKey } from "@/lib/constants";
+import { createFetcherHook } from "@/lib/data-loading";
 import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
 import { type ArrayElement, cn, isSameMonth, isValidDate } from "@/lib/utils";
 import { weekFromDate, weekToReadableString } from "@/lib/weeks";
@@ -38,15 +44,8 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import useSWR from "swr";
-import {
-  fetchSLIComplianceHistory,
-  type FetchSLIComplianceHistoryParameters,
-  type FetchSLIComplianceHistoryReturnType,
-} from "../po-rep-data";
 
-type StateValues =
-  ArrayElement<FetchSLIComplianceHistoryReturnType>["compliant"];
+type StateValues = ArrayElement<PoRepSliComplianceHistory>["compliant"];
 type WindowSize = ArrayElement<typeof windowSizes>;
 type SLIType = ArrayElement<typeof sliTypes>;
 type Mode = ArrayElement<typeof modes>;
@@ -55,7 +54,7 @@ type ComplianceState = ArrayElement<typeof complianceStates>;
 
 interface SLIComplianceHistoryChartProps
   extends Omit<HTMLAttributes<HTMLDivElement>, "children">,
-    Pick<FetchSLIComplianceHistoryParameters, "providerId"> {
+    Pick<PoRepSliComplianceHistoryParameters, "providerId"> {
   animationDuration?: number;
 }
 
@@ -123,6 +122,11 @@ const dateFormatter = new Intl.DateTimeFormat("en-US", {
   year: "numeric",
 });
 
+const useHistory = createFetcherHook(
+  fetchPoRepSliComplianceHistory,
+  QueryKey.PO_REP_SLI_COMPLIANCE_HISTORY
+);
+
 export function SLIComplianceHistoryChart({
   animationDuration = 500,
   className,
@@ -156,20 +160,13 @@ export function SLIComplianceHistoryChart({
     ? selectedMode
     : availableModes[0];
 
-  const parameters: FetchSLIComplianceHistoryParameters = {
-    windowSize,
-    sliType,
-    providerId,
-  };
-
-  const { data, error, isLoading } = useSWR(
-    [QueryKey.PO_REP_SLI_COMPLIANCE_HISTORY, parameters],
-    ([, fetchParameters]) => {
-      return fetchSLIComplianceHistory(fetchParameters);
-    },
+  const { data, error, isLoading } = useHistory(
     {
-      keepPreviousData: true,
-    }
+      windowSize,
+      sliType,
+      providerId,
+    },
+    { keepPreviousData: true }
   );
   const isLongLoading = useDelayedFlag(isLoading, 5000);
 

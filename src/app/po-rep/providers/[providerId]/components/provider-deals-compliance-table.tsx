@@ -217,9 +217,9 @@ export function ProviderDealsComplianceTable({
   const dealsCount = lastLoadedPage?.pagination.totalCount;
   const hasMore = lastLoadedPage && size < lastLoadedPage.pagination.pagesCount;
   const deals = pages.flatMap((page) => page.data);
-  const extraItems = [...Array((size - pages.length) * pageSize)].map(
-    () => null
-  );
+  const extraItems = !error
+    ? [...Array((size - pages.length) * pageSize)].map(() => null)
+    : [];
 
   const items = [...deals, ...extraItems];
 
@@ -232,6 +232,12 @@ export function ProviderDealsComplianceTable({
       <h4 className="text-sm font-semibold uppercase px-4">
         Active Deals{dealsCount ? ` (${dealsCount})` : ""}
       </h4>
+
+      {!error && deals.length === 0 && (
+        <p className="text-sm text-muted-foreground text-center py-6">
+          Nothing to show.
+        </p>
+      )}
 
       {items.length > 0 && <DataTable columns={columns} data={items} />}
 

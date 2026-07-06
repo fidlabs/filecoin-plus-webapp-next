@@ -7,17 +7,17 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Card } from "@/components/ui/card";
+import { type PoRepSliComplianceHistoryParameters } from "@/lib/cdp";
 import { cn } from "@/lib/utils";
 import { type ComponentProps } from "react";
-import { type FetchSLIComplianceHistoryParameters } from "../po-rep-data";
-import { SLIComplianceHistoryChart } from "./sli-compliance-history-chart";
 import { SliComplianceExplanationText } from "./sli-compliance-explanation-text";
+import { SLIComplianceHistoryChart } from "./sli-compliance-history-chart";
 
 type CardProps = ComponentProps<typeof Card>;
 
 interface SLIComplianceHistoryWidgetProps
   extends Omit<CardProps, "children">,
-    Pick<FetchSLIComplianceHistoryParameters, "providerId"> {}
+    Pick<PoRepSliComplianceHistoryParameters, "providerId"> {}
 
 export function SLIComplianceHistoryWidget({
   className,

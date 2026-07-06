@@ -1,7 +1,4 @@
-import { Card } from "@/components/ui/card";
-import { PoRepProviderSLIPerformanceStatisticsGrid } from "./po-rep-provider-sli-performance-statistics-grid";
-import { F0IdInput } from "@/lib/f0-id";
-import { ProviderDealsComplianceTable } from "./provider-deals-compliance-table";
+import { SliComplianceExplanationText } from "@/app/po-rep/components/sli-compliance-explanation-text";
 import { SLIComplianceHistoryChart } from "@/app/po-rep/components/sli-compliance-history-chart";
 import {
   Accordion,
@@ -9,17 +6,25 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { SliComplianceExplanationText } from "@/app/po-rep/components/sli-compliance-explanation-text";
+import { Card } from "@/components/ui/card";
+import { F0IdInput } from "@/lib/f0-id";
+import { cn } from "@/lib/utils";
+import { type HTMLAttributes } from "react";
+import { PoRepProviderSLIPerformanceStatisticsGrid } from "./po-rep-provider-sli-performance-statistics-grid";
+import { ProviderDealsComplianceTable } from "./provider-deals-compliance-table";
 
-export interface PoRepProviderPerformanceWidgetProps {
+export interface PoRepProviderPerformanceWidgetProps
+  extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
   providerId: F0IdInput;
 }
 
 export function PoRepProviderSLIPerformanceWidget({
+  className,
   providerId,
+  ...rest
 }: PoRepProviderPerformanceWidgetProps) {
   return (
-    <Card className="pt-6">
+    <Card {...rest} className={cn("pt-6", className)}>
       <header className="mb-6 px-4">
         <h3 className="text-lg font-semibold">SLI Performance</h3>
         <p className="text-sm text-muted-foreground">

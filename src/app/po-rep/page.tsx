@@ -17,14 +17,10 @@ import {
   FetchPoRepDashboardStatisticsParameters,
   fetchPoRepDealsValueHistory,
   FetchPoRepDealsValueHistoryParameters,
-  fetchPoRepOnboardedDataHistory,
-  FetchPoRepOnboardedDataHistoryParameters,
   fetchPoRepPaymentsHistory,
   FetchPoRepPaymentsHistoryParameters,
   fetchPoRepProviders,
   FetchPoRepProvidersParameters,
-  fetchSLIComplianceHistory,
-  FetchSLIComplianceHistoryParameters,
 } from "./po-rep-data";
 import { SWRConfig, unstable_serialize } from "swr";
 // import { PoRepLeaderboardsWidget } from "./components/po-rep-leaderboards-widget";
@@ -38,6 +34,12 @@ import { PoRepOnboardedDataHistoryWidget } from "./components/po-rep-onboarded-d
 import { PoRepDealsValueHistoryWidget } from "./components/po-rep-deals-value-history-widget";
 import { SLIComplianceHistoryWidget } from "./components/sli-compliance-history-widget";
 import { PoRepActiveClientsHistoryWidget } from "./components/po-rep-active-clients-history-widget";
+import { createPreloader } from "@/lib/data-loading";
+import {
+  fetchPoRepOnboardedDataHistory,
+  fetchPoRepSliComplianceHistory,
+  PoRepSliComplianceHistoryParameters,
+} from "@/lib/cdp";
 
 export const revalidate = 1800; // 30 minutes
 
@@ -66,7 +68,7 @@ const providersDefaultParameters: FetchPoRepProvidersParameters = {
   limit: 5,
 };
 
-const onboardedDataHistoryDefaultParameters: FetchPoRepOnboardedDataHistoryParameters =
+const onboardedDataHistoryDefaultParameters: FetchPoRepPaymentsHistoryParameters =
   {
     windowSize: "day",
   };
@@ -85,7 +87,7 @@ const activeClientsHistoryDefaultParameters: FetchPoRepActiveClientsHistoryParam
     windowSize: "day",
   };
 
-const sliHistoryDefaultParameters: FetchSLIComplianceHistoryParameters = {
+const sliHistoryDefaultParameters: PoRepSliComplianceHistoryParameters = {
   windowSize: "week",
   sliType: undefined,
   providerId: undefined,
@@ -95,26 +97,38 @@ function unwrapResult<T>(result: PromiseSettledResult<T>): T | undefined {
   return result.status === "fulfilled" ? result.value : undefined;
 }
 
+const preloadOnboardedDataHistory = createPreloader(
+  QueryKey.PO_REP_ONBOARDED_DATA_HISTORY,
+  fetchPoRepOnboardedDataHistory
+);
+
+const preloadSliComplianceHistory = createPreloader(
+  QueryKey.PO_REP_SLI_COMPLIANCE_HISTORY,
+  fetchPoRepSliComplianceHistory
+);
+
 export default async function PoRepPage() {
   const [
     statisticsResult,
     providersResult,
-    onboardedDataHistoryResult,
     dealsValueHistoryResult,
     paymentsHistoryResult,
     activeClientsHistoryResult,
-    sliHistoryResult,
   ] = await Promise.allSettled([
     fetchPoRepDashboardStatistics(statisticsDefaultParameters),
     fetchPoRepProviders(providersDefaultParameters),
-    fetchPoRepOnboardedDataHistory(onboardedDataHistoryDefaultParameters),
     fetchPoRepDealsValueHistory(dealsValueHistoryDefaultParameters),
     fetchPoRepPaymentsHistory(paymentsHistoryDefaultParameters),
     fetchPoRepActiveClientsHistory(activeClientsHistoryDefaultParameters),
-    fetchSLIComplianceHistory(sliHistoryDefaultParameters),
+  ]);
+
+  const preloadedData = await Promise.all([
+    preloadOnboardedDataHistory(onboardedDataHistoryDefaultParameters),
+    preloadSliComplianceHistory(sliHistoryDefaultParameters),
   ]);
 
   const fallback = {
+    ...Object.fromEntries(preloadedData),
     [unstable_serialize([
       QueryKey.PO_REP_STATISTICS,
       statisticsDefaultParameters,
@@ -123,10 +137,6 @@ export default async function PoRepPage() {
       QueryKey.PO_REP_PROVIDERS,
       providersDefaultParameters,
     ])]: unwrapResult(providersResult),
-    [unstable_serialize([
-      QueryKey.PO_REP_ONBOARDED_DATA_HISTORY,
-      onboardedDataHistoryDefaultParameters,
-    ])]: unwrapResult(onboardedDataHistoryResult),
     [unstable_serialize([
       QueryKey.PO_REP_DEALS_VALUE_HISTORY,
       dealsValueHistoryDefaultParameters,
@@ -139,10 +149,6 @@ export default async function PoRepPage() {
       QueryKey.PO_REP_ACTIVE_CLIENTS_HISTORY,
       activeClientsHistoryDefaultParameters,
     ])]: unwrapResult(activeClientsHistoryResult),
-    [unstable_serialize([
-      QueryKey.PO_REP_SLI_COMPLIANCE_HISTORY,
-      sliHistoryDefaultParameters,
-    ])]: unwrapResult(sliHistoryResult),
   };
 
   return (

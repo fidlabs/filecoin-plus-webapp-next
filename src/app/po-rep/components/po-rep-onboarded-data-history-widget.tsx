@@ -1,29 +1,22 @@
 "use client";
 
 import { ChartStat } from "@/components/chart-stat";
-import { OverlayLoader } from "@/components/overlay-loader";
 import { Card } from "@/components/ui/card";
+import { fetchPoRepOnboardedDataHistory } from "@/lib/cdp";
 import { QueryKey } from "@/lib/constants";
-import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
+import { createFetcherHook } from "@/lib/data-loading";
 import { divideBigint } from "@/lib/utils";
 import { filesize } from "filesize";
 import { useCallback, useMemo, useState, type ComponentProps } from "react";
-import useSWR from "swr";
-import {
-  fetchPoRepOnboardedDataHistory,
-  type FetchPoRepOnboardedDataHistoryParameters,
-} from "../po-rep-data";
-import { CumulativeChartWithVolume } from "./cumulative-chart-with-volume";
 import {
   HistoricalChartWindowSizeSelect,
   type HistoricalChartWindowSizeSelectProps,
 } from "./historical-chart-window-size-select";
+import { PoRepOnboardedDataHistoryChart } from "./po-rep-onboarded-data-history-chart";
 
 type WindowSize = HistoricalChartWindowSizeSelectProps["windowSize"];
 type CardProps = ComponentProps<typeof Card>;
 export type PoRepOnboardedDataHistoryWidgetProps = Omit<CardProps, "children">;
-
-const syncId = "po-rep-onbarded-data-history-charts";
 
 const volumeWindowLabelDict: Record<WindowSize, string> = {
   day: "Daily",
@@ -31,23 +24,16 @@ const volumeWindowLabelDict: Record<WindowSize, string> = {
   month: "Monthly",
 };
 
+const useHistory = createFetcherHook(
+  fetchPoRepOnboardedDataHistory,
+  QueryKey.PO_REP_ONBOARDED_DATA_HISTORY
+);
+
 export function PoRepOnboardedDataHistoryWidget(
   props: PoRepOnboardedDataHistoryWidgetProps
 ) {
   const [windowSize, setWindowSize] = useState<WindowSize>("day");
-  const parameters: FetchPoRepOnboardedDataHistoryParameters = {
-    windowSize,
-  };
-  const { data, error, isLoading } = useSWR(
-    [QueryKey.PO_REP_ONBOARDED_DATA_HISTORY, parameters],
-    ([, fetchParameters]) => {
-      return fetchPoRepOnboardedDataHistory(fetchParameters);
-    },
-    {
-      keepPreviousData: true,
-    }
-  );
-  const isLongLoading = useDelayedFlag(isLoading, 500);
+  const { data } = useHistory({ windowSize }, { keepPreviousData: true });
 
   const chartData = useMemo(() => {
     return data
@@ -154,27 +140,7 @@ export function PoRepOnboardedDataHistoryWidget(
         />
       </div>
 
-      <div className="relative">
-        {!!error && (
-          <p className="text-sm text-muted-foreground text-center">
-            An error has occured while loading the data. Please try again later.
-          </p>
-        )}
-
-        {!error && (
-          <CumulativeChartWithVolume
-            data={chartData}
-            dateKey="date"
-            cumulativeKey="cumulativeTotal"
-            volumeKey="volume"
-            syncId={syncId}
-            windowSize={windowSize}
-            formatValue={formatBytes}
-            formatYAxisTick={formatBytes}
-          />
-        )}
-        <OverlayLoader show={isLongLoading} />
-      </div>
+      <PoRepOnboardedDataHistoryChart windowSize={windowSize} />
     </Card>
   );
 }
