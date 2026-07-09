@@ -262,20 +262,14 @@ export function ProviderDealsEconomicsTable({
     isLoading,
     size,
     setSize,
-  } = useDeals(
-    { railState, providerId, limit: pageSize, sort, order },
-    {
-      keepPreviousData: true,
-    }
-  );
+  } = useDeals({ railState, providerId, limit: pageSize, sort, order });
 
   const lastLoadedPage = pages.at(-1);
   const dealsCount = lastLoadedPage?.pagination.totalCount;
   const hasMore = lastLoadedPage && size < lastLoadedPage.pagination.pagesCount;
   const deals = pages.flatMap((page) => page.data);
-  const extraItems = !error
-    ? [...Array((size - pages.length) * pageSize)].map(() => null)
-    : [];
+  const extraItems =
+    !error && pages.length !== size ? [...Array(pageSize)].map(() => null) : [];
 
   const items = [...deals, ...extraItems];
 
@@ -284,6 +278,7 @@ export function ProviderDealsEconomicsTable({
   }, [size, setSize]);
 
   const handleRailStateChange = useCallback((value: string) => {
+    setSize(1);
     setRailState(value === "all" ? undefined : (value as PoRepDealRailState));
   }, []);
 
@@ -315,7 +310,7 @@ export function ProviderDealsEconomicsTable({
         </Select>
       </div>
 
-      {!error && deals.length === 0 && (
+      {!error && items.length === 0 && (
         <p className="text-sm text-muted-foreground text-center py-6">
           Nothing to show.
         </p>

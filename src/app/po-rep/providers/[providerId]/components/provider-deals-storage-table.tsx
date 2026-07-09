@@ -160,9 +160,8 @@ export function ProviderDealsStorageTable({
   const dealsCount = lastLoadedPage?.pagination.totalCount;
   const hasMore = lastLoadedPage && size < lastLoadedPage.pagination.pagesCount;
   const deals = pages.flatMap((page) => page.data);
-  const extraItems = !error
-    ? [...Array((size - pages.length) * pageSize)].map(() => null)
-    : [];
+  const extraItems =
+    !error && pages.length !== size ? [...Array(pageSize)].map(() => null) : [];
 
   const items = [...deals, ...extraItems];
 
@@ -176,7 +175,7 @@ export function ProviderDealsStorageTable({
         Deals{dealsCount ? ` (${dealsCount})` : ""}
       </h4>
 
-      {!error && deals.length === 0 && (
+      {!error && items.length === 0 && (
         <p className="text-sm text-muted-foreground text-center py-6">
           Nothing to show.
         </p>
