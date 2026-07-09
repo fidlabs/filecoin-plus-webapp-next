@@ -1,33 +1,26 @@
 "use client";
 
 import { ChartStat } from "@/components/chart-stat";
-import { OverlayLoader } from "@/components/overlay-loader";
 import { Card } from "@/components/ui/card";
+import { fetchPoRepSettlementsHistory } from "@/lib/cdp";
 import { QueryKey } from "@/lib/constants";
-import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
+import { createFetcherHook } from "@/lib/data-loading";
 import { useCallback, useMemo, useState, type ComponentProps } from "react";
-import useSWR from "swr";
-import {
-  fetchPoRepPaymentsHistory,
-  type FetchPoRepPaymentsHistoryParameters,
-} from "../po-rep-data";
-import { CumulativeChartWithVolume } from "./cumulative-chart-with-volume";
 import {
   HistoricalChartWindowSizeSelect,
   type HistoricalChartWindowSizeSelectProps,
 } from "./historical-chart-window-size-select";
+import { PoRepSettlementsHistoryChart } from "./po-rep-settlements-history-chart";
 
 type WindowSize = HistoricalChartWindowSizeSelectProps["windowSize"];
 type CardProps = ComponentProps<typeof Card>;
 export type PoRepMoneyFlowWidgetProps = Omit<CardProps, "children">;
 
-const numericFormatter = new Intl.NumberFormat("en-US", {
-  maximumFractionDigits: 2,
-  notation: "compact",
+const currencyFormatter = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+  useGrouping: true,
 });
-
-const unit = "USD";
-const syncId = "po-rep-money-flow-charts";
 
 const volumeWindowLabelDict: Record<WindowSize, string> = {
   day: "Daily",
@@ -35,28 +28,26 @@ const volumeWindowLabelDict: Record<WindowSize, string> = {
   month: "Monthly",
 };
 
+const useHistory = createFetcherHook(
+  fetchPoRepSettlementsHistory,
+  QueryKey.PO_REP_SETTLEMENTS_HISTORY
+);
+
 export function PoRepMoneyFlowWidget(props: PoRepMoneyFlowWidgetProps) {
   const [windowSize, setWindowSize] = useState<WindowSize>("day");
-  const parameters: FetchPoRepPaymentsHistoryParameters = {
-    windowSize,
-  };
-  const { data, error, isLoading } = useSWR(
-    [QueryKey.PO_REP_PAYMENTS_HISTORY, parameters],
-    ([, fetchParameters]) => {
-      return fetchPoRepPaymentsHistory(fetchParameters);
-    },
+  const { data } = useHistory(
+    { windowSize },
     {
       keepPreviousData: true,
     }
   );
-  const isLongLoading = useDelayedFlag(isLoading, 500);
 
   const chartData = useMemo(() => {
     return data ?? [];
   }, [data]);
 
   const formatValue = useCallback((value: number) => {
-    return numericFormatter.format(value) + ` ${unit}`;
+    return currencyFormatter.format(value);
   }, []);
 
   const {
@@ -103,7 +94,7 @@ export function PoRepMoneyFlowWidget(props: PoRepMoneyFlowWidgetProps) {
         : currentEntry.volumeUSD / previousEntry.volumeUSD - 1;
 
     return {
-      cumulativeAmount: formatValue(currentEntry.volumeUSD),
+      cumulativeAmount: formatValue(currentEntry.cumulativeTotalUSD),
       cumulativeAmountChange,
       currentWindowAmount: formatValue(currentEntry.volumeUSD),
       currentWindowAmountChange: currentDailyAmountChange,
@@ -141,26 +132,7 @@ export function PoRepMoneyFlowWidget(props: PoRepMoneyFlowWidgetProps) {
         />
       </div>
 
-      <div className="relative">
-        {!!error && (
-          <p className="text-sm text-muted-foreground text-center mb-8">
-            An error has occured while loading the data. Please try again later.
-          </p>
-        )}
-
-        {!error && (
-          <CumulativeChartWithVolume
-            data={chartData}
-            dateKey="date"
-            cumulativeKey="cumulativeTotalUSD"
-            volumeKey="volumeUSD"
-            syncId={syncId}
-            windowSize={windowSize}
-            formatValue={formatValue}
-          />
-        )}
-        <OverlayLoader show={isLongLoading} />
-      </div>
+      <PoRepSettlementsHistoryChart windowSize={windowSize} />
     </Card>
   );
 }

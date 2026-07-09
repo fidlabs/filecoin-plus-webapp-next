@@ -191,7 +191,7 @@ function getStatisticLinkTuple(
       ];
     case PoRepDashboardStatisticType.TOTAL_DEALS_VALUE:
       return [
-        "Predicted ARR History",
+        "Predicted Revenue History",
         `/po-rep#${PoRepPageSectionId.DEALS_VALUE}`,
       ];
     case PoRepDashboardStatisticType.TOTAL_USD_PAID:

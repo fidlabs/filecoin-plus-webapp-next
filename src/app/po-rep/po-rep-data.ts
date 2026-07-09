@@ -144,79 +144,7 @@ export async function fetchPoRepProviders(
   return json as FetchPoRepProvidersReturnType;
 }
 
-// Deals value history
-export type FetchPoRepDealsValueHistoryParameters = HistoricalChartParameters;
-export type FetchPoRepDealsValueHistoryReturnType = z.infer<
-  typeof poRepDealsValueHistoryResponseSchema
->;
-
-const poRepDealsValueHistoryResponseSchema = z.array(
-  z.object({
-    date: z.iso.date(),
-    volumeUSD: z.number(),
-    cumulativeTotalUSD: z.number(),
-  })
-);
-
-export async function fetchPoRepDealsValueHistory(
-  parameters: FetchPoRepDealsValueHistoryParameters = {}
-): Promise<FetchPoRepDealsValueHistoryReturnType> {
-  const searchParams = objectToURLSearchParams(parameters, true);
-  const endpoint = `${CDP_API_URL}/po-rep/deals-value-history?${searchParams.toString()}`;
-  const response = await fetch(endpoint);
-
-  throwHTTPErrorOrSkip(
-    response,
-    `CDP API returned response status "${response.status}" when fetching Po-Rep deals value history; URL: ${endpoint}`
-  );
-
-  const json = await response.json();
-
-  assertSchema(
-    json,
-    poRepDealsValueHistoryResponseSchema,
-    `Invalid response from CDP API when fetching Po-Rep deals value history; URL: ${endpoint}`
-  );
-
-  return json;
-}
-
 // Payments history
-export type FetchPoRepPaymentsHistoryParameters = HistoricalChartParameters;
-export type FetchPoRepPaymentsHistoryReturnType = z.infer<
-  typeof poRepPaymentsHistoryResponseSchema
->;
-
-const poRepPaymentsHistoryResponseSchema = z.array(
-  z.object({
-    date: z.iso.date(),
-    volumeUSD: z.number(),
-    cumulativeTotalUSD: z.number(),
-  })
-);
-
-export async function fetchPoRepPaymentsHistory(
-  parameters: FetchPoRepPaymentsHistoryParameters = {}
-): Promise<FetchPoRepPaymentsHistoryReturnType> {
-  const searchParams = objectToURLSearchParams(parameters, true);
-  const endpoint = `${CDP_API_URL}/po-rep/payments-history?${searchParams.toString()}`;
-  const response = await fetch(endpoint);
-
-  throwHTTPErrorOrSkip(
-    response,
-    `CDP API returned response status "${response.status}" when fetching Po-Rep payments history; URL: ${endpoint}`
-  );
-
-  const json = await response.json();
-
-  assertSchema(
-    json,
-    poRepPaymentsHistoryResponseSchema,
-    `Invalid response from CDP API when fetching Po-Rep payments history; URL: ${endpoint}`
-  );
-
-  return json;
-}
 
 // Active clients history
 export type FetchPoRepActiveClientsHistoryParameters =

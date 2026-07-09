@@ -215,12 +215,13 @@ export function CumulativeChartWithVolume<
             top: 12,
           }}
         >
-          <XAxis dataKey={dateKey} fontSize={12} hide />
+          <XAxis scale="point" dataKey={dateKey} fontSize={12} hide />
           <YAxis width={50} fontSize={12} tickFormatter={yAxisTickFormatter} />
           <Tooltip content={EmptyTooltip} />
 
           <Area
             dataKey={cumulativeKey}
+            type="monotone"
             fill="hsl(var(--color-dodger-blue))"
             stroke="hsl(var(--color-dodger-blue))"
           />
@@ -245,6 +246,9 @@ export function CumulativeChartWithVolume<
           data={data}
           onMouseMove={handleChartMouseMove}
           onMouseLeave={handleChartMouseLeave}
+          margin={{
+            top: 12,
+          }}
         >
           <YAxis width={50} fontSize={12} tickFormatter={yAxisTickFormatter} />
 
@@ -252,6 +256,7 @@ export function CumulativeChartWithVolume<
             dataKey={dateKey}
             fontSize={12}
             tickFormatter={xAxisTickFormatter}
+            scale="point"
           />
 
           <Tooltip content={EmptyTooltip} />

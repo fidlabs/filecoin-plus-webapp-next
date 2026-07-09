@@ -42,8 +42,8 @@ export function PoRepProviderStorageWidget({
         <PoRepProviderStorageStatisticsGrid providerId={providerId} />
       </section>
 
-      <section className="px-4 mb-6">
-        <div className="mb-4 flex flex-wrap justify-between item-center gap-2">
+      <section className="mb-6">
+        <div className="px-4 mb-4 flex flex-wrap justify-between item-center gap-2">
           <h4 className="text-sm font-semibold uppercase">
             Onboarded Data History
           </h4>

@@ -27,7 +27,7 @@ const labels = {
   totalAvailableSpace: "Total Available Space",
   pendingSpace: "Pending Space",
   committedSpace: "Committed Space",
-  onboardedDataSize: "Oboarded Data Size",
+  onboardedDataSize: "Onboarded Data Size",
 } as const;
 
 export function PoRepProviderStorageStatisticsGrid({

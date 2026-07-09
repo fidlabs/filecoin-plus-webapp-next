@@ -8,45 +8,46 @@ import {
 import { Button } from "@/components/ui/button";
 import { PoRepPageSectionId, QueryKey } from "@/lib/constants";
 import Link from "next/link";
-import { PoRepStatisticsWidget } from "./components/po-rep-statistics-widget";
+import { SWRConfig, unstable_serialize } from "swr";
 import { PoRepParticipantsWidget } from "./components/po-rep-participants-widget";
+import { PoRepStatisticsWidget } from "./components/po-rep-statistics-widget";
 import {
   fetchPoRepActiveClientsHistory,
   FetchPoRepActiveClientsHistoryParameters,
   fetchPoRepDashboardStatistics,
   FetchPoRepDashboardStatisticsParameters,
-  fetchPoRepDealsValueHistory,
-  FetchPoRepDealsValueHistoryParameters,
-  fetchPoRepPaymentsHistory,
-  FetchPoRepPaymentsHistoryParameters,
   fetchPoRepProviders,
   FetchPoRepProvidersParameters,
 } from "./po-rep-data";
-import { SWRConfig, unstable_serialize } from "swr";
 // import { PoRepLeaderboardsWidget } from "./components/po-rep-leaderboards-widget";
 // import { RPASLIWidget } from "./components/rpa-sli-widget";
 // import { BandwidthSLIWidget } from "./components/bandwidth-sli-widget";
 // import { TTFBSLIWidget } from "./components/ttfb-sli-widget";
 // import { AveragePriceWidget } from "./components/average-price-widget";
 // import { PoRepDCAllocatedWidget } from "./components/po-rep-dc-allocated-widget";
-import { PoRepMoneyFlowWidget } from "./components/po-rep-money-flow-widget";
-import { PoRepOnboardedDataHistoryWidget } from "./components/po-rep-onboarded-data-history-widget";
-import { PoRepDealsValueHistoryWidget } from "./components/po-rep-deals-value-history-widget";
-import { SLIComplianceHistoryWidget } from "./components/sli-compliance-history-widget";
-import { PoRepActiveClientsHistoryWidget } from "./components/po-rep-active-clients-history-widget";
-import { createPreloader } from "@/lib/data-loading";
 import {
+  fetchPoRepDealsValueHistory,
   fetchPoRepOnboardedDataHistory,
+  fetchPoRepSettlementsHistory,
   fetchPoRepSliComplianceHistory,
+  PoRepDealsValueHistoryParameters,
+  PoRepOnboardedDataHistoryParameters,
+  PoRepSettlementsHistoryParameters,
   PoRepSliComplianceHistoryParameters,
 } from "@/lib/cdp";
+import { createPreloader } from "@/lib/data-loading";
+import { PoRepActiveClientsHistoryWidget } from "./components/po-rep-active-clients-history-widget";
+import { PoRepDealsValueHistoryWidget } from "./components/po-rep-deals-value-history-widget";
+import { PoRepMoneyFlowWidget } from "./components/po-rep-money-flow-widget";
+import { PoRepOnboardedDataHistoryWidget } from "./components/po-rep-onboarded-data-history-widget";
+import { SLIComplianceHistoryWidget } from "./components/sli-compliance-history-widget";
 
 export const revalidate = 1800; // 30 minutes
 
 const sectionTabs = {
   [PoRepPageSectionId.STATS]: "Statistics",
   [PoRepPageSectionId.ONBOARDED_DATA]: "Onboarded Data",
-  [PoRepPageSectionId.DEALS_VALUE]: "Predicted ARR",
+  [PoRepPageSectionId.DEALS_VALUE]: "Predicted Revenue",
   [PoRepPageSectionId.MONEY_FLOW]: "Money Flow",
   [PoRepPageSectionId.ACTIVE_CLIENTS_HISTORY]: "Active Clients",
   [PoRepPageSectionId.SLI_PERFORMANCE]: "SLI Performance",
@@ -68,17 +69,16 @@ const providersDefaultParameters: FetchPoRepProvidersParameters = {
   limit: 5,
 };
 
-const onboardedDataHistoryDefaultParameters: FetchPoRepPaymentsHistoryParameters =
+const onboardedDataHistoryDefaultParameters: PoRepOnboardedDataHistoryParameters =
   {
     windowSize: "day",
   };
 
-const dealsValueHistoryDefaultParameters: FetchPoRepDealsValueHistoryParameters =
-  {
-    windowSize: "day",
-  };
+const dealsValueHistoryDefaultParameters: PoRepDealsValueHistoryParameters = {
+  windowSize: "day",
+};
 
-const paymentsHistoryDefaultParameters: FetchPoRepPaymentsHistoryParameters = {
+const settlementsHistoryDefaultParameters: PoRepSettlementsHistoryParameters = {
   windowSize: "day",
 };
 
@@ -101,29 +101,31 @@ const preloadOnboardedDataHistory = createPreloader(
   QueryKey.PO_REP_ONBOARDED_DATA_HISTORY,
   fetchPoRepOnboardedDataHistory
 );
-
+const preloadDealsValueHistory = createPreloader(
+  QueryKey.PO_REP_DEALS_VALUE_HISTORY,
+  fetchPoRepDealsValueHistory
+);
+const preloadSettlementsHistory = createPreloader(
+  QueryKey.PO_REP_SETTLEMENTS_HISTORY,
+  fetchPoRepSettlementsHistory
+);
 const preloadSliComplianceHistory = createPreloader(
   QueryKey.PO_REP_SLI_COMPLIANCE_HISTORY,
   fetchPoRepSliComplianceHistory
 );
 
 export default async function PoRepPage() {
-  const [
-    statisticsResult,
-    providersResult,
-    dealsValueHistoryResult,
-    paymentsHistoryResult,
-    activeClientsHistoryResult,
-  ] = await Promise.allSettled([
-    fetchPoRepDashboardStatistics(statisticsDefaultParameters),
-    fetchPoRepProviders(providersDefaultParameters),
-    fetchPoRepDealsValueHistory(dealsValueHistoryDefaultParameters),
-    fetchPoRepPaymentsHistory(paymentsHistoryDefaultParameters),
-    fetchPoRepActiveClientsHistory(activeClientsHistoryDefaultParameters),
-  ]);
+  const [statisticsResult, providersResult, activeClientsHistoryResult] =
+    await Promise.allSettled([
+      fetchPoRepDashboardStatistics(statisticsDefaultParameters),
+      fetchPoRepProviders(providersDefaultParameters),
+      fetchPoRepActiveClientsHistory(activeClientsHistoryDefaultParameters),
+    ]);
 
   const preloadedData = await Promise.all([
     preloadOnboardedDataHistory(onboardedDataHistoryDefaultParameters),
+    preloadDealsValueHistory(dealsValueHistoryDefaultParameters),
+    preloadSettlementsHistory(settlementsHistoryDefaultParameters),
     preloadSliComplianceHistory(sliHistoryDefaultParameters),
   ]);
 
@@ -137,14 +139,6 @@ export default async function PoRepPage() {
       QueryKey.PO_REP_PROVIDERS,
       providersDefaultParameters,
     ])]: unwrapResult(providersResult),
-    [unstable_serialize([
-      QueryKey.PO_REP_DEALS_VALUE_HISTORY,
-      dealsValueHistoryDefaultParameters,
-    ])]: unwrapResult(dealsValueHistoryResult),
-    [unstable_serialize([
-      QueryKey.PO_REP_PAYMENTS_HISTORY,
-      paymentsHistoryDefaultParameters,
-    ])]: unwrapResult(paymentsHistoryResult),
     [unstable_serialize([
       QueryKey.PO_REP_ACTIVE_CLIENTS_HISTORY,
       activeClientsHistoryDefaultParameters,

@@ -3,7 +3,11 @@ import { CDP_API_URL } from "./constants";
 import { createJsonFetcher } from "./data-loading";
 import { type F0IdInput } from "./f0-id";
 import { type ArrayElement, objectToURLSearchParams } from "./utils";
-import { NumericalString, numericalStringSchema } from "./zod-extensions";
+import {
+  f0IdInputSchema,
+  NumericalString,
+  numericalStringSchema,
+} from "./zod-extensions";
 
 // Generic types
 interface PaginationParameters {
@@ -28,6 +32,13 @@ export enum PoRepDealState {
   REJECTED = "REJECTED",
 }
 
+export enum PoRepDealRailState {
+  IDLE = "idle",
+  ACTIVE = "active",
+  TERMINATED = "terminated",
+  FINALIZED = "finalized",
+}
+
 // Generic schema
 const paginationSchema = z.object({
   page: z.number(),
@@ -37,7 +48,15 @@ const paginationSchema = z.object({
 
 const poRepDealSchema = z.object({
   dealId: numericalStringSchema,
+  providerId: f0IdInputSchema,
+  clientAddress: z.string(),
   dealState: z.enum(PoRepDealState),
+  railId: numericalStringSchema.nullable(),
+  railState: z.enum(PoRepDealRailState).nullable(),
+  active: z.boolean(),
+  tokenAddress: z.string().nullable(),
+  tokenSymbol: z.string().nullable(),
+  tokenDecimals: z.number().nullable(),
   minRequiredRetrievability: z.number().nullable(),
   minRequiredBandwidthMbps: z.number().nullable(),
   maxRequiredLatencyMs: z.number().nullable(),
@@ -48,6 +67,11 @@ const poRepDealSchema = z.object({
   predictedAverageIndexing: z.number().nullable(),
   dealSizeBytes: numericalStringSchema,
   isDataOnboarded: z.boolean(),
+  pricePerSectorPerMonthWei: numericalStringSchema,
+  predictedDealRevenueWei: numericalStringSchema,
+  totalSettledValueWei: numericalStringSchema.nullable(),
+  settlementsCount: z.number().nullable(),
+  lastSettlementAt: z.iso.datetime().nullable(),
   dealCreatedAtEpoch: numericalStringSchema,
   dealCreatedAt: z.iso.datetime(),
 });
@@ -132,7 +156,7 @@ export const fetchPoRepSliComplianceHistory = createJsonFetcher({
   context: "[CDP][Po-Rep SLI Compliance History]",
 });
 
-// Onbarded Data History
+// Po Rep Onboarded Data History
 export type PoRepOnboardedDataHistoryParameters = HistoricalChartParameters & {
   providerId?: F0IdInput;
 };
@@ -154,7 +178,62 @@ export const fetchPoRepOnboardedDataHistory = createJsonFetcher({
   context: "[CDP][Po-Rep Onboarded Data History]",
 });
 
-// Provider deals compliance statistics
+// Po Rep Deals Revenue History
+export interface PoRepDealsValueHistoryParameters
+  extends HistoricalChartParameters {
+  providerId?: F0IdInput;
+}
+
+export type PoRepDealsValueHistory = z.infer<
+  typeof poRepDealsValueHistoryResponseSchema
+>;
+
+const poRepDealsValueHistoryResponseSchema = z.array(
+  z.object({
+    date: z.iso.date(),
+    volumeUSD: z.number(),
+    cumulativeTotalUSD: z.number(),
+  })
+);
+
+export const fetchPoRepDealsValueHistory = createJsonFetcher({
+  url(parameters: PoRepDealsValueHistoryParameters) {
+    const searchParams = objectToURLSearchParams(parameters, true);
+    return `${CDP_API_URL}/po-rep/deals-value-history?${searchParams.toString()}`;
+  },
+  schema: poRepDealsValueHistoryResponseSchema,
+  context: "[CDP][Po-Rep Deals Value History]",
+});
+
+// Po Rep Settlements History
+export interface PoRepSettlementsHistoryParameters
+  extends HistoricalChartParameters {
+  netAmounts?: boolean;
+  providerId?: F0IdInput;
+}
+
+export type PoRepSettlementsHistory = z.infer<
+  typeof poRepSettlementsHistoryResponseSchema
+>;
+
+const poRepSettlementsHistoryResponseSchema = z.array(
+  z.object({
+    date: z.iso.date(),
+    volumeUSD: z.number(),
+    cumulativeTotalUSD: z.number(),
+  })
+);
+
+export const fetchPoRepSettlementsHistory = createJsonFetcher({
+  url(parameters: PoRepSettlementsHistoryParameters) {
+    const searchParams = objectToURLSearchParams(parameters, true);
+    return `${CDP_API_URL}/po-rep/payments-history?${searchParams.toString()}`;
+  },
+  schema: poRepSettlementsHistoryResponseSchema,
+  context: "[CDP][Po-Rep Deals Value History]",
+});
+
+// Po Rep Provider deals compliance statistics
 interface PoRepProviderComplianceStatisticsParameters {
   providerId: F0IdInput;
 }
@@ -196,4 +275,26 @@ export const fetchPoRepProviderStorageStatistics = createJsonFetcher({
   },
   schema: poRepProviderStorageStatisticsSchema,
   context: "[CDP][Po-Rep Provider Storage Statistics]",
+});
+
+// Provider economics statistics
+interface PoRepProviderEconomicsStatisticsParameters {
+  providerId: F0IdInput;
+}
+
+const poRepProviderEconomicsStatisticsSchema = z.object({
+  totalRailsCount: z.number(),
+  activeRailsCount: z.number(),
+  totalRevenueUSD: z.number(),
+  predictedRevenueUSD: z.number(),
+  totalSettledUSD: z.number(),
+  lastSettlementAt: z.iso.datetime().nullable(),
+});
+
+export const fetchPoRepProviderEcononomicsStatistics = createJsonFetcher({
+  url({ providerId }: PoRepProviderEconomicsStatisticsParameters) {
+    return `${CDP_API_URL}/po-rep/providers/${providerId}/economics-stats`;
+  },
+  schema: poRepProviderEconomicsStatisticsSchema,
+  context: "[CDP][Po-Rep Provider Economics Statistics]",
 });

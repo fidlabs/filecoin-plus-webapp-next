@@ -6,7 +6,7 @@ import { type HTMLAttributes } from "react";
 
 type DealStateClassMap = Record<PoRepDealState, ClassValue>;
 
-export interface ProviderStatusBadgeProps
+export interface DealStateBadgeProps
   extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
   state: PoRepDealState;
 }
@@ -50,7 +50,7 @@ export function DealStateBadge({
   className,
   state,
   ...rest
-}: ProviderStatusBadgeProps) {
+}: DealStateBadgeProps) {
   return (
     <div {...rest} className={cn(badgeClasses({ state }), className)}>
       <div className={dotClasess({ state })} />

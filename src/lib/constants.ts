@@ -52,12 +52,13 @@ export enum QueryKey {
   PO_REP_PROVIDERS = "po_rep_providers",
   PO_REP_ONBOARDED_DATA_HISTORY = "po_rep_onboarded_data_history",
   PO_REP_DEALS_VALUE_HISTORY = "po_rep_deals_value_history",
-  PO_REP_PAYMENTS_HISTORY = "po_rep_payments_history",
+  PO_REP_SETTLEMENTS_HISTORY = "po_rep_settlements_history",
   PO_REP_SLI_COMPLIANCE_HISTORY = "po_rep_sli_compliance_history",
   PO_REP_ACTIVE_CLIENTS_HISTORY = "po_rep_active_clients_history",
   PO_REP_DEALS_LIST = "po_rep_deals_list",
   PO_REP_PROVIDER_SLI_COMPLIANCE_STATISTICS = "po_rep_provider_sli_compliance_statistics",
   PO_REP_PROVIDER_STORAGE_STATISTICS = "po_rep_provider_storage_statistics",
+  PO_REP_PROVIDER_ECONOMICS_STATISTICS = "po_rep_provider_economics_statistics",
 }
 
 export enum DashboardPageSectionId {
@@ -143,6 +144,7 @@ export enum PoRepPageSectionId {
 export enum PoRepProviderPageSectionId {
   STORAGE = "storage",
   SLI_PERFORMANCE = "sli",
+  ECONOMICS = "economics",
 }
 
 export const CHECKS_BREAKDOWN_INTERVAL_PARAM_KEY = "interval";

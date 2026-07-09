@@ -1,54 +1,47 @@
 "use client";
 
 import { OverlayLoader } from "@/components/overlay-loader";
-import { fetchPoRepOnboardedDataHistory } from "@/lib/cdp";
+import { fetchPoRepDealsValueHistory } from "@/lib/cdp";
 import { QueryKey } from "@/lib/constants";
 import { createFetcherHook } from "@/lib/data-loading";
 import { type F0IdInput } from "@/lib/f0-id";
 import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
-import { filesize } from "filesize";
-import { type HTMLAttributes, useCallback, useMemo } from "react";
-import { CumulativeChartWithVolume } from "./cumulative-chart-with-volume";
 import { cn } from "@/lib/utils";
+import { type HTMLAttributes, useCallback } from "react";
+import { CumulativeChartWithVolume } from "./cumulative-chart-with-volume";
 
 type WindowSize = "day" | "week" | "month";
-export interface PoRepOnboardedDataHistoryChartProps
+export interface PoRepDealsRevenueHistoryChartProps
   extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
   providerId?: F0IdInput;
   windowSize?: WindowSize;
 }
 
-const syncId = "po-rep-onboarded-data-history-charts";
+const syncId = "po-rep-deals-revenue-history-charts";
+const numericFormatter = new Intl.NumberFormat("en-US", {
+  maximumFractionDigits: 2,
+  notation: "compact",
+});
 
 const useHistory = createFetcherHook(
-  fetchPoRepOnboardedDataHistory,
-  QueryKey.PO_REP_ONBOARDED_DATA_HISTORY
+  fetchPoRepDealsValueHistory,
+  QueryKey.PO_REP_DEALS_VALUE_HISTORY
 );
 
-export function PoRepOnboardedDataHistoryChart({
+export function PoRepDealsRevenueHistoryChart({
   className,
   providerId,
   windowSize = "day",
   ...rest
-}: PoRepOnboardedDataHistoryChartProps) {
+}: PoRepDealsRevenueHistoryChartProps) {
   const { data, error, isLoading } = useHistory(
     { providerId, windowSize },
     { keepPreviousData: true }
   );
   const isLongLoading = useDelayedFlag(isLoading, 500);
 
-  const chartData = useMemo(() => {
-    return data
-      ? data.map((entry) => ({
-          date: entry.date,
-          volume: Number(BigInt(entry.volume)),
-          cumulativeTotal: Number(BigInt(entry.cumulativeTotal)),
-        }))
-      : [];
-  }, [data]);
-
-  const formatBytes = useCallback((value: bigint | number) => {
-    return filesize(value, { standard: "iec" });
+  const formatValue = useCallback((value: number) => {
+    return numericFormatter.format(value) + " USD";
   }, []);
 
   return (
@@ -61,14 +54,13 @@ export function PoRepOnboardedDataHistoryChart({
 
       {!error && (
         <CumulativeChartWithVolume
-          data={chartData}
+          data={data ?? []}
           dateKey="date"
-          cumulativeKey="cumulativeTotal"
-          volumeKey="volume"
+          cumulativeKey="cumulativeTotalUSD"
+          volumeKey="volumeUSD"
           syncId={syncId}
           windowSize={windowSize}
-          formatValue={formatBytes}
-          formatYAxisTick={formatBytes}
+          formatValue={formatValue}
         />
       )}
 
