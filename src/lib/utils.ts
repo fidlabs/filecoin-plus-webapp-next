@@ -413,3 +413,27 @@ export function isSameMonth(a: DateLike, b: DateLike): boolean {
     dateA.getFullYear() === dateB.getFullYear()
   );
 }
+
+export function formatFIL(value: NumericalString | bigint | number): string {
+  const bigIntValue = BigInt(value);
+
+  const [divider, unit] = (() => {
+    if (bigIntValue < 1_000_000n) {
+      return [1n, "attoFIL"];
+    }
+
+    if (bigIntValue < 1_000_000_000_000n) {
+      return [10n ** 9n, "nanoFIL"];
+    }
+
+    return [10n ** 18n, "FIL"];
+  })();
+
+  const filValue = divideBigint(bigIntValue, divider, 18);
+
+  const formatter = new Intl.NumberFormat("en-US", {
+    useGrouping: true,
+  });
+
+  return formatter.format(filValue) + " " + unit;
+}

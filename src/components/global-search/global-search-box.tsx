@@ -388,6 +388,12 @@ const defaultActions = [
     tags: ["porep", "po-rep", "sli", "sla", "performance", "history"],
     link: `/po-rep#${PoRepPageSectionId.SLI_PERFORMANCE}`,
   },
+  {
+    name: "PoRep Market Gas Usage",
+    group: "PoRep",
+    tags: ["porep", "po-rep", "gas", "usage"],
+    link: `/po-rep#${PoRepPageSectionId.GAS_USAGE}`,
+  },
 ] as Action[];
 
 const GlobalSearchBox = () => {

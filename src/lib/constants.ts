@@ -59,6 +59,7 @@ export enum QueryKey {
   PO_REP_PROVIDER_SLI_COMPLIANCE_STATISTICS = "po_rep_provider_sli_compliance_statistics",
   PO_REP_PROVIDER_STORAGE_STATISTICS = "po_rep_provider_storage_statistics",
   PO_REP_PROVIDER_ECONOMICS_STATISTICS = "po_rep_provider_economics_statistics",
+  PO_REP_GAS_USAGE = "po_rep_gas_usage",
 }
 
 export enum DashboardPageSectionId {
@@ -139,6 +140,7 @@ export enum PoRepPageSectionId {
   DEALS_VALUE = "deals-value",
   MONEY_FLOW = "money-flow",
   ACTIVE_CLIENTS_HISTORY = "active-clients",
+  GAS_USAGE = "gas",
 }
 
 export enum PoRepProviderPageSectionId {

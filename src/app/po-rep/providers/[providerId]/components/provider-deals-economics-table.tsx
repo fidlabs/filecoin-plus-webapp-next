@@ -277,10 +277,13 @@ export function ProviderDealsEconomicsTable({
     setSize(size + 1);
   }, [size, setSize]);
 
-  const handleRailStateChange = useCallback((value: string) => {
-    setSize(1);
-    setRailState(value === "all" ? undefined : (value as PoRepDealRailState));
-  }, []);
+  const handleRailStateChange = useCallback(
+    (value: string) => {
+      setSize(1);
+      setRailState(value === "all" ? undefined : (value as PoRepDealRailState));
+    },
+    [setSize]
+  );
 
   return (
     <div className="py-6">

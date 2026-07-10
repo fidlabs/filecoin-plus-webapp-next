@@ -41,6 +41,8 @@ import { PoRepDealsValueHistoryWidget } from "./components/po-rep-deals-value-hi
 import { PoRepMoneyFlowWidget } from "./components/po-rep-money-flow-widget";
 import { PoRepOnboardedDataHistoryWidget } from "./components/po-rep-onboarded-data-history-widget";
 import { SLIComplianceHistoryWidget } from "./components/sli-compliance-history-widget";
+import { GasUsageWidget } from "./components/gas-usage-widget";
+import { fetchGasUsage } from "@/lib/po-rep-oracle";
 
 export const revalidate = 1800; // 30 minutes
 
@@ -52,6 +54,7 @@ const sectionTabs = {
   [PoRepPageSectionId.ACTIVE_CLIENTS_HISTORY]: "Active Clients",
   [PoRepPageSectionId.SLI_PERFORMANCE]: "SLI Performance",
   [PoRepPageSectionId.PARTICIPATING_STORAGE_PROVIDERS]: "Participating SPs",
+  [PoRepPageSectionId.GAS_USAGE]: "Gas Usage",
   // [PoRepPageSectionId.SLA_RANKING]: "SLA Ranking",
   // [PoRepPageSectionId.RPA]: "RPA",
   // [PoRepPageSectionId.BANDWIDTH]: "Bandwidth",
@@ -113,6 +116,10 @@ const preloadSliComplianceHistory = createPreloader(
   QueryKey.PO_REP_SLI_COMPLIANCE_HISTORY,
   fetchPoRepSliComplianceHistory
 );
+const preloadGasUsage = createPreloader(
+  QueryKey.PO_REP_GAS_USAGE,
+  fetchGasUsage
+);
 
 export default async function PoRepPage() {
   const [statisticsResult, providersResult, activeClientsHistoryResult] =
@@ -127,6 +134,7 @@ export default async function PoRepPage() {
     preloadDealsValueHistory(dealsValueHistoryDefaultParameters),
     preloadSettlementsHistory(settlementsHistoryDefaultParameters),
     preloadSliComplianceHistory(sliHistoryDefaultParameters),
+    preloadGasUsage({}),
   ]);
 
   const fallback = {
@@ -185,6 +193,7 @@ export default async function PoRepPage() {
           <PoRepParticipantsWidget
             id={PoRepPageSectionId.PARTICIPATING_STORAGE_PROVIDERS}
           />
+          <GasUsageWidget id={PoRepPageSectionId.GAS_USAGE} />
           <BackToTop />
         </Container>
       </>
