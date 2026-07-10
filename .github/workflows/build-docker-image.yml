@@ -67,6 +67,7 @@ jobs:
           echo "NEXT_PUBLIC_SENTRY_ORG='${{ vars.NEXT_PUBLIC_SENTRY_ORG }}'" >> .env
           echo "NEXT_PUBLIC_SENTRY_PROJECT='${{ vars.NEXT_PUBLIC_SENTRY_PROJECT }}'" >> .env
           echo "NEXT_PUBLIC_SENTRY_ENV='${{ vars.NEXT_PUBLIC_SENTRY_ENV }}'" >> .env
+          echo "NEXT_PUBLIC_PO_REP_ORACLE_API_URL='${{ vars.NEXT_PUBLIC_PO_REP_ORACLE_API_URL }}'" >> .env
           echo "NEXT_PUBLIC_SENTRY_AUTH_TOKEN='${{ secrets.NEXT_PUBLIC_SENTRY_AUTH_TOKEN }}'" >> .env
 
       - name: Build tag
