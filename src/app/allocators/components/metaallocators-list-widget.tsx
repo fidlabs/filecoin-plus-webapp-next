@@ -20,7 +20,10 @@ import {
 } from "@/components/ui/table";
 import { QueryKey } from "@/lib/constants";
 import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
-import { calculateDateFromHeight } from "@/lib/utils";
+import {
+  calculateDateFromHeight,
+  calculateTimestampFromHeight,
+} from "@/lib/utils";
 import {
   ColumnDef,
   flexRender,
@@ -49,6 +52,11 @@ export interface MetaallocatorsListWidgetProps
 
 type Allocator = FetchAllocatorsReturnType["data"][number];
 
+const dateFormatter = new Intl.DateTimeFormat("en-US", {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+});
 const columns: ColumnDef<Allocator>[] = [
   {
     accessorKey: "addressId",
@@ -94,7 +102,7 @@ const columns: ColumnDef<Allocator>[] = [
   },
   {
     accessorKey: "orgName",
-    header: "Organization Name",
+    header: "Organization",
     cell(info) {
       const orgName = info.getValue();
       return (
@@ -133,11 +141,13 @@ const columns: ColumnDef<Allocator>[] = [
   {
     accessorKey: "createdAtHeight",
     header: "Create Date",
-    cell(info) {
-      const createdAtHeight = info.getValue() as number;
+    cell({ getValue }) {
+      const height = getValue() as number;
+      const date = new Date(calculateTimestampFromHeight(height) * 1000);
+
       return (
-        <div className="whitespace-nowrap flex gap-1 items-center">
-          {calculateDateFromHeight(createdAtHeight)}
+        <div className="flex items-center gap-1">
+          {dateFormatter.format(date)}
           <HoverCard openDelay={100} closeDelay={50}>
             <HoverCardTrigger>
               <InfoIcon
@@ -145,9 +155,8 @@ const columns: ColumnDef<Allocator>[] = [
                 className="text-muted-foreground cursor-help"
               />
             </HoverCardTrigger>
-            <HoverCardContent className="w-32">
-              <p>Block height</p>
-              <p>{createdAtHeight}</p>
+            <HoverCardContent className="text-left max-w-fit">
+              Block Height <strong>{height}</strong>
             </HoverCardContent>
           </HoverCard>
         </div>
@@ -156,17 +165,17 @@ const columns: ColumnDef<Allocator>[] = [
   },
   {
     accessorKey: "allowance",
-    header: "DataCap Available",
+    header: "DC Available",
     cell: (info) => filesize(info.getValue() as string, { standard: "iec" }),
   },
   {
     accessorKey: "remainingDatacap",
-    header: "Used DataCap",
+    header: "DC Used",
     cell: (info) => filesize(info.getValue() as string, { standard: "iec" }),
   },
   {
     accessorKey: "initialAllowance",
-    header: "Total DataCap Received",
+    header: "DC Received",
     cell: ({ row }) => {
       const initialAllowance = row.getValue("initialAllowance") as string;
       const allowanceArray = row.original.allowanceArray;
@@ -197,6 +206,36 @@ const columns: ColumnDef<Allocator>[] = [
               </HoverCardContent>
             </HoverCard>
           )}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "latestClientAllocationHeight",
+    header: "Latest Allocation",
+    cell({ getValue }) {
+      const height = getValue() as number | null;
+
+      if (height === null) {
+        return "-";
+      }
+
+      const date = new Date(calculateTimestampFromHeight(height) * 1000);
+
+      return (
+        <div className="flex items-center gap-1">
+          {dateFormatter.format(date)}
+          <HoverCard openDelay={100} closeDelay={50}>
+            <HoverCardTrigger>
+              <InfoIcon
+                size={15}
+                className="text-muted-foreground cursor-help"
+              />
+            </HoverCardTrigger>
+            <HoverCardContent className="text-left max-w-fit" align="end">
+              Block Height <strong>{height}</strong>
+            </HoverCardContent>
+          </HoverCard>
         </div>
       );
     },

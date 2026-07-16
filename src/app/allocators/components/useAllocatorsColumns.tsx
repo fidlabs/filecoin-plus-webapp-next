@@ -8,9 +8,13 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import { IAllocator } from "@/lib/interfaces/dmob/allocator.interface";
-import { calculateDateFromHeight, convertBytesToIEC } from "@/lib/utils";
-import { ColumnDef } from "@tanstack/react-table";
+import { type IAllocator } from "@/lib/interfaces/dmob/allocator.interface";
+import {
+  calculateDateFromHeight,
+  calculateTimestampFromHeight,
+  convertBytesToIEC,
+} from "@/lib/utils";
+import { createColumnHelper } from "@tanstack/react-table";
 import { CopyIcon, InfoIcon } from "lucide-react";
 import Link from "next/link";
 
@@ -24,6 +28,13 @@ export interface UseAllocatorsColumnsOptions {
   sorting?: Sorting | null;
   onSort(key: string, direction: SortDirection): void;
 }
+
+const columnHelper = createColumnHelper<IAllocator>();
+const dateFormatter = new Intl.DateTimeFormat("en-US", {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+});
 
 function getSortDirectionForProperty(
   sorting: Sorting | null | undefined,
@@ -41,9 +52,8 @@ export function useAllocatorsColumns({
   onSort,
 }: UseAllocatorsColumnsOptions) {
   return [
-    {
-      accessorKey: "addressId",
-      header: () => {
+    columnHelper.accessor("addressId", {
+      header() {
         return (
           <DataTableSort
             direction={getSortDirectionForProperty(sorting, "addressId")}
@@ -53,18 +63,17 @@ export function useAllocatorsColumns({
           </DataTableSort>
         );
       },
-      cell: ({ row }) => {
-        const addressId = row.getValue("addressId") as string;
+      cell({ getValue }) {
+        const addressId = getValue();
         return (
           <Link className="table-link" href={`/allocators/${addressId}`}>
             {addressId}
           </Link>
         );
       },
-    },
-    {
-      accessorKey: "name",
-      header: () => {
+    }),
+    columnHelper.accessor("name", {
+      header() {
         return (
           <DataTableSort
             direction={getSortDirectionForProperty(sorting, "name")}
@@ -74,9 +83,9 @@ export function useAllocatorsColumns({
           </DataTableSort>
         );
       },
-      cell: ({ row }) => {
-        const addressId = row.getValue("addressId") as string;
-        const name = row.getValue("name") as string | undefined;
+      cell({ getValue, row }) {
+        const addressId = row.original.addressId;
+        const name = getValue();
 
         return (
           <Link className="table-link" href={`/allocators/${addressId}`}>
@@ -84,28 +93,24 @@ export function useAllocatorsColumns({
           </Link>
         );
       },
-    },
-    {
-      accessorKey: "orgName",
-      header: () => {
+    }),
+    columnHelper.accessor("orgName", {
+      header() {
         return (
           <DataTableSort
             direction={getSortDirectionForProperty(sorting, "orgName")}
             onSort={(direction) => onSort("orgName", direction)}
           >
-            Organization Name
+            Organization
           </DataTableSort>
         );
       },
-      cell: ({ row }) => {
-        const orgName = row.getValue("orgName") as string | undefined;
-
-        return <StringShortener value={orgName ?? ""} maxLength={20} />;
+      cell: ({ getValue }) => {
+        return <StringShortener value={getValue() ?? ""} maxLength={20} />;
       },
-    },
-    {
-      accessorKey: "verifiedClientsCount",
-      header: () => {
+    }),
+    columnHelper.accessor("verifiedClientsCount", {
+      header() {
         return (
           <DataTableSort
             direction={getSortDirectionForProperty(
@@ -118,20 +123,9 @@ export function useAllocatorsColumns({
           </DataTableSort>
         );
       },
-      cell: ({ row }) => {
-        const verifiedClientsCount = row.getValue(
-          "verifiedClientsCount"
-        ) as string;
-        return (
-          <p className="whitespace-nowrap flex gap-1 items-center">
-            {verifiedClientsCount}
-          </p>
-        );
-      },
-    },
-    {
-      accessorKey: "address",
-      header: () => {
+    }),
+    columnHelper.accessor("address", {
+      header() {
         return (
           <DataTableSort
             direction={getSortDirectionForProperty(sorting, "address")}
@@ -141,8 +135,8 @@ export function useAllocatorsColumns({
           </DataTableSort>
         );
       },
-      cell: ({ row }) => {
-        const address = row.getValue("address") as string;
+      cell({ getValue }) {
+        const address = getValue();
         const addressShort = `${address.slice(0, 4)}...${address.slice(-4)}`;
         return (
           <div className="flex gap-2 items-center">
@@ -153,10 +147,9 @@ export function useAllocatorsColumns({
           </div>
         );
       },
-    },
-    {
-      accessorKey: "createdAtHeight",
-      header: () => {
+    }),
+    columnHelper.accessor("createdAtHeight", {
+      header() {
         return (
           <DataTableSort
             direction={getSortDirectionForProperty(sorting, "createdAtHeight")}
@@ -166,11 +159,13 @@ export function useAllocatorsColumns({
           </DataTableSort>
         );
       },
-      cell: ({ row }) => {
-        const createdAtHeight = row.getValue("createdAtHeight") as string;
+      cell({ getValue }) {
+        const height = getValue();
+        const date = new Date(calculateTimestampFromHeight(height) * 1000);
+
         return (
-          <div className="whitespace-nowrap flex gap-1 items-center">
-            {calculateDateFromHeight(+createdAtHeight)}
+          <div className="flex items-center gap-1">
+            {dateFormatter.format(date)}
             <HoverCard openDelay={100} closeDelay={50}>
               <HoverCardTrigger>
                 <InfoIcon
@@ -178,63 +173,57 @@ export function useAllocatorsColumns({
                   className="text-muted-foreground cursor-help"
                 />
               </HoverCardTrigger>
-              <HoverCardContent className="w-32 flex flex-col gap-1 justify-center items-center">
-                <span>Block height</span>
-                <span>{createdAtHeight}</span>
+              <HoverCardContent className="text-left max-w-fit">
+                Block Height <strong>{height}</strong>
               </HoverCardContent>
             </HoverCard>
           </div>
         );
       },
-    },
-    {
-      accessorKey: "allowance",
-      header: () => {
+    }),
+    columnHelper.accessor("allowance", {
+      header() {
         return (
           <DataTableSort
             direction={getSortDirectionForProperty(sorting, "allowance")}
             onSort={(direction) => onSort("allowance", direction)}
           >
-            DataCap Available
+            Available DC
           </DataTableSort>
         );
       },
-      cell: ({ row }) => {
-        const allowance = row.getValue("allowance") as string;
-        return convertBytesToIEC(allowance);
+      cell({ getValue }) {
+        return convertBytesToIEC(getValue());
       },
-    },
-    {
-      accessorKey: "remainingDatacap",
-      header: () => {
+    }),
+    columnHelper.accessor("remainingDatacap", {
+      header() {
         return (
           <DataTableSort
             direction={getSortDirectionForProperty(sorting, "remainingDatacap")}
             onSort={(direction) => onSort("remainingDatacap", direction)}
           >
-            Used DataCap
+            Used DC
           </DataTableSort>
         );
       },
-      cell: ({ row }) => {
-        const remainingDatacap = row.getValue("remainingDatacap") as string;
-        return convertBytesToIEC(remainingDatacap);
+      cell({ getValue }) {
+        return convertBytesToIEC(getValue());
       },
-    },
-    {
-      accessorKey: "initialAllowance",
-      header: () => {
+    }),
+    columnHelper.accessor("initialAllowance", {
+      header() {
         return (
           <DataTableSort
             direction={getSortDirectionForProperty(sorting, "initialAllowance")}
             onSort={(direction) => onSort("initialAllowance", direction)}
           >
-            Total DataCap received
+            Received DC
           </DataTableSort>
         );
       },
-      cell: ({ row }) => {
-        const initialAllowance = row.getValue("initialAllowance") as string;
+      cell({ getValue, row }) {
+        const initialAllowance = getValue();
         const allowanceArray = row.original.allowanceArray;
         return (
           <div className="whitespace-nowrap flex gap-1 items-center">
@@ -267,6 +256,49 @@ export function useAllocatorsColumns({
           </div>
         );
       },
-    },
-  ] as ColumnDef<IAllocator>[];
+    }),
+    columnHelper.accessor("latestClientAllocationHeight", {
+      header() {
+        return (
+          <DataTableSort
+            direction={getSortDirectionForProperty(
+              sorting,
+              "latestClientAllocationHeight"
+            )}
+            onSort={(direction) =>
+              onSort("latestClientAllocationHeight", direction)
+            }
+          >
+            Latest Allocation
+          </DataTableSort>
+        );
+      },
+      cell({ getValue }) {
+        const height = getValue();
+
+        if (height === null) {
+          return "-";
+        }
+
+        const date = new Date(calculateTimestampFromHeight(height) * 1000);
+
+        return (
+          <div className="flex items-center justify-end gap-1">
+            {dateFormatter.format(date)}
+            <HoverCard openDelay={100} closeDelay={50}>
+              <HoverCardTrigger>
+                <InfoIcon
+                  size={15}
+                  className="text-muted-foreground cursor-help"
+                />
+              </HoverCardTrigger>
+              <HoverCardContent align="end" className="text-left max-w-fit">
+                Block Height <strong>{height}</strong>
+              </HoverCardContent>
+            </HoverCard>
+          </div>
+        );
+      },
+    }),
+  ];
 }
