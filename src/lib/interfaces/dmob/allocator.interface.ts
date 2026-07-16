@@ -24,8 +24,8 @@ export interface IAllocator {
   address: string;
   auditTrail: string;
   retries: number;
-  name?: string;
-  orgName?: string;
+  name?: string | null;
+  orgName?: string | null;
   removed: boolean;
   initialAllowance: string;
   allowance: string;
@@ -45,4 +45,5 @@ export interface IAllocator {
   allocatorsUsingMetaallocator: Array<{
     addressId: string;
   }>;
+  latestClientAllocationHeight: number | null;
 }
