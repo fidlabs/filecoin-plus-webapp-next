@@ -15,6 +15,7 @@ import {
   convertBytesToIEC,
 } from "@/lib/utils";
 import { createColumnHelper } from "@tanstack/react-table";
+import { filesize } from "filesize";
 import { CopyIcon, InfoIcon } from "lucide-react";
 import Link from "next/link";
 
@@ -196,19 +197,14 @@ export function useAllocatorsColumns({
         return convertBytesToIEC(getValue());
       },
     }),
-    columnHelper.accessor("remainingDatacap", {
-      header() {
-        return (
-          <DataTableSort
-            direction={getSortDirectionForProperty(sorting, "remainingDatacap")}
-            onSort={(direction) => onSort("remainingDatacap", direction)}
-          >
-            Used DC
-          </DataTableSort>
-        );
-      },
-      cell({ getValue }) {
-        return convertBytesToIEC(getValue());
+    columnHelper.display({
+      id: "used-datacap",
+      header: "Used DC",
+      cell({ row }) {
+        const usedDc =
+          BigInt(row.original.initialAllowance) -
+          BigInt(row.original.remainingDatacap);
+        return filesize(usedDc, { standard: "iec" });
       },
     }),
     columnHelper.accessor("initialAllowance", {

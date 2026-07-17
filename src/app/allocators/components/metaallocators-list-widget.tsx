@@ -169,9 +169,14 @@ const columns: ColumnDef<Allocator>[] = [
     cell: (info) => filesize(info.getValue() as string, { standard: "iec" }),
   },
   {
-    accessorKey: "remainingDatacap",
+    id: "used-dc",
     header: "DC Used",
-    cell: (info) => filesize(info.getValue() as string, { standard: "iec" }),
+    cell({ row }) {
+      const usedDc =
+        BigInt(row.original.initialAllowance) -
+        BigInt(row.original.remainingDatacap);
+      return filesize(usedDc, { standard: "iec" });
+    },
   },
   {
     accessorKey: "initialAllowance",
