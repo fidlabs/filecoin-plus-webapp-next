@@ -1,0 +1,295 @@
+"use client";
+
+import { OverlayLoader } from "@/components/overlay-loader";
+import { Button } from "@/components/ui/button";
+import { Card, CardFooter } from "@/components/ui/card";
+import { Paginator } from "@/components/ui/pagination";
+import { QueryKey } from "@/lib/constants";
+import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
+import { calculateTimestampFromHeight, cn } from "@/lib/utils";
+import Link from "next/link";
+import {
+  parseAsInteger,
+  parseAsString,
+  parseAsStringEnum,
+  useQueryState,
+} from "nuqs";
+import {
+  ChangeEventHandler,
+  useCallback,
+  useMemo,
+  useRef,
+  type ComponentProps,
+} from "react";
+import useSWR from "swr";
+import {
+  fetchPoRepProviders,
+  type FetchPoRepProvidersParameters,
+} from "../po-rep-data";
+import { ProviderSLIsGrid } from "./provider-slis-grid";
+import { ProviderSpaceInfoBar } from "./provider-space-info-bar";
+import { ProviderStatusBadge } from "./provider-status-badge";
+import { Input } from "@/components/ui/input";
+import { isF0IdInput } from "@/lib/f0-id";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+type ActiveStateFilterOption = (typeof activeStateFilterOptions)[number];
+type CardProps = ComponentProps<typeof Card>;
+export type PoRepParticipantsWidgetProps = Omit<CardProps, "children">;
+
+const activeStateFilterOptions = [
+  "all",
+  "active",
+  "inactive",
+] as const satisfies string[];
+
+const pageQueryKey = "pp";
+const pageSizeQueryKey = "pps";
+const filterQueryKey = "pf";
+const activeStateFilterQueryKey = "pasf";
+
+const dateFormatter = new Intl.DateTimeFormat("en-US", {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+});
+
+const activeStateFilterLabelDict: Record<ActiveStateFilterOption, string> = {
+  all: "Show all Providers",
+  active: "Show only active",
+  inactive: "Show only inactive",
+};
+
+export function PoRepParticipantsWidget(props: PoRepParticipantsWidgetProps) {
+  const headerRef = useRef<HTMLElement | null>(null);
+  const [page, setPage] = useQueryState(
+    pageQueryKey,
+    parseAsInteger.withDefault(1)
+  );
+  const [pageSize, setPageSize] = useQueryState(
+    pageSizeQueryKey,
+    parseAsInteger.withDefault(5)
+  );
+  const [filterFieldValue, setFilterFieldValue] = useQueryState(
+    activeStateFilterQueryKey,
+    parseAsString.withDefault("")
+  );
+  const [activeStateFilter, setActiveStateFilter] = useQueryState(
+    filterQueryKey,
+    parseAsStringEnum(activeStateFilterOptions).withDefault(
+      activeStateFilterOptions[0]
+    )
+  );
+
+  const filterParam =
+    filterFieldValue !== "" && isF0IdInput(filterFieldValue)
+      ? filterFieldValue
+      : undefined;
+  const filterValueInvalid =
+    filterFieldValue !== "" && !isF0IdInput(filterFieldValue);
+
+  const parameters = useMemo<FetchPoRepProvidersParameters>(() => {
+    return {
+      filter: filterParam,
+      page,
+      showActive:
+        activeStateFilter === "all"
+          ? undefined
+          : activeStateFilter === "active",
+      limit: pageSize,
+    };
+  }, [activeStateFilter, filterParam, page, pageSize]);
+
+  const { data, error, isLoading } = useSWR(
+    [QueryKey.PO_REP_PROVIDERS, parameters],
+    ([, fetchParameters]) => {
+      return fetchPoRepProviders(fetchParameters);
+    },
+    {
+      keepPreviousData: true,
+    }
+  );
+  const isLongLoading = useDelayedFlag(isLoading, 500);
+  const providers = data?.data ?? [];
+
+  const scrollIntoView = useCallback(() => {
+    if (headerRef.current !== null) {
+      headerRef.current.scrollIntoView();
+    }
+  }, []);
+
+  const handlePageChange = useCallback(
+    (page: number | null) => {
+      setPage(page);
+      scrollIntoView();
+    },
+    [scrollIntoView, setPage]
+  );
+
+  const handlePageSizeChange = useCallback(
+    (pageSize: number | null) => {
+      setPageSize(pageSize);
+      scrollIntoView();
+    },
+    [scrollIntoView, setPageSize]
+  );
+
+  const handleFilterFieldValueChange = useCallback<
+    ChangeEventHandler<HTMLInputElement>
+  >(
+    (event) => {
+      setFilterFieldValue(event.target.value);
+    },
+    [setFilterFieldValue]
+  );
+
+  const handleActiveStateFilterFieldChange = useCallback(
+    (value: string) => {
+      setActiveStateFilter(value as ActiveStateFilterOption);
+    },
+    [setActiveStateFilter]
+  );
+
+  return (
+    <Card {...props}>
+      <header className="px-4 pt-6" ref={headerRef}>
+        <h3 className="text-lg font-medium">Storage Providers</h3>
+        <p className="text-xs text-muted-foreground">
+          List of Storage Providers participating in PoRep Market
+        </p>
+      </header>
+
+      <div className="px-4 flex flex-wrap items-center gap-x-4 gap-y-2 pb-4">
+        <div className={cn("pt-5 pb-5", filterValueInvalid && "pb-0")}>
+          <Input
+            placeholder="Filter by Provider ID..."
+            value={filterFieldValue}
+            aria-invalid={filterValueInvalid}
+            onChange={handleFilterFieldValueChange}
+          />
+          {filterValueInvalid && (
+            <p className="text-xs text-muted-foreground mt-1">
+              Invalid Provider ID
+            </p>
+          )}
+        </div>
+
+        <Select
+          value={activeStateFilter}
+          onValueChange={handleActiveStateFilterFieldChange}
+        >
+          <SelectTrigger className="bg-background">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {activeStateFilterOptions.map((option) => (
+              <SelectItem key={option} value={option}>
+                {activeStateFilterLabelDict[option]}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="relative">
+        {!isLoading && !!error && (
+          <div className="p-4">
+            <p className="text-center text-sm text-muted-foreground">
+              An error occured while loading the data. Please try again later.
+            </p>
+          </div>
+        )}
+
+        {!error && providers.length === 0 && (
+          <p className="text-sm text-muted-foreground text-center px-4 pt-4 pb-8">
+            No providers found matching selected filters.
+          </p>
+        )}
+
+        {!error &&
+          providers.map((provider) => (
+            <div
+              key={provider.providerId}
+              className="p-4 odd:bg-gray-100 border-b first:border-t"
+            >
+              <header className="mb-4">
+                <Button asChild variant="link" className="text-md mb-1">
+                  <Link href={`/po-rep/providers/${provider.providerId}`}>
+                    {provider.providerId}
+                  </Link>
+                </Button>
+                <div className="flex flex-wrap gap-2 items-center">
+                  {!provider.paused && !provider.blocked && (
+                    <ProviderStatusBadge variant="active" />
+                  )}
+                  {provider.paused && <ProviderStatusBadge variant="paused" />}
+                  {provider.blocked && (
+                    <ProviderStatusBadge variant="blocked" />
+                  )}
+                </div>
+              </header>
+
+              <ProviderSLIsGrid
+                className="mb-4"
+                providerId={provider.providerId}
+                slis={provider.slis}
+              />
+
+              <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-4">
+                {[
+                  [
+                    "Active Deals Count",
+                    provider.activeDealsCount +
+                      " deal" +
+                      (provider.activeDealsCount === 1 ? "" : "s"),
+                  ],
+                  [
+                    "Deal Duration",
+                    `${provider.minDealDurationDays}-${provider.maxDealDurationDays} days`,
+                  ],
+                  [
+                    "Registration Date",
+                    dateFormatter.format(
+                      calculateTimestampFromHeight(
+                        parseInt(provider.registeredAtBlock)
+                      ) * 1000
+                    ),
+                  ],
+                ].map(([label, value], index) => (
+                  <div key={index}>
+                    <p className="text-sm font-semibold mb-1">{label}</p>
+                    <p>{value}</p>
+                  </div>
+                ))}
+              </div>
+
+              <ProviderSpaceInfoBar
+                availableBytes={provider.availableBytes}
+                committedBytes={provider.committedBytes}
+                pendingBytes={provider.pendingBytes}
+              />
+            </div>
+          ))}
+
+        <OverlayLoader show={isLongLoading} />
+      </div>
+
+      <CardFooter className="border-t w-full p-3">
+        <Paginator
+          page={page}
+          pageSize={pageSize}
+          pageSizeOptions={[5, 10, 20]}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+          total={data?.pagination.total ?? 0}
+        />
+      </CardFooter>
+    </Card>
+  );
+}

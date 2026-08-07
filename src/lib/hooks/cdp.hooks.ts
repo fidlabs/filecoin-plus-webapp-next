@@ -653,7 +653,7 @@ function bigintToPercentage(
 }
 
 const allocatorsDCFlowSchema = z.object({
-  cutoffDate: z.string().datetime(),
+  cutoffDate: z.iso.datetime(),
   filPlusEditionId: z.number(),
   data: z.array(
     z.object({

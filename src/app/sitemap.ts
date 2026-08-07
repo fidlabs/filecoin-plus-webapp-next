@@ -18,6 +18,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/allocators/datacap-flow",
     "/clients",
     "/storage-providers",
+    "/po_rep",
   ];
 
   const staticSitemapEntries = staticRoutes.map((route) => ({

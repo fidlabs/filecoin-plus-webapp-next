@@ -2,17 +2,20 @@ import {
   AllocatorsPageSectionId,
   ClientsPageSectionId,
   DashboardPageSectionId,
+  PoRepPageSectionId,
   StorageProvidersPageSectionId,
 } from "@/lib/constants";
 import { useSingleClickHandler } from "@/lib/hooks/use-single-click-handler";
 import {
   AllocatorsDashboardStatisticType,
   ClientsDashboardStatisticType,
+  PoRepDashboardStatisticType,
   StorageProvidersDashboardStatisticType,
   type AllocatorsDashboardStatistic,
   type ClientsDashboardStatistic,
   type DashboardStatistic,
   type DashboardStatisticDurationValue,
+  type PoRepDashboardStatistic,
   type StorageProvidersDashboardStatistic,
 } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
@@ -30,7 +33,8 @@ import { Skeleton } from "./ui/skeleton";
 type AnyDashboardStatistic =
   | AllocatorsDashboardStatistic
   | ClientsDashboardStatistic
-  | StorageProvidersDashboardStatistic;
+  | StorageProvidersDashboardStatistic
+  | PoRepDashboardStatistic;
 
 interface Link {
   label: ReactNode;
@@ -45,6 +49,11 @@ export interface DashboardStatisticDisplayProps {
 const bytesStatisticTypes: string[] = [
   ClientsDashboardStatisticType.DATACAP_SPENT_BY_CLIENTS,
   ClientsDashboardStatisticType.TOTAL_REMAINING_CLIENTS_DATACAP,
+  PoRepDashboardStatisticType.TOTAL_DATA_OBOARDED,
+];
+const usdStatisticTypes: string[] = [
+  PoRepDashboardStatisticType.TOTAL_DEALS_VALUE,
+  PoRepDashboardStatisticType.TOTAL_USD_PAID,
 ];
 const numericFormatter = new Intl.NumberFormat("en-US", {
   maximumFractionDigits: 2,
@@ -116,7 +125,15 @@ function formatDashboardStatisticValue(
   }
 
   if (dashboardStatistic.value.type === "numeric") {
-    return numericFormatter.format(dashboardStatistic.value.value);
+    const numericString = numericFormatter.format(
+      dashboardStatistic.value.value
+    );
+
+    if (usdStatisticTypes.includes(dashboardStatistic.type)) {
+      return `${numericString} USD`;
+    }
+
+    return numericString;
   }
 
   return String(dashboardStatistic.value.value);
@@ -166,6 +183,23 @@ function getStatisticLinkTuple(
       return [
         "IPNI Breakdown",
         `/storage-providers#${StorageProvidersPageSectionId.IPNI_MISREPORTING}`,
+      ];
+    case PoRepDashboardStatisticType.TOTAL_DATA_OBOARDED:
+      return [
+        "Onboarded Data History",
+        `/po-rep#${PoRepPageSectionId.ONBOARDED_DATA}`,
+      ];
+    case PoRepDashboardStatisticType.TOTAL_DEALS_VALUE:
+      return [
+        "Predicted Revenue History",
+        `/po-rep#${PoRepPageSectionId.DEALS_VALUE}`,
+      ];
+    case PoRepDashboardStatisticType.TOTAL_USD_PAID:
+      return ["Money Flow", `/po-rep#${PoRepPageSectionId.MONEY_FLOW}`];
+    case PoRepDashboardStatisticType.ACTIVE_CLIENTS_COUNT:
+      return [
+        "Active Clients History",
+        `/po-rep#${PoRepPageSectionId.ACTIVE_CLIENTS_HISTORY}`,
       ];
     default:
       return null;

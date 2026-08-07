@@ -1,14 +1,14 @@
 import { CDP_API_URL } from "@/lib/constants";
 import { throwHTTPErrorOrSkip } from "@/lib/http-errors";
 import {
-  AllocatorsDashboardStatistic,
+  type AllocatorsDashboardStatistic,
   AllocatorsDashboardStatisticType,
   cdpAllocatorsStatisticsResponseSchema,
   cdpClientsStatisticsResponseSchema,
   cdpStorageProvidersStatisticsResponseSchema,
-  ClientsDashboardStatistic,
+  type ClientsDashboardStatistic,
   ClientsDashboardStatisticType,
-  StorageProvidersDashboardStatistic,
+  type StorageProvidersDashboardStatistic,
   StorageProvidersDashboardStatisticType,
 } from "@/lib/schemas";
 import { assertSchema, objectToURLSearchParams } from "@/lib/utils";
@@ -46,7 +46,7 @@ const shownStatisticsTypes: string[] = [
   StorageProvidersDashboardStatisticType.TOTAL_STORAGE_PROVIDERS,
 ];
 
-function resolveResponse<T>(schema: ZodType<T>) {
+function resolveResponse<T>(schema: ZodType<T, T>) {
   return async function resolveResponseInner(response: Response): Promise<T> {
     throwHTTPErrorOrSkip(response);
     const json = await response.json();

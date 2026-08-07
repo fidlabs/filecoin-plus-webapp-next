@@ -48,6 +48,18 @@ export enum QueryKey {
   STORAGE_PROVIDER_CLIENTS_LIST = "storage_provider_clients_list",
   RPA_RESULT_CODES_HISTOGRAM = "rpa_result_codes_histogram",
   RPA_METRIC_HISTOGRAM = "rpa_metric_histogram",
+  PO_REP_STATISTICS = "po_rep_statistics",
+  PO_REP_PROVIDERS = "po_rep_providers",
+  PO_REP_ONBOARDED_DATA_HISTORY = "po_rep_onboarded_data_history",
+  PO_REP_DEALS_VALUE_HISTORY = "po_rep_deals_value_history",
+  PO_REP_SETTLEMENTS_HISTORY = "po_rep_settlements_history",
+  PO_REP_SLI_COMPLIANCE_HISTORY = "po_rep_sli_compliance_history",
+  PO_REP_ACTIVE_CLIENTS_HISTORY = "po_rep_active_clients_history",
+  PO_REP_DEALS_LIST = "po_rep_deals_list",
+  PO_REP_PROVIDER_SLI_COMPLIANCE_STATISTICS = "po_rep_provider_sli_compliance_statistics",
+  PO_REP_PROVIDER_STORAGE_STATISTICS = "po_rep_provider_storage_statistics",
+  PO_REP_PROVIDER_ECONOMICS_STATISTICS = "po_rep_provider_economics_statistics",
+  PO_REP_GAS_USAGE = "po_rep_gas_usage",
 }
 
 export enum DashboardPageSectionId {
@@ -112,6 +124,29 @@ export enum StorageProviderDetailsPageSectionId {
   RETRIEVABILITY = "retrievability",
   TTFB = "ttfb",
   BANDWIDTH = "bandwidth",
+}
+
+export enum PoRepPageSectionId {
+  STATS = "stats",
+  PARTICIPATING_STORAGE_PROVIDERS = "participating-sps",
+  SLI_PERFORMANCE = "sli-performance",
+  SLA_RANKING = "sla-ranking",
+  RPA = "rpa",
+  BANDWIDTH = "bandwidth",
+  TTFB = "ttfb",
+  AVERAGE_PRICE = "average-price",
+  DC_ALLOCATED = "dc-allocated",
+  ONBOARDED_DATA = "onboarded-data",
+  DEALS_VALUE = "deals-value",
+  MONEY_FLOW = "money-flow",
+  ACTIVE_CLIENTS_HISTORY = "active-clients",
+  GAS_USAGE = "gas",
+}
+
+export enum PoRepProviderPageSectionId {
+  STORAGE = "storage",
+  SLI_PERFORMANCE = "sli",
+  ECONOMICS = "economics",
 }
 
 export const CHECKS_BREAKDOWN_INTERVAL_PARAM_KEY = "interval";

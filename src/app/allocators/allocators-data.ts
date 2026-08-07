@@ -25,7 +25,7 @@ export interface FetchAllocatorsDashboardStatisticsParameters {
 
 export type FetchAllocatorsDashboardStatisticsReturnType = DashboardStatistic[];
 
-function resolveResponse<T>(schema: ZodType<T>) {
+function resolveResponse<T>(schema: ZodType<T, T>) {
   return async function resolveResponseInner(response: Response): Promise<T> {
     throwHTTPErrorOrSkip(response);
     const json = await response.json();
@@ -372,11 +372,9 @@ const allocatorsAuditStatesResponseSchema = z.array(
     allocatorName: z.string().nullable(),
     audits: z.array(
       z.object({
-        started: z.string().datetime().nullable(),
-        ended: z.string().datetime().nullable(),
-        dc_allocated: z
-          .union([z.literal(""), z.string().datetime()])
-          .nullable(),
+        started: z.iso.datetime().nullable(),
+        ended: z.iso.datetime().nullable(),
+        dc_allocated: z.union([z.literal(""), z.iso.datetime()]).nullable(),
         outcome: z.enum([
           "invalid",
           "unknown",
@@ -557,7 +555,7 @@ export async function fetchAllocatorsAuditTimes(
 const allocatorsOldDatacapResponseSchema = z.object({
   results: z.array(
     z.object({
-      week: z.string().datetime(),
+      week: z.iso.datetime(),
       allocators: z.number(),
       oldDatacap: numericalStringSchema,
       allocations: numericalStringSchema,
@@ -661,7 +659,7 @@ export type FetchAllocatorsScoringBreakdownReturnType = z.infer<
 const scoringBreakdownAllocatorSchema = z.object({
   dataType: z.enum(["enterprise", "openData"]),
   reportId: z.string(),
-  createDate: z.string().datetime(),
+  createDate: z.iso.datetime(),
   totalScore: z.number(),
   allocatorId: z.string(),
   totalDatacap: z.string(),
@@ -677,7 +675,7 @@ const scoringBreakdownSchema = z.array(
     metricUnit: z.string().nullable(),
     data: z.array(
       z.object({
-        date: z.string().datetime(),
+        date: z.iso.datetime(),
         scoreLowAllocators: z.array(scoringBreakdownAllocatorSchema).nullable(),
         scoreMediumAllocators: z
           .array(scoringBreakdownAllocatorSchema)
@@ -790,7 +788,7 @@ const allocatorReportsResponseSchema = z.array(
   z.object({
     id: z.string(),
     allocator: z.string(),
-    create_date: z.string().datetime(),
+    create_date: z.iso.datetime(),
     // more fields are present but we care only about those for listing
   })
 );
@@ -831,7 +829,7 @@ export type FetchAllocatorAllocationsReturnType = z.infer<
 
 const allocatorAllocationsResponseSchema = z.array(
   z.object({
-    date: z.string().datetime(),
+    date: z.iso.datetime(),
     totalAllocationsToDate: numericalStringSchema,
     clientsToDate: z.array(
       z.object({

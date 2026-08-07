@@ -4,7 +4,7 @@ import isFinite from "lodash/isFinite";
 import { filesize } from "filesize";
 import { type Metadata } from "next";
 import { getWeek, getWeekYear } from "date-fns";
-import { type ZodType } from "zod";
+import { prettifyError, type ZodType } from "zod";
 import { NumericalString } from "./zod-extensions";
 
 export type KeysMatchingType<T, V> = {
@@ -16,6 +16,8 @@ export type OnlyPropsMatchingType<T, V> = {
 };
 
 export type ArrayElement<T> = T extends readonly unknown[] ? T[number] : never;
+
+type DateLike = Date | string | number;
 
 const filExponent = 10n ** 18n; // 10 to power of 18 decimal places
 const filBalanceNumberFormatter = new Intl.NumberFormat("en-US", {
@@ -374,12 +376,16 @@ export function bigintToPercentage(
 
 export function assertSchema<T>(
   input: unknown,
-  schema: ZodType<T>,
+  schema: ZodType<T, T>,
   message = "Input does not match schema"
 ): asserts input is T {
   const result = schema.safeParse(input);
 
   if (result.error) {
+    if (process.env.NODE_ENV === "development") {
+      console.warn(prettifyError(result.error));
+    }
+
     throw new TypeError(message);
   }
 }
@@ -394,4 +400,40 @@ export function formatFilBalance(balance: number): string {
 
 export function isValidDate(input: unknown): input is Date {
   return input instanceof Date && !isNaN(Number(input));
+}
+
+export function isSameMonth(a: DateLike, b: DateLike): boolean {
+  const dateA = new Date(a);
+  const dateB = new Date(b);
+
+  return (
+    isValidDate(dateA) &&
+    isValidDate(dateB) &&
+    dateA.getMonth() === dateB.getMonth() &&
+    dateA.getFullYear() === dateB.getFullYear()
+  );
+}
+
+export function formatFIL(value: NumericalString | bigint | number): string {
+  const bigIntValue = BigInt(value);
+
+  const [divider, unit] = (() => {
+    if (bigIntValue < 1_000_000n) {
+      return [1n, "attoFIL"];
+    }
+
+    if (bigIntValue < 1_000_000_000_000n) {
+      return [10n ** 9n, "nanoFIL"];
+    }
+
+    return [10n ** 18n, "FIL"];
+  })();
+
+  const filValue = divideBigint(bigIntValue, divider, 18);
+
+  const formatter = new Intl.NumberFormat("en-US", {
+    useGrouping: true,
+  });
+
+  return formatter.format(filValue) + " " + unit;
 }
