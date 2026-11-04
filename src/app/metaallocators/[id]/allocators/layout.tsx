@@ -7,7 +7,7 @@ import { type PropsWithChildren } from "react";
 export const revalidate = 3600;
 
 type Props = PropsWithChildren<{
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }>;
 
 async function getMetaallocatorName(metaallocatorId: string): Promise<string> {
@@ -24,10 +24,11 @@ async function getMetaallocatorName(metaallocatorId: string): Promise<string> {
     : metaallocatorId;
 }
 
-export default async function MetaallocatorAllocatorsListLayout({
-  children,
-  params,
-}: Props) {
+export default async function MetaallocatorAllocatorsListLayout(props: Props) {
+  const params = await props.params;
+
+  const { children } = props;
+
   const metaallocatorName = await getMetaallocatorName(params.id);
 
   return (

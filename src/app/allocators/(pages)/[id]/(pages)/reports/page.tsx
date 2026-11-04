@@ -2,11 +2,11 @@ import { permanentRedirect } from "next/navigation";
 import { AllocatorDetailsPageSectionId } from "@/lib/constants";
 
 interface PageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
-export default function AllocatorReportsPage(props: PageProps) {
+export default async function AllocatorReportsPage(props: PageProps) {
   return permanentRedirect(
-    `/allocators/${props.params.id}#${AllocatorDetailsPageSectionId.REPORTS}`
+    `/allocators/${(await props.params).id}#${AllocatorDetailsPageSectionId.REPORTS}`
   );
 }

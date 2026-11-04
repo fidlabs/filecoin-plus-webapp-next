@@ -18,13 +18,12 @@ import { AllocatorsByComplianceWidget } from "./components/allocators-by-complia
 export const revalidate = 300;
 
 interface PageProps {
-  params: { week: string };
-  searchParams: Record<string, string | undefined>;
+  params: Promise<{ week: string }>;
+  searchParams: Promise<Record<string, string | undefined>>;
 }
 
-export async function generateMetadata({
-  params,
-}: PageProps): Promise<Metadata> {
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
+  const params = await props.params;
   return generatePageMetadata({
     title: `Fil+ DataCap Stats | Allocators by SPs Compliance ${params.week}`,
     description:
@@ -34,7 +33,7 @@ export async function generateMetadata({
 }
 
 function searchParamsToFetchParams(
-  searchParams: PageProps["searchParams"]
+  searchParams: Awaited<PageProps["searchParams"]>
 ): FetchAllocatorsByComplianceParameters {
   return {
     page: safeStringToInt(searchParams.page, 1),
@@ -56,10 +55,9 @@ function searchParamsToFetchParams(
   };
 }
 
-export default async function CompliantAllocatorsPage({
-  params,
-  searchParams,
-}: PageProps) {
+export default async function CompliantAllocatorsPage(props: PageProps) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const complianceData = await fetchAllocatorsSPsComplianceData();
   const weeks = complianceData.results.map((result) =>
     weekFromDate(result.week)

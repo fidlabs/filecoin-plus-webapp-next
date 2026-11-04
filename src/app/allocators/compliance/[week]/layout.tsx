@@ -4,7 +4,7 @@ import { PageHeader, PageSubtitle, PageTitle } from "@/components/page-header";
 import { type PropsWithChildren } from "react";
 
 type LayoutProps = PropsWithChildren<{
-  params: { week: string };
+  params: Promise<{ week: string }>;
 }>;
 
 export default function CompliantAllocatorsLayout({ children }: LayoutProps) {

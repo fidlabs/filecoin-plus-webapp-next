@@ -16,7 +16,6 @@ import { QueryKey } from "@/lib/constants";
 import { useDelayedFlag } from "@/lib/hooks/use-delayed-flag";
 import { createColumnHelper, RowSelectionState } from "@tanstack/react-table";
 import { LoaderCircleIcon } from "lucide-react";
-import { revalidatePath } from "next/cache";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { parseAsInteger, useQueryState } from "nuqs";
@@ -153,14 +152,14 @@ export function AllocatorReportsWidget({
       setIsGenerating(true);
       await generateAllocatorReport(allocatorId);
       setStaleReportId(data?.[0].id);
-      revalidatePath(`/allocators/${allocatorId}`);
+      void mutate();
       toast.success("Report scheduled for generation");
     } catch (error) {
       toast.error("Could not generate a new report");
     } finally {
       setIsGenerating(false);
     }
-  }, [allocatorId, data]);
+  }, [allocatorId, data, mutate]);
 
   useEffect(() => {
     if (!data && !error && !isLoading) {
