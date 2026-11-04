@@ -21,7 +21,7 @@ import { WeeklyChecksChart } from "./components/weekly-checks-chart";
 export const revalidate = 300;
 
 interface PageProps {
-  searchParams: Record<string, string | void>;
+  searchParams: Promise<Record<string, string | void>>;
 }
 
 type ChartDataItem = ChecksChartProps["data"][number];
@@ -81,7 +81,7 @@ async function loadChartData(
 }
 
 async function loadPageData(
-  searchParams: PageProps["searchParams"]
+  searchParams: Awaited<PageProps["searchParams"]>
 ): Promise<PageData> {
   const maybeWeek = safeWeekFromString(searchParams.week);
   const maybeDay = safeDayFromString(searchParams.date);
@@ -96,7 +96,8 @@ async function loadPageData(
   };
 }
 
-export default async function AlertsPage({ searchParams }: PageProps) {
+export default async function AlertsPage(props: PageProps) {
+  const searchParams = await props.searchParams;
   const { alertsData, chartData } = await loadPageData(searchParams);
   const maybeSelectedWeek = safeWeekFromString(searchParams.week);
 

@@ -16,7 +16,7 @@ import { AllocatorVerifiedClientsWidget } from "./components/allocator-verified-
 export const revalidate = 300;
 
 interface PageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 function unwrapResult<T>(result: PromiseSettledResult<T>): T | undefined {
@@ -24,7 +24,7 @@ function unwrapResult<T>(result: PromiseSettledResult<T>): T | undefined {
 }
 
 export default async function AllocatorDetailsPage(pageParams: PageProps) {
-  const allocatorId = pageParams.params.id;
+  const allocatorId = (await pageParams.params).id;
 
   const verifiedClientsParameters: FetchAllocatorVerifiedClientsParameters = {
     allocatorId,

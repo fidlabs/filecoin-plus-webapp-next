@@ -15,7 +15,7 @@ import { StorageProviderRPAMetricWidget } from "./components/storage-provider-rp
 export const revalidate = 1800;
 
 interface PageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 const clientsListDefaultParams: Omit<
@@ -27,9 +27,8 @@ function unwrapResult<T>(result: PromiseSettledResult<T>): T | undefined {
   return result.status === "fulfilled" ? result.value : undefined;
 }
 
-export default async function StorageProviderDetailsPage({
-  params,
-}: PageProps) {
+export default async function StorageProviderDetailsPage(props: PageProps) {
+  const params = await props.params;
   const storageProviderId = params.id;
 
   const rpaParams: FetchStorageProviderRpaMetricHistogramParameters = {

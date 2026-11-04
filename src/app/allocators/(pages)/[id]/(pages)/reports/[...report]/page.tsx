@@ -11,8 +11,8 @@ import { ReportsLayout } from "./components/reports-layout";
 export const revalidate = 3600;
 
 interface PageProps {
-  params: { report: string[]; id: string };
-  searchParams?: Record<string, string | undefined>;
+  params: Promise<{ report: string[]; id: string }>;
+  searchParams?: Promise<Record<string, string | undefined>>;
 }
 
 const reportDefaultParameters: Omit<
@@ -25,7 +25,8 @@ const reportDefaultParameters: Omit<
   providerPaginationLimit: 10,
 };
 
-export default async function AllocatorReportDetailPage({ params }: PageProps) {
+export default async function AllocatorReportDetailPage(props: PageProps) {
+  const params = await props.params;
   try {
     const reports = await Promise.all(
       params.report.map((report) =>

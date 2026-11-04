@@ -2,10 +2,11 @@ import { ClientDetailsPageSectionId } from "@/lib/constants";
 import { permanentRedirect } from "next/navigation";
 
 interface PageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
-export default function ClientReportsPage({ params }: PageProps) {
+export default async function ClientReportsPage(props: PageProps) {
+  const params = await props.params;
   permanentRedirect(
     `/clients/${params.id}#${ClientDetailsPageSectionId.REPORTS}`
   );

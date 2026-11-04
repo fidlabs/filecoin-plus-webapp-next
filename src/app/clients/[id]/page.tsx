@@ -40,7 +40,7 @@ interface ClientData {
 }
 
 interface PageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export const revalidate = 300;
@@ -69,9 +69,8 @@ async function fetchClientData(clientId: string): Promise<ClientData | null> {
   };
 }
 
-export async function generateMetadata({
-  params,
-}: PageProps): Promise<Metadata> {
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
+  const params = await props.params;
   const { id } = params;
 
   const [clientResult] = await Promise.allSettled([fetchClientData(id)]);
@@ -93,7 +92,7 @@ export async function generateMetadata({
 }
 
 export default async function ClientDetailsPage(pageParams: PageProps) {
-  const clientId = pageParams.params.id;
+  const clientId = (await pageParams.params).id;
 
   const latestClaimsDefaultParameters: FetchClientLatestClaimsParameters = {
     clientId,

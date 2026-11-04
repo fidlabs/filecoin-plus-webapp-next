@@ -2,11 +2,11 @@ import { AllocatorDetailsPageSectionId } from "@/lib/constants";
 import { permanentRedirect } from "next/navigation";
 
 interface PageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
-export default function AllocatorOverTimeDetailsPage(props: PageProps) {
+export default async function AllocatorOverTimeDetailsPage(props: PageProps) {
   return permanentRedirect(
-    `/allocators/${props.params.id}#${AllocatorDetailsPageSectionId.ALLOCATIONS}`
+    `/allocators/${(await props.params).id}#${AllocatorDetailsPageSectionId.ALLOCATIONS}`
   );
 }

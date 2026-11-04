@@ -4,8 +4,8 @@ import { MetaallocatorAllocatorsList } from "./components/metaallocator-allocato
 export const revalidate = 300;
 
 interface Props {
-  params: { id: string };
-  searchParams: Record<string, string | undefined>;
+  params: Promise<{ id: string }>;
+  searchParams: Promise<Record<string, string | undefined>>;
 }
 
 const defaultParams: Record<string, string> = {
@@ -14,10 +14,9 @@ const defaultParams: Record<string, string> = {
   showInactive: "false",
 };
 
-export default async function MetaallocatorAllocatorsPage({
-  params,
-  searchParams,
-}: Props) {
+export default async function MetaallocatorAllocatorsPage(props: Props) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const allocatorsResponse = await getAllocators({
     ...defaultParams,
     ...searchParams,

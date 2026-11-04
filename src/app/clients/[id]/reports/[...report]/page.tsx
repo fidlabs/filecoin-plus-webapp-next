@@ -9,10 +9,11 @@ import { ReportsLayout } from "./components/reports-layout";
 export const revalidate = 3600;
 
 interface PageProps {
-  params: { report: string[]; id: string };
+  params: Promise<{ report: string[]; id: string }>;
 }
 
-export default async function ClientReportDetailPage({ params }: PageProps) {
+export default async function ClientReportDetailPage(props: PageProps) {
+  const params = await props.params;
   try {
     const reports = await Promise.all(
       params.report.map(async (report) =>

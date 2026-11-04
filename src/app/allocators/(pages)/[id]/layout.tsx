@@ -17,7 +17,7 @@ import { cache, type PropsWithChildren, Suspense } from "react";
 import { type Person, type WithContext } from "schema-dts";
 
 interface IPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 const sectionTabs = {
@@ -41,9 +41,8 @@ const fetchData = cache(async (id: string) => {
   });
 });
 
-export async function generateMetadata({
-  params,
-}: IPageProps): Promise<Metadata> {
+export async function generateMetadata(props: IPageProps): Promise<Metadata> {
+  const params = await props.params;
   const { id } = params;
 
   const allocatorsResponse = await fetchData(id);
@@ -62,10 +61,11 @@ export async function generateMetadata({
   });
 }
 
-const AllocatorDetailsLayout = async ({
-  children,
-  params,
-}: PropsWithChildren<IPageProps>) => {
+const AllocatorDetailsLayout = async (props: PropsWithChildren<IPageProps>) => {
+  const params = await props.params;
+
+  const { children } = props;
+
   const [allocatorsResponse, jsonUrl] = await Promise.all([
     fetchData(params.id),
     fetchJsonUrl(params.id),

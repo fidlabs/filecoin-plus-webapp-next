@@ -17,13 +17,12 @@ import { StorageProvidersComplianceListWidget } from "./components/storage-provi
 export const revalidate = 300;
 
 interface PageProps {
-  params: { week: string };
-  searchParams: Record<string, string>;
+  params: Promise<{ week: string }>;
+  searchParams: Promise<Record<string, string>>;
 }
 
-export async function generateMetadata({
-  params,
-}: PageProps): Promise<Metadata> {
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
+  const params = await props.params;
   return generatePageMetadata({
     title: `Fil+ DataCap Stats | Storage Providers by Compliance ${params.week}`,
     description:
@@ -51,10 +50,9 @@ function fetchData(week: string, searchParams: Record<string, string>) {
   return getStorageProvidersByCompliance(filters);
 }
 
-export default async function CompliantStorageProvidersPage({
-  params,
-  searchParams,
-}: PageProps) {
+export default async function CompliantStorageProvidersPage(props: PageProps) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const [weeks, storageProvidersResponse] = await Promise.all([
     fetchStorageProvidersComplianceDataWeeks(),
     fetchData(params.week, searchParams),

@@ -11,12 +11,11 @@ import { type Metadata } from "next";
 import { type PropsWithChildren, Suspense } from "react";
 
 interface IPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
-export async function generateMetadata({
-  params,
-}: IPageProps): Promise<Metadata> {
+export async function generateMetadata(props: IPageProps): Promise<Metadata> {
+  const params = await props.params;
   const { id } = params;
 
   return generatePageMetadata({
@@ -34,10 +33,13 @@ const sectionTabs = {
   [StorageProviderDetailsPageSectionId.BANDWIDTH]: "Bandwidth",
 } as const satisfies IdBasedStickyTabNaviationProps["tabs"];
 
-export default async function StorageProviderDetailsLayout({
-  children,
-  params,
-}: PropsWithChildren<IPageProps>) {
+export default async function StorageProviderDetailsLayout(
+  props: PropsWithChildren<IPageProps>
+) {
+  const params = await props.params;
+
+  const { children } = props;
+
   return (
     <>
       <PageHeader>
